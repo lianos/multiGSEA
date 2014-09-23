@@ -1,0 +1,23 @@
+Package: multiGSEA
+Type: Package
+Title: Unified wrappers to multipe GSEA methods available in Bioconductor.
+Version: 0.1
+Date: 2014-09-18
+Author: Steve Lianoglou <lianoglou.steve@gene.com>
+Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
+Description: This package functions as a convenience wrapper to several GSEA
+  methods. Its goal is to enable simpler runs of multiple GSEA methods in order
+  to enable comparison between results, as well as provide some utility
+  functions and plots that are likely benefecial to most GSEA analyses you might
+  want to run.
+License: MIT
+Depends:
+  methods,
+  data.table
+Imports:
+  data.table
+Suggests:
+  testthat,
+  knitr,
+  rmarkdown
+VignetteBuilder: knitr
