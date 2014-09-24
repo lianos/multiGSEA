@@ -14,71 +14,6 @@ setClass("GeneSetTable",
              x.index=integer()),
            species=character()))
 
-setMethod('show', 'GeneSetTable', function(object) {
-  cat("GeneSetTable with XX genesets across YY groups\n")
-  cat("----------------------------------------------\n")
-  data.table:::print.data.table(object@table)
-})
-
-.check.dt.columns <- function(x, prototype) {
-  if (!is.data.table(x)) {
-    return('Object is not a data.table')
-  }
-  if (!setequal(names(x), names(prototype))) {
-    bad.cols <- setdiff(names(x), names(prototype))
-    msg <- sprintf("Illegal columns in x: ", paste(bad.cols, collapse=','))
-    return(msg)
-  }
-
-  invalid.cols <- sapply(names(prototype), function(col) {
-    proto.class <- class(prototype[[col]])[1L]
-    dat <- x[[col]]
-    is.null(dat) || !is(dat, proto.class)
-  })
-
-  if (any(invalid.cols)) {
-    bad.cols <- names(prototype)[invalid.cols]
-    msg <- "Invalid columns in data.table:\n    %s"
-    sprintf(msg, paste(bad.cols, collapse="\n    - "))
-  } else {
-    TRUE
-  }
-}
-
-setValidity("GeneSetTable", function(object) {
-  proto <- new('GeneSetTable')
-
-  ## Check lookup table
-  kosher.lookup <- .check.dt.columns(object@feature.lookup, proto@feature.lookup)
-  if (!isTRUE(kosher.lookup)) {
-    return(kosher.lookup)
-  }
-  na.xrows <- is.na(object@feature.lookup$x.index)
-  if (any(na.xrows)) {
-    return("There are NA row indices into the eXpression object")
-  }
-
-  kosher.data <- .check.dt.columns(object@table, proto@table)
-  if (!isTRUE(kosher.data)) {
-    return(kosher.data)
-  }
-  not.logical.idx <- !sapply(object@table$membership, is, 'logical')
-  if (n.bad <- sum(not.logical.idx)) {
-    msg <- "%d%s list elements are not logical"
-    some.bad <- head(which(not.logical.idx, 5))
-    msg <- sprintf(msg, some.bad, if (n.bad > 5) '...' else '')
-    return(msg)
-  }
-
-  lens <- sapply(object@table$membership, length)
-  ulens <- unique(lens)
-  if (length(ulens) != 1) {
-    return("Not all membership index vectors are the same length")
-  }
-
-  TRUE
-})
-
 ##' Create a GeneSetTable to match an input expression object.
 ##'
 ##' @importFrom matrixStats rowVars
@@ -96,6 +31,7 @@ setValidity("GeneSetTable", function(object) {
 ##' the IDs used in \code{gene.sets} (typically entrez.id) and the \code{names}
 ##' are the \code{rownames} of \code{x} (the features in x)
 GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
+                         stop.on.duplicate.x.xref=TRUE,
                          unique.by=c('mean', 'var'),
                          species=.wehi.msigdb.species,
                          version=.wehi.msigdb.current) {
@@ -117,6 +53,23 @@ GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
   }
 
   if (is.character(xref)) {
+    if (any(duplicated(names(xref)))) {
+      stop("Duplicated names in `xref`: this is a no go!")
+    }
+    if (any(duplicated(xref))) {
+      if (stop.on.duplicate.x.xref) {
+        stop("Duplicate geneset ID matches to rows in x")
+      }
+      ## TODO: Need to take multiple/duplicated ids in \code{x} into account,
+      ##       for instance when `x` are rows from a microarray experiment, and
+      ##       each row is a separate probeset -- many rows will be measuring
+      ##       the same gene. In this case you probably want to keep the row
+      ##       that is unique in some way, ie: highest average expression or
+      ##       variability.
+      warning("Duplicate matches from geneset IDs to rownames(x) not fully ",
+              "implemented yet",
+              immediate.=TRUE)
+    }
     lookup <- data.table(gset.id=xref,
                          x.id=names(x.id),
                          x.index=match(names(x.id), rownames(x)),
@@ -159,6 +112,60 @@ GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
   out
 }
 
+##' Conforms x to y.
+setGeneric("conform", function(x, y, ...), standardGeneric("conform"))
+
+setMethod("conform", c(x='GeneSetTable', y='ANY'),
+function(x, y, x.id.fn=rownames, lookup=x@feature.lookup, ...) {
+  ## Will update x@feature.lookup to match to the rows in x and return a
+  ## GeneSetTable that's ready to be analyzed against `data`
+  x.id <- x.id.fn(x)
+  ## TODO: Finish up `conform,(GeneSetTable,ANY)`
+})
+
+setMethod('show', 'GeneSetTable', function(object) {
+  cat("GeneSetTable with XX genesets across YY groups\n")
+  cat("----------------------------------------------\n")
+  data.table:::print.data.table(object@table)
+})
+
+setValidity("GeneSetTable", function(object) {
+  proto <- new('GeneSetTable')
+
+  ## Check lookup table
+  kosher.lookup <- .check.dt.columns(object@feature.lookup,
+                                     proto@feature.lookup)
+  if (!isTRUE(kosher.lookup)) {
+    return(kosher.lookup)
+  }
+  na.xrows <- is.na(object@feature.lookup$x.index)
+  if (any(na.xrows)) {
+    return("There are NA row indices into the eXpression object")
+  }
+
+  kosher.data <- .check.dt.columns(object@table, proto@table)
+  if (!isTRUE(kosher.data)) {
+    return(kosher.data)
+  }
+  not.logical.idx <- !sapply(object@table$membership, is, 'logical')
+  if (n.bad <- sum(not.logical.idx)) {
+    msg <- "%d%s list elements are not logical"
+    some.bad <- head(which(not.logical.idx, 5))
+    msg <- sprintf(msg, some.bad, if (n.bad > 5) '...' else '')
+    return(msg)
+  }
+
+  lens <- sapply(object@table$membership, length)
+  ulens <- unique(lens)
+  if (length(ulens) != 1) {
+    return("Not all membership index vectors are the same length")
+  }
+
+  TRUE
+})
+
+## -----------------------------------------------------------------------------
+## Non exported utility functions for GeneSetTable stuff.
 is.list.of.index.vectors <- function(x) {
   if (!is(x, 'list')) {
     return(FALSE)
@@ -228,3 +235,30 @@ index.vector.to.xrow <- function(x, index, lookup) {
 
   list(N=N, n=sum(bool), membership=bool)
 }
+
+
+.check.dt.columns <- function(x, prototype) {
+  if (!is.data.table(x)) {
+    return('Object is not a data.table')
+  }
+  if (!setequal(names(x), names(prototype))) {
+    bad.cols <- setdiff(names(x), names(prototype))
+    msg <- sprintf("Illegal columns in x: ", paste(bad.cols, collapse=','))
+    return(msg)
+  }
+
+  invalid.cols <- sapply(names(prototype), function(col) {
+    proto.class <- class(prototype[[col]])[1L]
+    dat <- x[[col]]
+    is.null(dat) || !is(dat, proto.class)
+  })
+
+  if (any(invalid.cols)) {
+    bad.cols <- names(prototype)[invalid.cols]
+    msg <- "Invalid columns in data.table:\n    %s"
+    sprintf(msg, paste(bad.cols, collapse="\n    - "))
+  } else {
+    TRUE
+  }
+}
+
