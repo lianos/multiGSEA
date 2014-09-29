@@ -1,5 +1,7 @@
 ##' A class that holds a data.table with geneset membership.
 ##'
+##' @exportClass GeneSetTable
+##'
 ##' @slot table The data.table with geneset information
 ##' @slot feature.lookup Maps the ids used in the geneset lists to the ids
 ##' (rows) over the expression data the GSEA is run on
@@ -32,15 +34,22 @@ setClass("GeneSetTable",
 ##' its child elements (genesets) belong to (like the c1, c2, etc. grouping)
 ##' in the MSigDB lists; ie. the provenance of the gene set (c) An already
 ##' rigged up GeneSetTable;
-##' @param xref A named character vector which maps the rownames of \code{x}
-##' to the gene ids in the \code{gene.sets}. The values of this vector are
-##' the IDs used in \code{gene.sets} (typically entrez.id) and the \code{names}
-##' are the \code{rownames} of \code{x} (the features in x)
-GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
+##' @param x The expression values measured. Could be a matrix, ExpressionSet,
+##' etc. rownames are required.
+##' @param mapping A data.frame with two columns. The first column is the ids
+##' used to identify the genes in \code{gene.sets}, the second column are the
+##' rows of x that match the particular gene.set id. This is minimally meant to
+##' support GSEA over microarray datsets, where the geneset IDs are entrez IDs,
+##' but \code{rownames(x)} are probeset IDs.
+GeneSetTable <- function(gene.sets, x, mapping=NULL, min.gs.size=5,
                          stop.on.duplicate.x.xref=TRUE,
                          unique.by=c('mean', 'var'),
                          species='human',
                          version=.wehi.msigdb.current) {
+  if (is(gene.sets, 'GeneSetTable')) {
+    return(conform(gene.sets, x))
+  }
+
   species <- match.species(species)
   if (is.character(gene.sets)) {
     gene.sets <- getMSigDBset(gene.sets, species, version)
@@ -58,75 +67,120 @@ GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
     gene.sets <- getMSigDBset(gene.sets, species=species)
   }
 
-  if (is.character(xref)) {
-    if (any(duplicated(names(xref)))) {
-      stop("Duplicated names in `xref`: this is a no go!")
-    }
-    if (any(duplicated(xref))) {
-      if (stop.on.duplicate.x.xref) {
-        stop("Duplicate geneset ID matches to rows in x")
-      }
-      ## TODO: Need to take multiple/duplicated ids in \code{x} into account,
-      ##       for instance when `x` are rows from a microarray experiment, and
-      ##       each row is a separate probeset -- many rows will be measuring
-      ##       the same gene. In this case you probably want to keep the row
-      ##       that is unique in some way, ie: highest average expression or
-      ##       variability.
-      warning("Duplicate matches from geneset IDs to rownames(x) not fully ",
-              "implemented yet",
-              immediate.=TRUE)
-    }
-    lookup <- data.table(gset.id=xref,
-                         x.id=names(x.id),
-                         x.index=match(names(x.id), rownames(x)),
-                         key='gset.id')
-    lookup <- lookup[is.na(x.index) == FALSE]
-  } else {
-    lookup <- data.table(gset.id=rownames(x),
-                         x.id=rownames(x),
-                         x.index=1:nrow(x),
-                         key='gset.id')
+  if (is.null(mapping)) {
+    mapping <- data.frame(rownames(x), rownames(x), stringsAsFactors=FALSE)
   }
+  lookup <- buildMappingTable(mapping, x)
 
-  if (is(gene.sets, 'GeneSetTable')) {
-    out <- gene.sets
-    validObject(out)
-  } else {
-    if (!is(gene.sets, 'list')) {
-      stop("Do not know how to handle gene.set object of class: ",
-           class(gene.sets[1L]))
-    }
-    if (is.list.of.index.vectors(gene.sets)) {
-      ## make this into a list of lists
-      gene.sets <- list(undef=gene.sets)
-    }
-    bad.gs <- !sapply(gene.sets, is.list.of.index.vectors)
-    if (sum(bad.gs)) {
-      stop("Bad gene.sets elements: ", paste(which(bad.gs), collapse=','))
-    }
-    dt <- list.of.geneset.lists.to.data.table(x, gene.sets, lookup)
-    out <- new("GeneSetTable",
-               table=dt,
-               feature.lookup=lookup,
-               species=if (is.msigdb.lookup) species else character())
+
+  if (!is(gene.sets, 'list')) {
+    stop("Do not know how to handle gene.set object of class: ",
+         class(gene.sets[1L]))
   }
+  if (is.list.of.index.vectors(gene.sets)) {
+    ## make this into a list of lists
+    gene.sets <- list(undef=gene.sets)
+  }
+  bad.gs <- !sapply(gene.sets, is.list.of.index.vectors)
+  if (sum(bad.gs)) {
+    stop("Bad gene.sets elements: ", paste(which(bad.gs), collapse=','))
+  }
+  dt <- list.of.geneset.lists.to.data.table(x, gene.sets, lookup)
+  out <- new("GeneSetTable",
+             table=dt,
+             feature.lookup=lookup,
+             species=if (is.msigdb.lookup) species else character())
 
   if (min.gs.size > 0) {
     out@table <- out@table[n >= min.gs.size]
   }
 
+  if (any(duplicated(out@feature.lookup$x.id))) {
+    out <- resolveDuplicateIdMapping(out, x, unique.by=unique.by)
+  }
+
   out
 }
 
-##' Conforms x to y.
-setGeneric("conform", function(x, y, ...) standardGeneric("conform"))
+resolveDuplicateIdMapping <- function(gst, x, unique.by=c('mean', 'var')) {
+  ## TODO: deal with multiplie gene set IDs mapping to rows in x
+  warning("Need to resolve duplicate mapping from geneset IDs to rows in x",
+          immediate.=TRUE)
+  ## This will just run through the @table$membership vectors and set the
+  ## elements that will be removed to FALSE
+}
 
-setMethod("conform", c(x='GeneSetTable', y='ANY'),
-function(x, y, x.id.fn=rownames, lookup=x@feature.lookup, ...) {
-  ## Will update x@feature.lookup to match to the rows in x and return a
+##' Builds a table that maps gene set IDs to the data in the expression object x
+##'
+##' @param mapping A two-column data.frame, with the first column being the
+##' id's of the things used in the genesets, and the second column being the
+##' id's that these things are mapped to in \code{x}
+##' @param x The "rectangular thing" that holds the epxression data.
+##'
+##' @return a data.table with the following columns, keyed on "gset.id"
+##' \enumerate{
+##'   \item gset.id The ids used in the genesets
+##'   \item x.id The ids of the same things in \code{x}
+##'   \item x.index The row index of "the thing" in \code{x}
+##' }
+buildMappingTable <- function(mapping, x, expr.id.fn=rownames) {
+  if (!is.data.frame(mapping) || ncol(mapping) != 2) {
+    stop("`mapping` must be a two-column data.frame of characters, see ",
+         "?GeneSetTable")
+  }
+  if (!all(sapply(mapping, is.character))) {
+    stop("Both columns of `mapping` must be character")
+  }
+  if (!is.character(rownames(x))) {
+    stop("x must be an object with rownames, this should not have gotten here")
+  }
+  mapping <- as.data.table(mapping)
+  setnames(mapping, c('gset.id', 'x.id'))
+  mapping[, x.index := match(x.id, expr.id.fn(x))]
+  mapping <- mapping[is.na(x.index) == FALSE]
+  setkeyv(mapping, 'gset.id')
+}
+
+##' @importFrom Biobase featureNames
+setMethod("featureNames", c(object='GeneSetTable'), function(object) {
+  fn <- character(max(object@feature.lookup$x.index))
+  fn[object@feature.lookup$x.index] <- object@feature.lookup$x.id
+  fn
+})
+
+##' Conforms x to y.
+##'
+##' @exportMethod conform
+setGeneric("conform", function(x, ...) standardGeneric("conform"))
+
+setMethod("conform", c(x='GeneSetTable'),
+function(x, y, mapping=x@feature.lookup, unique.by=c('mean', 'var'),
+         expr.id.fn=rownames, ...) {
+  y <- validateInputs(y)$x
+
+  ## Will update x@feature.lookup to match to the rows in y and return a
   ## GeneSetTable that's ready to be analyzed against `data`
-  x.id <- x.id.fn(x)
-  ## TODO: Finish up `conform,(GeneSetTable,ANY)`
+
+  ## Build a list of lists out of this thing, and rip it through GeneSetTable
+  x.ids <- featureNames(x)
+  groups <- unique(x@table$group)
+  lol <- sapply(groups, function(g) {
+    these <- x@table[group == g]
+    out <- lapply(1:nrow(these), function(idx) {
+      x.ids[these$membership[[idx]]]
+    })
+    names(out) <- these$id
+    out
+  }, simplify=FALSE)
+
+  ## mapping <- data.frame(x@feature.lookup$gset.id, x@feature.lookup$x.id)
+  ## lookup <- buildMappingTable(mapping, y, expr.id.fn=expr.id.fn)
+
+  gst <- GeneSetTable(lol, y, unique.by=unique.by, min.gs.size=1)
+  xref <- match(paste(gst@table$group, gst@table$id, sep='.'),
+                paste(x@table$group, x@table$id, sep='.'))
+  gst@table[, N := x@table$N[xref]]
+  gst
 })
 
 setMethod('show', 'GeneSetTable', function(object) {
@@ -183,10 +237,6 @@ is.list.of.index.vectors <- function(x) {
 ##'
 ##' @param x An "expression thing"
 ##' @param gene.sets A list of lists of genesets into \code{x}
-##' @param xref A named character vector which maps the rownames of \code{x}
-##' to the gene ids in the \code{gene.sets}. The values of this vector are
-##' the IDs used in \code{gene.sets} (typically entrez.id) and the \code{names}
-##' are the \code{rownames} of \code{x} (the features in x)
 list.of.geneset.lists.to.data.table <- function(x, gene.sets, lookup) {
   groups <- lapply(names(gene.sets), function(g.name) {
     indexes <- lapply(gene.sets[[g.name]], function(v) {

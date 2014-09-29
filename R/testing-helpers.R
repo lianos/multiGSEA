@@ -1,10 +1,18 @@
-## The datasets references in this file are generated in:
-##   tests/testdata/setup-testdata.R
-
+##' Fetch a pre-canned expression dataset that can be used for testing and
+##' examples.
+##'
+##' The samples in this dataset are a subset of samples from TCGA-BRCA
+##'
 ##' @export
 ##' @import Biobase
+##'
+##' @param dataset Character vector indicating what samples wanted, either
+##' \code{"tumor-vs-normal"} for a tumor vs normal dataset from TCGA, or just the tumor samples
+##' from the same (there are different subtypes in there)
+##' @param do.voom If TRUE, a voomed EList is returned, otherwise an
+##' ExpressionSet of counts.
 exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
-                                 do.voom=TRUE, voom.plot=FALSE) {
+                                 do.voom=TRUE) {
   dataset <- match.arg(dataset)
   es.all <- readRDS(system.file('extdata', 'testdata', 'TCGA-BRCA-some.es.rds',
                                 package='multiGSEA'))
@@ -20,7 +28,7 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
     colnames(design) <- sub('PAM50subtype', '', colnames(design))
   }
 
-  if (do.voom) voom(es, design, plot=voom.plot) else es
+  if (do.voom) voom(es, design, plot=FALSE) else es
 }
 
 ##' Get sample gene sets
@@ -40,3 +48,8 @@ exampleGeneSets <- function(as=c('lol', 'limma')) {
                limma='genesets-limma-idxvectors.rds')
   readRDS(system.file('extdata', 'testdata', fn, package='multiGSEA'))
 }
+
+## The datasets references in this file are generated in:
+##   tests/testdata/setup-testdata.R
+## Let's document them here
+

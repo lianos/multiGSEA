@@ -5,25 +5,33 @@ test_that("multiGSEA camera run matches default camera", {
   gsets.lol <- exampleGeneSets('lol')
   gsets <- exampleGeneSets('limma')
 
-  m <- multiGSEA(vm, gsets.lol, vm$design)
-
   cres <- camera(vm, gsets, vm$design, ncol(vm$design))
 
-  ## Create a data.frame that should be like the one returned from
-  ## camera
-  camera.df <- data.frame(
-    NGenes=as.numeric(m$n),
-    Correlation=m$Correlation.camera,
-    Direction=m$Direction.camera,
-    PValue=m$pval.camera,
-    FDR=m$padj.camera,
-    stringsAsFactors=FALSE)
-  rownames(camera.df) <- paste(m$group, m$id, sep='.')
-  camera.df <- camera.df[rownames(cres),]
+  m <- multiGSEA(vm, gsets.lol, vm$design, methods='camera')
 
-  expect_equal(cres, camera.df)
+  ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
+  ## make `my` look like that, and test for equality
+  my.camera <- local({
+    grab <- c('n', 'Correlation.camera', 'Direction.camera', 'pval.camera',
+              'padj.camera')
+    out <- m[, grab, with=FALSE]
+    setnames(out, c('NGenes', 'Correlation', 'Direction', 'PValue', 'FDR'))
+    out <- as.data.frame(out)
+    rownames(out) <- paste(m$group, m$id, sep='.')
+    out[rownames(cres),]
+  })
 
-  ## Test that feature.id's are correct
+  expect_equal(cres, my.camera)
+})
+
+test_that("feature.id's returned from multiGSEA are correct", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsets.lol <- exampleGeneSets('lol')
+  gsets <- exampleGeneSets('limma')
+
+  m <- multiGSEA(vm, gsets.lol, vm$design, methods='camera')
+
+  ## Test that feature.id's are correct as they are returned from multiGSEA
   for (i in 1:nrow(m)) {
     id <- m$id[[i]]
     group <- m$group[[i]]
@@ -40,5 +48,5 @@ test_that("multiGSEA camera run matches default camera", {
     expect_true(setequal(rfeatures, ifeatures),
                 info=sprintf('%s (remapped)', id))
   }
-})
 
+})

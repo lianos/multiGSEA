@@ -42,7 +42,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   contrast <- inputs$contrast
 
   if (!is(gene.sets, 'GeneSetTable')) {
-    gst <- GeneSetTable(x, gene.sets)
+    gst <- GeneSetTable(gene.sets, x)
   } else {
     gst <- conform(gene.sets, x)
   }

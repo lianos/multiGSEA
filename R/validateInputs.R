@@ -3,8 +3,7 @@
 ## This is painful error checking logic.
 ## validateInputs will throw an error if there are problems found in the inputs
 ## or will return a "cleaned" version of the inputs on no error.
-validateInputs <- function(x, design=NULL, contrast=NULL,
-                           methods=if (is.matrix(design)) 'camera' else NULL,
+validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
                            require.x.rownames=TRUE) {
   if (is.character(methods)) {
     .unsupportedGSEAmethods(methods)
