@@ -1,4 +1,4 @@
 library("testthat")
-library("CommandLineR")
-test_check("CommandLineR")
+library("multiGSEA")
 
+test_check("multiGSEA")

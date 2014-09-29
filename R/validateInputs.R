@@ -1,4 +1,4 @@
-.valid.x <- c('matrix', 'eSet', 'SummarizedExperiment', 'EList', 'DGEList')
+.valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
 
 ## This is painful error checking logic.
 ## validateInputs will throw an error if there are problems found in the inputs
@@ -10,6 +10,11 @@ validateInputs <- function(x, design=NULL, contrast=NULL,
     .unsupportedGSEAmethods(methods)
   } else if (!is.null(methods)) {
     stop("Illegal type for `methods`: ", class(methods)[1L])
+  }
+
+  if (is(x, 'DGEList')) {
+    ## TODO: stop if estimateDisp(x, design) was called on input DGEList
+    warning("Not checking if estimateDisp() was called", immediate.=TRUE)
   }
 
   if (is.vector(x)) {
@@ -141,8 +146,11 @@ validateInputs <- function(x, design=NULL, contrast=NULL,
 
 .validateInputs.gst <- function(x, design, contrast) {
   errs <- list()
+  if (is(x, 'DGEList')) {
+    errs$DGEList.not.supported.for.gst <- TRUE
+  }
   if (ncol(x) > 1) {
-    errs <- .validateInputs.camera(x, design, contrast)
+    errs <- c(errs, .validateInputs.camera(x, design, contrast))
   }
   errs
 }

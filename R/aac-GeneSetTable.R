@@ -1,4 +1,10 @@
-##' @exportClass
+##' A class that holds a data.table with geneset membership.
+##'
+##' @slot table The data.table with geneset information
+##' @slot feature.lookup Maps the ids used in the geneset lists to the ids
+##' (rows) over the expression data the GSEA is run on
+##' @slot species Either "human" or "mouse" -- only (really) used when the object
+##' was built from a call to MSigDB
 setClass("GeneSetTable",
          slots=c(
            table="data.table",
@@ -33,9 +39,9 @@ setClass("GeneSetTable",
 GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
                          stop.on.duplicate.x.xref=TRUE,
                          unique.by=c('mean', 'var'),
-                         species=.wehi.msigdb.species,
+                         species='human',
                          version=.wehi.msigdb.current) {
-  species <- match.arg(species)
+  species <- match.species(species)
   if (is.character(gene.sets)) {
     gene.sets <- getMSigDBset(gene.sets, species, version)
   }
@@ -113,7 +119,7 @@ GeneSetTable <- function(x, gene.sets, xref=NULL, min.gs.size=5,
 }
 
 ##' Conforms x to y.
-setGeneric("conform", function(x, y, ...), standardGeneric("conform"))
+setGeneric("conform", function(x, y, ...) standardGeneric("conform"))
 
 setMethod("conform", c(x='GeneSetTable', y='ANY'),
 function(x, y, x.id.fn=rownames, lookup=x@feature.lookup, ...) {
@@ -173,6 +179,8 @@ is.list.of.index.vectors <- function(x) {
   all(sapply(x, function(xx) is.vector(xx) && !is.list(xx)))
 }
 
+##' Helper function to create data.table out of list-of-list genesets
+##'
 ##' @param x An "expression thing"
 ##' @param gene.sets A list of lists of genesets into \code{x}
 ##' @param xref A named character vector which maps the rownames of \code{x}
@@ -261,4 +269,3 @@ index.vector.to.xrow <- function(x, index, lookup) {
     TRUE
   }
 }
-

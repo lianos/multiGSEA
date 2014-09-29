@@ -20,6 +20,11 @@
 NULL
 
 .wehi.msigdb.species <- c('human', 'mouse')
+
+match.species <- function(x=NULL) {
+  if (is.null(x)) NULL else match.arg(x, c('human', 'mouse'))
+}
+
 .wehi.msigdb.current <- 'v4.0'
 .wehi.msigdb.datadir <- system.file('extdata', 'MSigDB', package='multiGSEA')
 
@@ -42,8 +47,8 @@ NULL
   v
 }
 
-.parse.msigdb.ids <- function(id, species=.wehi.msigdb.species) {
-  species <- match.arg(species)
+.parse.msigdb.ids <- function(id, species='human') {
+  species <- match.species(species)
   valid.ids <- paste0('c', if (species == 'human') 1:7 else 2:7)
   if (is.numeric(id)) {
     id <- paste0('c', id)
@@ -69,9 +74,9 @@ NULL
 ##' @param version The version of the MSigDB desired. Defaults to latest.
 ##'
 ##' @return A list of genesets, named by \code{id}.
-getMSigDBset <- function(id, species=.wehi.msigdb.species,
+getMSigDBset <- function(id, species='human',
                          version=.wehi.msigdb.current) {
-  species <- match.arg(species)
+  species <- match.species(species)
   version <- .parse.msigdb.version(version)
   id <- .parse.msigdb.ids(id, species)
   data.dir <- file.path(.wehi.msigdb.datadir, version)

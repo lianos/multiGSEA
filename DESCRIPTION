@@ -3,20 +3,26 @@ Type: Package
 Title: Unified wrappers to multipe GSEA methods available in Bioconductor.
 Version: 0.1
 Date: 2014-09-18
-Author: Steve Lianoglou <lianoglou.steve@gene.com>
-Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
+Authors@R: as.person(c(
+    "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
+    ))
 Description: Wraps several GSEA methods into a common interface and provides
-  plotting and other functions that are broadly useful for any GSEA.
-License: MIT
+    plotting and other functions that are broadly useful for any GSEA.
 Depends:
-  methods,
-  data.table
+    methods,
+    data.table,
+    Biobase,
+    limma
 Imports:
-  BiocGenerics,
-  data.table,
-  limma
+    BiocGenerics,
+    Biobase,
+    data.table,
+    parallel,
+    limma
 Suggests:
-  testthat,
-  knitr,
-  rmarkdown
+    DESeq2,
+    testthat,
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
+License: MIT

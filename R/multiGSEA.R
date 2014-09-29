@@ -12,13 +12,14 @@
 ##'
 ##' @export
 ##'
-##' importFrom parallel mclapply
+##' @import limma
+##' @importFrom parallel mclapply
 multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
-                      methods=c('camera', 'roast', 'gst'), outdir=NULL,
+                      methods=c('camera', 'gst'), outdir=NULL,
                       plots.generate=TRUE, plots.padj.threshold=0.3,
-                      cleanup.on.fail=TRUE, species=.wehi.msigdb.species,
+                      cleanup.on.fail=TRUE, species=NULL,
                       mc.cores=1L, ...) {
-  species <- match.arg(species)
+  species <- match.species(species)
   .unsupportedGSEAmethods(methods)
   outdir.created <- .initOutDir(outdir)
   finished <- FALSE
@@ -40,18 +41,68 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   design <- inputs$design
   contrast <- inputs$contrast
 
-  gs.table <- preprocessGeneSets(gene.sets, x, species)
+  if (!is(gene.sets, 'GeneSetTable')) {
+    gst <- GeneSetTable(x, gene.sets)
+  } else {
+    gst <- conform(gene.sets, x)
+  }
 
   results <- mclapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
-    fn(x, gs.table, design, contrast, ...)
+    fn(x, gst, design, contrast, ...)
   }, mc.cores=mc.cores)
+  names(results) <- methods
+
+  gs.scores <- do.geneSetScores(x, gst, design, contrast)
+
+  meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
+  meta <- results[[1]][, meta.cols, with=FALSE]
+
+  out <- merge(meta, gs.scores, by=c('group', 'id'))
+
+  def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
+  add.take <- list(camera=c('Correlation', 'Direction'))
+
+  for (rn in names(results)) {
+    take <- c(def.take, add.take[[rn]])
+    res <- results[[rn]][, take, with=FALSE]
+    rename <- setdiff(take, c('group', 'id'))
+    if (length(rename)) {
+      setnames(res, rename, paste(rename, rn, sep='.'))
+    }
+    out <- merge(out, res, by=c('group', 'id'))
+  }
+
+  ## Add the memberhsip and feature.id lists
+  more <- results[[1]][, list(group, id, membership, feature.id)]
+  m.key <- paste(more$group, more$id, sep='.')
+  o.key <- paste(out$group, out$id, sep='.')
+  xref <- match(o.key, m.key)
+  if (any(is.na(xref))) {
+    stop("Cross referencing output back to membership info failed")
+  }
+  if (any(duplicated(xref))) {
+    stop("Duplicated keys when cross referencing membership and output")
+  }
+  out[, membership := more$membership[xref]]
+  out[, feature.id := more$feature.id[xref]]
 
   finished <- TRUE
   out
 }
 
+##' Initializes the output directory for the multiGSEA call.
+##'
+##' If outdir is NULL, then no directory is checked/created. This also implies
+##' that creating plots is not possible.
+##'
+##' @param A character vector pointing to a directory to check/create
+##' @return TRUE if the output directory was created, otherwise FALSE (it might
+##' already exist).
 .initOutDir <- function(outdir) {
+  if (is.null(outdir)) {
+    return(FALSE)
+  }
   if (!is.character(outdir) && length(outdir) != 1) {
     stop("character required for `outdir`")
   }
