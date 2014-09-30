@@ -1,27 +1,43 @@
 context("multiGSEA")
 
-test_that("multiGSEA camera run matches default camera", {
+test_that("multiGSEA camera+roast run matches default runs of each", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsets.lol <- exampleGeneSets('lol')
   gsets <- exampleGeneSets('limma')
 
-  cres <- camera(vm, gsets, vm$design, ncol(vm$design))
+  ## Generate camera and roast results to check against.
+  photo <- camera(vm, gsets, vm$design, ncol(vm$design))
+  set.seed(123)
+  roasted <- mroast(vm, gsets, vm$design, ncol(vm$design), nrot=500,
+                    sort='none')
 
-  m <- multiGSEA(vm, gsets.lol, vm$design, methods='camera')
+  m <- multiGSEA(vm, gsets.lol, vm$design, methods=c('camera', 'roast'),
+                 nrot=500, .seed=123)
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
-  my.camera <- local({
+  my.photo <- local({
     grab <- c('n', 'Correlation.camera', 'Direction.camera', 'pval.camera',
               'padj.camera')
     out <- m[, grab, with=FALSE]
-    setnames(out, c('NGenes', 'Correlation', 'Direction', 'PValue', 'FDR'))
+    setnames(out, names(photo))
     out <- as.data.frame(out)
     rownames(out) <- paste(m$group, m$id, sep='.')
-    out[rownames(cres),]
+    out[rownames(photo),]
   })
 
-  expect_equal(cres, my.camera)
+  my.roast <- local({
+    out <- m[, list(n, PropDown.roast, PropUp.roast, Direction.roast,
+                    pval.roast, padj.roast,
+                    pval.mixed.roast, padj.mixed.roast)]
+    setnames(out, names(roasted))
+    out <- as.data.frame(out)
+    rownames(out) <- paste(m$group, m$id, sep='.')
+    out[rownames(roasted),]
+  })
+
+  expect_equal(photo, my.photo, info='camera result from multiGSEA')
+  expect_equal(roasted, my.roast, info='roast result from multiGSEA')
 })
 
 test_that("feature.id's returned from multiGSEA are correct", {

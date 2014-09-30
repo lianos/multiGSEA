@@ -18,50 +18,104 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
                       methods=c('camera', 'gst'), outdir=NULL,
                       plots.generate=TRUE, plots.padj.threshold=0.3,
                       cleanup.on.fail=TRUE, species=NULL,
-                      mc.cores=1L, ...) {
+                      mc.cores=1L, use.cache=TRUE, force.reeval=FALSE,
+                      keep.outdir.onerror=TRUE, ...) {
+  ## ---------------------------------------------------------------------------
+  ## Argument sanity checking
+  if (is.null(outdir)) {
+    outdir.created <- FALSE
+    if (missing(plots.generate)) {
+      plots.generate <- FALSE
+    } else if (plots.generate) {
+      stop("Can't set `plots.generate=TRUE` without and `outdir`")
+    }
+    if (missing(use.cache)) {
+      use.cache <- FALSE
+    } else if (use.cache) {
+      stop("Can't use.cacue without an `outdir`")
+    }
+  } else {
+    if (!is.character(outdir)) {
+      stop("`outdir` must be path to a directory used ot save results")
+      outdir.created <- .initOutDir(outdir)
+    }
+  }
+
   species <- match.species(species)
+  if (length(methods) == 0) {
+    stop("0 GSEA methods provided")
+  }
   .unsupportedGSEAmethods(methods)
-  outdir.created <- .initOutDir(outdir)
   finished <- FALSE
 
   on.exit({
-    if (!finished && outdir.created && dir.exists(outdir)) {
-      warning("An error in `mulitGSEA stopped it from finishing ...",
+    if (!finished) {
+      warning("An error in `multiGSEA` stopped it from finishing ...",
               immediate.=TRUE)
+    }
+    if (outdir.created && dir.exists(outdir) && !keep.outdir.onerror) {
       unlink(outdir, recursive=TRUE)
     }
   })
 
-  args <- list(x=x, gene.sets=gene.sets, design=design, contrast=contrast)
-  req.x.rownames <- !inherits(gene.sets, 'GeneSetTable')
-
-  inputs <- validateInputs(x, design, contrast, methods,
-                           require.x.rownames=req.x.rownames)
-  x <- inputs$x
-  design <- inputs$design
-  contrast <- inputs$contrast
-
-  if (!is(gene.sets, 'GeneSetTable')) {
-    gst <- GeneSetTable(gene.sets, x)
+  ## ---------------------------------------------------------------------------
+  ## Sanitize / load inputs
+  inputs.fn <- file.path(outdir, 'cache', 'inputs.rda')
+  if (use.cache && file.exists(inputs.fn)) {
+    load(inputs.fn)
   } else {
-    gst <- conform(gene.sets, x)
+    req.x.rownames <- !inherits(gene.sets, 'GeneSetTable')
+    args <- list(x=x, gene.sets=gene.sets, design=design, contrast=contrast)
+    inputs <- validateInputs(x, design, contrast, methods,
+                             require.x.rownames=req.x.rownames)
+    x <- inputs$x
+    design <- inputs$design
+    contrast <- inputs$contrast
+
+    if (!is(gene.sets, 'GeneSetTable')) {
+      gst <- GeneSetTable(gene.sets, x)
+    } else {
+      gst <- conform(gene.sets, x)
+    }
+
+    if (!is.null(outdir)) {
+      save(x, design, contrast, gst, file=inputs.fn)
+    }
   }
 
+  ## ---------------------------------------------------------------------------
+  ## Run the analyses
   results <- mclapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
-    fn(x, gst, design, contrast, ...)
+    fn(x, gst, design, contrast, outdir=outdir, use.cache=use.cache, ...)
   }, mc.cores=mc.cores)
   names(results) <- methods
 
+  out <- summarizeResults(x, gst, design, contrast, results, out.base)
+
+  if (plots.generate) {
+    img.fns <- plotGSEA(out, x, gst, outdir, use.cache=use.cache)
+    out[, img.path := img.fns$path]
+  }
+
+  finished <- TRUE
+  out
+}
+
+##' Creates a summary table from all the methods that were run
+summarizeResults <- function(x, gst, design, contrast, results, out.base) {
+  def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
+  add.take <- list(camera=c('Correlation', 'Direction'),
+                   roast=c('PropDown', 'PropUp', 'Direction',
+                           'pval.mixed', 'padj.mixed'))
+
+  ## Scores to summarize "effect size" of the gene set.
   gs.scores <- do.geneSetScores(x, gst, design, contrast)
 
   meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
   meta <- results[[1]][, meta.cols, with=FALSE]
 
   out <- merge(meta, gs.scores, by=c('group', 'id'))
-
-  def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
-  add.take <- list(camera=c('Correlation', 'Direction'))
 
   for (rn in names(results)) {
     take <- c(def.take, add.take[[rn]])
@@ -86,9 +140,6 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   }
   out[, membership := more$membership[xref]]
   out[, feature.id := more$feature.id[xref]]
-
-  finished <- TRUE
-  out
 }
 
 ##' Initializes the output directory for the multiGSEA call.
@@ -122,20 +173,11 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
     dir.create(outdir)
     outdir.created <- TRUE
   }
-  sub.dirs <- c('images', 'data')
+  sub.dirs <- c('images', 'data', 'cache')
   for (sd in sub.dirs) {
     dir.create(file.path(outdir, sd))
   }
 
   outdir.created
-}
-
-##' Runs several GSEA methods over a dataset.
-##'
-##' @param result.name The name/directory used to store the results for this
-##' (unique) analysis.
-rmd.multi.GSEA <- function(result.name, x, gene.sets, design=NULL,
-                           contrast=NULL, ...) {
-
 }
 
