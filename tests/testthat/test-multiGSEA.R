@@ -27,17 +27,22 @@ test_that("multiGSEA camera+roast run matches default runs of each", {
   })
 
   my.roast <- local({
+    ## Temporarily not returning the "mixed" pvals from the roast result
+    ## out <- m[, list(n, PropDown.roast, PropUp.roast, Direction.roast,
+    ##                 pval.roast, padj.roast,
+    ##                 pval.mixed.roast, padj.mixed.roast)]
+    ## setnames(out, names(roasted))
     out <- m[, list(n, PropDown.roast, PropUp.roast, Direction.roast,
-                    pval.roast, padj.roast,
-                    pval.mixed.roast, padj.mixed.roast)]
-    setnames(out, names(roasted))
+                    pval.roast, padj.roast)]
+    setnames(out, head(names(roasted), -2))
     out <- as.data.frame(out)
     rownames(out) <- paste(m$group, m$id, sep='.')
     out[rownames(roasted),]
   })
 
   expect_equal(photo, my.photo, info='camera result from multiGSEA')
-  expect_equal(roasted, my.roast, info='roast result from multiGSEA')
+  expect_equal(roasted[, names(my.roast)],
+               my.roast, info='roast result from multiGSEA')
 })
 
 test_that("feature.id's returned from multiGSEA are correct", {

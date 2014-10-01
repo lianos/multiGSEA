@@ -24,7 +24,7 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   } else {
     es <- es.all[, es.all$Cancer_Status == 'tumor']
     pData(es) <- droplevels(pData(es))
-    design <- model.matrix(~ 0 + PAM50subtype, pData(es.sub))
+    design <- model.matrix(~ 0 + PAM50subtype, pData(es))
     colnames(design) <- sub('PAM50subtype', '', colnames(design))
   }
 
