@@ -3,7 +3,9 @@
 \alias{do.camera}
 \title{Runs camera on the given experiment.}
 \usage{
-do.camera(x, gs.table, design, contrast, ...)
+do.camera(x, gs.table, design, contrast, outdir = NULL, use.cache = TRUE,
+  weights = NULL, use.ranks = FALSE, allow.neg.cor = TRUE,
+  trend.var = FALSE, sort = FALSE, ...)
 }
 \description{
 Runs camera on the given experiment.

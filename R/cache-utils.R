@@ -16,7 +16,7 @@ design.params.name <- function(design, contrast) {
 }
 
 cache.data.fn <- function(method, design, contrast, extra.args=list(),
-                          outdir=NULL) {
+                          outdir=NULL, ext=NULL) {
   fn <- paste(method,
               sprintf('design(%s)', design.params.name(design, contrast)),
               sep='-')
@@ -26,7 +26,11 @@ cache.data.fn <- function(method, design, contrast, extra.args=list(),
     fn <- paste(fn, extra, sep=',')
   }
   if (!is.null(outdir)) {
-    file.path(outdir, 'cache', fn)
+    fn <- file.path(outdir, 'cache', fn)
+  }
+  if (!is.null(ext)) {
+    ext <- sub('\\.+', '', ext)
+    fn <- paste0(fn, '.', ext)
   }
   fn
 }

@@ -1,5 +1,7 @@
 context("roast")
 
+## TODO: Test why the mixied pvalues are so significant always!!?!
+
 test_that('roast runs equivalently from do.roast vs direct call', {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsets.lol <- exampleGeneSets('lol')

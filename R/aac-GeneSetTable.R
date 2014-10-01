@@ -276,12 +276,14 @@ index.vector.to.xrow <- function(x, index, lookup) {
       index <- xref[!nomatch]
     }
     if (is.numeric(index)) {
-      if (all(as.integer(index) != index)) {
-        stop("Only integer index vectors are allowed")
-      }
-      index <- as.integer(index)
-      if (min(index) < 1 || max(index) > nrow(x)) {
-        stop("Numeric index vector has out of bounds vectors")
+      if (length(index)) {
+        if (all(as.integer(index) != index)) {
+          stop("Only integer index vectors are allowed")
+        }
+        index <- as.integer(index)
+        if (min(index) < 1 || max(index) > nrow(x)) {
+          stop("Numeric index vector has out of bounds vectors")
+        }
       }
     } else {
       stop("Unknown type for index vector: ", class(index)[1L])

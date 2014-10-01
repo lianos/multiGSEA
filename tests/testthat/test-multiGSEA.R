@@ -64,5 +64,28 @@ test_that("feature.id's returned from multiGSEA are correct", {
     expect_true(setequal(rfeatures, ifeatures),
                 info=sprintf('%s (remapped)', id))
   }
-
 })
+
+test_that("plotting does something reasonable", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsets.lol <- exampleGeneSets('lol')
+  tmp.dir <- sub('/file', '/dir', tempfile())
+
+  ## Get initial results first
+  mo <- multiGSEA(vm, gsets.lol, vm$design, methods='camera')
+
+  ## Ensure that the expected number of plots are generated at an FDR
+  ## threshold of 0.3
+  FDR <- 0.3
+  is.sig <- mo$padj.camera <= FDR | mo$padj.by.group.camera <= FDR
+  n.expected <- sum(is.sig)
+
+  m <- multiGSEA(vm, gsets.lol, vm$design, methods='camera',
+                 outdir=tmp.dir, plots.generate=TRUE,
+                 plots.padj.threshold=FDR)
+
+  m.plotted <- m[is.na(img.path) == FALSE]
+  expect_equal(n.expected, nrow(m.plotted))
+  expect_true(setequal(mo$id[is.sig], m.plotted$id))
+})
+

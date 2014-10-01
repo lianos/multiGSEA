@@ -4,9 +4,10 @@
 \title{Runs several GSEA methods over a dataset for a single contrast.}
 \usage{
 multiGSEA(x, gene.sets, design = NULL, contrast = NULL,
-  methods = c("camera", "gst"), outdir = NULL, plots.generate = TRUE,
-  plots.padj.threshold = 0.3, cleanup.on.fail = TRUE, species = NULL,
-  mc.cores = 1L, ...)
+  methods = c("camera"), outdir = NULL, plots.generate = FALSE,
+  plots.padj.threshold = 1, species = NULL, mc.cores = 1L,
+  use.cache = FALSE, force.reeval = FALSE, keep.outdir.onerror = TRUE,
+  ...)
 }
 \description{
 Currenty supports the following methods:

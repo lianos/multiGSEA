@@ -1,19 +1,24 @@
-do.geneSetScores <- function(x, gs.table, design, contrast,
+do.geneSetScores <- function(x, design, contrast, gs.table,
+                             logFC.stats=NULL,
                              robust.fit=FALSE, robust.eBayes=FALSE, ...) {
-  if (ncol(x) > 1) {
-    ## Do limma fits on this thing and let it rip
-    fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
-    fit  <- eBayes(fit, robust=robust.eBayes)
-    stats <- topTable(fit, contrast, number=Inf, sort.by='none')$t
+  if (is.null(logFC.stats)) {
+    logFC.stats <- calculateIndividualLogFC(x, design, contrast, robust.fit,
+                                            robust.eBayes, ...)
   } else {
-    stats <- x[, 1L]
+    if (!is.numeric(logFC.stats) && length(stats) != nrow(x)) {
+      stop("Illegal passed in value for logFC.stats")
+    }
+    if (!all(names(logFC.stats) == rownames(x))) {
+      stop("names on passed-in logFC.stats do not match rownames(x")
+    }
   }
 
   scores <- lapply(gs.table@table$membership, function(idx) {
-    data.table(mean.stat=mean(stats[idx], na.rm=TRUE),
-               mean.stat.t=mean(stats[idx], na.rm=TRUE, trim=0.10))
+    data.table(mean.stat=mean(logFC.stats[idx], na.rm=TRUE),
+               mean.stat.t=mean(logFC.stats[idx], na.rm=TRUE, trim=0.10))
   })
   scores <- rbindlist(scores)
 
   cbind(gs.table@table[, list(group, id)], scores)
 }
+

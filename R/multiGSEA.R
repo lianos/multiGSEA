@@ -15,11 +15,10 @@
 ##' @import limma
 ##' @importFrom parallel mclapply
 multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
-                      methods=c('camera', 'gst'), outdir=NULL,
-                      plots.generate=TRUE, plots.padj.threshold=0.3,
-                      cleanup.on.fail=TRUE, species=NULL,
-                      mc.cores=1L, use.cache=TRUE, force.reeval=FALSE,
-                      keep.outdir.onerror=TRUE, ...) {
+                      methods=c('camera'), outdir=NULL,
+                      plots.generate=FALSE, plots.padj.threshold=1,
+                      species=NULL, mc.cores=1L, use.cache=FALSE,
+                      force.reeval=FALSE, keep.outdir.onerror=TRUE, ...) {
   ## ---------------------------------------------------------------------------
   ## Argument sanity checking
   if (is.null(outdir)) {
@@ -37,8 +36,8 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   } else {
     if (!is.character(outdir)) {
       stop("`outdir` must be path to a directory used ot save results")
-      outdir.created <- .initOutDir(outdir)
     }
+    outdir.created <- .initOutDir(outdir)
   }
 
   species <- match.species(species)
@@ -91,11 +90,23 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   }, mc.cores=mc.cores)
   names(results) <- methods
 
-  out <- summarizeResults(x, gst, design, contrast, results, out.base)
+  ## calculate the log fold changes for all the elements in x for the given
+  ## contrast we are running GSEA over
+  logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+
+  out <- summarizeResults(x, design, contrast, gst, results, out.basem, logFC)
 
   if (plots.generate) {
-    img.fns <- plotGSEA(out, x, gst, outdir, use.cache=use.cache)
-    out[, img.path := img.fns$path]
+    img.info <- generate.GSEA.plots(x, design, contrast, out, outdir,
+                                    use.cache=use.cache, logFC=logFC,
+                                    padj.threshold=plots.padj.threshold)
+    if (!is.null(img.info) && nrow(img.info)) {
+      xref <- match(paste(out$group, out$id, sep='.'),
+                    paste(img.info$group, img.info$id, sep='.'))
+      out[, img.path := img.info$fn[xref]]
+    } else {
+      out[, img.path := NA_character_]
+    }
   }
 
   finished <- TRUE
@@ -103,14 +114,18 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 }
 
 ##' Creates a summary table from all the methods that were run
-summarizeResults <- function(x, gst, design, contrast, results, out.base) {
+summarizeResults <- function(x, design, contrast, gst, results, out.base,
+                             logFC=NULL) {
   def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
+
+  ## These are the anaylsis-specific columns we want to extract from each
+  ## individual result so that it is included in the outoing data.table
   add.take <- list(camera=c('Correlation', 'Direction'),
-                   roast=c('PropDown', 'PropUp', 'Direction',
-                           'pval.mixed', 'padj.mixed'))
+                   roast=c('PropDown', 'PropUp', 'Direction'))
+                           ## 'pval.mixed', 'padj.mixed'))
 
   ## Scores to summarize "effect size" of the gene set.
-  gs.scores <- do.geneSetScores(x, gst, design, contrast)
+  gs.scores <- do.geneSetScores(x, design, contrast, gst, logFC.stats=logFC)
 
   meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
   meta <- results[[1]][, meta.cols, with=FALSE]
@@ -151,6 +166,7 @@ summarizeResults <- function(x, gst, design, contrast, results, out.base) {
 ##' @return TRUE if the output directory was created, otherwise FALSE (it might
 ##' already exist).
 .initOutDir <- function(outdir) {
+  sub.dirs <- c('images', 'data', 'cache')
   if (is.null(outdir)) {
     return(FALSE)
   }
@@ -173,7 +189,6 @@ summarizeResults <- function(x, gst, design, contrast, results, out.base) {
     dir.create(outdir)
     outdir.created <- TRUE
   }
-  sub.dirs <- c('images', 'data', 'cache')
   for (sd in sub.dirs) {
     dir.create(file.path(outdir, sd))
   }
