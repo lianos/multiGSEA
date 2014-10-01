@@ -4,8 +4,6 @@ context("Calculating individual logFC")
 ##       vectors
 test_that("logFC's calculated from contrast vectors are correct", {
   vm <- exampleExpressionSet('tumor-subtype', do.voom=TRUE)
-  vm$targets$PAM50subtype <- factor(vm$targets$PAM50subtype,
-                                    c('Basal', 'Her2', 'LumA'))
   d <- model.matrix(~ PAM50subtype, vm$targets)
   colnames(d) <- sub('PAM50subtype', '', colnames(d))
 
@@ -20,7 +18,7 @@ test_that("logFC's calculated from contrast vectors are correct", {
                       lumA.vs.basal=LumA - Basal,
                       levels=d0)
   fit0 <- lmFit(vm, d0)
-  e0 <- eBayes(contrasts.fit(fi0, cm))
+  e0 <- eBayes(contrasts.fit(fit0, cm))
   tt0.lumA <- topTable(e0, 'lumA.vs.basal', number=Inf, sort='none')
   tt0.her2 <- topTable(e0, 'her2.vs.basal', number=Inf, sort='none')
 

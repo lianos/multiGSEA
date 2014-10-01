@@ -16,6 +16,10 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   dataset <- match.arg(dataset)
   es.all <- readRDS(system.file('extdata', 'testdata', 'TCGA-BRCA-some.es.rds',
                                 package='multiGSEA'))
+  pData(es.all) <- within(pData(es.all), {
+    Cancer_Status <- factor(as.character(Cancer_Status))
+    PAM50subtype <- factor(as.character(PAM50subtype))
+  })
 
   if (dataset == 'tumor-vs-normal') {
     es <- es.all
