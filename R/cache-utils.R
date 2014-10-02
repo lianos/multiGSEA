@@ -1,18 +1,20 @@
-design.params.name <- function(design, contrast) {
+design.params.name <- function(design, contrast, with.space=FALSE) {
   if (length(contrast) == 1) {
     design.cols <- contrast
     coef.vals <- ''
   } else {
     design.cols <- which(contrast != 0)
     coef.vals <- contrast[design.cols]
-    if (all(as.integer(coef.vals) == coef.vals)) {
-      coef.vals <- as.character(coef.vals)
-    } else {
-      coef.vals <- sprintf("%.2f", coef.vals)
-    }
+    ## Ensure that both positive and negative coefficients are printed with
+    ## their sign
+    coef.vals <- paste(
+      ifelse(coef.vals > 0, '+', '-'),
+      abs(coef.vals), sep='')
   }
   coef.names <- colnames(design)[design.cols]
-  paste(coef.vals, coef.names, sep='', collapse='')
+  ## Ensure that positive coef values are printed with `+`
+  collapse <- if (with.space) ' ' else ''
+  paste(coef.vals, coef.names, sep='', collapse=collapse)
 }
 
 cache.data.fn <- function(method, design, contrast, extra.args=list(),
