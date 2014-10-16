@@ -3,7 +3,7 @@
 \alias{summarizeResults}
 \title{Creates a summary table from all the methods that were run}
 \usage{
-summarizeResults(x, design, contrast, gst, results, out.base, logFC = NULL)
+summarizeResults(x, design, contrast, gst, results, logFC = NULL)
 }
 \description{
 Creates a summary table from all the methods that were run

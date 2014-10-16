@@ -4,7 +4,7 @@
 \title{Generates GSEA plots for the genesets over a given experiment.}
 \usage{
 generate.GSEA.plots(x, design, contrast, result, outdir, use.cache = TRUE,
-  logFC = NULL, padj.threshold = 1)
+  logFC = NULL, padj.threshold = 1, ...)
 }
 \arguments{
 \item{x}{The expression object used in the multiGSEA call}
@@ -30,8 +30,8 @@ have some value in an FDR column that is less than or equal to this
 threshold.}
 }
 \value{
-A data.table that has the group, id, and path columns. path
-is the path to the image for the given geneset.
+A data.table that has the group, id, gene set name, image page
+  and whether or not the image was plotted columns for each row in \code{x}
 }
 \description{
 Generates GSEA plots for the genesets over a given experiment.

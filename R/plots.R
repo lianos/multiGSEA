@@ -15,11 +15,11 @@
 ##' have some value in an FDR column that is less than or equal to this
 ##' threshold.
 ##'
-##' @return A data.table that has the group, id, and path columns. path
-##' is the path to the image for the given geneset.
+##' @return A data.table that has the group, id, gene set name, image page
+##'   and whether or not the image was plotted columns for each row in \code{x}
 generate.GSEA.plots <- function(x, design, contrast, result, outdir,
                                 use.cache=TRUE, logFC=NULL,
-                                padj.threshold=1) {
+                                padj.threshold=1, ...) {
   if (is.null(logFC)) {
     logFC <- calculateIndividualLogFC(x, design, contrast, ...)
   }
@@ -30,59 +30,45 @@ generate.GSEA.plots <- function(x, design, contrast, result, outdir,
   d.summary <- sprintf('logFC(%s)', design.params.name(design, contrast))
   fn.base <- paste0('%s-', d.summary, '.png')
 
-  if (padj.threshold < 1) {
-    padj.cols <- grep('^padj\\.', colnames(result))
-    padj.m <- as.matrix(result[, padj.cols, with=FALSE])
-    keep <- rowSums(padj.m <= padj.threshold) > 0
-    if (!any(keep)) {
-      warning("No plots generated due to FDR cutoff", immediate.=TRUE)
-      return(data.table(group=character(), id=character(), gs.name=character(),
-                        fn=character()))
-    }
-    result <- result[keep,]
-  }
-
-  if (nrow(result) == 0) {
-    return(NULL)
-  }
-
   bg.dens <- density(logFC, na.rm=TRUE)
   xrange <- c(min(logFC, na.rm=TRUE) - 0.5, max(logFC, na.rm=TRUE) + 0.5)
   f.ids <- names(logFC)
 
-  fns <- lapply(1:nrow(result), function(i) {
-    gs.group <- result$group[i]
-    gs.id <- result$id[i]
-    gs.name <- paste(gs.group, gs.id, sep='.')
-    fn.out <- file.path(outdir, 'images', sprintf(fn.base, gs.name))
+  should.plot <- significantGeneSets(result, 'adjusted', padj.threshold)
+  work.me <- result[, list(group, id)]
+  work.me[, gs.name := paste(group, id, sep='.')]
+  work.me[, fn := file.path(outdir, 'images', sprintf(fn.base, gs.name))]
+  work.me[, fn.exists.pre := file.exists(fn)]
+  work.me[, do.plot := should.plot & (!fn.exists.pre | !use.cache)]
 
-    if (!file.exists(fn.out) || !use.cache) {
-      gs.features <- result$feature.id[[i]]
-      gs.logFC <- logFC[gs.features]
-      gs.logFC <- gs.logFC[!is.na(gs.logFC)]
-      if (length(gs.logFC) < 3) {
-        gs.dens <- NULL
-        ymax <- base::max(bg.dens$y)
-      } else {
-        gs.dens <- density(gs.logFC, na.rm=TRUE)
-        ymax <- base::max(bg.dens$y, gs.dens$y)
-      }
+  for (i in which(work.me$do.plot)) {
+    gs.features <- result$feature.id[[i]]
+    gs.logFC <- logFC[gs.features]
+    gs.logFC <- gs.logFC[!is.na(gs.logFC)]
 
-      xstats <- sprintf('(%d genes)', length(gs.logFC))
-
-      png(fn.out, 800, 800, res=150)
-      plot(bg.dens, lwd=2, xlab="logFC", main=gs.name, sub=xstats,
-           ylim=c(0, ymax), xlim=xrange)
-      if (!is.null(gs.dens)) {
-        lines(gs.dens, col='red', lwd=3)
-      }
-      rug(gs.logFC, col='#FF000033', lwd=3)
-      legend('topright', legend=c("all logFC", "geneset logFC"),
-             text.col=c('black', 'red'))
-      dev.off()
+    if (length(gs.logFC) < 3) {
+      ## You can't plot a density of this
+      gs.dens <- NULL
+      ymax <- base::max(bg.dens$y)
+    } else {
+      gs.dens <- density(gs.logFC, na.rm=TRUE)
+      ymax <- base::max(bg.dens$y, gs.dens$y)
     }
-    data.table(group=gs.group, id=gs.id, gs.name=gs.name, fn=fn.out)
-  })
-  all.fns <- rbindlist(fns)
-  all.fns
+
+    xstats <- sprintf('(%d genes)', length(gs.logFC))
+
+    png(work.me$fn[i], 800, 800, res=150)
+    plot(bg.dens, main=work.me$gs.name[i], sub=xstats, xlab="logFC",
+         ylim=c(0, ymax), xlim=xrange, lwd=2, )
+    if (!is.null(gs.dens)) {
+      lines(gs.dens, col='red', lwd=3)
+    }
+    rug(gs.logFC, col='#FF000033', lwd=3)
+    legend('topright', legend=c("all logFC", "geneset logFC"),
+           text.col=c('black', 'red'))
+    dev.off()
+  }
+
+  work.me[, fn.exists.post := file.exists(fn)]
+  work.me
 }

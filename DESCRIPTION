@@ -1,8 +1,8 @@
 Package: multiGSEA
 Type: Package
 Title: Unified wrappers to multipe GSEA methods available in Bioconductor.
-Version: 0.1
-Date: 2014-09-18
+Version: 0.1.1
+Date: 2014-10-16
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
     ))
@@ -10,13 +10,13 @@ Description: Wraps several GSEA methods into a common interface and provides
     plotting and other functions that are broadly useful for any GSEA.
 Depends:
     methods,
-    data.table,
+    data.table (>= 1.9.4),
     Biobase,
     limma
 Imports:
     BiocGenerics,
     Biobase,
-    data.table,
+    data.table (>= 1.9.4),
     parallel,
     limma
 Suggests:
