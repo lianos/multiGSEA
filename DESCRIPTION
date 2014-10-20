@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: Unified wrappers to multipe GSEA methods available in Bioconductor.
-Version: 0.1.1
+Version: 0.1.2
 Date: 2014-10-16
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"

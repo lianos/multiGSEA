@@ -26,16 +26,24 @@ test_that("logFC's calculated from contrast vectors are correct", {
   expect_equal(tt.lumA, tt0.lumA)
   expect_equal(tt.her2, tt0.her2)
 
-  my.tt.lumA <- calculateIndividualLogFC(vm, d, 'LumA', use.t=FALSE)
-  my.tt.her2 <- calculateIndividualLogFC(vm, d, 'Her2', use.t=FALSE)
+  my.tt.lumA <- calculateIndividualLogFC(vm, d, 'LumA', provide='topTable')
+  my.tt.her2 <- calculateIndividualLogFC(vm, d, 'Her2', provide='topTable')
 
   my.tt0.lumA <- calculateIndividualLogFC(vm, d0, cm[, 'lumA.vs.basal'],
-                                          use.t=FALSE)
+                                          provide='topTable')
   my.tt0.her2 <- calculateIndividualLogFC(vm, d0, cm[, 'her2.vs.basal'],
-                                          use.t=FALSE)
+                                          provide='topTable')
 
-  expect_equal(tt.lumA$logFC, unname(my.tt.lumA))
-  expect_equal(tt.her2$logFC, unname(my.tt.her2))
-  expect_equal(tt.lumA$logFC, unname(my.tt0.lumA))
-  expect_equal(tt.her2$logFC, unname(my.tt0.her2))
+  ## The topTables returned from calculateIndividualLogFc's should be the same
+  expect_equal(tt.lumA, my.tt.lumA)
+  expect_equal(tt.her2, my.tt.her2)
+  expect_equal(tt.lumA, my.tt0.lumA)
+  expect_equal(tt.her2, my.tt0.her2)
+
+  ## Test individuatl accessors
+  check.logFC.lumA0 <- calculateIndividualLogFC(vm, d, 'LumA', provide='logFC')
+  expect_equal(setNames(tt.lumA$logFC, rownames(tt.lumA)), check.logFC.lumA0)
+
+  check.t.lumA0 <- calculateIndividualLogFC(vm, d, 'LumA', provide='t')
+  expect_equal(setNames(tt.lumA$t, rownames(tt.lumA)), check.t.lumA0)
 })

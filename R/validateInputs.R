@@ -1,8 +1,37 @@
 .valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
+.input.reqs <- c('full-design', 'logFC-only')
+.method.to.input.reqs <- c(camera='full-design',
+                           roast='full-design',
+                           gst='logFC-only')
 
-## This is painful error checking logic.
-## validateInputs will throw an error if there are problems found in the inputs
-## or will return a "cleaned" version of the inputs on no error.
+##' Validate the input objects to a GSEA call.
+##'
+##' Checks to ensure that the values for \code{x}, \code{design}, and
+##' \code{contrast} are appropriate for the GSEA \code{methods} being used. If
+##' they are kosher, then "normalized" versions of these objects are returned in
+##' an (aptly) named list, otheerwise an error is thrown.
+##'
+##' This function is strange in that we both want to verify the objects, and
+##' return them in some canonical form, so it is normal for the caller to then
+##' use the values for \code{x}, \code{design}, and \code{contrast} that are
+##' returned from this call, and not the original values for these objects
+##' themselves
+##'
+##' I know that the validation/checking logic is a bit painful (and repetitive)
+##' here. I will (perhaps) clean that up some day.
+##'
+##' @export
+##'
+##' @param x The expression object to use
+##' @param design A design matrix, if the GSEA method(s) require it
+##' @param contrast A contrast vector (if the GSEA method(s) require it)
+##' @param A character vector of the GSEA methods that these inputs will be used
+##'   for
+##' @param require.x.rownames Leave this alone, should always be \code{TRUE} but
+##'   have it in this package for dev/testing purposes.
+##'
+##' @return A list with "normalized" versions of \code{$x}, \code{$design}, and
+##'   \code{$contrast} for downstream use.
 validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
                            require.x.rownames=TRUE) {
   if (is.character(methods)) {
@@ -24,7 +53,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     stop("Invalid expression object (x) type: ", class(x)[1L])
   }
   if (!is.character(rownames(x)) && require.x.rownames) {
-    stop("The expression object has nor rownames ...")
+    stop("The expression object does not have rownames ...")
   }
 
   if (is.matrix(design)) {
@@ -46,7 +75,10 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
 
   if (is.character(methods)) {
     errs.all <- sapply(methods, function(method) {
-      fn <- getFunction(paste0('.validateInputs.', method))
+      fn <- switch(method,
+                   camera=.validate.inputs.full.design,
+                   roast=.validate.inputs.full.design,
+                   gst=.validate.inputs.logFC.only)
       errs <- fn(x, design, contrast)
     }, simplify=FALSE)
 
@@ -124,8 +156,16 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   if (ret.err.only || length(errs)) errs else contrast
 }
 
-.validateInputs.camera <- function(x, design, contrast) {
+.validate.inputs.full.design <- function(x, design, contrast) {
   errs <- list()
+  if (!inherits(x, .valid.x)) {
+    errs <- c(errs,
+              sprintf("Invalid expression object (x) type: %s", class(x)[1L]))
+  } else {
+    if (!is.character(rownames(x)) && require.x.rownames) {
+      errs <- c(errs, "The expression object does not have rownames ...")
+    }
+  }
   if (!is.matrix(design)) {
     errs$design.matrix.required <- TRUE
   } else {
@@ -139,17 +179,14 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   errs
 }
 
-.validateInputs.roast <- function(x, design, contrast) {
-  .validateInputs.camera(x, design, contrast)
-}
-
-.validateInputs.gst <- function(x, design, contrast) {
+.validate.inputs.logFC.only <- function(x, design, contrast) {
   errs <- list()
-  if (is(x, 'DGEList')) {
-    errs$DGEList.not.supported.for.gst <- TRUE
-  }
   if (ncol(x) > 1) {
-    errs <- c(errs, .validateInputs.camera(x, design, contrast))
+    errs <- .validate.inputs.full.design(x, design, contrast)
+  } else {
+    if (is(x, 'DGEList')) {
+      errs$DGEList.not.supported.for.gst <- TRUE
+    }
   }
   errs
 }

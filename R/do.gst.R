@@ -6,11 +6,11 @@ do.gst <- function(x, gs.table, design, contrast,
                    alternative="mixed", type="auto", ranks.only=TRUE,
                    nsim=9999, robust.fit=FALSE, robust.eBayes=FALSE, ...) {
   if (ncol(x) > 1) {
-    ## Do limma fits on this thing and let it rip
-    fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
-    fit  <- eBayes(fit, robust=robust.eBayes)
-    stats <- topTable(fit, contrast, number=Inf, sort.by='none')$t
+    stats <- calculateIndividualLogFC(x, design, contrast,
+                                      robust.fit=robust.fit,
+                                      robust.eBayes=robust.eBayes, ...)
   } else {
+    ## These are already precomputed logFC's (or whatever they are)
     stats <- x[, 1L]
   }
 
