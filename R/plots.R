@@ -19,15 +19,19 @@
 ##'   and whether or not the image was plotted columns for each row in \code{x}
 generate.GSEA.plots <- function(x, design, contrast, result, outdir,
                                 use.cache=TRUE, logFC=NULL,
-                                padj.threshold=1, ...) {
+                                padj.threshold=1,
+                                score.by=c('logFC', 't'), ...) {
+  score.by <- match.arg(score.by)
   if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+    logFC <- calculateIndividualLogFC(x, design, contrast, provide=score.by,
+                                      ...)
   }
   if (!all(names(logFC) == rownames(x))) {
     stop("The logFC values do not match the rownames if x")
   }
 
-  d.summary <- sprintf('logFC(%s)', design.params.name(design, contrast))
+  x.axis <- switch(score.by, logFC='logFC', t='t-statistic')
+  d.summary <- sprintf('%s(%s)', score.by, design.params.name(design, contrast))
   fn.base <- paste0('%s-', d.summary, '.png')
 
   bg.dens <- density(logFC, na.rm=TRUE)
@@ -58,13 +62,13 @@ generate.GSEA.plots <- function(x, design, contrast, result, outdir,
     xstats <- sprintf('(%d genes)', length(gs.logFC))
 
     png(work.me$fn[i], 800, 800, res=150)
-    plot(bg.dens, main=work.me$gs.name[i], sub=xstats, xlab="logFC",
+    plot(bg.dens, main=work.me$gs.name[i], sub=xstats, xlab=x.axis,
          ylim=c(0, ymax), xlim=xrange, lwd=2, )
     if (!is.null(gs.dens)) {
       lines(gs.dens, col='red', lwd=3)
     }
     rug(gs.logFC, col='#FF000033', lwd=3)
-    legend('topright', legend=c("all logFC", "geneset logFC"),
+    legend('topright', legend=c("all", "geneset"),
            text.col=c('black', 'red'))
     dev.off()
   }

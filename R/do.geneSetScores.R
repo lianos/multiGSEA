@@ -1,9 +1,12 @@
 do.geneSetScores <- function(x, design, contrast, gs.table,
                              logFC.stats=NULL,
-                             robust.fit=FALSE, robust.eBayes=FALSE, ...) {
+                             robust.fit=FALSE, robust.eBayes=FALSE,
+                             score.by=c('logFC', 't'), ...) {
+  score.by <- match.arg(score.by)
   if (is.null(logFC.stats)) {
     logFC.stats <- calculateIndividualLogFC(x, design, contrast, robust.fit,
-                                            robust.eBayes, ...)
+                                            robust.eBayes, provide=score.by,
+                                            ...)
   } else {
     if (!is.numeric(logFC.stats) && length(stats) != nrow(x)) {
       stop("Illegal passed in value for logFC.stats")

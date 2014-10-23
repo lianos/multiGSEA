@@ -64,11 +64,13 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
                       methods=c('camera'), outdir=NULL,
                       plots.generate=FALSE, plots.padj.threshold=1,
                       species=NULL, mc.cores=1L, use.cache=FALSE,
-                      force.reeval=FALSE, keep.outdir.onerror=TRUE, ...) {
+                      force.reeval=FALSE, keep.outdir.onerror=TRUE,
+                      score.by=c('logFC', 't'), ...) {
   ## Perhaps we should use some `.call <- match.call()` mojo for some automated
   ## cached filename generation in the future
   ## ---------------------------------------------------------------------------
   ## Argument sanity checking
+  score.by <- match.arg(score.by)
   if (is.null(outdir)) {
     outdir.created <- FALSE
     if (missing(plots.generate)) {
@@ -140,14 +142,16 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 
   ## calculate the log fold changes for all the elements in x for the given
   ## contrast we are running GSEA over
-  logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+  istats <- calculateIndividualLogFC(x, design, contrast, provide=score.by, ...)
 
-  out <- summarizeResults(x, design, contrast, gst, results, logFC=logFC)
+  out <- summarizeResults(x, design, contrast, gst, results,
+                          logFC=istats)
 
   if (plots.generate) {
     ii <- generate.GSEA.plots(x, design, contrast, out, outdir,
-                              use.cache=use.cache, logFC=logFC,
-                              padj.threshold=plots.padj.threshold, ...)
+                              use.cache=use.cache, logFC=istats,
+                              padj.threshold=plots.padj.threshold,
+                              score.by=score.by, ...)
     out[, img.path := ifelse(ii$fn.exists.post, ii$fn, NA_character_)]
   }
 
@@ -156,7 +160,8 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 }
 
 ##' Creates a summary table from all the methods that were run
-summarizeResults <- function(x, design, contrast, gst, results, logFC=NULL) {
+summarizeResults <- function(x, design, contrast, gst, results, logFC=NULL,
+                             score.by=c('logFC', 't')) {
   def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
 
   ## These are the anaylsis-specific columns we want to extract from each
@@ -166,7 +171,8 @@ summarizeResults <- function(x, design, contrast, gst, results, logFC=NULL) {
                            ## 'pval.mixed', 'padj.mixed'))
 
   ## Scores to summarize "effect size" of the gene set.
-  gs.scores <- do.geneSetScores(x, design, contrast, gst, logFC.stats=logFC)
+  gs.scores <- do.geneSetScores(x, design, contrast, gst, logFC.stats=logFC,
+                                score.by=score.by)
 
   meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
   meta <- results[[1]][, meta.cols, with=FALSE]

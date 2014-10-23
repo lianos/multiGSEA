@@ -19,7 +19,7 @@
 calculateIndividualLogFC <- function(x, design, contrast,
                                      provide=c('logFC', 't', 'topTable'),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
-                                     ...) {
+                                     with.fit=FALSE, ...) {
   if (ncol(x) > 1) {
     provide <- match.arg(provide)
     ## Do limma fits on this thing and let it rip
@@ -42,7 +42,8 @@ calculateIndividualLogFC <- function(x, design, contrast,
   } else {
     out <- x[, 1L]
     names(out) <- rownames(x)
+    fit <- NULL
   }
 
-  out
+  if (with.fit) list(result=out, fit=fit) else out
 }
