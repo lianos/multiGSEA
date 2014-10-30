@@ -87,7 +87,7 @@ test_that("plotting does something reasonable", {
 
   m <- multiGSEA(vm, gsets.lol, vm$design, methods='camera',
                  outdir=tmp.dir, plots.generate=TRUE,
-                 plots.padj.threshold=FDR)
+                 plots.padj.threshold=FDR, score.by='logFC')
 
   m.plotted <- m[is.na(img.path) == FALSE]
   expect_equal(n.expected, nrow(m.plotted))
