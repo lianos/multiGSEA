@@ -7,7 +7,7 @@ multiGSEA(x, gene.sets, design = NULL, contrast = NULL,
   methods = c("camera"), outdir = NULL, plots.generate = FALSE,
   plots.padj.threshold = 1, species = NULL, mc.cores = 1L,
   use.cache = FALSE, force.reeval = FALSE, keep.outdir.onerror = TRUE,
-  ...)
+  score.by = c("logFC", "t"), ...)
 }
 \arguments{
 \item{x}{An ExpressoinSet-like object}
@@ -17,24 +17,25 @@ lists the MSigDB set id's (in conjunction with the \code{species}
 parameter); (b) a list of logical vectors into the rows of \code{x}. This
 should be a list of lists, where the top-level lists identified the
 "group" its child elements (genesets) belong to (like the c1, c2, etc.
-grouping) in the MSigDB lists; ie. the provenance of the gene set
-(c) An already rigged up GeneSetTable}
+grouping) in the MSigDB lists; ie. the provenance of the gene set (c) An
+already rigged up GeneSetTable}
 
 \item{design}{A design matrix for the study}
 
 \item{contrast}{The contrast of interest to analyze}
 
 \item{methods}{A character vector indicating the GSEA methods you want to
-  run. This can be any combination of:
+run. This can be any combination of:
 \enumerate{
-  \item{camera}{A \code{limma::camera} analysis}
-  \item{roast}{A \code{limma::(m)roast} analysis}
-  \item{gst}{A \code{limma::geneSetTest analysis}}
+  \item{camera} {A \code{\link[limma]{camera}} analysis}
+  \item{roast} {A \code{\link[limma]{roast}} analysis}
+  \item{gst} {A \code{\link[limma]{geneSetTest} analysis}}
 }}
 
 \item{outdir}{A character vector indicating the directory to use inorder to
 save/cache the results from the analysis. This is required if you want to
-generate plots from this analysis}
+generate plots from this analysis. See the "Caching" section below for
+further details.}
 
 \item{plots.generate}{A logical indicating whether or not you want to
 generate "distribution shift" plots for the GSEA results. If \code{TRUE},
@@ -43,21 +44,22 @@ a propoer \code{outdir} parameter is required.}
 \item{species}{This is only required if you are utilizing the automatic
 construction of gene sets from MSigDB gene set IDs, ie. if
 \code{gene.sets} is something like \code{c('c2', 'c7')}. This can only be
- either "human" or "mouse".}
+either "human" or "mouse".}
 
-\item{mc.cores}{GSEA analyses can be parallelized **over `methods` only**
-by setting this value to > 1. This means that you can run a camera and
-roast analysis simultaneously. Unfortunately this is not ||-izing each
-analysis over a large number of genesets.}
+\item{mc.cores}{GSEA analyses can be parallelized **over `methods` only** by
+setting this value to > 1. This means that you can run a camera and roast
+analysis simultaneously. Unfortunately this is not ||-izing each analysis
+over a large number of genesets.}
 
-\item{use.cache}{Logical to indicate whether or not to take advantage of
-the poor-man's caching the multiGSEA does.}
+\item{use.cache}{Logical to indicate whether or not to take advantage of the
+poor-man's caching the multiGSEA does. See the "Caching" section below for
+further details.}
 
-\item{force.reeval}{If \code{TRUE} no cached results will be re-used if
-they are found.}
+\item{force.reeval}{If \code{TRUE} no cached results will be re-used if they
+are found.}
 
-\item{keep.outdir.onerror}{If \code{FALSE}, the \code{outdir} is removed
-if this function *created* it.}
+\item{keep.outdir.onerror}{If \code{FALSE}, the \code{outdir} is removed if
+this function *created* it.}
 
 \item{...}{The arguments are passed down into the various geneset analysis
   functions.}
@@ -81,5 +83,34 @@ documentation to see which GSEA methods are supported.
 This function will write several results to an output directory if a valid
 value for \code{outdir} is provided. Furthermore, the results of these
 analysis will be cached so that time is saved on subsequent calls.
+}
+\section{Caching}{
+
+
+  (NOTE: this documentation needs further work)
+
+  Running a GSEA can be a costly propositin, especially when using methods
+  that rely on permutation, such as (m)roast. When \code{outdir} is set, the
+  inputs and intermediate results from each GSEA method are saved in a
+  directory tree that is rooted at \code{outdir}. This parameter works
+  intimately with \code{use.cache} and \code{plots.generate}.
+
+  While this can be helpful for manually checking results as they are
+  generated, you can also use it to speed up future re-analyses of the data
+  -- perhaps you want to add one more method to the GSEA comparison that you
+  didn't include originally. The result of each analysis method is stored
+  in the \code{cache} directory encoded with the contrast that was tested.
+  If that method is run again, and \code{use.cache} is set to \code{TRUE},
+  then the result will be loaded if it is found instead of recalculating
+  the result again.
+
+  If \code{force.reeval} is set to \code{TRUE} then the results of a method
+  or plot will be redone even if they are found to already exist in the
+  cache.
+}
+\seealso{
+\code{\link[limma]{camera}},
+  \code{\link[limma]{roast}},
+  \code{\link[limma]{geneSetTest}}
 }
 

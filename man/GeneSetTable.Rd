@@ -4,7 +4,7 @@
 \title{Create a GeneSetTable to match an input expression object.}
 \usage{
 GeneSetTable(gene.sets, x, mapping = NULL, min.gs.size = 5,
-  stop.on.duplicate.x.xref = TRUE, unique.by = c("mean", "var"),
+  stop.on.duplicate.x.xref = TRUE, unique.by = c("mean", "var", "none"),
   species = "human", version = .wehi.msigdb.current)
 }
 \arguments{
@@ -17,7 +17,7 @@ in the MSigDB lists; ie. the provenance of the gene set (c) An already
 rigged up GeneSetTable;}
 
 \item{x}{The expression values measured. Could be a matrix, ExpressionSet,
-etc. rownames are required.}
+etc. rownames are required on this "thing" for it to work.}
 
 \item{mapping}{A data.frame with two columns. The first column is the ids
 used to identify the genes in \code{gene.sets}, the second column are the
@@ -27,5 +27,16 @@ but \code{rownames(x)} are probeset IDs.}
 }
 \description{
 Create a GeneSetTable to match an input expression object.
+}
+\section{Easily mapping rownames(x) to IDs used in gene.sets}{
+
+
+It may be that the IDs used in the provided \code{gene.sets} are different
+than the ones used in \code{rownames(x)}, for instance the IDs in
+\code{gene.sets} might (are likely to) be Entrez IDs, and the rownames of
+\code{x} might by affy probe set IDs, what then?
+
+This is where the \code{mapping} parameter becomes useful.
+TODO: document the GeneSetTable ID mapping more thoroughly.
 }
 

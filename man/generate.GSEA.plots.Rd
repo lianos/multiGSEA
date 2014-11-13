@@ -4,7 +4,7 @@
 \title{Generates GSEA plots for the genesets over a given experiment.}
 \usage{
 generate.GSEA.plots(x, design, contrast, result, outdir, use.cache = TRUE,
-  logFC = NULL, padj.threshold = 1, ...)
+  logFC = NULL, padj.threshold = 1, score.by = c("logFC", "t"), ...)
 }
 \arguments{
 \item{x}{The expression object used in the multiGSEA call}

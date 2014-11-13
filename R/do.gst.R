@@ -4,11 +4,14 @@
 
 do.gst <- function(x, gs.table, design, contrast,
                    alternative="mixed", type="auto", ranks.only=TRUE,
-                   nsim=9999, robust.fit=FALSE, robust.eBayes=FALSE, ...) {
+                   nsim=9999, robust.fit=FALSE, robust.eBayes=FALSE,
+                   score.by=c('logFC', 't'), ...) {
+  score.by <- match.arg(score.by)
   if (ncol(x) > 1) {
     stats <- calculateIndividualLogFC(x, design, contrast,
                                       robust.fit=robust.fit,
                                       robust.eBayes=robust.eBayes, ...)
+    stats <- stats[[score.by]]
   } else {
     ## These are already precomputed logFC's (or whatever they are)
     stats <- x[, 1L]

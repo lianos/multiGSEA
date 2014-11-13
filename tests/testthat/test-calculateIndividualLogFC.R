@@ -26,13 +26,13 @@ test_that("logFC's calculated from contrast vectors are correct", {
   expect_equal(tt.lumA, tt0.lumA)
   expect_equal(tt.her2, tt0.her2)
 
-  my.tt.lumA <- calculateIndividualLogFC(vm, d, 'LumA', provide='topTable')
-  my.tt.her2 <- calculateIndividualLogFC(vm, d, 'Her2', provide='topTable')
+  my.tt.lumA <- calculateIndividualLogFC(vm, d, 'LumA', provide='table')
+  my.tt.her2 <- calculateIndividualLogFC(vm, d, 'Her2', provide='table')
 
   my.tt0.lumA <- calculateIndividualLogFC(vm, d0, cm[, 'lumA.vs.basal'],
-                                          provide='topTable')
+                                          provide='table')
   my.tt0.her2 <- calculateIndividualLogFC(vm, d0, cm[, 'her2.vs.basal'],
-                                          provide='topTable')
+                                          provide='table')
 
   ## The topTables returned from calculateIndividualLogFc's should be the same
   expect_equal(tt.lumA, my.tt.lumA)

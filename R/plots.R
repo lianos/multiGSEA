@@ -76,3 +76,4 @@ generate.GSEA.plots <- function(x, design, contrast, result, outdir,
   work.me[, fn.exists.post := file.exists(fn)]
   work.me
 }
+

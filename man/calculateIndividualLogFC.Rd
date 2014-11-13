@@ -3,8 +3,8 @@
 \alias{calculateIndividualLogFC}
 \title{Runs a vanilla limma differential expression analysis}
 \usage{
-calculateIndividualLogFC(x, design, contrast, provide = c("logFC", "t",
-  "topTable"), robust.fit = FALSE, robust.eBayes = FALSE, ...)
+calculateIndividualLogFC(x, design, contrast, provide = c("table", "logFC",
+  "t"), robust.fit = FALSE, robust.eBayes = FALSE, with.fit = FALSE, ...)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -15,7 +15,9 @@ running any analysis, and this function essentially is just a "pass through"}
 \item{contrast}{The contrast you want to test and provide stats for}
 
 \item{provide}{Specifies what you want to get out of this, just the
-\code{logFC} or \code{t} statistics, or the whole \code{topTable}.}
+\code{logFC} or \code{t} statistics, or the whole result \code{table}.
+TODO: remove this parameter and just always return the table, if one is
+generated as a result of the function call (ie. \code{ncol(x) > 1})}
 
 \item{robust.fit}{If \code{TRUE}, sets \code{method='robust'} in the
 \code{lmFit} call. Defaults to \code{FALSE}}

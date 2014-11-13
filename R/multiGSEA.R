@@ -1,3 +1,18 @@
+if (FALSE) {
+##' A class that holds a data.table with geneset membership.
+##'
+##' @exportClass MultiGSEAResult
+##'
+##' @slot gst The \linkS4class{GeneSetTable} this analysis was run over
+##'
+setClass("MultiGSEAResult",
+         slots=c(
+           gst="GeneSetTable",
+           methods="character",
+           summary="data.table"),
+         prototype=prototype())
+}
+
 ##' Runs several GSEA methods over a dataset for a single contrast.
 ##'
 ##' multiGSEA is wrapper function which delegates GSEA analyses to several
@@ -10,10 +25,38 @@
 ##' value for \code{outdir} is provided. Furthermore, the results of these
 ##' analysis will be cached so that time is saved on subsequent calls.
 ##'
-##' @export
+##' @section Caching:
 ##'
+##'   (NOTE: this documentation needs further work)
+##'
+##'   Running a GSEA can be a costly propositin, especially when using methods
+##'   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
+##'   inputs and intermediate results from each GSEA method are saved in a
+##'   directory tree that is rooted at \code{outdir}. This parameter works
+##'   intimately with \code{use.cache} and \code{plots.generate}.
+##'
+##'   While this can be helpful for manually checking results as they are
+##'   generated, you can also use it to speed up future re-analyses of the data
+##'   -- perhaps you want to add one more method to the GSEA comparison that you
+##'   didn't include originally. The result of each analysis method is stored
+##'   in the \code{cache} directory encoded with the contrast that was tested.
+##'   If that method is run again, and \code{use.cache} is set to \code{TRUE},
+##'   then the result will be loaded if it is found instead of recalculating
+##'   the result again.
+##'
+##'   If \code{force.reeval} is set to \code{TRUE} then the results of a method
+##'   or plot will be redone even if they are found to already exist in the
+##'   cache.
+##'
+##'
+##' @export
 ##' @import limma
 ##' @importFrom parallel mclapply
+##'
+##' @seealso
+##'   \code{\link[limma]{camera}},
+##'   \code{\link[limma]{roast}},
+##'   \code{\link[limma]{geneSetTest}}
 ##'
 ##' @param x An ExpressoinSet-like object
 ##' @param gene.sets This can be several things: (a) a character vector that
@@ -21,20 +64,21 @@
 ##'   parameter); (b) a list of logical vectors into the rows of \code{x}. This
 ##'   should be a list of lists, where the top-level lists identified the
 ##'   "group" its child elements (genesets) belong to (like the c1, c2, etc.
-##'   grouping) in the MSigDB lists; ie. the provenance of the gene set
-##'   (c) An already rigged up GeneSetTable
+##'   grouping) in the MSigDB lists; ie. the provenance of the gene set (c) An
+##'   already rigged up GeneSetTable
 ##' @param design A design matrix for the study
 ##' @param contrast The contrast of interest to analyze
 ##' @param methods A character vector indicating the GSEA methods you want to
 ##'   run. This can be any combination of:
-##' \enumerate{
-##'   \item{camera}{A \code{limma::camera} analysis}
-##'   \item{roast}{A \code{limma::(m)roast} analysis}
-##'   \item{gst}{A \code{limma::geneSetTest analysis}}
-##' }
+##'   \enumerate{
+##'     \item{camera} {A \code{\link[limma]{camera}} analysis}
+##'     \item{roast} {A \code{\link[limma]{roast}} analysis}
+##'     \item{gst} {A \code{\link[limma]{geneSetTest} analysis}}
+##'   }
 ##' @param outdir A character vector indicating the directory to use inorder to
 ##'   save/cache the results from the analysis. This is required if you want to
-##'   generate plots from this analysis
+##'   generate plots from this analysis. See the "Caching" section below for
+##'   further details.
 ##' @param plots.generate A logical indicating whether or not you want to
 ##'   generate "distribution shift" plots for the GSEA results. If \code{TRUE},
 ##'   a propoer \code{outdir} parameter is required.
@@ -44,17 +88,18 @@
 ##' @param species This is only required if you are utilizing the automatic
 ##'   construction of gene sets from MSigDB gene set IDs, ie. if
 ##'   \code{gene.sets} is something like \code{c('c2', 'c7')}. This can only be
-##'    either "human" or "mouse".
-##' @param mc.cores GSEA analyses can be parallelized **over `methods` only**
-##'   by setting this value to > 1. This means that you can run a camera and
-##'   roast analysis simultaneously. Unfortunately this is not ||-izing each
-##'   analysis over a large number of genesets.
-##' @param use.cache Logical to indicate whether or not to take advantage of
-##'   the poor-man's caching the multiGSEA does.
-##' @param force.reeval If \code{TRUE} no cached results will be re-used if
-##'   they are found.
-##' @param keep.outdir.onerror If \code{FALSE}, the \code{outdir} is removed
-##'   if this function *created* it.
+##'   either "human" or "mouse".
+##' @param mc.cores GSEA analyses can be parallelized **over `methods` only** by
+##'   setting this value to > 1. This means that you can run a camera and roast
+##'   analysis simultaneously. Unfortunately this is not ||-izing each analysis
+##'   over a large number of genesets.
+##' @param use.cache Logical to indicate whether or not to take advantage of the
+##'   poor-man's caching the multiGSEA does. See the "Caching" section below for
+##'   further details.
+##' @param force.reeval If \code{TRUE} no cached results will be re-used if they
+##'   are found.
+##' @param keep.outdir.onerror If \code{FALSE}, the \code{outdir} is removed if
+##'   this function *created* it.
 ##' @param ... The arguments are passed down into the various geneset analysis
 ##'   functions.
 ##'
@@ -73,6 +118,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   score.by <- match.arg(score.by)
   if (is.null(outdir)) {
     outdir.created <- FALSE
+    noutdir <- NULL
     if (missing(plots.generate)) {
       plots.generate <- FALSE
     } else if (plots.generate) {
@@ -88,6 +134,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
       stop("`outdir` must be path to a directory used ot save results")
     }
     outdir.created <- .initOutDir(outdir)
+    noutdir <- normalizePath(outdir)
   }
 
   species <- match.species(species)
@@ -136,13 +183,18 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   ## Run the analyses
   results <- mclapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
-    fn(x, gst, design, contrast, outdir=outdir, use.cache=use.cache, ...)
+    fn(x, gst, design, contrast, outdir=outdir, use.cache=use.cache,
+       score.by=score.by, ...)
   }, mc.cores=mc.cores)
   names(results) <- methods
 
   ## calculate the log fold changes for all the elements in x for the given
   ## contrast we are running GSEA over
-  istats <- calculateIndividualLogFC(x, design, contrast, provide=score.by, ...)
+  logFC <- calculateIndividualLogFC(x, design, contrast, provide='table',
+                                    ...)
+  istats <- logFC[[score.by]]
+  ## istats <- calculateIndividualLogFC(x, design, contrast, provide=score.by,
+  ##                                    ...)
 
   out <- summarizeResults(x, design, contrast, gst, results,
                           logFC=istats)
@@ -156,6 +208,8 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   }
 
   finished <- TRUE
+  attr(out, 'cache.dir') <- noutdir
+  attr(out, 'logFC') <- logFC
   out
 }
 

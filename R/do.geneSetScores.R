@@ -1,4 +1,4 @@
-do.geneSetScores <- function(x, design, contrast, gs.table,
+do.geneSetScores <- function(x, gs.table, design, contrast,
                              logFC.stats=NULL,
                              robust.fit=FALSE, robust.eBayes=FALSE,
                              score.by=c('logFC', 't'), ...) {

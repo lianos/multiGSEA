@@ -24,6 +24,16 @@ setClass("GeneSetTable",
 
 ##' Create a GeneSetTable to match an input expression object.
 ##'
+##' @section Easily mapping rownames(x) to IDs used in gene.sets:
+##'
+##' It may be that the IDs used in the provided \code{gene.sets} are different
+##' than the ones used in \code{rownames(x)}, for instance the IDs in
+##' \code{gene.sets} might (are likely to) be Entrez IDs, and the rownames of
+##' \code{x} might by affy probe set IDs, what then?
+##'
+##' This is where the \code{mapping} parameter becomes useful.
+##' TODO: document the GeneSetTable ID mapping more thoroughly.
+##'
 ##' @importFrom matrixStats rowVars
 ##' @export
 ##'
@@ -35,7 +45,7 @@ setClass("GeneSetTable",
 ##' in the MSigDB lists; ie. the provenance of the gene set (c) An already
 ##' rigged up GeneSetTable;
 ##' @param x The expression values measured. Could be a matrix, ExpressionSet,
-##' etc. rownames are required.
+##' etc. rownames are required on this "thing" for it to work.
 ##' @param mapping A data.frame with two columns. The first column is the ids
 ##' used to identify the genes in \code{gene.sets}, the second column are the
 ##' rows of x that match the particular gene.set id. This is minimally meant to
@@ -43,9 +53,11 @@ setClass("GeneSetTable",
 ##' but \code{rownames(x)} are probeset IDs.
 GeneSetTable <- function(gene.sets, x, mapping=NULL, min.gs.size=5,
                          stop.on.duplicate.x.xref=TRUE,
-                         unique.by=c('mean', 'var'),
+                         unique.by=c('mean', 'var', 'none'),
                          species='human',
                          version=.wehi.msigdb.current) {
+  unique.by <- match.arg(unique.by)
+
   if (is(gene.sets, 'GeneSetTable')) {
     return(conform(gene.sets, x))
   }
@@ -91,16 +103,207 @@ GeneSetTable <- function(gene.sets, x, mapping=NULL, min.gs.size=5,
              feature.lookup=lookup,
              species=if (is.msigdb.lookup) species else character())
 
+  if (unique.by != 'none' && any(duplicated(out@feature.lookup$x.id))) {
+    out <- resolveDuplicateIdMapping(out, x, unique.by=unique.by)
+  }
+
   if (min.gs.size > 0) {
     out@table <- out@table[n >= min.gs.size]
   }
 
-  if (any(duplicated(out@feature.lookup$x.id))) {
-    out <- resolveDuplicateIdMapping(out, x, unique.by=unique.by)
-  }
-
   out
 }
+
+setValidity("GeneSetTable", function(object) {
+  proto <- new('GeneSetTable')
+
+  ## Check lookup table
+  kosher.lookup <- .check.dt.columns(object@feature.lookup,
+                                     proto@feature.lookup)
+  if (!isTRUE(kosher.lookup)) {
+    return(kosher.lookup)
+  }
+  na.xrows <- is.na(object@feature.lookup$x.index)
+  if (any(na.xrows)) {
+    return("There are NA row indices into the eXpression object")
+  }
+
+  kosher.data <- .check.dt.columns(object@table, proto@table)
+  if (!isTRUE(kosher.data)) {
+    return(kosher.data)
+  }
+  not.logical.idx <- !sapply(object@table$membership, is, 'logical')
+  if (n.bad <- sum(not.logical.idx)) {
+    msg <- "%d%s list elements are not logical"
+    some.bad <- head(which(not.logical.idx, 5))
+    msg <- sprintf(msg, some.bad, if (n.bad > 5) '...' else '')
+    return(msg)
+  }
+
+  lens <- sapply(object@table$membership, length)
+  ulens <- unique(lens)
+  if (length(ulens) != 1) {
+    return("Not all membership index vectors are the same length")
+  }
+
+  ## Ensure that @table is keyed and there are no duplicate genesets by group,id
+  if (!setequal(c('group', 'id'), key(object@table))) {
+    return('invalid key for GeneSetTable@table (group,id required)')
+  }
+  if (sum(duplicated(object@table, by=c('group', 'id'))) != 0) {
+    return('Duplicated group,id pair in GeneSetTable exist')
+  }
+
+  TRUE
+})
+
+## -----------------------------------------------------------------------------
+## indexing
+
+##' Identify the row number of the geneset being queried
+##'
+##' @param x A GeneSetTable
+##' @param i if `j` is missing, this must be a index into a row of the table,
+##' otherwise i and j can be characters to identify the gene set
+##' @param character, or missing. If character, this is the id of the geneset
+##' to pick, `i` is the group
+##'
+##' @return The row index of the geneset under question. If i,j do not match
+##' a given geneset, then NA is returned.
+.gst.row.index <- function(x, i, j) {
+  if (!isTRUE(validObject(x))) {
+    stop("Invalid GeneSetTable")
+  }
+  if (is.numeric(i)) {
+    idx <- suppressWarnings(as.integer(i))
+    if (all(!is.na(idx)) && all(idx == i)) {
+      ## Looks like a valid index
+      if (any(idx < 1) || any(idx > nrow(x))) {
+        stop("Out of bounds index into GeneSetTable")
+      }
+    } else {
+      stop("Invalid numeric index passed into `i`")
+    }
+  } else if (is.character(i)) {
+    if (missing(j)) {
+      stop('`i` (group) and `j` (id) are required to ')
+    }
+    dtidx <- data.table(group=i, id=j, key=key(x@table))
+    idx <- x@table[dtidx, which=TRUE]
+  } else if (is.data.table(i)) {
+    if (ncol(i) != 2 && all.equal(names(i), key(x@table))) {
+      stop("Invalid data.table used to index with `i`")
+    }
+    idx <- x@table[i, which=TRUE]
+  }
+
+  if (any(duplicated(idx))) {
+    stop("Can't index into a GeneSetTable to return duplicate rows")
+  }
+
+  if (length(idx) == 1L) {
+    if (is.na(idx)) {
+      idx <- integer()
+    }
+  } else if (any(is.na(idx))) {
+    stop("NA values are not allowed in returned row indices")
+  }
+
+  idx
+}
+
+setMethod("[", "GeneSetTable", function(x, i, j, ..., drop) {
+  if (length(list(...)) > 0L)
+    stop("invalid subsetting")
+  idx <- .gst.row.index(x, i, j)
+  if (length())
+  x@table <- x@table[idx]
+  x
+})
+
+setMethod("head", c("GeneSetTable"), function(x, n=6L, ...) {
+  x@table <- head(x@table, n)
+  x
+})
+
+setMethod("tail", c("GeneSetTable"), function(x, n=6L, ...) {
+  x@table <- tail(x@table, n)
+  x
+})
+
+## -----------------------------------------------------------------------------
+
+##' @importMethodsFrom BiocGenerics nrow
+setMethod("nrow", c(x='GeneSetTable'), function(x) nrow(x@table))
+
+##' @importMethodsFrom BiocGenerics ncol
+setMethod("ncol", c(x='GeneSetTable'), function(x) ncol(x@table))
+
+##' @importFrom Biobase featureNames
+setMethod("featureNames", c(object='GeneSetTable'), function(object) {
+  fn <- character(max(object@feature.lookup$x.index))
+  fn[object@feature.lookup$x.index] <- object@feature.lookup$x.id
+  fn
+})
+
+setMethod("featureIds", c(object='GeneSetTable'), function(object, i, j, ...) {
+  if (missing(i)) {
+    return(featureNames(object))
+  }
+  idx <- .gst.row.index(object, i, j)
+  if (object@table$n[idx] > 0) {
+    xref <- match(which(object@table$membership[[idx]]),
+                  object@feature.lookup$x.index)
+    ids <- object@feature.lookup$x.id[xref]
+  } else {
+    ids <- character()
+  }
+  ids
+})
+
+setMethod("conform", c(x='GeneSetTable'),
+function(x, y, mapping=x@feature.lookup, unique.by=c('mean', 'var', 'none'),
+         expr.id.fn=rownames, ...) {
+  unique.by <- match.arg(unique.by)
+  y <- validateInputs(y)$x
+
+  ## Will update x@feature.lookup to match to the rows in y and return a
+  ## GeneSetTable that's ready to be analyzed against `data`
+
+  ## Build a list of lists out of this thing, and rip it through GeneSetTable
+  x.ids <- featureNames(x)
+  groups <- unique(x@table$group)
+  lol <- sapply(groups, function(g) {
+    these <- x@table[group == g]
+    out <- lapply(1:nrow(these), function(idx) {
+      x.ids[these$membership[[idx]]]
+    })
+    names(out) <- these$id
+    out
+  }, simplify=FALSE)
+
+  ## mapping <- data.frame(x@feature.lookup$gset.id, x@feature.lookup$x.id)
+  ## lookup <- buildMappingTable(mapping, y, expr.id.fn=expr.id.fn)
+
+  gst <- GeneSetTable(lol, y, unique.by=unique.by, min.gs.size=1)
+  xref <- match(paste(gst@table$group, gst@table$id, sep='.'),
+                paste(x@table$group, x@table$id, sep='.'))
+  gst@table[, N := x@table$N[xref]]
+  gst
+})
+
+setMethod("show", "GeneSetTable", function(object) {
+  msg <- sprintf("GeneSetTable with %d genesets across %d groups",
+                 nrow(object@table), length(unique(object@table$group)))
+  hr <- paste(rep("-", nchar(msg)), collapse='')
+  cat(msg, "\n", hr, "\n", sep="")
+  dt <- object@table[, list(group, id, N, n)]
+  dt[, membership := {
+    sprintf('<logical(%d)>', length(object@table$membership[[1]]))
+  }]
+  data.table:::print.data.table(dt)
+})
+
 
 resolveDuplicateIdMapping <- function(gst, x, unique.by=c('mean', 'var')) {
   ## TODO: deal with multiplie gene set IDs mapping to rows in x
@@ -141,89 +344,6 @@ buildMappingTable <- function(mapping, x, expr.id.fn=rownames) {
   setkeyv(mapping, 'gset.id')
 }
 
-##' @importFrom Biobase featureNames
-setMethod("featureNames", c(object='GeneSetTable'), function(object) {
-  fn <- character(max(object@feature.lookup$x.index))
-  fn[object@feature.lookup$x.index] <- object@feature.lookup$x.id
-  fn
-})
-
-##' Conforms x to y.
-##'
-##' @exportMethod conform
-setGeneric("conform", function(x, ...) standardGeneric("conform"))
-
-setMethod("conform", c(x='GeneSetTable'),
-function(x, y, mapping=x@feature.lookup, unique.by=c('mean', 'var'),
-         expr.id.fn=rownames, ...) {
-  y <- validateInputs(y)$x
-
-  ## Will update x@feature.lookup to match to the rows in y and return a
-  ## GeneSetTable that's ready to be analyzed against `data`
-
-  ## Build a list of lists out of this thing, and rip it through GeneSetTable
-  x.ids <- featureNames(x)
-  groups <- unique(x@table$group)
-  lol <- sapply(groups, function(g) {
-    these <- x@table[group == g]
-    out <- lapply(1:nrow(these), function(idx) {
-      x.ids[these$membership[[idx]]]
-    })
-    names(out) <- these$id
-    out
-  }, simplify=FALSE)
-
-  ## mapping <- data.frame(x@feature.lookup$gset.id, x@feature.lookup$x.id)
-  ## lookup <- buildMappingTable(mapping, y, expr.id.fn=expr.id.fn)
-
-  gst <- GeneSetTable(lol, y, unique.by=unique.by, min.gs.size=1)
-  xref <- match(paste(gst@table$group, gst@table$id, sep='.'),
-                paste(x@table$group, x@table$id, sep='.'))
-  gst@table[, N := x@table$N[xref]]
-  gst
-})
-
-setMethod('show', 'GeneSetTable', function(object) {
-  cat("GeneSetTable with XX genesets across YY groups\n")
-  cat("----------------------------------------------\n")
-  data.table:::print.data.table(object@table)
-})
-
-setValidity("GeneSetTable", function(object) {
-  proto <- new('GeneSetTable')
-
-  ## Check lookup table
-  kosher.lookup <- .check.dt.columns(object@feature.lookup,
-                                     proto@feature.lookup)
-  if (!isTRUE(kosher.lookup)) {
-    return(kosher.lookup)
-  }
-  na.xrows <- is.na(object@feature.lookup$x.index)
-  if (any(na.xrows)) {
-    return("There are NA row indices into the eXpression object")
-  }
-
-  kosher.data <- .check.dt.columns(object@table, proto@table)
-  if (!isTRUE(kosher.data)) {
-    return(kosher.data)
-  }
-  not.logical.idx <- !sapply(object@table$membership, is, 'logical')
-  if (n.bad <- sum(not.logical.idx)) {
-    msg <- "%d%s list elements are not logical"
-    some.bad <- head(which(not.logical.idx, 5))
-    msg <- sprintf(msg, some.bad, if (n.bad > 5) '...' else '')
-    return(msg)
-  }
-
-  lens <- sapply(object@table$membership, length)
-  ulens <- unique(lens)
-  if (length(ulens) != 1) {
-    return("Not all membership index vectors are the same length")
-  }
-
-  TRUE
-})
-
 ## -----------------------------------------------------------------------------
 ## Non exported utility functions for GeneSetTable stuff.
 is.list.of.index.vectors <- function(x) {
@@ -249,7 +369,7 @@ list.of.geneset.lists.to.data.table <- function(x, gene.sets, lookup) {
                membership=lapply(indexes, '[[', 'membership'))
   })
   out <- rbindlist(groups)
-  out
+  setkeyv(out, c('group', 'id'))
 }
 
 index.vector.to.xrow <- function(x, index, lookup) {

@@ -14,7 +14,11 @@ test_that("GeneSetTable constructor minimally works", {
   expect_true(all(sapply(gst50@table$membership, sum) >= 50))
 })
 
-test_that("GeneSetTable mapping works", {
+test_that("GeneSetTable indexing `[` works", {
+  ## TODO: Test indexing GeneSetTables
+})
+
+test_that("GeneSetTable featureId mapping works (w/o using featureId method)", {
   es <- exampleExpressionSet(do.voom=FALSE)
   gsets.lol <- exampleGeneSets('lol')
 
@@ -37,6 +41,21 @@ test_that("GeneSetTable mapping works", {
     efeatures <- intersect(gsets.lol[[group]][[id]], rownames(es))
     expect_true(setequal(efeatures, ifeatures),
                 info=sprintf('%s (intersected entrez)', id))
+  }
+})
+
+test_that("featureId(GeneSetTable, i, j) accessor works", {
+  es <- exampleExpressionSet(do.voom=FALSE)
+  gsets.lol <- exampleGeneSets('lol')
+  gst <- GeneSetTable(gsets.lol, es, min.gs.size=1)
+
+  for (group in names(gsets.lol)) {
+    for (id in names(gsets.lol[[group]])) {
+      expected.ids <- intersect(gsets.lol[[group]][[id]], rownames(es))
+      gst.ids <- featureIds(gst, group, id)
+      msg <- sprintf("unexpected ids in featureIds(gst, %s, %s)", group, id)
+      expect_true(setequal(expected.ids, gst.ids), info=msg)
+    }
   }
 })
 
