@@ -1,5 +1,9 @@
+
+##' Returns the featureIds associated with a given GeneSetTable or one of the
+##' individual gene sets within it.
+##'
 ##' @rdname featureIds
-##' @export
+##' @exportMethod
 setGeneric("featureIds", function(object, ...) {
   standardGeneric("featureIds")
 })
