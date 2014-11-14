@@ -42,7 +42,8 @@ test_that("multiGSEA camera+roast run matches default runs of each", {
 
   expect_equal(photo, my.photo, info='camera result from multiGSEA')
   expect_equal(roasted[, names(my.roast)],
-               my.roast, info='roast result from multiGSEA')
+               my.roast, info='roast result from multiGSEA',
+               tolerance=0.1)
 })
 
 test_that("feature.id's returned from multiGSEA are correct", {

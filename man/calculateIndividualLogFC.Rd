@@ -28,8 +28,11 @@ generated as a result of the function call (ie. \code{ncol(x) > 1})}
 \item{...}{parameters passed through to the \code{lmFit} call.}
 }
 \value{
-A vector of \code{logFC} or \code{t} statistics, or the entire
-  \code{topTable} \code{data.frame}.
+If \code{provde == 'table'}: a data.frame of results that resembles
+  the output of limma::topTable with P.Value and adj.P.Val columns renamed
+  to pval, padj. Even if the \code{x} input is a vector, we reconstruct a
+  "dummy" \code{data.frame}. Otherwise, the column vector that corresponds
+  to \code{provide}.
 }
 \description{
 Runs a vanilla limma differential expression analysis

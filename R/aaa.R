@@ -2,7 +2,8 @@
 ## devtools
 .datatable.aware <- TRUE
 
-.multi.gsea.methods <- c('camera', 'roast', 'gst', 'npGSEA')
+## .multi.gsea.methods <- c('camera', 'roast', 'gst', 'npGSEA')
+.multi.gsea.methods <- c('camera', 'roast', 'gst', 'hyperGeometricTest')
 
 .unsupportedGSEAmethods <- function(x, throw.error=TRUE) {
   bad.methods <- setdiff(x, .multi.gsea.methods)

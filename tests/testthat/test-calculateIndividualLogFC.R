@@ -10,7 +10,10 @@ test_that("logFC's calculated from contrast vectors are correct", {
   fit <- lmFit(vm, d)
   e <- eBayes(fit)
   tt.lumA <- topTable(e, 'LumA', number=Inf, sort='none')
+  setnames(tt.lumA, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
+
   tt.her2 <- topTable(e, 'Her2', number=Inf, sort='none')
+  setnames(tt.her2, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
 
   d0 <- model.matrix(~ 0 + PAM50subtype, vm$targets)
   colnames(d0) <- sub('PAM50subtype', '', colnames(d0))
@@ -19,8 +22,12 @@ test_that("logFC's calculated from contrast vectors are correct", {
                       levels=d0)
   fit0 <- lmFit(vm, d0)
   e0 <- eBayes(contrasts.fit(fit0, cm))
+
   tt0.lumA <- topTable(e0, 'lumA.vs.basal', number=Inf, sort='none')
+  setnames(tt0.lumA, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
+
   tt0.her2 <- topTable(e0, 'her2.vs.basal', number=Inf, sort='none')
+  setnames(tt0.her2, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
 
   ## Check to make sure that I really understand limma ;-)
   expect_equal(tt.lumA, tt0.lumA)
@@ -40,7 +47,7 @@ test_that("logFC's calculated from contrast vectors are correct", {
   expect_equal(tt.lumA, my.tt0.lumA)
   expect_equal(tt.her2, my.tt0.her2)
 
-  ## Test individuatl accessors
+  ## Test individual accessors
   check.logFC.lumA0 <- calculateIndividualLogFC(vm, d, 'LumA', provide='logFC')
   expect_equal(setNames(tt.lumA$logFC, rownames(tt.lumA)), check.logFC.lumA0)
 

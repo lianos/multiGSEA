@@ -181,52 +181,60 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 
   ## ---------------------------------------------------------------------------
   ## Run the analyses
+
+  ## Same analysis could use an already calculated logFC table to calculate the
+  ## individual differential expression statistics for the elements measured
+  ## in x, so let's make ahead of time.
+  lfc <- calculateIndividualLogFC(x, design, contrast, provide='table', ...)
+
   results <- mclapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
     fn(x, gst, design, contrast, outdir=outdir, use.cache=use.cache,
-       score.by=score.by, ...)
+       logFC.stats=lfc, score.by=score.by, ...)
   }, mc.cores=mc.cores)
   names(results) <- methods
 
-  ## calculate the log fold changes for all the elements in x for the given
-  ## contrast we are running GSEA over
-  logFC <- calculateIndividualLogFC(x, design, contrast, provide='table',
-                                    ...)
-  istats <- logFC[[score.by]]
-  ## istats <- calculateIndividualLogFC(x, design, contrast, provide=score.by,
-  ##                                    ...)
-
-  out <- summarizeResults(x, design, contrast, gst, results,
-                          logFC=istats)
+  out <- .summarizeResults(x, design, contrast, gst, results, lfc, score.by)
 
   if (plots.generate) {
     ii <- generate.GSEA.plots(x, design, contrast, out, outdir,
-                              use.cache=use.cache, logFC=istats,
+                              use.cache=use.cache, logFC.stats=lfc,
                               padj.threshold=plots.padj.threshold,
                               score.by=score.by, ...)
     out[, img.path := ifelse(ii$fn.exists.post, ii$fn, NA_character_)]
   }
 
-  finished <- TRUE
+  ## These will go into the MultiGSEAResult object that this thing should be
+  ## returning
+  attr(out, 'results') <- results
   attr(out, 'cache.dir') <- noutdir
-  attr(out, 'logFC') <- logFC
+  attr(out, 'logFC') <- lfc
+
+  finished <- TRUE
   out
 }
 
 ##' Creates a summary table from all the methods that were run
-summarizeResults <- function(x, design, contrast, gst, results, logFC=NULL,
-                             score.by=c('logFC', 't')) {
+##'
+##'
+.summarizeResults <- function(x, design, contrast, gst, results, logFC.stats,
+                              score.by) {
   def.take <- c('group', 'id', 'pval', 'padj', 'padj.by.group')
+
+  ## TODO: refactor the individual method summary stuff into their own
+  ##       .summarize.<method>() functions so that adding a new method
+  ##       only requires tweaking the code for the new do.<newMethod>.R
+  ##       file you must create for it anyway.
 
   ## These are the anaylsis-specific columns we want to extract from each
   ## individual result so that it is included in the outoing data.table
   add.take <- list(camera=c('Correlation', 'Direction'),
-                   roast=c('PropDown', 'PropUp', 'Direction'))
-                           ## 'pval.mixed', 'padj.mixed'))
+                   roast=c('PropDown', 'PropUp', 'Direction'), ## 'pval.mixed', 'padj.mixed'
+                   hyperGeometricTest=c('odds', 'expected'))
 
   ## Scores to summarize "effect size" of the gene set.
-  gs.scores <- do.geneSetScores(x, design, contrast, gst, logFC.stats=logFC,
-                                score.by=score.by)
+  gs.scores <- do.geneSetScores(x, gst, design, contrast,
+                                logFC.stats=logFC.stats, score.by=score.by)
 
   meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
   meta <- results[[1]][, meta.cols, with=FALSE]

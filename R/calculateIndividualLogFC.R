@@ -17,8 +17,11 @@
 ##'   \code{eBayes} call.
 ##' @param ... parameters passed through to the \code{lmFit} call.
 ##'
-##' @return A vector of \code{logFC} or \code{t} statistics, or the entire
-##'   \code{topTable} \code{data.frame}.
+##' @return If \code{provde == 'table'}: a data.frame of results that resembles
+##'   the output of limma::topTable with P.Value and adj.P.Val columns renamed
+##'   to pval, padj. Even if the \code{x} input is a vector, we reconstruct a
+##'   "dummy" \code{data.frame}. Otherwise, the column vector that corresponds
+##'   to \code{provide}.
 calculateIndividualLogFC <- function(x, design, contrast,
                                      provide=c('table', 'logFC', 't'),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
@@ -37,16 +40,15 @@ calculateIndividualLogFC <- function(x, design, contrast,
     fit  <- eBayes(fit, robust=robust.eBayes)
     tt <- topTable(fit, contrast, number=Inf, sort.by='none')
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
-    if (provide == 'table') {
-      out <- tt
-    } else {
-      out <- tt[[provide]]
-      names(out) <- rownames(x)
-    }
+    out <- tt
   } else {
-    out <- x[, 1L]
-    names(out) <- rownames(x)
+    out <- data.frame(logFC=x[, 1L], t=x[, 1L], pval=NA_real_, padj=NA_real_)
+    rownames(out) <- rownames(x)
     fit <- NULL
+  }
+
+  if (provide != 'table') {
+    out <- setNames(out[[provide]], rownames(out))
   }
 
   if (with.fit) list(result=out, fit=fit) else out
