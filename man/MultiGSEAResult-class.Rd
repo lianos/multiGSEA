@@ -2,8 +2,7 @@
 \docType{class}
 \name{MultiGSEAResult-class}
 \alias{MultiGSEAResult-class}
-\title{A class that holds all of the things you need to analyze the results from
-the multiGSEA call.}
+\title{An object to hold the results from a multiGSEA call}
 \description{
 This is a WIP and we aren't using this yet, but will soon.
 }

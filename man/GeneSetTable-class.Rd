@@ -11,6 +11,11 @@ A class that holds a data.table with geneset membership.
 \describe{
 \item{\code{table}}{The data.table with geneset information}
 
+\item{\code{db}}{Not used yet, but putting it here for the future. This will hold
+ALL geneset feature membership information, irrespective of whether or not
+that feature appears in the expression object that is being tested
+against.}
+
 \item{\code{feature.lookup}}{Maps the ids used in the geneset lists to the ids
 (rows) over the expression data the GSEA is run on}
 

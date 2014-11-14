@@ -1,5 +1,4 @@
-##' A class that holds all of the things you need to analyze the results from
-##' the multiGSEA call.
+##' An object to hold the results from a multiGSEA call
 ##'
 ##' This is a WIP and we aren't using this yet, but will soon.
 ##'
@@ -18,7 +17,7 @@ setClass("MultiGSEAResult",
            gst="GeneSetTable",
            results="list",
            summary="data.table",
-           logFC='data.frame',
+           logFC='data.table',
            outdir='character'),
          prototype=prototype())
 
@@ -265,7 +264,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 
   ## Add the memberhsip and feature.id lists
   ## On second thought, no.
-  if (FALSE) {
+  if (TRUE) {
     more <- results[[1]][, list(group, id, membership, feature.id)]
     m.key <- paste(more$group, more$id, sep='.')
     o.key <- paste(out$group, out$id, sep='.')
@@ -276,7 +275,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
     if (any(duplicated(xref))) {
       stop("Duplicated keys when cross referencing membership and output")
     }
-    out[, membership := more$membership[xref]]
+    ## out[, membership := more$membership[xref]]
     out[, feature.id := more$feature.id[xref]]
   }
 

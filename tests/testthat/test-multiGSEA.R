@@ -12,7 +12,7 @@ test_that("multiGSEA camera+roast run matches default runs of each", {
                     sort='none')
 
   m <- multiGSEA(vm, gsets.lol, vm$design, methods=c('camera', 'roast'),
-                 nrot=500, .seed=123, force.reeval=TRUE)
+                 nrot=500, .seed=123, use.cache=FALSE)
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality

@@ -3,6 +3,10 @@
 ##' @exportClass GeneSetTable
 ##'
 ##' @slot table The data.table with geneset information
+##' @slot db Not used yet, but putting it here for the future. This will hold
+##'   ALL geneset feature membership information, irrespective of whether or not
+##'   that feature appears in the expression object that is being tested
+##'   against.
 ##' @slot feature.lookup Maps the ids used in the geneset lists to the ids
 ##' (rows) over the expression data the GSEA is run on
 ##' @slot species Either "human" or "mouse" -- only (really) used when the object
@@ -10,12 +14,20 @@
 setClass("GeneSetTable",
          slots=c(
            table="data.table",
+           db="data.table",
            feature.lookup="data.table",
            species="character"),
          prototype=prototype(
            table=data.table(
-             group=character(), id=character(), N=integer(),
-             n=integer(), membership=as.list(logical())),
+             group=character(),
+             id=character(),
+             N=integer(),
+             n=integer(),
+             membership=as.list(logical())),
+           db=data.table(             ## For refactor:
+             group=character(),       ## This will hold ALL geneset ids
+             id=character(),          ## irrespective of their membership in x
+             gs.fid=character()),
            feature.lookup=data.table(
              gset.id=character(),
              x.id=character(),
