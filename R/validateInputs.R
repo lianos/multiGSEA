@@ -2,7 +2,8 @@
 .input.reqs <- c('full-design', 'logFC-only')
 .method.to.input.reqs <- c(camera='full-design',
                            roast='full-design',
-                           gst='logFC-only')
+                           gst='logFC-only',
+                           hyperGeometricTest='full-design')
 
 ##' Validate the input objects to a GSEA call.
 ##'
@@ -78,6 +79,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
       fn <- switch(method,
                    camera=.validate.inputs.full.design,
                    roast=.validate.inputs.full.design,
+                   hyperGeometricTest=.validate.inputs.full.design,
                    gst=.validate.inputs.logFC.only)
       errs <- fn(x, design, contrast)
     }, simplify=FALSE)

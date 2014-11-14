@@ -1,7 +1,6 @@
-do.geneSetScores <- function(x, gs.table, design, contrast,
-                             logFC.stats=NULL, score.by=c('logFC', 't'),
-                             robust.fit=FALSE, robust.eBayes=FALSE, ...) {
-  score.by <- match.arg(score.by)
+do.geneSetScores <- function(x, gs.table, design, contrast, logFC.stats=NULL,
+                             robust.fit=FALSE, robust.eBayes=FALSE,
+                             trim=0.10, ...) {
   if (is.null(logFC.stats)) {
     logFC.stats <- calculateIndividualLogFC(x, design, contrast, robust.fit,
                                             robust.eBayes, provide='table', ...)
@@ -25,9 +24,9 @@ do.geneSetScores <- function(x, gs.table, design, contrast,
 
   scores <- lapply(gs.table@table$membership, function(idx) {
     data.table(mean.logFC=mean(lfc$logFC[idx], na.rm=TRUE),
-               tmean.logFC=mean(lfc$logFC[idx], na.rm=TRUE, trim=0.10),
+               tmean.logFC=mean(lfc$logFC[idx], na.rm=TRUE, trim=trim),
                mean.t=mean(lfc$t[idx], na.rm=TRUE),
-               tmean.t=mean(lfc$t[idx], na.rm=TRUE, trim=0.10))
+               tmean.t=mean(lfc$t[idx], na.rm=TRUE, trim=trim))
   })
   scores <- rbindlist(scores)
 

@@ -13,7 +13,8 @@ test_that('roast runs equivalently from do.roast vs direct call', {
   roasted <- mroast(vm, gsets, vm$design, ncol(vm$design), nrot=500,
                     sort='none')
 
-  my <- do.roast(vm, gst, vm$design, ncol(vm$design), nrot=500, .seed=123)
+  my <- do.roast(vm, gst, vm$design, ncol(vm$design), nrot=500, .seed=123,
+                 use.cache=FALSE)
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
@@ -26,6 +27,6 @@ test_that('roast runs equivalently from do.roast vs direct call', {
     out[rownames(roasted),]
   })
 
-  expect_equal(roasted, comp)
+  expect_equal(roasted, comp, tolerance=0.1)
 })
 

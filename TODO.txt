@@ -1,0 +1,11 @@
+  * The result of the multiGSEA output should be a MultiGSEAResult
+  * Add a plot,MultiGSEAResult so users can view these interactively, perhaps:
+      function(x, i, ...) {
+        ## i is an index into the MultiGSEAResult
+      }
+    Refactor the generate.GSEA.plots method to use that.
+
+Check out / incorporate these methods:
+
+  * gage: http://bioconductor.org/packages/release/bioc/html/gage.html
+  * GSAR: http://bioconductor.org/packages/release/bioc/html/GSAR.html

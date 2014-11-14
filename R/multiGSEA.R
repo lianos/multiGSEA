@@ -1,17 +1,26 @@
-if (FALSE) {
-##' A class that holds a data.table with geneset membership.
+##' A class that holds all of the things you need to analyze the results from
+##' the multiGSEA call.
+##'
+##' This is a WIP and we aren't using this yet, but will soon.
 ##'
 ##' @exportClass MultiGSEAResult
 ##'
 ##' @slot gst The \linkS4class{GeneSetTable} this analysis was run over
-##'
+##' @slot results The list of data.tables that each method returns from their
+##'   analyses.
+##' @slot summary The uber cbind'd data.table with results from all methods in
+##'   prefixed columns
+##' @slot logFC The differential expression statistics for each of the elements
+##'   measured in the original experiment
+##' @slot outdir The directory the images/cache/etc. are saved in.
 setClass("MultiGSEAResult",
          slots=c(
            gst="GeneSetTable",
-           methods="character",
-           summary="data.table"),
+           results="list",
+           summary="data.table",
+           logFC='data.frame',
+           outdir='character'),
          prototype=prototype())
-}
 
 ##' Runs several GSEA methods over a dataset for a single contrast.
 ##'
@@ -111,10 +120,15 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
                       species=NULL, mc.cores=1L, use.cache=FALSE,
                       force.reeval=FALSE, keep.outdir.onerror=TRUE,
                       score.by=c('logFC', 't'), ...) {
+  ## We know all goes well when on.exit() sees that this variable is set to TRUE
+  finished <- FALSE
+
   ## Perhaps we should use some `.call <- match.call()` mojo for some automated
   ## cached filename generation in the future
   ## ---------------------------------------------------------------------------
   ## Argument sanity checking
+  .unsupportedGSEAmethods(methods)
+
   score.by <- match.arg(score.by)
   if (is.null(outdir)) {
     outdir.created <- FALSE
@@ -141,8 +155,6 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   if (length(methods) == 0) {
     stop("0 GSEA methods provided")
   }
-  .unsupportedGSEAmethods(methods)
-  finished <- FALSE
 
   on.exit({
     if (!finished) {
@@ -207,7 +219,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   ## These will go into the MultiGSEAResult object that this thing should be
   ## returning
   attr(out, 'results') <- results
-  attr(out, 'cache.dir') <- noutdir
+  attr(out, 'outdir') <- noutdir
   attr(out, 'logFC') <- lfc
 
   finished <- TRUE
@@ -234,7 +246,7 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
 
   ## Scores to summarize "effect size" of the gene set.
   gs.scores <- do.geneSetScores(x, gst, design, contrast,
-                                logFC.stats=logFC.stats, score.by=score.by)
+                                logFC.stats=logFC.stats)
 
   meta.cols <- c('group', 'id', 'N', 'n') #, 'membership', 'feature.id')
   meta <- results[[1]][, meta.cols, with=FALSE]
@@ -252,18 +264,23 @@ multiGSEA <- function(x, gene.sets, design=NULL, contrast=NULL,
   }
 
   ## Add the memberhsip and feature.id lists
-  more <- results[[1]][, list(group, id, membership, feature.id)]
-  m.key <- paste(more$group, more$id, sep='.')
-  o.key <- paste(out$group, out$id, sep='.')
-  xref <- match(o.key, m.key)
-  if (any(is.na(xref))) {
-    stop("Cross referencing output back to membership info failed")
+  ## On second thought, no.
+  if (FALSE) {
+    more <- results[[1]][, list(group, id, membership, feature.id)]
+    m.key <- paste(more$group, more$id, sep='.')
+    o.key <- paste(out$group, out$id, sep='.')
+    xref <- match(o.key, m.key)
+    if (any(is.na(xref))) {
+      stop("Cross referencing output back to membership info failed")
+    }
+    if (any(duplicated(xref))) {
+      stop("Duplicated keys when cross referencing membership and output")
+    }
+    out[, membership := more$membership[xref]]
+    out[, feature.id := more$feature.id[xref]]
   }
-  if (any(duplicated(xref))) {
-    stop("Duplicated keys when cross referencing membership and output")
-  }
-  out[, membership := more$membership[xref]]
-  out[, feature.id := more$feature.id[xref]]
+
+  out
 }
 
 ##' Initializes the output directory for the multiGSEA call.

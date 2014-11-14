@@ -12,7 +12,7 @@ test_that("multiGSEA camera+roast run matches default runs of each", {
                     sort='none')
 
   m <- multiGSEA(vm, gsets.lol, vm$design, methods=c('camera', 'roast'),
-                 nrot=500, .seed=123)
+                 nrot=500, .seed=123, force.reeval=TRUE)
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
@@ -44,6 +44,25 @@ test_that("multiGSEA camera+roast run matches default runs of each", {
   expect_equal(roasted[, names(my.roast)],
                my.roast, info='roast result from multiGSEA',
                tolerance=0.1)
+})
+
+test_that('multiGSEA camera+hyperG looks reasonable', {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsets.lol <- exampleGeneSets('lol')
+  gsets <- exampleGeneSets('limma')
+
+  ## Generate camera and roast results to check against.
+  photo <- camera(vm, gsets, vm$design, ncol(vm$design))
+
+  m <- multiGSEA(vm, gsets.lol, vm$design,
+                 methods=c('camera', 'hyperGeometricTest'),
+                 force.reeval=TRUE)
+
+  ## I actually don't know what to really test here, let's just make sure
+  ## we get pvals in the right places
+  p <- cbind(p.matrix(m, 'nominal'), p.matrix(m, 'adjusted'))
+  expect_false(any(is.na(p)))
+  expect_true(all(p >= 0 & p <= 1))
 })
 
 test_that("feature.id's returned from multiGSEA are correct", {

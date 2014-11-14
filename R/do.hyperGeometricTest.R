@@ -21,7 +21,7 @@ do.hyperGeometricTest <- function(x, gs.table, design, contrast,
                                             ...)
   }
   req  <- c('logFC', 'pval', 'padj')
-  if (length(missed <- setdiff(names(logFC.stats), req))) {
+  if (length(missed <- setdiff(req, names(logFC.stats)))) {
     stop("Requried columns in logFC.stats are missing: ",
          paste(missed, collapse=','))
   }
@@ -32,9 +32,9 @@ do.hyperGeometricTest <- function(x, gs.table, design, contrast,
   dir.over <- direction == 'over'
 
   ## Logical vector to indicate which results are significant
-  significant <- with(logFC.stats, padj <= max.padj & abs(logFC) >= min.logFC)
+  selected <- with(logFC.stats, padj <= max.padj & abs(logFC) >= min.logFC)
   numB <- nrow(x)              ## number of genes in universe
-  numDrawn <- sum(significant) ## number of genes selected for differential expr
+  numDrawn <- sum(selected) ## number of genes selected for differential expr
 
   res <- lapply(gs.table@table$membership, function(idx) {
     numW <- sum(idx)                  ## Number of genes in geneset
@@ -47,10 +47,14 @@ do.hyperGeometricTest <- function(x, gs.table, design, contrast,
   res <- rbindlist(res)
   setnames(res, 'p', 'pval')
 
-  out <- cbind(gs.table@table[, list(group, id)], hg.resuts)
+  out <- cbind(gs.table@table[, list(group, id)], res)
   out[, padj := p.adjust(pval, 'BH')]
   out[, padj.by.group := p.adjust(pval, 'BH'), by='group']
-  out[, feature.id := lapply(membership, function(m) f.ids[m])]
+  ## out[, feature.id := lapply(membership, function(m) f.ids[m])]
+  ## fids <- lapply(1:nrow(out), function(i) {
+  ##   featureIds(gs.table, out$group[i], out$id[i])
+  ## })
+  ## out[, feature.id := fids]
 }
 
 ## -----------------------------------------------------------------------------
