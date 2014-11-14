@@ -3,7 +3,7 @@
 ##' individual gene sets within it.
 ##'
 ##' @rdname featureIds
-##' @exportMethod
+##' @exportMethod featureIds
 setGeneric("featureIds", function(object, ...) {
   standardGeneric("featureIds")
 })
