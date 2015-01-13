@@ -1,3 +1,3 @@
-do.npGSEA <- function(x, gs.table, design, contrast, ...) {
+do.npGSEA <- function(gsd, x, design, contrast, ...) {
   stop("Not yet implemented")
 }

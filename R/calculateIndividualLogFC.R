@@ -17,17 +17,12 @@
 ##'   \code{eBayes} call.
 ##' @param ... parameters passed through to the \code{lmFit} call.
 ##'
-##' @return If \code{provde == 'table'}: a data.frame of results that resembles
-##'   the output of limma::topTable with P.Value and adj.P.Val columns renamed
-##'   to pval, padj. Even if the \code{x} input is a vector, we reconstruct a
-##'   "dummy" \code{data.frame}. Otherwise, the column vector that corresponds
-##'   to \code{provide}.
-calculateIndividualLogFC <- function(x, design, contrast,
-                                     provide=c('table', 'logFC', 't'),
+##' @return A data.table with the logFC results per row of \code{x}. The
+##'   \code{$featureId} column is the rownames (ids) of x.
+calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      with.fit=FALSE, ...) {
   if (ncol(x) > 1) {
-    provide <- match.arg(provide)
     ## Do limma fits on this thing and let it rip
     fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
     if (length(contrast) > 1) {
@@ -39,17 +34,45 @@ calculateIndividualLogFC <- function(x, design, contrast,
     }
     fit  <- eBayes(fit, robust=robust.eBayes)
     tt <- topTable(fit, contrast, number=Inf, sort.by='none')
+    tt <- transform(as.data.table(tt), featureId=rownames(tt))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
     out <- tt
   } else {
-    out <- data.frame(logFC=x[, 1L], t=x[, 1L], pval=NA_real_, padj=NA_real_)
-    rownames(out) <- rownames(x)
+    out <- data.table(logFC=x[, 1L], t=x[, 1L], pval=NA_real_, padj=NA_real_,
+                      featureId=rownames(x))
     fit <- NULL
   }
 
-  if (provide != 'table') {
-    out <- setNames(out[[provide]], rownames(out))
+  if (with.fit) list(result=out, fit=fit) else out
+}
+
+##' Checks that a provided table is "similar enough" the the result generated
+##' from calculateIndividualLogFC
+##'
+##' @param logFC the table to check
+##' @param x An expression-like object to further test against.
+is.logFC.like <- function(logFC, x, as.error=FALSE) {
+  ref.dt <- data.table(logFC=numeric(), t=numeric(), pval=numeric(),
+                       padj=numeric(), featureId=character())
+  ref.check <- check.dt(logFC, ref.dt)
+  if (isTRUE(ref.check)) {
+    if (!missing(x)) {
+      if (nrow(logFC) != nrow(x)) {
+        ref.check <- "nrow(logFC) != nrow(x)"
+      } else {
+        missed.features <- setdiff(rownames(x), logFC$featureId)
+        if (length(missed.features)) {
+          ref.check <- sprintf("%d features missing from featureId",
+                               length(missed.features))
+        }
+      }
+    }
   }
 
-  if (with.fit) list(result=out, fit=fit) else out
+  if (as.error && is.character(ref.check)) {
+    stop("Provided logFC is not a valid table:\n  ",
+         paste(ref.check, collapse="\n  "))
+  }
+
+  isTRUE(ref.check)
 }

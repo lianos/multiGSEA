@@ -4,17 +4,29 @@ context("roast")
 
 test_that('roast runs equivalently from do.roast vs direct call', {
   vm <- exampleExpressionSet(do.voom=TRUE)
-  gsets.lol <- exampleGeneSets('lol')
-  gsets <- exampleGeneSets('limma')
+  gsi <- exampleGeneSets(vm)
+  gsl <- exampleGeneSets()
+  gsd <- conform(GeneSetDb(gsl), vm)
 
-  gst <- GeneSetTable(gsets.lol, vm)
-
-  set.seed(123)
-  roasted <- mroast(vm, gsets, vm$design, ncol(vm$design), nrot=500,
+  ## We have to ensure that the genesets are tested in the same order as they
+  ## are tested from the GeneSetDb for the pvalues to be equivalent given
+  ## the same random seed.
+  gsd.idxs <- multiGSEA:::as.expression.indexes(gsd, value='x.idx')
+  gsi <- gsi[names(gsd.idxs)]
+  ## nrot <- 10000
+  nrot <- 250
+  seed <- 123
+  set.seed(seed)
+  roasted <- mroast(vm, gsi, vm$design, ncol(vm$design), nrot=nrot,
                     sort='none')
 
-  my <- do.roast(vm, gst, vm$design, ncol(vm$design), nrot=500, .seed=123,
-                 use.cache=FALSE)
+  set.seed(seed)
+  my <- multiGSEA:::do.roast(gsd, vm, vm$design, ncol(vm$design), nrot=nrot,
+                             use.cache=FALSE)
+
+  ## order of geneset should be the same as gsd
+  expect_equal(geneSets(gsd)[, list(collection, name)], my[, list(collection, name)])
+  my[, n := geneSets(gsd)$n]
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
@@ -23,10 +35,10 @@ test_that('roast runs equivalently from do.roast vs direct call', {
                      pval.mixed, padj.mixed)]
     setnames(out, names(roasted))
     out <- as.data.frame(out)
-    rownames(out) <- paste(my$group, my$id, sep='.')
+    rownames(out) <- paste(my$collection, my$name, sep='.')
     out[rownames(roasted),]
   })
 
-  expect_equal(roasted, comp, tolerance=0.1)
+  expect_equal(roasted, comp)
 })
 

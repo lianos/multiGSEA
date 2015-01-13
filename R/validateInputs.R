@@ -1,9 +1,8 @@
-.valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
-.input.reqs <- c('full-design', 'logFC-only')
-.method.to.input.reqs <- c(camera='full-design',
-                           roast='full-design',
-                           gst='logFC-only',
-                           hyperGeometricTest='full-design')
+## .input.reqs <- c('full-design', 'logFC-only')
+## .method.to.input.reqs <- c(camera='full-design',
+##                            roast='full-design',
+##                            geneSetTest='logFC-only',
+##                            hyperGeometricTest='full-design')
 
 ##' Validate the input objects to a GSEA call.
 ##'
@@ -76,11 +75,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
 
   if (is.character(methods)) {
     errs.all <- sapply(methods, function(method) {
-      fn <- switch(method,
-                   camera=.validate.inputs.full.design,
-                   roast=.validate.inputs.full.design,
-                   hyperGeometricTest=.validate.inputs.full.design,
-                   gst=.validate.inputs.logFC.only)
+      fn <- getFunction(paste0('validate.inputs.', method))
       errs <- fn(x, design, contrast)
     }, simplify=FALSE)
 
@@ -187,7 +182,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     errs <- .validate.inputs.full.design(x, design, contrast)
   } else {
     if (is(x, 'DGEList')) {
-      errs$DGEList.not.supported.for.gst <- TRUE
+      errs$DGEList.not.supported.for.gsd <- TRUE
     }
   }
   errs

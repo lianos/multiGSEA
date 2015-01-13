@@ -1,0 +1,59 @@
+---
+title: "An Introduction to the multiGSEA Package"
+author: "Steve Lianoglou"
+date: '`r Sys.Date()`'
+output:
+  knitr:::html_vignette:
+    number_sections: yes
+    toc: yes
+vignette: |
+  %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
+---
+
+# Overview
+
+The `multiGSEA` package was built to facilitate the comparison of multiple
+GSEA methods at once. While the outputs of the various methods are saved in
+their "original form", they can also be presented to the user in a homogeneous
+form to facilitate this comparison.
+
+# Adding new GSEA methods
+
+There are three funtions you need to provide in order to add a new method `XXX`
+to the multi `multiGSEA` package:
+
+  * `validate.inputs.XXX`
+  * `do.XXX`
+  * `summarize.XXX`
+
+## Validate Inputs
+
+In general, it seems that GSEA methods require "just" a vector of statistics
+that enrichment can be run over, or a full representation of an experiment and
+a specific contrast to test.
+
+If your method simply requires a vector of statistics, like
+\code{limma::geneSetTest}, then alias your `validate.inputs.XXX` function to
+`multiGSEA::.validate.inputs.logFC.only`. If the method is of the latter
+variety, like \code{limma::camera} then alias your `validate.inputs.XXX` method
+to `multiGSEA:::..validate.inputs.full.design`, ie:
+
+    validate.inputs.my_new_method <- multiGSEA:::..validate.inputs.full.design
+
+## Do the analysis
+
+The `do.XXX` method just support the following signature:
+
+    do.my_new_method(gsd, x, design, contrast, ...)
+
+If your method only requires a vector of statistics, `design` and `contrast`
+your method can simply ignored `design` and `contrast` (or, you can let your
+`...` consume them).
+
+## Summary of results
+
+The `sumamrize.XXX` method should return a data.table that (minimally) had
+a `collection` and `id` column followd by relevant information/statistics
+produced by your method for each geneset that was tested.
+

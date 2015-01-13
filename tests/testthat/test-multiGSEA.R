@@ -1,5 +1,36 @@
 context("multiGSEA")
 
+test_that("multiGSEA wrapper generates same results as individual do.*", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+
+  methods <-c('camera', 'hyperGeometricTest', 'roast', 'geneSetTest')
+
+  mg <- multiGSEA(gsd, vm, vm$design, methods=methods,
+                  nrot=250, nsim=500, use.cache=FALSE)
+
+  gsc <- conform(gsd, vm)
+  do <- sapply(methods, function(m) {
+    fn <- getFunction(paste0('do.', m), where=getNamespace('multiGSEA'))
+    fn(gsc, vm, vm$design, nrot=250, nsim=500, use.cache=FALSE)
+  }, simplify=FALSE)
+
+  ## Some GSEA results use sampling and their outputs only converge under higher
+  ## iterations, which will slow down testing. To avoid that we just use methods
+  ## that are deterministic.
+  no.random <- c('camera', 'hyperGeometricTest')
+  for (m in no.random) {
+    did.x <- do[[m]]
+    res.x <- mg@results[[m]]
+    expect_true(all(names(did.x) %in% names(res.x)),
+                info=paste('colnames check for', m))
+    res.x <- res.x[, names(did.x), with=FALSE]
+    expect_equal(did.x, res.x, info=paste('values check for', m))
+  }
+})
+
+if (FALSE) {
 test_that("multiGSEA camera+roast run matches default runs of each", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsets.lol <- exampleGeneSets('lol')
@@ -113,4 +144,4 @@ test_that("plotting does something reasonable", {
   expect_equal(n.expected, nrow(m.plotted))
   expect_true(setequal(mo$id[is.sig], m.plotted$id))
 })
-
+}

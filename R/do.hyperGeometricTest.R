@@ -1,74 +1,105 @@
+##' @include validateInputs.R
+NULL
+
+validate.inputs.hyperGeometricTest <- .validate.inputs.full.design
+
 ##' Performs a hypergeometric test for significance of gene set membership.
 ##'
 ##' Genes are selected for testing against each geneset by virture of them
 ##' passing a maximum FDR and minimum log fold change as perscribed by the
 ##' \code{min.logFC} and \code{max.padj} parameters, respectfully.
 ##'
+##' Note that we are intentionally adding a hyperG.selected column by reference
+##' so that this information is kicked back to the caller multiGSEA function
+##' and included in downstream reporting.
+##'
+##' @param gsd The \code{\link{GeneSetDb}} for analysis
 ##' @param x The expression object
-##' @param gs.table The \code{\link{GeneSetTable}} for analysis
 ##' @param design Experimental design
 ##' @param contrast The contrast to test
 ##' @param direction Same as direction in \code{GOstats}
-##' @param logFC.stats The logFC stats table for the given contrast
-##' @param logFC.stats The topTable from limma
-do.hyperGeometricTest <- function(x, gs.table, design, contrast,
-                                  direction='over', logFC.stats=NULL,
-                                  robust.fit=FALSE, robust.eBayes=FALSE,
-                                  min.logFC=1, max.padj=0.10, ...) {
-  if (!is.data.frame(logFC.stats)) {
-    logFC.stats <- calculateIndividualLogFC(x, design, contrast, robust.fit,
-                                            robust.eBayes, provide='table',
-                                            ...)
-  }
-  req  <- c('logFC', 'pval', 'padj')
-  if (length(missed <- setdiff(req, names(logFC.stats)))) {
-    stop("Requried columns in logFC.stats are missing: ",
-         paste(missed, collapse=','))
-  }
-  if (!all.equal(rownames(x), rownames(logFC.stats))) {
-    stop("rownames for logFC.stats data.frame do not look right.")
+##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
+##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
+do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
+                                  direction='over', logFC=NULL,
+                                  feature.min.logFC=1,
+                                  feature.max.padj=0.10, ...) {
+  stopifnot(is.conformed(gsd, x))
+
+  if (is.null(logFC)) {
+    logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+  } else {
+    is.logFC.like(logFC, x, as.error=TRUE)
   }
 
   dir.over <- direction == 'over'
 
-  ## Logical vector to indicate which results are significant
-  selected <- with(logFC.stats, padj <= max.padj & abs(logFC) >= min.logFC)
-  numB <- nrow(x)              ## number of genes in universe
-  numDrawn <- sum(selected) ## number of genes selected for differential expr
+  if (is.null(logFC$hyperG.selected)) {
+    logFC[, hyperG.selected := {
+      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
+    }]
+  }
 
-  res <- lapply(gs.table@table$membership, function(idx) {
-    numW <- sum(idx)                  ## Number of genes in geneset
-    numWdrawn <- sum(selected & idx)  ## Number of these we selected by dge
-    ## n12 <- numW - n11
-    ## n21 <- gs.size - n11
-    ## n22 <- numB - gs.size
-    as.data.table(.doHyperGInternal(numW, numB, numDrawn, numWdrawn, dir.over))
-  })
-  res <- rbindlist(res)
-  setnames(res, 'p', 'pval')
+  ## These are the IDs we are "drawing" out of the bucket
+  drawn <- logFC[hyperG.selected == TRUE]$featureId
+  numDrawn <- length(drawn)     ## number of genes selected to be "interesting"
+  if (numDrawn == 0) {
+    warning("No selected genes in hyperGeometricTest", immediate.=TRUE)
+    out <- geneSets(gsd)[, list(collection, id)]
+    out[, pval := NA_real_]
+    out[, odds := NA_real_]
+    out[, expected := NA_real_]
+    out[, padj := NA_real_]
+    out[, padj.by.collection := NA_real_]
+  } else {
+    numB <- nrow(x)              ## number of genes in universe
+    out <- geneSets(gsd)[, {
+      ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
+      numW <- length(ids)
+      Wdrawn <- intersect(ids, drawn)
+      numWdrawn <- length(Wdrawn)
+      hg <- .doHyperGInternal(numW, numB, numDrawn, numWdrawn, dir.over)
+      c(list(n.in.set=n, n.drawn=numWdrawn), hg)
+    }, by=c('collection', 'name')]
+    setnames(out, 'p', 'pval')
+    out[, padj := p.adjust(pval, 'BH')]
+  }
 
-  out <- cbind(gs.table@table[, list(group, id)], res)
-  out[, padj := p.adjust(pval, 'BH')]
-  out[, padj.by.group := p.adjust(pval, 'BH'), by='group']
-  ## out[, feature.id := lapply(membership, function(m) f.ids[m])]
-  ## fids <- lapply(1:nrow(out), function(i) {
-  ##   featureIds(gs.table, out$group[i], out$id[i])
-  ## })
-  ## out[, feature.id := fids]
+  out
+}
+
+##' Identify the features that were "selected" for a given geneset for the
+##' hyperGeometricTest for enrichment.
+##'
+##' @export
+##'
+##' @param x a \code{MultiGSEAResult}
+##' @param i the collection of the gene set
+##' @param j the id of the geneset
+##'
+##' @return A character vector of features in the expression object that were
+##'   identified as part of the geneset that was "selected"
+selectedByHyperG <- function(x, i, j) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  if (!'hyperGeometricTest' %in% resultNames(x)) {
+    stop("A hypergeometric test was not performed")
+  }
+  fids <- featureIds(x@gsd, i, j, value='x.id')
+  intersect(fids, subset(x@logFC, hyperG.selected == TRUE)$featureId)
 }
 
 ## -----------------------------------------------------------------------------
-## These were copied from the Bioconductor Category package
+## These were copied from the Bioconductor collection package
 
 ## We envision the test as follows:
 ##
 ## The urn contains genes from the gene universe.  Genes annotated at a
-## given category term are white and the rest black.
+## given collection term are white and the rest black.
 ##
 ## The number drawn is the size of the selected gene list.  The
 ## number of white drawn is the size of the intersection of the
-## selected list and the genes annotated at the category.
-## Here's a diagram based on using GO as the category:
+## selected list and the genes annotated at the collection.
+## Here's a diagram based on using GO as the collection:
 ##
 ##          inGO    notGO
 ##          White   Black

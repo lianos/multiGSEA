@@ -2,8 +2,11 @@
 ## devtools
 .datatable.aware <- TRUE
 
-## .multi.gsea.methods <- c('camera', 'roast', 'gst', 'npGSEA')
-.multi.gsea.methods <- c('camera', 'roast', 'gst', 'hyperGeometricTest')
+## .multi.gsea.methods <- c('camera', 'roast', 'gsd', 'npGSEA')
+.multi.gsea.methods <- c('camera', 'roast', 'geneSetTest', 'hyperGeometricTest')
+
+## valid types of objects that can be used for "Expression" (x)'s
+.valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
 
 .unsupportedGSEAmethods <- function(x, throw.error=TRUE) {
   bad.methods <- setdiff(x, .multi.gsea.methods)

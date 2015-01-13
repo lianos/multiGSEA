@@ -34,9 +34,9 @@ saveRDS(es, 'TCGA-BRCA-some.es.rds')
 ## -----------------------------------------------------------------------------
 ## Setup the most base of genesets
 load_pkg('multiGSEA')
-.gsets <- getMSigDBset(c('c2', 'c6', 'c7'))
+.gsets <- getMSigDBset(c('c2', 'c6', 'c7'), as.list=TRUE)
 
-## This list is of the type that GeneSetTable expects, ie: a list of lists,
+## This list is of the type that GeneSetDb expects, ie: a list of lists,
 ## where the top level list has elements from different "gene set groups". Each
 ## of these is a named list of gene sets, each of which is a character vector
 ## that lists the entrezIDs in each geneset.
@@ -46,7 +46,7 @@ load_pkg('multiGSEA')
 
 
 ## g.some.gs: This will be used a the geneset "list-of-lists" that can
-##            construct multiGSEA::GeneSetTable objects.
+##            construct multiGSEA::GeneSetDb objects.
 ##
 ##            30 GeneSets in total, 10 of them are hopefully
 ##            "breast cancer specific"
@@ -65,9 +65,6 @@ saveRDS(g.gsets.lol, 'genesets-multiGSEA-list-of-lists.rds')
 
 ## Create index vectors into vm.all that the "normal" limma GSEA methods
 ## expect as input.
-g.gsets.limma <- lapply(unlist(g.gsets.lol, recursive=FALSE), function(ids) {
-  ids <- ids[ids %in% rownames(es)]
-  match(ids, rownames(es))
-})
+g.gsets.limma <- unlist(gsets.lol, recursive = FALSE)
 saveRDS(g.gsets.limma, 'genesets-limma-idxvectors.rds')
 

@@ -39,18 +39,27 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
 ##'
 ##' @export
 ##'
-##' @param as Character vector to specify the type of returned geneset
-##' list that you want.
-##'
+##' @param x If provided, an expression/matrix object so that the genesets are returned as
+##'   (integer) index vectors into the rows of x whose rownames match the
+##'   ids in the geneset.
 ##' @return A list of lists of entrezIDs when \code{as == 'lol'}, or
-##' a list of integers into the rows of \code{exampleExpressionSet}
-##' for the genes in the given geneset.
-exampleGeneSets <- function(as=c('lol', 'limma')) {
-  as <- match.arg(as)
-  fn <- switch(as,
-               lol='genesets-multiGSEA-list-of-lists.rds',
-               limma='genesets-limma-idxvectors.rds')
-  readRDS(system.file('extdata', 'testdata', fn, package='multiGSEA'))
+##'   a list of integers into the rows of \code{exampleExpressionSet}
+##'   for the genes in the given geneset.
+exampleGeneSets <- function(x, unlist=!missing(x)) {
+  gsl.fn <- system.file('extdata', 'testdata',
+                        'genesets-multiGSEA-list-of-lists.rds',
+                        package='multiGSEA')
+  gsl <- readRDS(gsl.fn)
+  if (!missing(x)) {
+    gsl <- lapply(gsl, function(g) lapply(g, function(gs) {
+      out <- match(gs, rownames(x))
+      out[!is.na(out)]
+    }))
+  }
+  if (unlist) {
+    gsl <- unlist(gsl, recursive=FALSE)
+  }
+  gsl
 }
 
 ## The datasets references in this file are generated in:

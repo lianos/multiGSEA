@@ -71,16 +71,18 @@ match.species <- function(x=NULL) {
 ##' genesets
 ##' @param species Character vector indicating which species desired,
 ##' \code{"human"} or \code{"mouse"}
+##' @param as.list If \code{TRUE} returns a list of lists of entrez IDs for
+##'   each gene set, otherwse will return a \code{GeneSetDb}
 ##' @param version The version of the MSigDB desired. Defaults to latest.
 ##'
 ##' @return A list of genesets, named by \code{id}.
-getMSigDBset <- function(id, species='human',
+getMSigDBset <- function(id, species='human', as.list=FALSE,
                          version=.wehi.msigdb.current) {
   species <- match.species(species)
   version <- .parse.msigdb.version(version)
   id <- .parse.msigdb.ids(id, species)
   data.dir <- file.path(.wehi.msigdb.datadir, version)
-  rdata <- sapply(id, function(.id) {
+  out <- sapply(id, function(.id) {
     fn.regex <- sprintf('%s_%s_?.*\\.rdata', species, .id)
     fn <- dir(data.dir, fn.regex, ignore.case=TRUE, full.names=TRUE)
     if (length(fn) != 1) {
@@ -89,5 +91,17 @@ getMSigDBset <- function(id, species='human',
     }
     get(load(fn))
   }, simplify=FALSE)
-  rdata
+
+  if (!as.list) {
+    out <- GeneSetDb(out)
+    fn <- function(collection, name) {
+      url <- "http://www.broadinstitute.org/gsea/msigdb/cards/%s.html"
+      sprintf(url, name)
+    }
+    for (i in id) {
+      geneSetCollectionURLfunction(out, i) <- fn
+    }
+  }
+
+  out
 }

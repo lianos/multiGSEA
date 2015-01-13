@@ -1,0 +1,139 @@
+---
+title: "Tumor vs Normal analysis (TCGA Breast)"
+author: Steve Lianoglou
+date: "`r format(Sys.time())`"
+output:
+  html_document:
+    self_contained: false
+    toc: true
+    toc_depth: 3
+    lib_dir: libs
+vignette: |
+  %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
+---
+
+```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
+library(multiGSEA)
+library(rmd.plugins)
+library(magrittr)
+
+## Set defaults to hide errors and warnings, show output, and create highres
+## pngs
+report.init(echo=TRUE, results='markup')
+```
+
+# Overview
+
+This document is meant to show "a typical" differential expression and gene
+set enrichment analysis for a project using the `rmd.plugins` and `multiGSEA`
+pacakges.
+
+To compile this document, you simply have to call:
+
+```{r compile-example, eval=FALSE}
+library(multiGSEA)
+library(rmd.plugins)
+library(magrittr)
+report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
+```
+
+Let's define a few variables that will be used to customize the output:
+
+```{r init-vars, cache=TRUE}
+## The GSEA methods we want to run
+gsea.methods <- c('camera', 'geneSetTest', 'hyperGeometricTest', 'roast')
+
+## The ExpessionSet we will be analyzing. multiGSEA provides a convenience
+## function to provide a subset of samples from the TCGA/BRCA indication
+es <- exampleExpressionSet(do.voom=FALSE)
+
+## Currently multiGSEA only supports RNA-seq data if it has been voomed
+es.design <- local({
+  d <- model.matrix(~ Cancer_Status, pData(es))
+  colnames(d) <- sub('Cancer_Status', '', colnames(d))
+  d
+})
+
+vm <- voom(es, es.design, plot=FALSE)
+```
+
+We will want to also define the universe of genesets that we want to test. The
+`multiGSEA` package provides helper functions that return the `MSigDB`
+collections for mouse our human. Some collections of interest may be:
+
+  * "c2": [curated gene sets][c2sets]
+  * "c7": [immunologic signatures][c7sets]
+
+So let's fetch them:
+
+```{r genesetdb-init, results='asis', cache=TRUE}
+gsd.all <- getMSigDBset(c('c2', 'c7'), 'human')
+tally.all <- table(geneSets(gsd.all)$collection) %>%
+  as.data.frame %>%
+  setNames(c('collection', 'count'))
+kable(tally.all)
+```
+
+There are `r nrow(geneSets(gsd.all))` gene sets defined among the `c2` and `c7`
+gene set collections:
+
+We could use these for the downstream analysis, but to
+save time on computation, we will use a predefined subset of them here:
+
+```{r genesetdb-ex, results='asis'}
+gsd <- GeneSetDb(exampleGeneSets())
+tally <- table(geneSets(gsd)$collection) %>%
+  as.data.frame %>%
+  setNames(c('collection', 'count'))
+kable(tally)
+```
+
+
+# Tumor vs. Normal
+
+Vanilla run of multiGSEA
+
+```{r tn-multiGSEA, cache=TRUE, dependson="init-vars"}
+mg <- multiGSEA(gsd, vm, vm$design, contrast=2, methods=gsea.methods)
+```
+
+To display the results, we simply have to drop the output of the `rmd.multiGSEA`
+call into a `results='asis'` code chunk.
+
+## Report
+
+```{r show-multiGSEA-tn, results='asis'}
+rmd.multiGSEA('tumor-vs-normal-gsea', mg)
+```
+
+We can tweak several parameters when we report a `multiGSEA` result to customize
+it.
+
+Perhaps it's useful to plot the t-statistic on the x-axis as opposed to the
+(default) log fold change:
+
+```{r show-multiGSEA-tn-tstat, results='asis'}
+rmd.multiGSEA('tumor-vs-normal-gsea-tstat', mg, plot.stat='t')
+```
+
+Or maybe you want to show the top.n genesets per method irrespective of their
+FDR
+
+```{r show-multiGSEA-top10, results='asis'}
+rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
+```
+
+## Individual plots
+
+You might be curious what your favorite geneset looks like which has not been
+reported in the results that were reported. `multiGSEA` currently supports two
+types of plots to visualize the empirical shift for a given geneset, the
+`density` plot and the `limma::barcode` plot.
+
+```{r manual-geneset-plot, eval=TRUE}
+plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
+plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
+
+```
+
