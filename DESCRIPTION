@@ -11,13 +11,11 @@ Description: Provides a unified interface to several gene set enrichment
 Depends:
     methods,
     data.table (>= 1.9.4),
-    Biobase,
-    limma
 Imports:
     BiocGenerics,
-    Biobase,
-    data.table (>= 1.9.4),
-    limma
+    Biobase (>= 2.26.0),
+    limma (>= 3.22.3),
+    data.table,
 Suggests:
     rmd.plugins (>= 0.3.0),
     DESeq2,

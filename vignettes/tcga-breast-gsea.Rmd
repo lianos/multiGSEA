@@ -14,10 +14,12 @@ vignette: |
 ---
 
 ```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
+library(Biobase)
+library(limma)
 library(multiGSEA)
 library(rmd.plugins)
 library(magrittr)
-
+library(knitr)
 ## Set defaults to hide errors and warnings, show output, and create highres
 ## pngs
 report.init(echo=TRUE, results='markup')
@@ -32,9 +34,12 @@ pacakges.
 To compile this document, you simply have to call:
 
 ```{r compile-example, eval=FALSE}
+library(Biobase)
+library(limma)
 library(multiGSEA)
 library(rmd.plugins)
 library(magrittr)
+library(knitr)
 report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 ```
 
@@ -136,4 +141,3 @@ plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
 plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 
 ```
-
