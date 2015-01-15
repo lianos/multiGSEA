@@ -70,6 +70,9 @@ collections for mouse our human. Some collections of interest may be:
   * "c2": [curated gene sets][c2sets]
   * "c7": [immunologic signatures][c7sets]
 
+[c2sets]: http://www.broadinstitute.org/gsea/msigdb/genesets.jsp?collection=C2
+[c7sets]: http://www.broadinstitute.org/gsea/msigdb/genesets.jsp?collection=C7
+
 So let's fetch them:
 
 ```{r genesetdb-init, results='asis', cache=TRUE}
