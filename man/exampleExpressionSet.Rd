@@ -17,6 +17,14 @@ from the same (there are different subtypes in there)}
 ExpressionSet of counts.}
 }
 \description{
-The samples in this dataset are a subset of samples from TCGA-BRCA
+The samples in this dataset are a subset of samples from TCGA-BRCA. Note
+that this function will load either \code{limma} or \code{Biobase} into
+the calling environment so that the user can manipulate the object that is
+returned.
+}
+\details{
+Note that calling this functino currently loads/attaches Biobase. This
+shouldn't be, but I am tired of trying to debug this one, so am kicking
+the can down the road ...
 }
 

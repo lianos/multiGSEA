@@ -6,13 +6,14 @@
 ##' \code{npGSEA} as a supported anlysis soon. Refer to the \code{method}
 ##' documentation to see which GSEA methods are supported.
 ##'
-##' This function will write several results to an output directory if a valid
-##' value for \code{outdir} is provided. Furthermore, the results of these
-##' analysis will be cached so that time is saved on subsequent calls.
+##' @details This function will write several results to an output directory if
+##'   a valid value for \code{outdir} is provided. Furthermore, the results of
+##'   these analysis will be cached so that time is saved on subsequent calls.
 ##'
 ##' @section Caching:
 ##'
-##'   (NOTE: this documentation needs further work)
+##'   (NOTE: this documentation needs further work, and this feature isn't
+##'   completely functional yet.)
 ##'
 ##'   Running a GSEA can be a costly propositin, especially when using methods
 ##'   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
@@ -28,11 +29,6 @@
 ##'   If that method is run again, and \code{use.cache} is set to \code{TRUE},
 ##'   then the result will be loaded if it is found instead of recalculating
 ##'   the result again.
-##'
-##'   If \code{force.reeval} is set to \code{TRUE} then the results of a method
-##'   or plot will be redone even if they are found to already exist in the
-##'   cache.
-##'
 ##'
 ##' @export
 ##' @import limma
@@ -52,6 +48,12 @@
 ##'     \item{camera} {A \code{\link[limma]{camera}} analysis}
 ##'     \item{roast} {A \code{\link[limma]{roast}} analysis}
 ##'     \item{gsd} {A \code{\link[limma]{geneSetTest} analysis}}
+##'     \item{hyperGeometricTest}{
+##'       Tests for enrichment of differentially expressed features in each
+##'       geneset. Thresholds of differential expression for the individual
+##'       features of a geneset are defind by the \code{feature.min.logFC} and
+##'       \code{feature.max.padj} parameters.
+##'     }
 ##'   }
 ##' @param outdir A character vector indicating the directory to use inorder to
 ##'   save/cache the results from the analysis. This is required if
@@ -61,15 +63,28 @@
 ##'   poor-man's caching the multiGSEA does. See the "Caching" section below for
 ##'   further details, but in short the function will look for a saved result
 ##'   for a given \code{method} before computing it.
+##' @param cache.inputs If \code{TRUE}, the inputs are serialized in
+##'   \code{outdir/cache}
+##' @param feature.min.logFC The minimum logFC required for an individual
+##'   feature (not geneset) to be considered differentialy expressed. Used in
+##'   conjunction with \code{feature.max.padj} primarily for summarization
+##'   of genesets (by \code{\link{geneSetFeatureStatistics}}), but can also be
+##'   used by GSEA methods that require differential expression calls at the
+##'   individual feature level, like \code{hyperGeometricTest}.
+##' @param feature.max.padj The maximum adjusted pvalue used to consider an
+##'   individual feature (not geneset) to be differentially expressed. Used in
+##'   conjunction with \code{feature.min.logFC}.
+##' @param trim The amount to trim when calculated trimmed \code{t} and
+##'   \code{logFC} statistics for each geneset. This is passed down to the
+##'   \code{\link{geneSetFeatureStatistics}} function.
 ##' @param ... The arguments are passed down into the various geneset analysis
 ##'   functions.
 ##'
 ##' @return A \code{MultiGSEAResult}
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       methods=c('camera'), outdir=NULL, use.cache=TRUE,
-                      cache.inputs=TRUE, keep.outdir.onerror=TRUE,
-                      feature.min.logFC=1, feature.max.padj=0.10,
-                      trim=0.10, ...) {
+                      cache.inputs=FALSE, feature.min.logFC=1,
+                      feature.max.padj=0.10, trim=0.10, ...) {
   if (!is(gsd, 'GeneSetDb')) {
     stop("GeneSetDb required")
   }
@@ -160,7 +175,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   setkeyv(logFC, 'featureId')
 
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC, outdir=noutdir)
-  gs.stats <- geneSetFeatureStatistics(out, ...)
+  gs.stats <- geneSetFeatureStatistics(out, feature.min.logFC=feature.min.logFC,
+                                       feature.max.padj=feature.max.padj,
+                                       trim=trim)
   out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
   finished <- TRUE
   out
@@ -192,17 +209,18 @@ function(x, i, j, value=c('x.id', 'featureId'), ...) {
 ##'
 ##' @param x A \code{multiGSEAResult} object
 ##' @param feature.min.logFC used with \code{feature.max.padj} to identify
-##'   the individual features that have a significant change.
+##'   the individual features that are to be considered differentially
+##'   expressed.
 ##' @param feature.max.padj used with \code{feature.min.logFC} to identify
-##'   the individual features that have a significant change.
-##' @param trim passed to \code{geneSetFeatureStatistics} for trimmed mean
-##'   calculations.
+##'   the individual features that are to be considered differentially
+##'   expressed.
+##' @param trim The amount to trim when calculated trimmed \code{t} and
+##'   \code{logFC} statistics for each geneset.
 ##'
 ##' @return A data.table with statistics on the effect size shift for the gene
 ##'   set as well as numbers of members that shift up or down.
 geneSetFeatureStatistics <- function(x, feature.min.logFC=1,
-                                     feature.max.padj=0.10, trim=0.10,
-                                     ...) {
+                                     feature.max.padj=0.10, trim=0.10) {
   stopifnot(is(x, 'MultiGSEAResult'))
   lfc <- logFC(x)
   annotate.lfc <- !missing(feature.min.logFC) ||

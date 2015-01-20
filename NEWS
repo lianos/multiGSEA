@@ -1,0 +1,32 @@
+CHANGES IN VERSION 0.2
+----------------------
+
+NEW FEATURES
+
+
+BUG FIXES
+
+
+
+
+CHANGES IN VERSION 0.1
+----------------------
+
+NEW FEATURES
+
+  o `multiGSEA` returns a `MultiGSEAResult` object which holds all of the things
+    one would need to analyze/plot/poke at the results of the function call.
+
+  o Plotting functions added so user can plot results of arbitrary genesets.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+  o This version is a reboots the internals of this package so that its design
+    is cleaner. All of the reporting bits were removed (rmd.plugins handles that
+    now), as well as significant additions to the API of this packages.  The
+    changes are too numerous to report here. The previous version before the
+    refactor have been put here for posterity:
+
+     * http://resscm.gene.com/bioinfo/projects/R/tags/multiGSEA_pre-refactor
+     * http://resscm.gene.com/bioinfo/projects/R/tags/rmd.plugins_pre-refactor
+

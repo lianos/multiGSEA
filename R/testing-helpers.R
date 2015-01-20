@@ -1,7 +1,14 @@
 ##' Fetch a pre-canned expression dataset that can be used for testing and
 ##' examples.
 ##'
-##' The samples in this dataset are a subset of samples from TCGA-BRCA
+##' The samples in this dataset are a subset of samples from TCGA-BRCA. Note
+##' that this function will load either \code{limma} or \code{Biobase} into
+##' the calling environment so that the user can manipulate the object that is
+##' returned.
+##'
+##' Note that calling this functino currently loads/attaches Biobase. This
+##' shouldn't be, but I am tired of trying to debug this one, so am kicking
+##' the can down the road ...
 ##'
 ##' @export
 ##' @import Biobase
@@ -13,6 +20,11 @@
 ##' ExpressionSet of counts.
 exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
                                  do.voom=TRUE) {
+  suppressPackageStartupMessages({
+    ## voom is having some issues finding fData if I don't do this, and I don't
+    ## want to waste time debuggin this furthe
+    require('Biobase', character.only=TRUE)
+  })
   dataset <- match.arg(dataset)
   es.all <- readRDS(system.file('extdata', 'testdata', 'TCGA-BRCA-some.es.rds',
                                 package='multiGSEA'))
@@ -32,16 +44,24 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
     colnames(design) <- sub('PAM50subtype', '', colnames(design))
   }
 
-  if (do.voom) voom(es, design, plot=FALSE) else es
+  out <- es
+
+  if (do.voom) {
+    ## require('limma', character.only=TRUE)
+    out <- voom(es, design, plot=FALSE)
+  } else {
+  }
+
+  out
 }
 
 ##' Get sample gene sets
 ##'
 ##' @export
 ##'
-##' @param x If provided, an expression/matrix object so that the genesets are returned as
-##'   (integer) index vectors into the rows of x whose rownames match the
-##'   ids in the geneset.
+##' @param x If provided, an expression/matrix object so that the genesets are
+##'   returned as (integer) index vectors into the rows of x whose rownames
+##'   match the ids in the geneset.
 ##' @return A list of lists of entrezIDs when \code{as == 'lol'}, or
 ##'   a list of integers into the rows of \code{exampleExpressionSet}
 ##'   for the genes in the given geneset.

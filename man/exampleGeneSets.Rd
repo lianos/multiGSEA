@@ -7,9 +7,9 @@
 exampleGeneSets(x, unlist = !missing(x))
 }
 \arguments{
-\item{x}{If provided, an expression/matrix object so that the genesets are returned as
-(integer) index vectors into the rows of x whose rownames match the
-ids in the geneset.}
+\item{x}{If provided, an expression/matrix object so that the genesets are
+returned as (integer) index vectors into the rows of x whose rownames
+match the ids in the geneset.}
 }
 \value{
 A list of lists of entrezIDs when \code{as == 'lol'}, or

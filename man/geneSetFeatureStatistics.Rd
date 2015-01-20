@@ -5,19 +5,21 @@
 \title{Summarize the statistics for each feature at the geneset level}
 \usage{
 geneSetFeatureStatistics(x, feature.min.logFC = 1, feature.max.padj = 0.1,
-  trim = 0.1, ...)
+  trim = 0.1)
 }
 \arguments{
 \item{x}{A \code{multiGSEAResult} object}
 
 \item{feature.min.logFC}{used with \code{feature.max.padj} to identify
-the individual features that have a significant change.}
+the individual features that are to be considered differentially
+expressed.}
 
 \item{feature.max.padj}{used with \code{feature.min.logFC} to identify
-the individual features that have a significant change.}
+the individual features that are to be considered differentially
+expressed.}
 
-\item{trim}{passed to \code{geneSetFeatureStatistics} for trimmed mean
-  calculations.}
+\item{trim}{The amount to trim when calculated trimmed \code{t} and
+  \code{logFC} statistics for each geneset.}
 }
 \value{
 A data.table with statistics on the effect size shift for the gene

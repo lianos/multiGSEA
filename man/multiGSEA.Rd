@@ -5,9 +5,8 @@
 \title{Performs several GSEA analysis over an experiment}
 \usage{
 multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = c("camera"),
-  outdir = NULL, use.cache = TRUE, cache.inputs = TRUE,
-  keep.outdir.onerror = TRUE, feature.min.logFC = 1,
-  feature.max.padj = 0.1, trim = 0.1, ...)
+  outdir = NULL, use.cache = TRUE, cache.inputs = FALSE,
+  feature.min.logFC = 1, feature.max.padj = 0.1, trim = 0.1, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} to run enrichment over.}
@@ -24,6 +23,12 @@ run. This can be any combination of:
   \item{camera} {A \code{\link[limma]{camera}} analysis}
   \item{roast} {A \code{\link[limma]{roast}} analysis}
   \item{gsd} {A \code{\link[limma]{geneSetTest} analysis}}
+  \item{hyperGeometricTest}{
+    Tests for enrichment of differentially expressed features in each
+    geneset. Thresholds of differential expression for the individual
+    features of a geneset are defind by the \code{feature.min.logFC} and
+    \code{feature.max.padj} parameters.
+  }
 }}
 
 \item{outdir}{A character vector indicating the directory to use inorder to
@@ -35,6 +40,24 @@ are being generated.}
 poor-man's caching the multiGSEA does. See the "Caching" section below for
 further details, but in short the function will look for a saved result
 for a given \code{method} before computing it.}
+
+\item{cache.inputs}{If \code{TRUE}, the inputs are serialized in
+\code{outdir/cache}}
+
+\item{feature.min.logFC}{The minimum logFC required for an individual
+feature (not geneset) to be considered differentialy expressed. Used in
+conjunction with \code{feature.max.padj} primarily for summarization
+of genesets (by \code{\link{geneSetFeatureStatistics}}), but can also be
+used by GSEA methods that require differential expression calls at the
+individual feature level, like \code{hyperGeometricTest}.}
+
+\item{feature.max.padj}{The maximum adjusted pvalue used to consider an
+individual feature (not geneset) to be differentially expressed. Used in
+conjunction with \code{feature.min.logFC}.}
+
+\item{trim}{The amount to trim when calculated trimmed \code{t} and
+\code{logFC} statistics for each geneset. This is passed down to the
+\code{\link{geneSetFeatureStatistics}} function.}
 
 \item{...}{The arguments are passed down into the various geneset analysis
   functions.}
@@ -50,14 +73,15 @@ this primarily wraps the GSEA functinos from limma, but I intend to add
 documentation to see which GSEA methods are supported.
 }
 \details{
-This function will write several results to an output directory if a valid
-value for \code{outdir} is provided. Furthermore, the results of these
-analysis will be cached so that time is saved on subsequent calls.
+This function will write several results to an output directory if
+  a valid value for \code{outdir} is provided. Furthermore, the results of
+  these analysis will be cached so that time is saved on subsequent calls.
 }
 \section{Caching}{
 
 
-  (NOTE: this documentation needs further work)
+  (NOTE: this documentation needs further work, and this feature isn't
+  completely functional yet.)
 
   Running a GSEA can be a costly propositin, especially when using methods
   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
@@ -73,10 +97,6 @@ analysis will be cached so that time is saved on subsequent calls.
   If that method is run again, and \code{use.cache} is set to \code{TRUE},
   then the result will be loaded if it is found instead of recalculating
   the result again.
-
-  If \code{force.reeval} is set to \code{TRUE} then the results of a method
-  or plot will be redone even if they are found to already exist in the
-  cache.
 }
 \seealso{
 \code{\link[limma]{camera}},
