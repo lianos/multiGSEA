@@ -37,10 +37,14 @@ do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
   setnames(out,
            c('PValue', 'FDR', 'PValue.Mixed', 'FDR.Mixed'),
            c('pval', 'padj', 'pval.mixed', 'padj.mixed'))
-  out[, rank := rank(pval)]
-  out[, rank.up := Inf]
-  out[, rank.down := Inf]
-  out[Direction == 'Up', rank.up := rank(pval)]
-  out[Direction == 'Down', rank.down := rank(pval)]
+
+  ## the `result` method adds the rank based on what user wants to rank by
+  ## out[, rank := rank(pval)]
+  ## out[, rank.up := Inf]
+  ## out[, rank.down := Inf]
+  ## out[Direction == 'Up', rank.up := rank(pval)]
+  ## out[Direction == 'Down', rank.down := rank(pval)]
+
+  out
 }
 

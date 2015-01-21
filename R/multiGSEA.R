@@ -349,9 +349,9 @@ result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 'logFC', 't'),
   }
 
   ranks <- switch(rank.by,
-                  logFC=rank(-abs(out$mean.logFC.trim)),
-                  t=rank(-abs(out$mean.t.trim)),
-                  pval=rank(out[[pval.col]]))
+                  logFC=rank(-abs(out$mean.logFC.trim), ties.method="min"),
+                  t=rank(-abs(out$mean.t.trim), ties.method="min"),
+                  pval=rank(out[[pval.col]], ties.method="min"))
   out[, (rank.col) := ranks]
 
   out

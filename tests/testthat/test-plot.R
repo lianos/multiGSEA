@@ -14,3 +14,5 @@ test_that("Plotting individual gene sets works", {
   plot(mg, 'c2', 'LOPEZ_MESOTELIOMA_SURVIVAL_TIME_UP', type='barcode')
   plot(mg, 'c2', 'LOPEZ_MESOTELIOMA_SURVIVAL_TIME_UP', 't', 'barcode')
 })
+
+## TODO: Remove plots that were serialized to HD?
