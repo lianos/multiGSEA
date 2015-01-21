@@ -301,7 +301,7 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##'   columns of the \code{method}-specific statistics returned.
 ##'
 ##' @return a data.table with the results from the requested method.
-result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 'logFC', 't'),
+result <- function(x, name, stats.only=FALSE, rank.by=c('t', 'pval', 'logFC'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   stopifnot(isSingleCharacter(name))
