@@ -288,6 +288,11 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 
 ##' Extract the result from a given enrichment test from a MultiGSEAResult
 ##'
+##' TODO: Enable a way for caller to get a subset of the genesets tested,
+##' perhaps this will happen at the "collectoin" level. In this case, it's
+##' not clear if the pval correction should be redone to only account for
+##' the genesets that are returned from.
+##'
 ##' @export
 ##'
 ##' @param x MultiGSEAResult
@@ -296,12 +301,15 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##'   (column-wise) data for each result. By default only the pvalues,
 ##'   adjusted pvalues, and rank are returned.
 ##' @param rank.by the statistic to use to append a \code{rank} column for the
-##'   geneset result
+##'   geneset result. By default we rank by pvalue calculated by the GSEA
+##'   method. You can rank the results based on the trimmed mean of the logFC's
+##'   calculated for all of the features in the geneset (\code{"logFC"}), or the
+##'   trimmed t-statistics of the these features (\code{"t"})
 ##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
 ##'   columns of the \code{method}-specific statistics returned.
 ##'
 ##' @return a data.table with the results from the requested method.
-result <- function(x, name, stats.only=FALSE, rank.by=c('t', 'pval', 'logFC'),
+result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 't', 'logFC'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   stopifnot(isSingleCharacter(name))
@@ -412,8 +420,8 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
 ##'
 ##' @return a data.table that summarizes the significant results per method
 ##'   per collection for the GSEA that was run
-summarizeResults <- function(x, names=resultNames(x), max.p=0.30,
-                             p.col=c('padj', 'padj.by.collection', 'pval')) {
+tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
+                            p.col=c('padj', 'padj.by.collection', 'pval')) {
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)
   stopifnot(isSingleNumeric(max.p))
@@ -435,7 +443,7 @@ setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
                "---------------------------------------------------", sep='\n')
   cat(msg, "\n")
-  data.table:::print.data.table(summarizeResults(object, max.p=0.30))
+  data.table:::print.data.table(tabulateResults(object, max.p=0.30))
   cat("\n")
 })
 

@@ -4,7 +4,7 @@
 \alias{result}
 \title{Extract the result from a given enrichment test from a MultiGSEAResult}
 \usage{
-result(x, name, stats.only = FALSE, rank.by = c("pval", "logFC", "t"),
+result(x, name, stats.only = FALSE, rank.by = c("pval", "t", "logFC"),
   add.suffix = FALSE)
 }
 \arguments{
@@ -17,7 +17,10 @@ result(x, name, stats.only = FALSE, rank.by = c("pval", "logFC", "t"),
 adjusted pvalues, and rank are returned.}
 
 \item{rank.by}{the statistic to use to append a \code{rank} column for the
-geneset result}
+geneset result. By default we rank by pvalue calculated by the GSEA
+method. You can rank the results based on the trimmed mean of the logFC's
+calculated for all of the features in the geneset (\code{"logFC"}), or the
+trimmed t-statistics of the these features (\code{"t"})}
 
 \item{add.suffix}{If \code{TRUE}, adds \code{.name} as a suffix to the
   columns of the \code{method}-specific statistics returned.}
@@ -26,6 +29,9 @@ geneset result}
 a data.table with the results from the requested method.
 }
 \description{
-Extract the result from a given enrichment test from a MultiGSEAResult
+TODO: Enable a way for caller to get a subset of the genesets tested,
+perhaps this will happen at the "collectoin" level. In this case, it's
+not clear if the pval correction should be redone to only account for
+the genesets that are returned from.
 }
 

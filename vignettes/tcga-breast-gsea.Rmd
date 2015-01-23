@@ -109,7 +109,44 @@ mg <- multiGSEA(gsd, vm, vm$design, contrast=2, methods=gsea.methods)
 To display the results, we simply have to drop the output of the `rmd.multiGSEA`
 call into a `results='asis'` code chunk.
 
-## Report
+# Exploring GSEA results
+
+## At the command line
+
+The results of a call to `multiGSEA` can be interrogated at the command line.
+Some functions that are helpful here include:
+
+  * `result[s](mg)`: Shows the pvals & statistics of all (or a subset) of the 
+    methods run over each geneset.
+  * `resultNames(mg)`: Lists the results available to display
+  * `tabulateResults(mg)`: Tabulates number of genesets for each collection
+    that were found to be significant by each method
+
+
+### Plotting GeneSet results
+
+You might be curious what the distribution of log fold chnages are for the
+genes in an arbitrary geneset vs the log fold changes across the entire
+experiments. You can view these results in two ways:
+
+  * A `density` plot
+  * Using limma's `barcode` plot
+  
+```{r manual-geneset-plot, eval=TRUE}
+plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
+plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
+```
+
+## In an HTML report
+
+The `rmd.plugins` package has a function that wraps a `MultiGSEAResult` into
+a browsable widget for an rmarkdown document.
+
+### Report all significant results
+
+By default, only results with an adjusted p value of &le; 0.30 are reported
+for each method. Use the `max.p` and `p.col` arguments to tweak what should be
+considered significant.
 
 ```{r show-multiGSEA-tn, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea', mg)
@@ -125,22 +162,22 @@ Perhaps it's useful to plot the t-statistic on the x-axis as opposed to the
 rmd.multiGSEA('tumor-vs-normal-gsea-tstat', mg, plot.stat='t')
 ```
 
-Or maybe you want to show the top.n genesets per method irrespective of their
-FDR
+### Report top.n results
+
+Maybe you want to show the top.n genesets per method irrespective of their
+FDR. In this case do not pass in a value for `max.p` but rather set `top.n`
+to a value of your choosing.
 
 ```{r show-multiGSEA-top10, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
 ```
 
-## Individual plots
+### Report maximum of top.n significant reuslts
 
-You might be curious what your favorite geneset looks like which has not been
-reported in the results that were reported. `multiGSEA` currently supports two
-types of plots to visualize the empirical shift for a given geneset, the
-`density` plot and the `limma::barcode` plot.
+Maybe you want to show the `top.n` genesets per method that pass the given FDR.
+In this case you have to pass in both a `max.p` and `top.n` parameter
 
-```{r manual-geneset-plot, eval=TRUE}
-plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
-plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
-
+```{r show-multiGSEA-top10-fdr, results='asis'}
+rmd.multiGSEA('tumor-vs-normal-gsea-top10-fdr', mg, plot.stat='t', top.n=10,
+              max.p=0.30)
 ```
