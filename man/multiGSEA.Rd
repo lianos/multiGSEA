@@ -85,9 +85,9 @@ This function will write several results to an output directory if
 
   Running a GSEA can be a costly propositin, especially when using methods
   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
-  inputs and intermediate results from each GSEA method are saved in a
-  directory tree that is rooted at \code{outdir}. This parameter works
-  intimately with \code{use.cache} and \code{plots.generate}.
+  intermediate results from each GSEA method are saved in a
+  directory tree that is rooted at \code{outdir}. If \code{cache.inputs}
+  is set to \code{TRUE}, the inputs to this function are saved as well.
 
   While this can be helpful for manually checking results as they are
   generated, you can also use it to speed up future re-analyses of the data

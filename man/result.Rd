@@ -23,7 +23,9 @@ calculated for all of the features in the geneset (\code{"logFC"}), or the
 trimmed t-statistics of the these features (\code{"t"})}
 
 \item{add.suffix}{If \code{TRUE}, adds \code{.name} as a suffix to the
-  columns of the \code{method}-specific statistics returned.}
+  columns of the \code{method}-specific statistics returned, ie. the
+  \code{pval} column from the \code{camera} result will be turned to
+  \code{pval.camera}.}
 }
 \value{
 a data.table with the results from the requested method.

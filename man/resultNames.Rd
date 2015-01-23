@@ -2,7 +2,7 @@
 % Please edit documentation in R/multiGSEA.R
 \name{resultNames}
 \alias{resultNames}
-\title{Fetch names of GSEA methods taht were run}
+\title{Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}}
 \usage{
 resultNames(x)
 }
@@ -10,6 +10,6 @@ resultNames(x)
 \item{x}{A MultiGSEAResult}
 }
 \description{
-Fetch names of GSEA methods taht were run
+Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
 }
 
