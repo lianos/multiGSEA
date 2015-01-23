@@ -17,9 +17,9 @@
 ##'
 ##'   Running a GSEA can be a costly propositin, especially when using methods
 ##'   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
-##'   inputs and intermediate results from each GSEA method are saved in a
-##'   directory tree that is rooted at \code{outdir}. This parameter works
-##'   intimately with \code{use.cache} and \code{plots.generate}.
+##'   intermediate results from each GSEA method are saved in a
+##'   directory tree that is rooted at \code{outdir}. If \code{cache.inputs}
+##'   is set to \code{TRUE}, the inputs to this function are saved as well.
 ##'
 ##'   While this can be helpful for manually checking results as they are
 ##'   generated, you can also use it to speed up future re-analyses of the data
@@ -264,7 +264,7 @@ logFC <- function(x) {
   x@logFC
 }
 
-##' Fetch names of GSEA methods taht were run
+##' Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
 ##'
 ##' @export
 ##'
@@ -306,7 +306,9 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##'   calculated for all of the features in the geneset (\code{"logFC"}), or the
 ##'   trimmed t-statistics of the these features (\code{"t"})
 ##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
-##'   columns of the \code{method}-specific statistics returned.
+##'   columns of the \code{method}-specific statistics returned, ie. the
+##'   \code{pval} column from the \code{camera} result will be turned to
+##'   \code{pval.camera}.
 ##'
 ##' @return a data.table with the results from the requested method.
 result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 't', 'logFC'),

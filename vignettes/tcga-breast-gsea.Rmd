@@ -111,7 +111,7 @@ call into a `results='asis'` code chunk.
 
 # Exploring GSEA results
 
-## At the command line
+## Command Line Exploration
 
 The results of a call to `multiGSEA` can be interrogated at the command line.
 Some functions that are helpful here include:
@@ -122,6 +122,7 @@ Some functions that are helpful here include:
   * `tabulateResults(mg)`: Tabulates number of genesets for each collection
     that were found to be significant by each method
 
+Please refer to their help documentation for more information.
 
 ### Plotting GeneSet results
 
@@ -131,16 +132,39 @@ experiments. You can view these results in two ways:
 
   * A `density` plot
   * Using limma's `barcode` plot
-  
-```{r manual-geneset-plot, eval=TRUE}
+
+#### Density plots
+
+The default `plot` method for a `MultiGSEAResult` produces a density plot,
+like so:
+
+```{r mg-density-plot, eval=TRUE}
 plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
+```
+
+The points at the bottom of the plot indicate the log fold change for each of
+the individual items in the geneset. Points outlined in black are ones that
+are significantly differentially expressed given the `feature.min.logFC` and
+`feature.max.padj` criteria that were passed into the `multiGSEA` call.
+
+#### Barcode plots
+
+limma provides a very handy `barcodeplot` function that show Broad-like GSEA
+plots (but even more informative). Setting `type="barcode"` in the call to
+`plot(mg, type='barcode')` draws these plots. Currently the code that does this
+has been lifted straight from limma, but the plan is to extend its functionality
+in the future.
+
+```{r mg-barcode-plot}
 plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 ```
 
-## In an HTML report
+## HTML Reports
 
-The `rmd.plugins` package has a function that wraps a `MultiGSEAResult` into
-a browsable widget for an rmarkdown document.
+The `rmd.plugins` package defines an `rmd.multiGSEA` function which wraps a 
+`MultiGSEAResult` into a browsable widget for an rmarkdown document. It provides
+several parameters tha can be used to customize which (and how many) results
+are shown.
 
 ### Report all significant results
 
@@ -168,6 +192,8 @@ Maybe you want to show the top.n genesets per method irrespective of their
 FDR. In this case do not pass in a value for `max.p` but rather set `top.n`
 to a value of your choosing.
 
+In the reports below, the top 10 results *per GSEA method* are reported.
+
 ```{r show-multiGSEA-top10, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
 ```
@@ -175,7 +201,10 @@ rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
 ### Report maximum of top.n significant reuslts
 
 Maybe you want to show the `top.n` genesets per method that pass the given FDR.
-In this case you have to pass in both a `max.p` and `top.n` parameter
+In this case you have to pass in both a `max.p` and `top.n` parameter.
+
+In the report below, the top 10 *significant* geneset results are reported
+*per method*:
 
 ```{r show-multiGSEA-top10-fdr, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-top10-fdr', mg, plot.stat='t', top.n=10,
