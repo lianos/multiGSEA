@@ -29,7 +29,7 @@ report.init(echo=TRUE, results='markup')
 
 This document is meant to show "a typical" differential expression and gene
 set enrichment analysis for a project using the `rmd.plugins` and `multiGSEA`
-pacakges.
+packages.
 
 To compile this document, you simply have to call:
 
@@ -126,7 +126,7 @@ Please refer to their help documentation for more information.
 
 ### Plotting GeneSet results
 
-You might be curious what the distribution of log fold chnages are for the
+You might be curious what the distribution of log fold changes are for the
 genes in an arbitrary geneset vs the log fold changes across the entire
 experiments. You can view these results in two ways:
 
@@ -162,8 +162,8 @@ plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 ## HTML Reports
 
 The `rmd.plugins` package defines an `rmd.multiGSEA` function which wraps a 
-`MultiGSEAResult` into a browsable widget for an rmarkdown document. It provides
-several parameters tha can be used to customize which (and how many) results
+`MultiGSEAResult` into a browseable widget for an rmarkdown document. It provides
+several parameters that can be used to customize which (and how many) results
 are shown.
 
 ### Report all significant results
