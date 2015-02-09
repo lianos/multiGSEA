@@ -300,9 +300,21 @@ setMethod("collectionMetadata",
   })
 
 setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
-  hasGeneSet(x, i, j, as.error=TRUE)
-  fn <- geneSetCollectionURLfunction(x, i)
-  fn(i, j)
+  ## hasGeneSet(x, i, j, as.error=TRUE)
+  ## fn <- geneSetCollectionURLfunction(x, i)
+  ## fn(i, j)
+  stopifnot(is.character(i) && is.character(j))
+  stopifnot(length(i) == length(j))
+  collections <- unique(i)
+  col.exists <- hasGeneSetCollection(x, collections)
+  url.fns <- Map(collections, col.exists, f=function(col, exists) {
+    if (exists) {
+      geneSetCollectionURLfunction(x, col)
+    } else {
+      function(x, y) NA_character_
+    }
+  })
+  mapply(i, j, FUN=function(col, name) url.fns[[col]](col, name))
 })
 
 setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {

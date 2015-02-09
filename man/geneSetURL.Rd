@@ -2,9 +2,22 @@
 % Please edit documentation in R/AllGenerics.R
 \name{geneSetURL}
 \alias{geneSetURL}
-\title{Provides an URL that provides a detailed description for a geneset}
+\title{Constructs URL that provides a detailed description for a geneset}
 \usage{
 geneSetURL(x, i, j, ...)
+}
+\arguments{
+\item{x}{A \code{GeneSetDb} or \code{MultiGSEAResult}}
+
+\item{i}{The names of the collections}
+
+\item{j}{The names of the gene sets belonging to the corresponding
+  collection identified in \code{i}}
+}
+\value{
+A character vector of URLs for each of the genesets identified by
+  \code{i, j}. \code{NA} is returned for genesets \code{i,j} that are not
+  found in \code{x}.
 }
 \description{
 This function requires that the \code{GeneSetDb@collectionMetadata} slot has
@@ -12,5 +25,8 @@ a valid \code{url.fn} column that provides a function to parse the
 collection,name information for its genesets into a valid URL. The functions
 in \code{url.fn} should take two arguments which correspond to the geneset
 \code{collection} and \code{name}, respectively.
+}
+\details{
+This function is vectorized over \code{i} and \code{j}
 }
 

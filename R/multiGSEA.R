@@ -198,6 +198,16 @@ function(x, ...) {
   geneSets(geneSetDb(x), active.only=TRUE)
 })
 
+## Here's your chance to vectorize this. Once that's done push this code down
+## into geneSetUrl,GeneSetDb
+setMethod("geneSetURL", c(x="MultiGSEAResult"), function(x, i, j, ...) {
+  geneSetURL(geneSetDb(x), i, j, ...)
+})
+
+setMethod("geneSetCollectionURLfunction", "MultiGSEAResult", function(x, i, ...) {
+  geneSetCollectionURLfunction(geneSetDb(x), i, ...)
+})
+
 setMethod("featureIds", c(x="MultiGSEAResult"),
 function(x, i, j, value=c('x.id', 'featureId'), ...) {
   value <- match.arg(value)

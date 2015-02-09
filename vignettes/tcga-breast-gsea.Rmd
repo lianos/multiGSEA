@@ -1,5 +1,5 @@
 ---
-title: "Tumor vs Normal analysis (TCGA Breast)"
+title: "multiGSEA workflow in TCGA Breast"
 author: Steve Lianoglou
 date: "`r format(Sys.time())`"
 output:
@@ -9,17 +9,18 @@ output:
     toc_depth: 3
     lib_dir: libs
 vignette: |
-  %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
-  %\VignetteEngine{knitr::rmarkdown_notangle}
+  %\VignetteIndexEntry{multiGSEA workflow in TCGA Breast}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
+library(knitr)
+library(magrittr)
 library(Biobase)
 library(limma)
-library(multiGSEA)
 library(rmd.plugins)
-library(magrittr)
-library(knitr)
+library(multiGSEA)
 ## Set defaults to hide errors and warnings, show output, and create highres
 ## pngs
 report.init(echo=TRUE, results='markup')
@@ -80,8 +81,9 @@ gsd.all <- getMSigDBset(c('c2', 'c7'), 'human')
 tally.all <- table(geneSets(gsd.all)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
-kable(tally.all)
+kable(tally.all, table.attr='style="width: 250px"')
 ```
+
 
 There are `r nrow(geneSets(gsd.all))` gene sets defined among the `c2` and `c7`
 gene set collections:
@@ -90,7 +92,7 @@ We could use these for the downstream analysis, but to
 save time on computation, we will use a predefined subset of them here:
 
 ```{r genesetdb-ex, results='asis'}
-gsd <- GeneSetDb(exampleGeneSets())
+gsd <- exampleGeneSetDb()
 tally <- table(geneSets(gsd)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))

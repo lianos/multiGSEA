@@ -3,6 +3,7 @@
 export(GeneSetDb)
 export(calculateIndividualLogFC)
 export(exampleExpressionSet)
+export(exampleGeneSetDb)
 export(exampleGeneSets)
 export(geneSetDb)
 export(geneSets)

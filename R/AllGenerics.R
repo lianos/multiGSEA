@@ -25,7 +25,7 @@ function(x, collection, name, value) {
   standardGeneric("collectionMetadata<-")
 })
 
-##' Provides an URL that provides a detailed description for a geneset
+##' Constructs URL that provides a detailed description for a geneset
 ##'
 ##' This function requires that the \code{GeneSetDb@@collectionMetadata} slot has
 ##' a valid \code{url.fn} column that provides a function to parse the
@@ -33,7 +33,18 @@ function(x, collection, name, value) {
 ##' in \code{url.fn} should take two arguments which correspond to the geneset
 ##' \code{collection} and \code{name}, respectively.
 ##'
+##' This function is vectorized over \code{i} and \code{j}
+##'
 ##' @exportMethod geneSetURL
+##'
+##' @param x A \code{GeneSetDb} or \code{MultiGSEAResult}
+##' @param i The names of the collections
+##' @param j The names of the gene sets belonging to the corresponding
+##'   collection identified in \code{i}
+##'
+##' @return A character vector of URLs for each of the genesets identified by
+##'   \code{i, j}. \code{NA} is returned for genesets \code{i,j} that are not
+##'   found in \code{x}.
 setGeneric("geneSetURL", signature="x", function(x, i, j, ...) {
   standardGeneric("geneSetURL")
 })

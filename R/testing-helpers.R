@@ -82,6 +82,18 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
   gsl
 }
 
+##' @export
+exampleGeneSetDb <- function() {
+  out <- GeneSetDb(exampleGeneSets())
+  colls <- unique(collectionMetadata((out))$collection)
+  fn <- function(x, y) {
+    paste0('http://www.broadinstitute.org/gsea/msigdb/cards/', y, '.html')
+  }
+  for (col in colls) {
+    geneSetCollectionURLfunction(out, col) <- fn
+  }
+  out
+}
 ## The datasets references in this file are generated in:
 ##   tests/testdata/setup-testdata.R
 ## Let's document them here
