@@ -34,6 +34,7 @@ Collate:
     'validateInputs.R'
     'do.camera.R'
     'do.geneSetTest.R'
+    'do.goana.R'
     'do.hyperGeometricTest.R'
     'do.npGSEA.R'
     'do.roast.R'
