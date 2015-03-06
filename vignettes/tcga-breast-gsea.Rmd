@@ -8,6 +8,7 @@ output:
     toc: true
     toc_depth: 3
     lib_dir: libs
+knit: rmd.plugins::report.render
 vignette: |
   %\VignetteIndexEntry{multiGSEA workflow in TCGA Breast}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,12 +16,12 @@ vignette: |
 ---
 
 ```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
-library(knitr)
-library(magrittr)
 library(Biobase)
 library(limma)
-library(rmd.plugins)
 library(multiGSEA)
+library(rmd.plugins)
+library(knitr)
+library(magrittr)
 ## Set defaults to hide errors and warnings, show output, and create highres
 ## pngs
 report.init(echo=TRUE, results='markup')
@@ -32,17 +33,20 @@ This document is meant to show "a typical" differential expression and gene
 set enrichment analysis for a project using the `rmd.plugins` and `multiGSEA`
 packages.
 
-To compile this document, you simply have to call:
+To compile this document, you simply have to invoke the `report.render` function
+from the `rmd.plugins` package like so:
 
 ```{r compile-example, eval=FALSE}
-library(Biobase)
-library(limma)
-library(multiGSEA)
-library(rmd.plugins)
-library(magrittr)
-library(knitr)
+## Note that specifying `gen.dir` is optional
 report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 ```
+
+Alternatively, this document defines `knit: rmd.plugins::report.render` in the
+[YAML frontmatter][yamlknit], and therefore can be compiled directly from within
+RStudio by simply calling the "Knit" command (the "Knit" button in the tool bar, 
+or the ⇧⌘K key  combination)
+
+[yamlknit]: http://www.r-bloggers.com/one-weird-trick-to-compile-multipartite-dynamic-documents-with-rmarkdown/
 
 Let's define a few variables that will be used to customize the output:
 
