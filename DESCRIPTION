@@ -28,6 +28,7 @@ Collate:
     'AllGenerics.R'
     'GeneSetDb-class.R'
     'GeneSetDb-methods.R'
+    'MultiGSEARegistry-class.R'
     'aaa.R'
     'cache-utils.R'
     'calculateIndividualLogFC.R'
@@ -43,3 +44,4 @@ Collate:
     'plots.R'
     'testing-helpers.R'
     'utilities.R'
+    'zzz.R'

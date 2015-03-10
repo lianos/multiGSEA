@@ -16,34 +16,44 @@
 ##'   the collection,name combination to generate an URL that points the user
 ##'   to more information about that geneset, etc.
 .GeneSetDb <- setClass("GeneSetDb",
-         slots=c(
-           table="data.table",
-           db="data.table",
-           featureIdMap="data.table",
-           collectionMetadata="data.table"),
-         prototype=prototype(
-           table=data.table(
-             collection=character(),
-             name=character(),
-             active=logical(),
-             N=integer(),
-             n=integer(),
-             key=c('collection', 'name')),
-           db=data.table(
-             collection=character(),
-             name=character(),
-             featureId=character(),
-             key=c('collection', 'name')),
-           featureIdMap=data.table(
-             featureId=character(),  ## The ids used in the defined genesets
-             x.id=character(),
-             x.idx=integer(),
-             key='featureId'),
-           collectionMetadata=data.table(
-             collection=character(),
-             name=character(),
-             value=list(),
-             key=c('collection', 'name'))))
+  slots=c(
+    table="data.table",
+    db="data.table",
+    featureIdMap="data.table",
+    collectionMetadata="data.table"),
+  prototype=prototype(
+    table=data.table(
+      collection=character(),
+      name=character(),
+      active=logical(),
+      N=integer(),
+      n=integer(),
+      key=c('collection', 'name')),
+    db=data.table(
+      collection=character(),
+      name=character(),
+      featureId=character(),
+      key=c('collection', 'name')),
+    featureIdMap=data.table(
+      featureId=character(),  ## The ids used in the defined genesets
+      x.id=character(),
+      x.idx=integer(),
+      key='featureId'),
+    collectionMetadata=data.table(
+      collection=character(),
+      name=character(),
+      value=list(),
+      key=c('collection', 'name'))))
+
+.MultiGSEARegistry <- setClass("MultiGSEARegistry",
+  slots=c(
+    methods="character",
+    validate.fn="list",
+    do.fn="list"),
+  prototype=prototype(
+    methods=character(),
+    validate.fn=list(),
+    do.fn=list()))
 
 ##' An object to hold the results from a multiGSEA call
 ##'
@@ -60,19 +70,19 @@
 ##'   feature measured in the experiment.
 ##' @slot outdir The directory the images/cache/etc. are saved in.
 .MultiGSEAResult <- setClass("MultiGSEAResult",
-         slots=c(
-           gsd="GeneSetDb",
-           results="list",
-           logFC='data.table',
-           outdir='character'),
-         prototype=prototype(
-           gsd=new("GeneSetDb"),
-           results=list(),
-           logFC=data.table(
-             featureId=character(),
-             logFC=numeric(),
-             t=numeric(),
-             pval=numeric(),
-             padj=numeric(),
-             key='featureId'),
-           outdir=character()))
+  slots=c(
+    gsd="GeneSetDb",
+    results="list",
+    logFC='data.table',
+    outdir='character'),
+  prototype=prototype(
+    gsd=new("GeneSetDb"),
+    results=list(),
+    logFC=data.table(
+      featureId=character(),
+      logFC=numeric(),
+      t=numeric(),
+      pval=numeric(),
+      padj=numeric(),
+      key='featureId'),
+    outdir=character()))
