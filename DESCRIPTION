@@ -44,4 +44,3 @@ Collate:
     'plots.R'
     'testing-helpers.R'
     'utilities.R'
-    'zzz.R'
