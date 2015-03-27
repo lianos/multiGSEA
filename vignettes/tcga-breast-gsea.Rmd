@@ -41,10 +41,12 @@ from the `rmd.plugins` package like so:
 report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 ```
 
-Alternatively, this document defines `knit: rmd.plugins::report.render` in the
+<div class="callout-tip">
+This document defines `knit: rmd.plugins::report.render` in the
 [YAML frontmatter][yamlknit], and therefore can be compiled directly from within
 RStudio by simply calling the "Knit" command (the "Knit" button in the tool bar, 
 or the ⇧⌘K key  combination)
+</div>
 
 [yamlknit]: http://www.r-bloggers.com/one-weird-trick-to-compile-multipartite-dynamic-documents-with-rmarkdown/
 
@@ -119,8 +121,8 @@ call into a `results='asis'` code chunk.
 
 ## Command Line Exploration
 
-The results of a call to `multiGSEA` can be interrogated at the command line.
-Some functions that are helpful here include:
+The results of a call to `multiGSEA` is a `MultiGSEAResult` object, which can be
+interrogated at the command line. Some functions that are helpful here include:
 
   * `result[s](mg)`: Shows the pvals & statistics of all (or a subset) of the 
     methods run over each geneset.
@@ -128,7 +130,12 @@ Some functions that are helpful here include:
   * `tabulateResults(mg)`: Tabulates number of genesets for each collection
     that were found to be significant by each method
 
-Please refer to their help documentation for more information.
+<div class="callout-important">
+Please refer to the help documentation for the functions above for more
+information. While printing out a report from a multiGSEA run (as shown below)
+is handy for downstream consumers of the analysis, interrogating these results
+manually from the command line is imoprtant for the analysist.
+</div>
 
 ### Plotting GeneSet results
 
