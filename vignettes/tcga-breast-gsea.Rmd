@@ -41,7 +41,7 @@ from the `rmd.plugins` package like so:
 report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 ```
 
-<div class="callout-tip">
+<div class="tip">
 This document defines `knit: rmd.plugins::report.render` in the
 [YAML frontmatter][yamlknit], and therefore can be compiled directly from within
 RStudio by simply calling the "Knit" command (the "Knit" button in the tool bar, 
@@ -130,7 +130,7 @@ interrogated at the command line. Some functions that are helpful here include:
   * `tabulateResults(mg)`: Tabulates number of genesets for each collection
     that were found to be significant by each method
 
-<div class="callout-important">
+<div class="important">
 Please refer to the help documentation for the functions above for more
 information. While printing out a report from a multiGSEA run (as shown below)
 is handy for downstream consumers of the analysis, interrogating these results
