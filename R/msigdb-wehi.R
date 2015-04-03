@@ -101,6 +101,23 @@ getMSigDBset <- function(id, species='human', as.list=FALSE,
     for (i in id) {
       geneSetCollectionURLfunction(out, i) <- fn
     }
+
+    ## Add more metadata
+    spec <- if (species == 'human') 'Homo_sapiens' else 'Mus_musculus'
+    out@collectionMetadata <- local({
+      cm <- out@collectionMetadata
+
+      ucols <- unique(cm$collection)
+      add.each <- list(organism=spec,
+                       id_type=EntrezIdentifier(),
+                       source=paste0('MSigDB_WEHI_', version))
+      more <- lapply(ucols, function(col) {
+        data.table(collection=col, name=names(add.each), value=unname(add.each))
+      })
+      more <- rbindlist(more)
+      out <- rbind(cm, more)
+      setkeyv(out, key(cm))
+    })
   }
 
   out
