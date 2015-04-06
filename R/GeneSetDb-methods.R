@@ -365,6 +365,7 @@ function(x, i, value) {
 
 
 ##' @importFrom BiocGenerics append
+##' @export
 setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   if (!missing(after)) {
     warning("`after` argument is ignored in append,GeneSetDb")
