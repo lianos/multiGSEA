@@ -16,6 +16,7 @@
 ##'
 ##' TODO: document the GeneSetDb ID mapping more thoroughly.
 ##'
+##' @import GSEABase
 ##' @importFrom matrixStats rowVars
 ##' @export
 ##'
