@@ -13,8 +13,8 @@ Depends:
     data.table (>= 1.9.4),
 Imports:
     BiocGenerics,
-    Biobase (>= 2.26.0),
-    limma (>= 3.22.3),
+    Biobase (>= 2.24.0),
+    limma,
     data.table,
 Suggests:
     rmd.plugins (>= 0.3.0),
