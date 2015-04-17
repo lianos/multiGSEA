@@ -452,15 +452,25 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   cmeta <- unique(cmeta, by=key(x@collectionMetadata))
   setkeyv(cmeta, key(x@collectionMetadata))
 
-  gs <- rbindlist(list(x@db, values@db), use.names=TRUE, fill=TRUE)
   out <- .GeneSetDb(db=db, featureIdMap=fm, table=init.gsd.table.from.db(db),
                     collectionMetadata=cmeta)
+
+  ## Transfer over any extra metadata (columns) of the @table slots from
+  ## the two inputs incase the user stored extra data at the geneset level
+  ## in them.
+  gs <- rbindlist(list(x@table, values@table), use.names=TRUE, fill=TRUE)
   add.gs.cols <- setdiff(names(gs), names(out@table))
-  if (add.gs.cols) {
+  if (length(add.gs.cols) > 0) {
     gs.keys <- key(out@table)
-    out@table <- merge(out@table, gs, by=gs.keys, all.x=TRUE)
-    setkeyv(out@table, gs.keys)
+    new.table <- merge(out@table, gs[, c(gs.keys, add.gs.cols), with=FALSE],
+                       by=gs.keys, all.x=TRUE)
+    if (!all.equal(out@table, new.table[, names(out@table), with=FALSE])) {
+      stop("There was a problem adding additional columns to geneset@table ",
+           "during `append`")
+    }
+    out@table <- new.table
   }
+
   out
 })
 

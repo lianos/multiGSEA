@@ -163,6 +163,10 @@ test_that("GeneSetDb returns proper limma lists via as.expression.indexes", {
   }
 })
 
+test_that("subset.GeneSetDb works", {
+  ## TODO: Test subset.GeneSetDb
+})
+
 test_that("GeneSetDb indexing `[` works", {
   ## TODO: Test indexing GeneSetDbs
 })
