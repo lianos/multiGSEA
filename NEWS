@@ -3,10 +3,17 @@ CHANGES IN VERSION 0.2
 
 NEW FEATURES
 
+  o MSigDB definitions were updated to v5.0, which adds a new "hallmark (h)"
+    gene set. A call to `getMSigDBset` without a version parameter will return
+    the v5.0 data.
+
+    WARNING: the mouse orthologue mapping has not been done yet in v0.2.0, but
+    will be done in the near feature. Currently if you want to get mouse
+    MSigDB signatures, you can get them like so:
+
+      gdb <- getMSigDBset(c('c2', 'c7'), species='mouse', version='v4.0')
 
 BUG FIXES
-
-
 
 
 CHANGES IN VERSION 0.1
