@@ -219,6 +219,64 @@ setMethod("geneSet", c(x="GeneSetDb"),
   cbind(info[rep(1, nrow(finfo))], finfo)
 })
 
+##' Subset GeneSetDb to only include specified genesets.
+##'
+##' This isn't exported yet because I don't like its implementation
+##'
+##' @param x \code{GeneSetDb}
+##' @param keep logical vector as long as
+##'   \code{nrow(geneSets(x, active.only=FALSE))}
+##' @return a \code{GeneSetDb} that has only the results for the specified
+##'   genesets.
+subset.GeneSetDb <- function(x, keep) {
+  stopifnot(is(x, 'GeneSetDb'))
+  nr <- nrow(geneSets(x, active.only=FALSE))
+
+  if (!is.logical(keep) && lenght(keep) != nr) {
+    stop("The `keep` vector is FUBAR'd")
+  }
+
+  ## 1. Remove rows from x@table
+  ## 2. Remove rows in x@db that belong to collection,name that do not exist
+  ##    due to (1)
+  ## 3. remove entries in x@featureIdMap for features that no longer exist in
+  ##    updated db from (2)
+  ## 4. Update x@collectionMetadata to:
+  ##    a. remove all metadata for collections that are completely gone
+  ##    b. update remaining collection,count entries for remaining collections
+
+  ## 1
+  keep.table <- x@table[keep]
+
+  ## 2
+  gs.keys <- keep.table[, key(keep.table), with=FALSE]
+  setkeyv(gs.keys, key(keep.table))
+  keep.db <- x@db[gs.keys, nomatch=0] ## only keep entries in db in gs.keys
+
+  ## 3
+  keep.featureIdMap <- subset(x@featureIdMap, featureId %in% keep.db$featureId)
+
+  ## 4a
+  keep.cm <- subset(x@collectionMetadata, collection %in% keep.db$collection)
+  ## 4b
+  cc <- keep.table[, list(name='count', value=.N), by='collection']
+  setkeyv(cc, key(keep.cm))
+  ## Currently (data.table v1.9.4( there's nothing I can do to make i.value a
+  ## list element and this `set` mojog doesn't work either
+  suppressWarnings(keep.cm[cc, value := list(i.value)])
+  ## update.idxs <- keep.cm[cc, which=TRUE]
+  ## val.idx <- which(colnames(keep.cm) == 'value')
+  ## for (idx in seq_along(update.idxs)) {
+  ##   set(keep.cm, update.idxs[idx], val.idx, list(cc$value[idx]))
+  ## }
+
+  out <- .GeneSetDb(table=keep.table,
+                    db=keep.db,
+                    featureIdMap=keep.featureIdMap,
+                    collectionMetadata=keep.cm)
+  out
+}
+
 ## -----------------------------------------------------------------------------
 ## Functions over collections
 
@@ -378,7 +436,7 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   }
 
   ## Combine the db and featureIdMap(s)
-  db <- rbind(x@db, values@db)
+  db <- rbindlist(list(x@db, values@db), use.names=TRUE, fill=TRUE)
   db <- unique(db, by=c('collection', 'name', 'featureId'))
   db <- setkeyv(db, key(x@db))
 
@@ -394,8 +452,16 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   cmeta <- unique(cmeta, by=key(x@collectionMetadata))
   setkeyv(cmeta, key(x@collectionMetadata))
 
-  .GeneSetDb(db=db, featureIdMap=fm, table=init.gsd.table.from.db(db),
-             collectionMetadata=cmeta)
+  gs <- rbindlist(list(x@db, values@db), use.names=TRUE, fill=TRUE)
+  out <- .GeneSetDb(db=db, featureIdMap=fm, table=init.gsd.table.from.db(db),
+                    collectionMetadata=cmeta)
+  add.gs.cols <- setdiff(names(gs), names(out@table))
+  if (add.gs.cols) {
+    gs.keys <- key(out@table)
+    out@table <- merge(out@table, gs, by=gs.keys, all.x=TRUE)
+    setkeyv(out@table, gs.keys)
+  }
+  out
 })
 
 setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x)))

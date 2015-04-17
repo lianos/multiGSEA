@@ -451,6 +451,26 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
   rbindlist(res)
 }
 
+##' Subset MultiGSEAResult to include include results for specified genesets
+##'
+##' This isn't exported yet because I don't like its implementation
+##' @param x MultiGSEAResult
+##' @param keep logical vector as long as there are numbers of results
+##' @return a \code{MultiGSEAResult} that has only the results for the specified
+##'   genesets.
+subset.MultiGSEAResult <- function(x, keep) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  nr <- nrow(multiGSEA::results(x))
+  if (!is.logical(keep) && lenght(keep) != nr) {
+    stop("The `keep` vector is FUBAR'd")
+  }
+  new.res <- lapply(x@results, function(x) subset(x, keep))
+  x@results <- new.res
+  gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
+  x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
+  x
+}
+
 setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
                "---------------------------------------------------", sep='\n')

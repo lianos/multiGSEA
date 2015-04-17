@@ -65,10 +65,12 @@ match.species <- function(x=NULL) {
 
 ##' Fetches the requested MSigDB gene sets.
 ##'
-##' @export
+##' This function is intentionally not exported. Users should call the
+##' getMSigDBset function, which will dispatch to here if they want the
+##' v4.0 definitions
 ##'
 ##' @param id A character vector (or integer vector) indicating the desired
-##' genesets
+##' genesetsa
 ##' @param species Character vector indicating which species desired,
 ##' \code{"human"} or \code{"mouse"}
 ##' @param as.list If \code{TRUE} returns a list of lists of entrez IDs for
@@ -76,7 +78,7 @@ match.species <- function(x=NULL) {
 ##' @param version The version of the MSigDB desired. Defaults to latest.
 ##'
 ##' @return A list of genesets, named by \code{id}.
-getMSigDBset <- function(id, species='human', as.list=FALSE,
+getMSigDBset.wehi <- function(id, species='human', as.list=FALSE,
                          version=.wehi.msigdb.current) {
   species <- match.species(species)
   version <- .parse.msigdb.version(version)
