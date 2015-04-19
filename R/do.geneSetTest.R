@@ -7,7 +7,7 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            use.cache=TRUE,
                            alternative="mixed", type="auto", ranks.only=TRUE,
                            nsim=9999, robust.fit=FALSE, robust.eBayes=FALSE,
-                           logFC=NULL, score.by=c('logFC', 't'), mc.cores=1L,
+                           logFC=NULL, score.by=c('t', 'logFC'), mc.cores=1L,
                            ...) {
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))
