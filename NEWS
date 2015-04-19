@@ -7,11 +7,17 @@ NEW FEATURES
     gene set. A call to `getMSigDBset` without a version parameter will return
     the v5.0 data.
 
-    WARNING: the mouse orthologue mapping has not been done yet in v0.2.0, but
-    will be done in the near feature. Currently if you want to get mouse
-    MSigDB signatures, you can get them like so:
+    Note that MSigDB provides the entrez IDs for each geneset as human genes.
+    The mouse version of these gene sets was constructing by mapping the 
+    human entrez ID's to their mouse orthologs via `igis::orthologs`. When
+    this mapping returns multiple mouse IDs for a single human ID, all of
+    the mouse IDs are kept in the mouse geneset.
 
-      gdb <- getMSigDBset(c('c2', 'c7'), species='mouse', version='v4.0')
+    To get the previous v4.0 genesets (provided by WEHI), you would simply
+    specify version='v4.0' in the getMSigDBSet like so:
+
+      gdb5 <- getMSigDBsetc(c('c2', 'c7'), species='mouse')
+      gdb4 <- getMSigDBsetc(c('c2', 'c7'), species='mouse', version='v4.0')
 
   o Added J-G statistic calculation as additional measure to summarize geneset
     effects in `geneSetFeatureStatistics` and for ranking (result(..., rank.by))
