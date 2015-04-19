@@ -215,7 +215,10 @@ function(x, i, j, value=c('x.id', 'featureId'), ...) {
              active.only=TRUE)
 })
 
-##' Summarize the statistics for each feature at the geneset level
+##' Summarize the statistics for each feature at the geneset level.
+##'
+##' This function calculates the mean and trimmed mean of the logFC and
+##' t-statistics, as well as the J-G statistic
 ##'
 ##' @param x A \code{multiGSEAResult} object
 ##' @param feature.min.logFC used with \code{feature.max.padj} to identify
@@ -252,9 +255,11 @@ geneSetFeatureStatistics <- function(x, feature.min.logFC=1,
     up <- stats$direction == 'up'
     down <- !up
     is.sig <- stats$significant
+    t.nona <- stats$t[!is.na(stats$t)]
     list(n.sig=sum(is.sig), n.neutral=sum(!is.sig),
          n.up=sum(up), n.down=sum(down),
          n.sig.up=sum(up & is.sig), n.sig.down=(sum(down & is.sig)),
+         JG=sum(t.nona) / sqrt(length(t.nona)),
          mean.logFC=mean(stats$logFC, na.rm=TRUE),
          mean.logFC.trim=mean(stats$logFC, na.rm=TRUE, trim=trim),
          mean.t=mean(stats$t, na.rm=TRUE),
@@ -313,15 +318,17 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##' @param rank.by the statistic to use to append a \code{rank} column for the
 ##'   geneset result. By default we rank by pvalue calculated by the GSEA
 ##'   method. You can rank the results based on the trimmed mean of the logFC's
-##'   calculated for all of the features in the geneset (\code{"logFC"}), or the
-##'   trimmed t-statistics of the these features (\code{"t"})
+##'   calculated for all of the features in the geneset (\code{"logFC"}), the
+##'   trimmed t-statistics of the these features (\code{"t"}), or the "J-G"
+##'   statistic of the geneset.
 ##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
 ##'   columns of the \code{method}-specific statistics returned, ie. the
 ##'   \code{pval} column from the \code{camera} result will be turned to
 ##'   \code{pval.camera}.
 ##'
 ##' @return a data.table with the results from the requested method.
-result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 't', 'logFC'),
+result <- function(x, name, stats.only=FALSE,
+                   rank.by=c('pval', 't', 'logFC', 'JG'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   stopifnot(isSingleCharacter(name))
@@ -369,6 +376,7 @@ result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 't', 'logFC'),
   }
 
   ranks <- switch(rank.by,
+                  JG=rank(-abs(out$JG), ties.method="min"),
                   logFC=rank(-abs(out$mean.logFC.trim), ties.method="min"),
                   t=rank(-abs(out$mean.t.trim), ties.method="min"),
                   pval=rank(out[[pval.col]], ties.method="min"))
@@ -396,7 +404,7 @@ result <- function(x, name, stats.only=FALSE, rank.by=c('pval', 't', 'logFC'),
 ##'   be suffixed with the method name that generated them when
 ##'   \code{length(names) > 1L}
 results <- function(x, names=resultNames(x), stats.only=TRUE,
-                    rank.by=c('pval', 'logFC', 't'),
+                    rank.by=c('pval', 'logFC', 't', 'JG'),
                     add.suffix=length(names) > 1L) {
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)

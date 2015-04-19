@@ -23,6 +23,8 @@ each gene set, otherwse will return a \code{GeneSetDb}}
 A list of genesets, named by \code{id}.
 }
 \description{
-Fetches the requested MSigDB gene sets.
+This function is intentionally not exported. Users should call the
+getMSigDBset function, which will dispatch to here if they want the
+v4.0 definitions
 }
 

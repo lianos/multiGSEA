@@ -2,7 +2,7 @@
 % Please edit documentation in R/multiGSEA.R
 \name{geneSetFeatureStatistics}
 \alias{geneSetFeatureStatistics}
-\title{Summarize the statistics for each feature at the geneset level}
+\title{Summarize the statistics for each feature at the geneset level.}
 \usage{
 geneSetFeatureStatistics(x, feature.min.logFC = 1, feature.max.padj = 0.1,
   trim = 0.1)
@@ -26,6 +26,7 @@ A data.table with statistics on the effect size shift for the gene
   set as well as numbers of members that shift up or down.
 }
 \description{
-Summarize the statistics for each feature at the geneset level
+This function calculates the mean and trimmed mean of the logFC and
+t-statistics, as well as the J-G statistic
 }
 

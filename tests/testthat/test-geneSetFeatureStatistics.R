@@ -23,7 +23,9 @@ test_that("geneSetFeatureStatistics", {
   expected <- geneSets(gsd)[, {
     ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
     lfc <- istats[J(ids)]
-    list(mean.logFC=mean(lfc$logFC, na.rm=TRUE),
+    t.nona <- lfc$t[!is.na(lfc$t)]
+    list(JG=sum(t.nona) / sqrt(length(t.nona)),
+         mean.logFC=mean(lfc$logFC, na.rm=TRUE),
          mean.logFC.trim=mean(lfc$logFC, na.rm=TRUE, trim=trim),
          mean.t=mean(lfc$t, na.rm=TRUE),
          mean.t.trim=mean(lfc$t, na.rm=TRUE, trim=trim))
