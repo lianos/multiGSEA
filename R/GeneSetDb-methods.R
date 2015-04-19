@@ -73,6 +73,35 @@ setMethod("unconform", "GeneSetDb", function(x, ...) {
   x
 })
 
+##' Creates a 1/0 matrix to indicate geneset membership to target object.
+##'
+##' rows are number of genesetes in \code{x}, columns are number of rows in
+##' \code{y}
+##'
+##' @param x A \code{GeneSetDb}
+##' @param y A target (expression) object \code{x} is (or can be) conformed to
+##' @return incidence matrix with nrows = number of genesets and
+##'   ncols == nrows(y)
+incidenceMatrix <- function(x, y) {
+  stopifnot(is(x, 'GeneSetDb'))
+  if (!inherits(y, .valid.x)) {
+    stop("Invalid expression object (x) type: ", class(x)[1L])
+  }
+  if (!is.conformed(x, y)) {
+    x <- conform(x, y)
+  }
+  gs <- geneSets(x)
+  out <- matrix(0L, nrow(gs), nrow(y),
+                dimnames=list(
+                  paste(gs$collection, gs$name, sep=';'),
+                  rownames(y)))
+  for (i in 1:nrow(gs)) {
+    fids <- featureIds(x, gs$collection[i], gs$name[i], value='x.idx')
+    out[i, fids] <- 1L
+  }
+  out
+}
+
 ##' Check if GeneSetDb has been conformed (optionally to a specific
 ##' expression object)
 ##'

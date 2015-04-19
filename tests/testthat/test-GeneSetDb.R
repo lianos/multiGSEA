@@ -163,6 +163,23 @@ test_that("GeneSetDb returns proper limma lists via as.expression.indexes", {
   }
 })
 
+test_that("GeneSetDb,incidenceMatrix is correct", {
+  es <- exampleExpressionSet()
+  gsl <- exampleGeneSets()
+  gsd <- conform(GeneSetDb(gsl), es)
+
+  im <- incidenceMatrix(gsd, es)
+  g.cols <- sub(';.*', '', rownames(im))
+  g.names <- sub('.*?;', '', rownames(im))
+  for (i in 1:nrow(im)) {
+    col <- g.cols[i]
+    name <- g.names[i]
+    fids <- featureIds(gsd, col, name)
+    expected <- intersect(gsl[[col]][[name]], rownames(es))
+    expect_true(setequal(expected, fids))
+  }
+})
+
 test_that("subset.GeneSetDb works", {
   ## TODO: Test subset.GeneSetDb
 })

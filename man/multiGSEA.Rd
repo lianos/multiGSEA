@@ -4,7 +4,7 @@
 \alias{multiGSEA}
 \title{Performs several GSEA analysis over an experiment}
 \usage{
-multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = c("camera"),
+multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
   outdir = NULL, use.cache = TRUE, cache.inputs = FALSE,
   feature.min.logFC = 1, feature.max.padj = 0.1, trim = 0.1, ...)
 }
@@ -29,7 +29,10 @@ run. This can be any combination of:
     features of a geneset are defind by the \code{feature.min.logFC} and
     \code{feature.max.padj} parameters.
   }
-}}
+}
+If no methods are specified, then only geneset level statistics, such as
+the JG score and the mean logFCs t-statistics, of the features in each
+geneset are calculated.}
 
 \item{outdir}{A character vector indicating the directory to use inorder to
 save/cache the results from the analysis. This is required if
@@ -66,13 +69,16 @@ conjunction with \code{feature.min.logFC}.}
 A \code{MultiGSEAResult}
 }
 \description{
-multiGSEA is wrapper function which delegates GSEA analyses to several
-different "workers," which are implemented in different packages. Currently
-this primarily wraps the GSEA functinos from limma, but I intend to add
-\code{npGSEA} as a supported anlysis soon. Refer to the \code{method}
-documentation to see which GSEA methods are supported.
+multiGSEA is wrapper function which delegates GSEA analyses to different
+"workers" that implement each of the GSEA methods specified in the
+\code{methods} argument. By default, this only gathers geneset level
+statistics without running any of the GSEA methods in particular.
 }
 \details{
+Currently this primarily wraps the GSEA functinos from limma, but others
+will be added over time. Refer to the \code{method} documentation to see
+which GSEA methods are supported.
+
 This function will write several results to an output directory if
   a valid value for \code{outdir} is provided. Furthermore, the results of
   these analysis will be cached so that time is saved on subsequent calls.

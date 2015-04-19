@@ -1,10 +1,14 @@
 ##' Performs several GSEA analysis over an experiment
 ##'
-##' multiGSEA is wrapper function which delegates GSEA analyses to several
-##' different "workers," which are implemented in different packages. Currently
-##' this primarily wraps the GSEA functinos from limma, but I intend to add
-##' \code{npGSEA} as a supported anlysis soon. Refer to the \code{method}
-##' documentation to see which GSEA methods are supported.
+##' multiGSEA is wrapper function which delegates GSEA analyses to different
+##' "workers" that implement each of the GSEA methods specified in the
+##' \code{methods} argument. By default, this only gathers geneset level
+##' statistics without running any of the GSEA methods in particular.
+##'
+##'
+##' Currently this primarily wraps the GSEA functinos from limma, but others
+##' will be added over time. Refer to the \code{method} documentation to see
+##' which GSEA methods are supported.
 ##'
 ##' @details This function will write several results to an output directory if
 ##'   a valid value for \code{outdir} is provided. Furthermore, the results of
@@ -55,6 +59,9 @@
 ##'       \code{feature.max.padj} parameters.
 ##'     }
 ##'   }
+##'   If no methods are specified, then only geneset level statistics, such as
+##'   the JG score and the mean logFCs t-statistics, of the features in each
+##'   geneset are calculated.
 ##' @param outdir A character vector indicating the directory to use inorder to
 ##'   save/cache the results from the analysis. This is required if
 ##'   \code{use.cache=TRUE} or if you want to save intermediate results as they
@@ -82,13 +89,15 @@
 ##'
 ##' @return A \code{MultiGSEAResult}
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
-                      methods=c('camera'), outdir=NULL, use.cache=TRUE,
+                      methods=NULL, outdir=NULL, use.cache=TRUE,
                       cache.inputs=FALSE, feature.min.logFC=1,
                       feature.max.padj=0.10, trim=0.10, ...) {
   if (!is(gsd, 'GeneSetDb')) {
     stop("GeneSetDb required")
   }
-
+  if (missing(methods) || length(methods) == 0) {
+    methods <- 'logFC'
+  }
   ## We know all goes well when on.exit() sees that this variable is set to TRUE
   finished <- FALSE
 
@@ -137,6 +146,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
   inputs <- validateInputs(x, design, contrast, methods,
                            require.x.rownames=TRUE)
+
   x <- inputs$x
   design <- inputs$design
   contrast <- inputs$contrast
@@ -157,6 +167,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     direction <- ifelse(logFC > 0, 'up', 'down')
   })
 
+  ## the 'logFC' method is just a pass through -- we don't call it if it was
+  ## provided
+  methods <- setdiff(methods, 'logFC')
   results <- sapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
     tryCatch({
@@ -236,12 +249,15 @@ geneSetFeatureStatistics <- function(x, feature.min.logFC=1,
                                      feature.max.padj=0.10, trim=0.10) {
   stopifnot(is(x, 'MultiGSEAResult'))
   lfc <- logFC(x)
+
   annotate.lfc <- !missing(feature.min.logFC) ||
     !missing(feature.max.padj) ||
     !all(c('significant', 'direction') %in% names(lfc))
   if (annotate.lfc) {
     lfc <- within(lfc, {
-      significant <- abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
+      significant <- abs(logFC) >= feature.min.logFC &
+        !is.na(padj) &
+        padj <= feature.max.padj
       direction <- ifelse(logFC > 0, 'up', 'down')
     })
   }
@@ -292,7 +308,10 @@ resultNames <- function(x) {
 ##' Returns method names that were not run on a MultiGSEAResult
 invalidMethods <- function(x, names, as.error=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  stopifnot(is.character(names) && length(names) >= 1L)
+  stopifnot(is.character(names))
+  if (length(names) == 0 && FALSE) {
+    warning("No mehod `names` passed to invalidMethods", immediate.=TRUE)
+  }
   bad.names <- setdiff(names, resultNames(x))
   if (length(bad.names) && as.error) {
     stop("Illegal result names queried: ", paste(bad.names, collapse=','))
@@ -331,6 +350,10 @@ result <- function(x, name, stats.only=FALSE,
                    rank.by=c('pval', 't', 'logFC', 'JG'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
+  ## no methods run?
+  if (length(resultNames(x)) == 0) {
+    return(results(x))
+  }
   stopifnot(isSingleCharacter(name))
   invalidMethods(x, name, as.error=TRUE)
   stopifnot(isSingleLogical(stats.only))
@@ -446,7 +469,7 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
   invalidMethods(x, names)
   stopifnot(isSingleNumeric(max.p))
   p.col <- match.arg(p.col)
-  res <- lapply(resultNames(x), function(wut) {
+  res <- lapply(names, function(wut) {
     r <- result(x, wut)
     r$pcol <- r[[p.col]]
     r[, {
@@ -468,14 +491,21 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
 ##'   genesets.
 subset.MultiGSEAResult <- function(x, keep) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  nr <- nrow(multiGSEA::results(x))
+  did.gsea <- length(x@results) > 0
+  ## length of x@results is 0 if no methods were run (only stats calc'd)
+  nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x))
   if (!is.logical(keep) && lenght(keep) != nr) {
     stop("The `keep` vector is FUBAR'd")
   }
-  new.res <- lapply(x@results, function(x) subset(x, keep))
-  x@results <- new.res
-  gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
-  x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
+  if (did.gsea) {
+    new.res <- lapply(x@results, function(x) subset(x, keep))
+    x@results <- new.res
+    gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
+    x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
+  } else {
+    x@gsd@table <- x@gsd@table[keep]
+  }
+
   x
 }
 
@@ -483,7 +513,11 @@ setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
                "---------------------------------------------------", sep='\n')
   cat(msg, "\n")
-  data.table:::print.data.table(tabulateResults(object, max.p=0.30))
+  if (length(resultNames(object)) == 0) {
+    cat("No GSEA methods were run, only geneset level statistics calculated")
+  } else {
+    data.table:::print.data.table(tabulateResults(object, max.p=0.30))
+  }
   cat("\n")
 })
 

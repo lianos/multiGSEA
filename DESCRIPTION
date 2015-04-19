@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.2.1
+Version: 0.2.2
 Date: 2014-10-16
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -38,6 +38,7 @@ Collate:
     'do.geneSetTest.R'
     'do.goana.R'
     'do.hyperGeometricTest.R'
+    'do.logFC.R'
     'do.npGSEA.R'
     'do.roast.R'
     'msigdb-broad.R'

@@ -5,7 +5,7 @@
 \title{A summary of one/some/all of the results that were run.}
 \usage{
 results(x, names = resultNames(x), stats.only = TRUE, rank.by = c("pval",
-  "logFC", "t"), add.suffix = length(names) > 1L)
+  "logFC", "t", "JG"), add.suffix = length(names) > 1L)
 }
 \arguments{
 \item{x}{\code{MultiGSEAResult}}
