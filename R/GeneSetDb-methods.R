@@ -22,8 +22,12 @@ function(x, y, unique.by=c('none', 'mean', 'var'),
   if (unique.by != 'none') {
     stop("`unique.by` must be 'none' for now")
   }
+  if (min.gs.size == 1) {
+    stop("Doing GSEA with 1 gene doesn't really make sense, does it?")
+  }
   if (min.gs.size < 3) {
-    stop("We won't let you do GSEA on genesets with less than 3 genes")
+    warning("Think twice before using genesets of size 2 in your GSEA",
+            immediate.=TRUE)
   }
   if (max.gs.size < min.gs.size) {
     stop("max.gs.size must be larger than min.gs.size")
@@ -78,27 +82,49 @@ setMethod("unconform", "GeneSetDb", function(x, ...) {
 ##' rows are number of genesetes in \code{x}, columns are number of rows in
 ##' \code{y}
 ##'
+##' @export
+##'
 ##' @param x A \code{GeneSetDb}
-##' @param y A target (expression) object \code{x} is (or can be) conformed to
-##' @return incidence matrix with nrows = number of genesets and
-##'   ncols == nrows(y)
+##' @param y (optiona) A target (expression) object \code{x} is (or can be)
+##'   conformed to
+##' @return incidence matrix with nrows = number of genesets and columns are
+##'   featureIDs. If \code{y} is passed in, the columns of the returned value
+##'   match the rows of \code{y}.
 incidenceMatrix <- function(x, y) {
   stopifnot(is(x, 'GeneSetDb'))
-  if (!inherits(y, .valid.x)) {
-    stop("Invalid expression object (x) type: ", class(x)[1L])
+  gs <- NULL
+  if (missing(y)) {
+    val <- 'featureId'
+    gs <- geneSets(x)
+    all.fids <- unique(x@db$featureId)
+    out <- matrix(0L, nrow=nrow(gs), ncol=length(all.fids),
+                  dimnames=list(
+                    paste(gs$collection, gs$name, sep=';'),
+                    all.fids))
+  } else {
+    val <- 'x.idx'
+    if (!inherits(y, .valid.x)) {
+      stop("Invalid expression object (x) type: ", class(x)[1L])
+    }
+    if (!is.conformed(x, y)) {
+      x <- conform(x, y)
+    }
+    gs <- geneSets(x)
+    out <- matrix(0L, nrow(gs), nrow(y),
+                  dimnames=list(
+                    paste(gs$collection, gs$name, sep=';'),
+                    rownames(y)))
   }
-  if (!is.conformed(x, y)) {
-    x <- conform(x, y)
-  }
-  gs <- geneSets(x)
-  out <- matrix(0L, nrow(gs), nrow(y),
-                dimnames=list(
-                  paste(gs$collection, gs$name, sep=';'),
-                  rownames(y)))
+
   for (i in 1:nrow(gs)) {
-    fids <- featureIds(x, gs$collection[i], gs$name[i], value='x.idx')
+    fids <- featureIds(x, gs$collection[i], gs$name[i], value=val)
     out[i, fids] <- 1L
   }
+
+  if (val == 'featureId') {
+    out <- out[, colSums(out) > 0]
+  }
+
   out
 }
 

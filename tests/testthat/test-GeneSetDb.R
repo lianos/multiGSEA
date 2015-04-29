@@ -144,6 +144,22 @@ test_that("append,GeneSetDb works", {
   }
 })
 
+test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
+  m <- getMSigDBset('h')
+  r <- getReactomeGeneSetDb()
+  a <- append(r, m)
+
+  ## Check that all columns are there
+  expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
+                       names(geneSets(a))))
+
+  m@table$species <- 'human'
+  a2 <- append(m, r)
+  expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
+                       names(geneSets(a2))))
+
+})
+
 test_that("GeneSetDb returns proper limma lists via as.expression.indexes", {
   es <- exampleExpressionSet()
   gsi <- exampleGeneSets(es)

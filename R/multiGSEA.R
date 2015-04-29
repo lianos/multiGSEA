@@ -150,7 +150,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   x <- inputs$x
   design <- inputs$design
   contrast <- inputs$contrast
-  gsd <- conform(gsd, x)
+
+  if (!is.conformed(gsd, x)) {
+    gsd <- conform(gsd, x)
+  }
 
   if (cache.inputs) {
     inputs.fn <- file.path(noutdir, 'cache', 'inputs.rda')

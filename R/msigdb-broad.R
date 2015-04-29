@@ -62,11 +62,18 @@ getMSigDBset <- function(collection, species='human',
   out
 }
 
+getMSigDBGeneSetDb <- getMSigDBset
+
 resolve.species <- function(x) {
   stopifnot(is.character(x) && length(character) == 1L)
   xx <- tolower(x)
-  opts <- c(human='Homo_sapiens', homo_sapiens='Homo_sapiens',
-            mouse='Mus_musculus', mus_musculus='Mus_musculus')
+  opts <- c(human='Homo_sapiens',
+            homo_sapiens='Homo_sapiens',
+            hsa='Homo_sapiens',
+            ## mouse
+            mouse='Mus_musculus',
+            mus_musculus='Mus_musculus',
+            mmu='Mus_musculus')
   out <- opts[xx]
   if (is.na(out)) {
     stop("Illegal species value: ", x)
