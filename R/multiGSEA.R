@@ -378,7 +378,12 @@ result <- function(x, name, stats.only=FALSE,
       stop("Unexpected geneset ordering in `", name, "` result")
     }
     if (stats.only) {
-      res.cols <- c('pval', 'padj', 'padj.by.collection')
+      res.cols <- c('pval', 'padj', 'padj.by.collection',
+                    ## roast has these, presumably other methods will have
+                    ## others
+                    'pval.mixed', 'padj.mixed')
+      ## Select any column that starts with pval or padj
+      res.cols <- names(r)[grepl('^(pval\\.?|padj\\.?)', names(r))]
     } else {
       res.cols <- setdiff(names(r), names(out))
     }
