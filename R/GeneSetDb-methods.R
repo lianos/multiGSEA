@@ -77,6 +77,29 @@ setMethod("unconform", "GeneSetDb", function(x, ...) {
   x
 })
 
+
+##' Check if GeneSetDb has been conformed (optionally to a specific
+##' expression object)
+##'
+##' @export
+##' @param x a \code{GeneSetDb}
+##' @param to an optional expression object
+##' @return logical indicating "conform"-ation status in general, or
+##'   specifically to an expression object \code{to}
+is.conformed <- function(x, to) {
+  if (!is(x, 'GeneSetDb')) {
+    stop("Only works on the GeneSetDb")
+  }
+  if (missing(to)) {
+    ans <- any(!is.na(featureIdMap(x)$x.idx))
+  } else {
+    ## Verify that gsd is properly conformed to x
+    fm <- subset(featureIdMap(x), !is.na(x.idx))
+    ans <- nrow(fm) > 0 && all(rownames(to)[fm$x.idx] == fm$x.id)
+  }
+  ans
+}
+
 ##' Creates a 1/0 matrix to indicate geneset membership to target object.
 ##'
 ##' rows are number of genesetes in \code{x}, columns are number of rows in
@@ -128,26 +151,52 @@ incidenceMatrix <- function(x, y) {
   out
 }
 
-##' Check if GeneSetDb has been conformed (optionally to a specific
-##' expression object)
+##' Score each genes over the columns of an expression matrix.
 ##'
 ##' @export
-##' @param x a \code{GeneSetDb}
-##' @param to an optional expression object
-##' @return logical indicating "conform"-ation status in general, or
-##'   specifically to an expression object \code{to}
-is.conformed <- function(x, to) {
-  if (!is(x, 'GeneSetDb')) {
-    stop("Only works on the GeneSetDb")
+##'
+##' @param gdb A GeneSetDb
+##' @param y An expression matrix to score genesets against
+##' @param score.fn The function used to summarize the genes in a geneset.
+##'   If left \code{NULL}, defaults to \code{mean}
+##' @param trim The amount to trim in the trimmed mean of the individual
+##'   geneset genes/features.
+##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
+##'   as many columns as \code{ncol(x)}
+scoreGeneSets <- function(gdb, y, score.fn=NULL, trim=0.10, melted=FALSE) {
+  stopifnot(is(gdb, 'GeneSetDb'))
+  if (is.vector(y)) {
+    y <- t(t(y)) ## column vectorization that sets names to rownames
   }
-  if (missing(to)) {
-    ans <- any(!is.na(featureIdMap(x)$x.idx))
-  } else {
-    ## Verify that gsd is properly conformed to x
-    fm <- subset(featureIdMap(x), !is.na(x.idx))
-    ans <- nrow(fm) > 0 && all(rownames(to)[fm$x.idx] == fm$x.id)
+  stopifnot(is.matrix(y) && is.numeric(y))
+  stopifnot(is.conformed(gdb, y))
+  if (is.null(colnames(y))) {
+    colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
-  ans
+  if (is.null(score.fn)) {
+    score.fn <- function(vals) mean(vals, trim=trim, na.rm=TRUE)
+  }
+  gs <- geneSets(gdb)
+  gs.idxs <- lapply(1:nrow(gs), function(i) {
+    featureIds(gdb, gs$collection[i], gs$name[i], 'x.idx')
+  })
+  scores <- sapply(1:ncol(y), function(y.col) {
+    col.vals <- y[, y.col]
+    sapply(seq(gs.idxs), function(gs.idx) {
+      vidx <- gs.idxs[[gs.idx]]
+      score.fn(col.vals[vidx])
+    })
+  })
+  colnames(scores) <- colnames(y)
+
+  out <- cbind(gs[, list(collection, name, n)], scores)
+
+  if (melted) {
+    out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
+                                        variable.name='sample',
+                                        value.name='score')
+  }
+  out
 }
 
 ##' Interrogate "active" status of a given geneset.

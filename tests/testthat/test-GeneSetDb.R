@@ -196,6 +196,34 @@ test_that("GeneSetDb,incidenceMatrix is correct", {
   }
 })
 
+test_that("scoreGeneSets works", {
+  vm <- exampleExpressionSet()
+  gsl <- exampleGeneSets()
+  gsd <- conform(GeneSetDb(gsl), vm)
+
+  E <- vm$E
+  im <- incidenceMatrix(gsd, E)
+  expected <- (im %*% E) / rowSums(im)
+
+  scores <- scoreGeneSets(gsd, E, trim=0)
+  s <- as.matrix(scores[, -(1:3), with=FALSE])
+  rownames(s) <- paste(scores$collection, scores$name, sep=';')
+
+  expect_equal(expected, s)
+
+  ## Test 2: do the same exercise on the logFCs of a multiGSEA run and compare
+  ## the logFC of each geneset
+  mg <- multiGSEA(gsd, vm, vm$design, NULL)
+  res <- results(mg)
+
+  L <- with(logFC(mg), t(t(setNames(logFC, featureId))))
+  gsd <- conform(gsd, L)
+  sL <- scoreGeneSets(gsd, L, trim=0)
+  sLt <- scoreGeneSets(gsd, L, trim=0.10)
+  expect_equal(res$mean.logFC, sL$score)
+  expect_equal(res$mean.logFC.trim, sLt$score)
+})
+
 test_that("subset.GeneSetDb works", {
   ## TODO: Test subset.GeneSetDb
 })
@@ -203,5 +231,3 @@ test_that("subset.GeneSetDb works", {
 test_that("GeneSetDb indexing `[` works", {
   ## TODO: Test indexing GeneSetDbs
 })
-
-
