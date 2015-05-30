@@ -2,13 +2,17 @@ CHANGES IN VERSION 0.2.x
 ------------------------
 
 NEW FEATURES
+  o Adds expression-utils.R for CPM/RPKM and meltx. Also has methods to
+    facilitate "universal access" to pData, fData, and expression data from
+    the different often-used expression containers
+    (ExpressionSet, EList, DGEList, SummarizedExperiment)
 
   o MSigDB definitions were updated to v5.0, which adds a new "hallmark (h)"
     gene set. A call to `getMSigDBset` without a version parameter will return
     the v5.0 data.
 
     Note that MSigDB provides the entrez IDs for each geneset as human genes.
-    The mouse version of these gene sets was constructing by mapping the 
+    The mouse version of these gene sets was constructing by mapping the
     human entrez ID's to their mouse orthologs via `igis::orthologs`. When
     this mapping returns multiple mouse IDs for a single human ID, all of
     the mouse IDs are kept in the mouse geneset.

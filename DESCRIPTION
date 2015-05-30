@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.2.3
+Version: 0.2.4
 Date: 2015-05-21
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -15,10 +15,12 @@ Imports:
     BiocGenerics,
     Biobase (>= 2.24.0),
     limma,
-    data.table,
+    edgeR,
+    reshape2
 Suggests:
     rmd.plugins (>= 0.3.0),
     DESeq2,
+    edgeR,
     testthat,
     rvest
 VignetteBuilder: knitr
@@ -41,6 +43,7 @@ Collate:
     'do.logFC.R'
     'do.npGSEA.R'
     'do.roast.R'
+    'expression-utils.R'
     'gsea-helpers.R'
     'msigdb-broad.R'
     'msigdb-wehi.R'
