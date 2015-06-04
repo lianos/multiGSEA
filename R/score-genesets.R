@@ -30,11 +30,7 @@ scoreGeneSets <- function(gdb, y, methods='plage', melted=FALSE, ...) {
   scores <- sapply(methods, function(method) {
     out <- gs.score.map[[method]](gdb, y, method=method, melted=melted, ...)
     if (melted) {
-      out <- cbind(geneSets(gdb)[, list(collection, name, n)],
-                   out)
-      out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
-                                          variable.name='sample',
-                                          value.name='score')
+      out <- melt.gs.scores(gdb, out)
     }
     out
   }, simplify=FALSE)
@@ -44,6 +40,20 @@ scoreGeneSets <- function(gdb, y, methods='plage', melted=FALSE, ...) {
   }
 
   scores
+}
+
+##' Melts the geneset matrix scores from the do.scoreGeneSets.* methods
+##'
+##' @param gdb \code{GeneSetDb} used for scoring
+##' @param scores The \code{matrix} of geneset scores returned from the various
+##'   \code{do.scoreGeneSets.*} methods.
+##' @param a melted \code{data.table} of scores
+melt.gs.scores <- function(gdb, scores) {
+  out <- cbind(geneSets(gdb)[, list(collection, name, n)],
+               scores)
+  data.table:::melt.data.table(out, c('collection', 'name', 'n'),
+                               variable.name='sample',
+                               value.name='score')
 }
 
 do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
