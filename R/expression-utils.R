@@ -72,7 +72,7 @@ CPM <- function (x, normalized.lib.sizes=TRUE, log=TRUE,
   ## prior.count.scaled <- lib.size/mean(lib.size) * prior.count
   ## lib.size <- lib.size + 2 * prior.count.scaled
   prior.smooth <- min(0.25, prior.smooth)
-  prior.count <- max(0L, ceiling(prior.count))
+  prior.count <- max(0L, if (regularized) ceiling(prior.count) else prior.count)
   norm.lib.size <- lib.size / mean(lib.size)
   prior.count.scaled <- norm.lib.size * prior.count
   prior.smooth.scaled <- norm.lib.size * prior.smooth
