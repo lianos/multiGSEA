@@ -151,53 +151,6 @@ incidenceMatrix <- function(x, y) {
   out
 }
 
-##' Score each genes over the columns of an expression matrix.
-##'
-##' @export
-##'
-##' @param gdb A GeneSetDb
-##' @param y An expression matrix to score genesets against
-##' @param score.fn The function used to summarize the genes in a geneset.
-##'   If left \code{NULL}, defaults to \code{mean}
-##' @param trim The amount to trim in the trimmed mean of the individual
-##'   geneset genes/features.
-##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
-##'   as many columns as \code{ncol(x)}
-scoreGeneSets <- function(gdb, y, score.fn=NULL, trim=0.10, melted=FALSE) {
-  stopifnot(is(gdb, 'GeneSetDb'))
-  if (is.vector(y)) {
-    y <- t(t(y)) ## column vectorization that sets names to rownames
-  }
-  stopifnot(is.matrix(y) && is.numeric(y))
-  stopifnot(is.conformed(gdb, y))
-  if (is.null(colnames(y))) {
-    colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
-  }
-  if (is.null(score.fn)) {
-    score.fn <- function(vals) mean(vals, trim=trim, na.rm=TRUE)
-  }
-  gs <- geneSets(gdb)
-  gs.idxs <- lapply(1:nrow(gs), function(i) {
-    featureIds(gdb, gs$collection[i], gs$name[i], 'x.idx')
-  })
-  scores <- sapply(1:ncol(y), function(y.col) {
-    col.vals <- y[, y.col]
-    sapply(seq(gs.idxs), function(gs.idx) {
-      vidx <- gs.idxs[[gs.idx]]
-      score.fn(col.vals[vidx])
-    })
-  })
-  colnames(scores) <- colnames(y)
-
-  out <- cbind(gs[, list(collection, name, n)], scores)
-
-  if (melted) {
-    out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
-                                        variable.name='sample',
-                                        value.name='score')
-  }
-  out
-}
 
 ##' Interrogate "active" status of a given geneset.
 ##'
@@ -527,6 +480,7 @@ function(x, i, value) {
 
 
 ##' @importFrom BiocGenerics append
+##' @export append
 ##' @export
 setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   if (!missing(after)) {
@@ -582,19 +536,22 @@ setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x)))
 
 ##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set
 ##'
+##' @aliases as.expression.indexes
+##' @rdname GeneSetDb-conversion
+##'
 ##' @param x A GeneSetDb
 ##' @param value \code{x.idx} returns indexes into the conformed expression
 ##'   object as integers (ie. row index numbers) and \code{x.id} returns them
 ##'   as their featureId's as used in the target expression object.
 as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
-                                  active.only=TRUE) {
+                                  active.only=is.conformed(x)) {
+  value <- match.arg(value)
   if (!is(x, 'GeneSetDb')) {
     stop('GeneSetDb required')
   }
-  if (!is.conformed(x)) {
+  if (value == 'x.idx' && !is.conformed(x)) {
     stop("GeneSetDb has not been conformed to an expression object")
   }
-  value <- match.arg(value)
   gs <- geneSets(x, active.only=active.only)
   cats <- gs$collection
   nms <- gs$name
@@ -602,6 +559,23 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
     featureIds(x, cats[idx], nms[idx], value=value)
   })
   setNames(out, paste(cats, nms, sep='.'))
+}
+
+
+##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
+##' have different default values for the \code{active.only} parameter.
+##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
+##' returns the integer index into the expression matrix that the
+##' \code{GeneSetDb} is conformed to.
+##'
+##' @aliases as.list.GeneSetDb
+##' @rdname GeneSetDb-conversion
+##' @export
+as.list.GeneSetDb <- function(x, value=c('x.id', 'x.idx'),
+                              active.only=is.conformed(x),
+                              ...) {
+  value <- match.arg(value)
+  as.expression.indexes(x, value, active.only)
 }
 
 ## -----------------------------------------------------------------------------

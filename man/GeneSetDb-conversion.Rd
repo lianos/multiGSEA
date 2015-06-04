@@ -2,10 +2,14 @@
 % Please edit documentation in R/GeneSetDb-methods.R
 \name{as.expression.indexes}
 \alias{as.expression.indexes}
+\alias{as.list.GeneSetDb}
 \title{Unrolls the GeneSetDb into a list of index vectors per "active" gene set}
 \usage{
 \method{as.expression}{indexes}(x, value = c("x.idx", "x.id"),
-  active.only = TRUE)
+  active.only = is.conformed(x))
+
+\method{as.list}{GeneSetDb}(x, value = c("x.id", "x.idx"),
+  active.only = is.conformed(x), ...)
 }
 \arguments{
 \item{x}{A GeneSetDb}
@@ -16,5 +20,11 @@ as their featureId's as used in the target expression object.}
 }
 \description{
 Unrolls the GeneSetDb into a list of index vectors per "active" gene set
+
+\code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
+have different default values for the \code{active.only} parameter.
+\code{as.list} returns the ids of features, and \code{as.expression.indexes}
+returns the integer index into the expression matrix that the
+\code{GeneSetDb} is conformed to.
 }
 

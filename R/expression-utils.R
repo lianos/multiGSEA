@@ -33,6 +33,10 @@
 ##' @param regularized If TRUE, prior.count parameterize a Poission distribution
 ##'   to draw from, otherwise prior.count is constant. When \code{FALSE}, this
 ##'   function should behave almost identically to \code{\link[edgeR]{cpm}}
+##' @param norm.factors precalculated norm.factors (numeric vector as long as
+##'   \code{ncol(x)})
+##' @param lib.size precalculate lib.size vector (numeric vector as long as
+##'   \code{ncol(x)})
 ##' @param norm.factors.col A column to fetch from \code{.pData(x)} that has
 ##'   precalculated norm.factors
 ##' @param lib.zie.col A column to fetch from \code{.pData(x)} that has
@@ -44,15 +48,20 @@
 CPM <- function (x, normalized.lib.sizes=TRUE, log=TRUE,
                  prior.count=5, prior.smooth=0.25,
                  regularized=prior.count != prior.smooth,
+                 norm.factors=NULL, lib.size=NULL,
                  norm.factors.col='norm.factors',
                  lib.size.col='lib.size',
                  x.element='counts', ...) {
   e <- .exprs(x, x.element)
-  lib.size <- .pData(x)[[lib.size.col]]
+  if (is.null(lib.size) && !is.matrix(x)) {
+    lib.size <- .pData(x)[[lib.size.col]]
+  }
   if (is.null(lib.size)) {
     lib.size <- colSums(e)
   }
-  norm.factors <- .pData(x)[[norm.factors.col]]
+  if (is.null(norm.factors) && !is.matrix(x)) {
+    norm.factors <- .pData(x)[[norm.factors.col]]
+  }
   if (is.null(norm.factors)) {
     norm.factors <- rep(1, ncol(x))
   }
@@ -400,5 +409,3 @@ meltx.matrix <- function(x, pd, fd, value.name='expr') {
   rownames(m) <- NULL
   m
 }
-
-

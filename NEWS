@@ -2,6 +2,9 @@ CHANGES IN VERSION 0.2.x
 ------------------------
 
 NEW FEATURES
+  o `scoreGeneSets` is another wrapper function which calls several single
+    sample geneset scoring algorithms, including the ones provided by the
+    GSVA package (such as plage and ssGSEA)
   o Adds expression-utils.R for CPM/RPKM and meltx. Also has methods to
     facilitate "universal access" to pData, fData, and expression data from
     the different often-used expression containers

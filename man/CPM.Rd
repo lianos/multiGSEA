@@ -6,8 +6,8 @@
 \usage{
 CPM(x, normalized.lib.sizes = TRUE, log = TRUE, prior.count = 5,
   prior.smooth = 0.25, regularized = prior.count != prior.smooth,
-  norm.factors.col = "norm.factors", lib.size.col = "lib.size",
-  x.element = "counts", ...)
+  norm.factors = NULL, lib.size = NULL, norm.factors.col = "norm.factors",
+  lib.size.col = "lib.size", x.element = "counts", ...)
 }
 \arguments{
 \item{x}{A \code{DGEList} or something that can be converted to a count
@@ -30,6 +30,12 @@ always be at least 0.25}
 \item{regularized}{If TRUE, prior.count parameterize a Poission distribution
 to draw from, otherwise prior.count is constant. When \code{FALSE}, this
 function should behave almost identically to \code{\link[edgeR]{cpm}}}
+
+\item{norm.factors}{precalculated norm.factors (numeric vector as long as
+\code{ncol(x)})}
+
+\item{lib.size}{precalculate lib.size vector (numeric vector as long as
+\code{ncol(x)})}
 
 \item{norm.factors.col}{A column to fetch from \code{.pData(x)} that has
 precalculated norm.factors}
