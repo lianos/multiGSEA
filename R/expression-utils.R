@@ -171,7 +171,9 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
   ## the length and subtracted that to make sure we did element-by-element
   ## operations. I then tested that output against this where we just use a
   ## single vector on the RHS, and they are equivalent.
-  CPM(x, regularized=regularized, ...) - log2(xlens / 1000)
+  out <- CPM(x, regularized=regularized, ...) - log2(xlens / 1000)
+  attr(out, 'K') <- xlens
+  out
 }
 
 ## Accessor Functions ----------------------------------------------------------
