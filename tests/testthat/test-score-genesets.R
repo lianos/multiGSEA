@@ -12,6 +12,8 @@ test_that('do.scoreGeneSets.gsva is equivalent to GSVA::gsva', {
   gsva.mg <- scoreGeneSets(gdb, E, methods='gsva', verbose=FALSE)
   expect_equal(gsva.mg, gsva.ex,info='GSVA,gsva')
 
+  gsva.mg.melt <- scoreGeneSets(gdb, E, methods='gsva',
+                                verbose=FALSE, melted=TRUE)
   plage.ex <- gsva(E, lol, method='plage', verbose=FALSE)
   plage.mg <- scoreGeneSets(gdb, E, methods='plage', verbose=FALSE)
   expect_equal(plage.mg, plage.ex,info='GSVA,gsva')

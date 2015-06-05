@@ -558,7 +558,7 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
   out <- lapply(seq(cats), function(idx) {
     featureIds(x, cats[idx], nms[idx], value=value)
   })
-  setNames(out, paste(cats, nms, sep='.'))
+  setNames(out, paste(cats, nms, sep=';;'))
 }
 
 

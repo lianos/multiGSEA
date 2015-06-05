@@ -27,8 +27,11 @@ scoreGeneSets <- function(gdb, y, methods='plage', melted=FALSE, ...) {
   if (is.null(colnames(y))) {
     colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
+
+  gs.names <- with(geneSets(gdb), paste(collection, name, sep=';;'))
   scores <- sapply(methods, function(method) {
     out <- gs.score.map[[method]](gdb, y, method=method, melted=melted, ...)
+    rownames(out) <- gs.names
     if (melted) {
       out <- melt.gs.scores(gdb, out)
     }
