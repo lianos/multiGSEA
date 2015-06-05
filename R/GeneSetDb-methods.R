@@ -17,7 +17,7 @@
 ##'   expression object target (\code{y})
 setMethod("conform", c(x="GeneSetDb"),
 function(x, y, unique.by=c('none', 'mean', 'var'),
-         min.gs.size=3L, max.gs.size=Inf, match.tolerance=0.25) {
+         min.gs.size=3L, max.gs.size=Inf, match.tolerance=0.25, ...) {
   unique.by <- match.arg(unique.by)
   if (unique.by != 'none') {
     stop("`unique.by` must be 'none' for now")

@@ -105,10 +105,22 @@ do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
 
 do.scoreGeneSets.gsva <- function(gdb, y, method, melted=FALSE, ...) {
   idxs <- .xformGdbForGSVA(gdb, y)
-  f <- formals(GSVA::gsva)
-  gres <- gsva(y, idxs, method=method, ...)
+  f <- formals(GSVA:::.gsva)
+  args <- list(...)
+  take <- intersect(names(args), names(f))
+  gargs <- list(expr=y, gset.idx.list=idxs, method=method)
+  gargs <- c(gargs, args[take])
+
+  gres <- do.call(gsva, gargs)
   if (is.list(gres)) {
     gres <- gres$es.obs
+  }
+  if (method == 'plage') {
+    ## The sign of the result can be flipped due to vagaries of SVD assigning
+    ## the "correct" sign to either the right or left singula values, so let's
+    ## put some duct tape on that and fix the sign
+    zscores <- do.scoreGeneSets.zscore(gdb, y)
+    gres <- abs(gres) * sign(zscores)
   }
   gres
 }
