@@ -59,7 +59,12 @@ melt.gs.scores <- function(gdb, scores) {
                                value.name='score')
 }
 
-do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
+##' Default to sqrt in denominator of zscores to stabilize the variance of
+##' the mean:
+##'
+##' Lee, E., et al. Inferring pathway activity toward precise disease
+##' classification. PLoS Comput. Biol. 4, e1000217 (2008).
+do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
                                     trim=0.10, melted=FALSE, ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
@@ -86,8 +91,7 @@ do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
   })
   colnames(scores) <- colnames(y)
 
-  out <- scores
-  out
+  scores
 }
 
 .xformGdbForGSVA <- function(gdb, y) {
