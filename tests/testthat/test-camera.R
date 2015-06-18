@@ -20,7 +20,7 @@ test_that('camera runs equivalently from do.camera vs direct call', {
     out <- my[, list(n, Correlation, Direction, pval, padj)]
     setnames(out, names(photo))
     out <- as.data.frame(out)
-    rownames(out) <- paste(my$collection, my$name, sep='.')
+    rownames(out) <- paste(my$collection, my$name, sep=';;')
     out[rownames(photo),]
   })
 

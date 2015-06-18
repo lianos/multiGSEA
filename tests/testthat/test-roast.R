@@ -35,7 +35,7 @@ test_that('roast runs equivalently from do.roast vs direct call', {
                      pval.mixed, padj.mixed)]
     setnames(out, names(roasted))
     out <- as.data.frame(out)
-    rownames(out) <- paste(my$collection, my$name, sep='.')
+    rownames(out) <- paste(my$collection, my$name, sep=';;')
     out[rownames(roasted),]
   })
 

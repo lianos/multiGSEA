@@ -206,32 +206,46 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
     value <- if (is.conformed(x)) 'x.id' else 'featureId'
   }
   value <- match.arg(value, c('featureId', 'x.id', 'x.idx'))
-  if (!(isSingleCharacter(i) && isSingleCharacter(j))) {
-    stop("collection (i) and id (j) must be length 1 character vectors")
+  if (!isSingleCharacter(i)) {
+    stop("collection (i) must be length 1 character vectors")
+  }
+  if (missing(j)) {
+    whole.collection <- TRUE
+  } else {
+    if (!isSingleCharacter(j)) {
+      stop("gene set name (j) must be length 1 character vectors")
+    }
+    whole.collection <- FALSE
   }
 
-  ## I am purposefully not using `hasGeneSet` here for performance reasons
-  ## hasGeneSet(x, i, j, as.error=TRUE)
+  gs <- geneSets(x, active.only=active.only)
+  gs <- gs[, key(gs), with=FALSE]
+  gs <- gs[J(i)]
 
-  ## Get the primary entries in the GeneSetDb@db
-  db.idx <- x@db[J(i, j), which=TRUE]
-  if (length(db.idx) == 1 && is.na(db.idx)) {
-    stop(sprintf("collection=%s, name=%s does not exist in GeneSetDb db", i, j))
-  }
-  db <- x@db[db.idx]
-
-  ## This geneset might have been selected out
-  if (active.only && !is.active(x, i, j)) {
-    stop("Selected geneset is inactive, set active.only=FALSE or re-conform ",
-         "GeneSetDb to use it...")
+  if (nrow(gs) == 0L) {
+    stop("There are no ", if (active.only) "active " else NULL,
+         "genesets in collection: ", i)
   }
 
-  featureIdMap <- merge(db, featureIdMap(x), by='featureId')
+  if (whole.collection) {
+    db <- unique(x@db[gs], by='featureId')
+  } else {
+    ## I am purposefully not using `hasGeneSet` here for performance reasons
+    ## hasGeneSet(x, i, j, as.error=TRUE)
+    db <- x@db[J(i, j)]
+    if (is.na(db$featureId[1L])) {
+      msg <- sprintf("collection=%s, name=%s does not exist in GeneSetDb db",
+                     i, j)
+      stop(msg)
+    }
+  }
+
+  fid.map <- merge(db, featureIdMap(x), by='featureId')
   if (is.conformed(x) && !fetch.all) {
-    featureIdMap <- subset(featureIdMap, !is.na(x.idx))
+    fid.map <- subset(fid.map, !is.na(x.idx))
   }
 
-  featureIdMap[[value]]
+  fid.map[[value]]
 })
 
 setMethod("featureIdMap", c(x="GeneSetDb"), function(x) x@featureIdMap)

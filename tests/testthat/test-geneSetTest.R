@@ -23,7 +23,7 @@ test_that("geneSetTest matches re-implememtation", {
   my.gsd <- multiGSEA:::do.geneSetTest(gsd, vm, logFC=stats, nsim=nsim,
                                         score.by='t')
   comp <- with(my.gsd, {
-    out <- setNames(pval, paste(collection, name, sep='.'))
+    out <- setNames(pval, paste(collection, name, sep=';;'))
     out[names(expected)]
   })
   expect_equal(expected, comp)

@@ -9,7 +9,7 @@
 conform(x, ...)
 
 \S4method{conform}{GeneSetDb}(x, y, unique.by = c("none", "mean", "var"),
-  min.gs.size = 3L, max.gs.size = Inf, match.tolerance = 0.25)
+  min.gs.size = 3L, max.gs.size = Inf, match.tolerance = 0.25, ...)
 }
 \arguments{
 \item{x}{The GeneSetDb}

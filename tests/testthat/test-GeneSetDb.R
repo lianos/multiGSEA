@@ -29,7 +29,7 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   }
 })
 
-test_that("featureId(GeneSetDb, i, j) accessor works", {
+test_that("featureIds(GeneSetDb, i, j) accessor works", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 
@@ -44,7 +44,7 @@ test_that("featureId(GeneSetDb, i, j) accessor works", {
 })
 
 ## This test and the conform,GeneSetDb test below are testing similar things
-test_that("featureId(GeneSetDb, i, j) removes 'unconformable' featureIds", {
+test_that("featureIds(GeneSetDb, i, j) removes 'unconformable' featureIds", {
   vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
@@ -63,6 +63,29 @@ test_that("featureId(GeneSetDb, i, j) removes 'unconformable' featureIds", {
       expect_true(setequal(all.ids, gsc.ids.all),
                   info=sprintf(group, id, TRUE))
     }
+  }
+})
+
+test_that("featureIds(GeneSetDb, i, MISSING) gets all features in a collection", {
+  vm <- exampleExpressionSet()
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+  gsc <- conform(gsd, vm)
+
+  cols <- unique(geneSets(gsd)$collection)
+  for (col in cols) {
+    fids <- featureIds(gsd, col)
+    expected <- unique(subset(gsd@db, collection == col)$featureId)
+    expect_true(setequal(expected, fids), info=paste("collection:", col))
+  }
+
+  ## Uncformable features dropped
+  for (col in cols) {
+    fids <- featureIds(gsc, col)
+    expected <- intersect(subset(gsd@db, collection == col)$featureId,
+                          rownames(vm))
+    expect_true(setequal(expected, fids),
+                info=paste("active collection:", col))
   }
 })
 
@@ -194,34 +217,6 @@ test_that("GeneSetDb,incidenceMatrix is correct", {
     expected <- intersect(gsl[[col]][[name]], rownames(es))
     expect_true(setequal(expected, fids))
   }
-})
-
-test_that("scoreGeneSets works", {
-  vm <- exampleExpressionSet()
-  gsl <- exampleGeneSets()
-  gsd <- conform(GeneSetDb(gsl), vm)
-
-  E <- vm$E
-  im <- incidenceMatrix(gsd, E)
-  expected <- (im %*% E) / rowSums(im)
-
-  scores <- scoreGeneSets(gsd, E, trim=0)
-  s <- as.matrix(scores[, -(1:3), with=FALSE])
-  rownames(s) <- paste(scores$collection, scores$name, sep=';')
-
-  expect_equal(expected, s)
-
-  ## Test 2: do the same exercise on the logFCs of a multiGSEA run and compare
-  ## the logFC of each geneset
-  mg <- multiGSEA(gsd, vm, vm$design, NULL)
-  res <- results(mg)
-
-  L <- with(logFC(mg), t(t(setNames(logFC, featureId))))
-  gsd <- conform(gsd, L)
-  sL <- scoreGeneSets(gsd, L, trim=0)
-  sLt <- scoreGeneSets(gsd, L, trim=0.10)
-  expect_equal(res$mean.logFC, sL$score)
-  expect_equal(res$mean.logFC.trim, sLt$score)
 })
 
 test_that("subset.GeneSetDb works", {

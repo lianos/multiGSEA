@@ -1,4 +1,5 @@
 context("Expression Utilities")
+library(edgeR)
 
 test_that("as.DGEList conversion works", {
   es <- exampleExpressionSet(do.voom=FALSE)

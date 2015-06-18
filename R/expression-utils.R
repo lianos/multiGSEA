@@ -263,7 +263,7 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
 ##' Utility function to convert ExpressionSet to DGEList
 ##'
 ##' @export as.DGEList
-##' @importFrom edgeR DGEList
+##' @importFrom edgeR DGEList calcNormFactors
 ##'
 ##' @param x ExpressionSet to convert
 ##' @param element The name of the \code{assayDataElement(x)} to use for the

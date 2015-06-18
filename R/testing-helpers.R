@@ -71,13 +71,16 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
                         package='multiGSEA')
   gsl <- readRDS(gsl.fn)
   if (!missing(x)) {
-    gsl <- lapply(gsl, function(g) lapply(g, function(gs) {
-      out <- match(gs, rownames(x))
-      out[!is.na(out)]
-    }))
+    gsl <- lapply(gsl, function(col) {
+      lapply(col, function(gs) {
+        out <- match(gs, rownames(x))
+        out[!is.na(out)]
+      })
+    })
   }
   if (unlist) {
     gsl <- unlist(gsl, recursive=FALSE)
+    names(gsl) <- sub('\\.', ';;', names(gsl))
   }
   gsl
 }

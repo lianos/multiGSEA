@@ -10,7 +10,7 @@
 ##'   geneset genes/features.
 ##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
 ##'   as many columns as \code{ncol(x)}
-scoreGeneSets <- function(gdb, y, methods='plage', melted=FALSE, ...) {
+scoreSingleSamples <- function(gdb, y, methods='plage', melted=FALSE, ...) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
@@ -45,11 +45,11 @@ scoreGeneSets <- function(gdb, y, methods='plage', melted=FALSE, ...) {
   scores
 }
 
-##' Melts the geneset matrix scores from the do.scoreGeneSets.* methods
+##' Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
 ##'
 ##' @param gdb \code{GeneSetDb} used for scoring
 ##' @param scores The \code{matrix} of geneset scores returned from the various
-##'   \code{do.scoreGeneSets.*} methods.
+##'   \code{do.scoreSingleSamples.*} methods.
 ##' @param a melted \code{data.table} of scores
 melt.gs.scores <- function(gdb, scores) {
   out <- cbind(geneSets(gdb)[, list(collection, name, n)],
@@ -59,12 +59,14 @@ melt.gs.scores <- function(gdb, scores) {
                                value.name='score')
 }
 
-##' Default to sqrt in denominator of zscores to stabilize the variance of
-##' the mean:
-##'
-##' Lee, E., et al. Inferring pathway activity toward precise disease
-##' classification. PLoS Comput. Biol. 4, e1000217 (2008).
-do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
+## Default to sqrt in denominator of zscores to stabilize the variance of
+## the mean:
+##
+## Lee, E., et al. Inferring pathway activity toward precise disease
+## classification. PLoS Comput. Biol. 4, e1000217 (2008).
+##
+##
+do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
                                     trim=0.10, melted=FALSE, ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
@@ -103,7 +105,9 @@ do.scoreGeneSets.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
   out
 }
 
-do.scoreGeneSets.gsva <- function(gdb, y, method, melted=FALSE, ...) {
+##' @importFrom GSVA gsva
+do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
+                                  tweak.plage.sign=FALSE, ...) {
   idxs <- .xformGdbForGSVA(gdb, y)
   f <- formals(GSVA:::.gsva)
   args <- list(...)
@@ -115,18 +119,18 @@ do.scoreGeneSets.gsva <- function(gdb, y, method, melted=FALSE, ...) {
   if (is.list(gres)) {
     gres <- gres$es.obs
   }
-  if (method == 'plage') {
+  if (method == 'plage' && tweak.plage.sign) {
     ## The sign of the result can be flipped due to vagaries of SVD assigning
     ## the "correct" sign to either the right or left singula values, so let's
     ## put some duct tape on that and fix the sign
-    zscores <- do.scoreGeneSets.zscore(gdb, y)
+    zscores <- do.scoreSingleSamples.zscore(gdb, y)
     gres <- abs(gres) * sign(zscores)
   }
   gres
 }
 
 gs.score.map <- list(
-  zscore=do.scoreGeneSets.zscore,
-  gsva=do.scoreGeneSets.gsva,
-  plage=do.scoreGeneSets.gsva,
-  ssgsea=do.scoreGeneSets.gsva)
+  zscore=do.scoreSingleSamples.zscore,
+  gsva=do.scoreSingleSamples.gsva,
+  plage=do.scoreSingleSamples.gsva,
+  ssgsea=do.scoreSingleSamples.gsva)
