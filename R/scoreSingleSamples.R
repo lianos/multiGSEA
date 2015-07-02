@@ -115,10 +115,13 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
   gargs <- list(expr=y, gset.idx.list=idxs, method=method)
   gargs <- c(gargs, args[take])
 
+  normalize.ssGSEA <- isTRUE(gargs$ssgsea.norm)
+
   gres <- do.call(gsva, gargs)
   if (is.list(gres)) {
     gres <- gres$es.obs
   }
+
   if (method == 'plage' && tweak.plage.sign) {
     ## The sign of the result can be flipped due to vagaries of SVD assigning
     ## the "correct" sign to either the right or left singula values, so let's
@@ -126,6 +129,7 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
     zscores <- do.scoreSingleSamples.zscore(gdb, y)
     gres <- abs(gres) * sign(zscores)
   }
+
   gres
 }
 
