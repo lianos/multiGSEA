@@ -548,17 +548,71 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
 
 setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x)))
 
+##' Checks equality (feature parity) between GeneSetDb objects
+##'
+##' @method all.equal GeneSetDb
+##' @export
+all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
+  msg <- TRUE
+
+  dbt <- setkeyv(copy(target@db), c('collection', 'name', 'featureId'))
+  gst <- geneSets(target, active.only=FALSE)
+
+  dbc <- setkeyv(copy(current@db), key(dbt))
+  gsc <- geneSets(current, active.only=FALSE)
+
+  proto <- new("GeneSetDb")
+  if (features.only) {
+    dbt <- dbt[, names(proto@db), with=FALSE]
+    dbc <- dbc[, names(proto@db), with=FALSE]
+    gst <- gst[, names(geneSets(proto)), with=FALSE]
+    gsc <- gsc[, names(gst), with=FALSE]
+  }
+
+  msg <- all.equal(dbt, dbc)
+  if (!isTRUE(msg)) {
+    return(msg)
+  }
+
+  msg <- all.equal(gst, gsc)
+  if (!isTRUE(msg) || features.only) {
+    return(msg)
+  }
+
+  all.equal(collectionMetadata(target), collectionMetadata(current))
+}
+
+##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
+##' have different default values for the \code{active.only} parameter.
+##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
+##' returns the integer index into the expression matrix that the
+##' \code{GeneSetDb} is conformed to.
+##'
+##' @aliases as.list.GeneSetDb
+##' @rdname GeneSetDb-conversion
+##' @method as.list GeneSetDb
+##' @export
+as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
+                              active.only=is.conformed(x),
+                              ...) {
+  value <- match.arg(value)
+  as.expression.indexes(x, value, active.only, nested)
+}
+
 ##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set
 ##'
 ##' @aliases as.expression.indexes
 ##' @rdname GeneSetDb-conversion
 ##'
-##' @param x A GeneSetDb
+##' @param x A \code{GeneSetDb}
 ##' @param value \code{x.idx} returns indexes into the conformed expression
 ##'   object as integers (ie. row index numbers) and \code{x.id} returns them
 ##'   as their featureId's as used in the target expression object.
+##' @param active.only Only include "active" gene sets? Defaults to conformed
+##'   status of the \code{x}
 as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
-                                  active.only=is.conformed(x)) {
+                                  active.only=is.conformed(x),
+                                  nested=FALSE) {
   value <- match.arg(value)
   if (!is(x, 'GeneSetDb')) {
     stop('GeneSetDb required')
@@ -572,24 +626,13 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
   out <- lapply(seq(cats), function(idx) {
     featureIds(x, cats[idx], nms[idx], value=value)
   })
-  setNames(out, paste(cats, nms, sep=';;'))
-}
-
-
-##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
-##' have different default values for the \code{active.only} parameter.
-##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
-##' returns the integer index into the expression matrix that the
-##' \code{GeneSetDb} is conformed to.
-##'
-##' @aliases as.list.GeneSetDb
-##' @rdname GeneSetDb-conversion
-##' @export
-as.list.GeneSetDb <- function(x, value=c('x.id', 'x.idx'),
-                              active.only=is.conformed(x),
-                              ...) {
-  value <- match.arg(value)
-  as.expression.indexes(x, value, active.only)
+  if (nested) {
+    names(out) <- nms
+    out <- split(out, cats)
+  } else {
+    names(out) <- paste(cats, nms, sep=';;')
+  }
+  out
 }
 
 ## -----------------------------------------------------------------------------

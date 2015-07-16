@@ -17,31 +17,70 @@
 ##' TODO: document the GeneSetDb ID mapping more thoroughly.
 ##'
 ##' @import GSEABase
-##' @importFrom matrixStats rowVars
 ##' @export
 ##'
-##' @param x A list (of lists) of character vectors that specify
-##'   the features in a particular geneset. The top level of the list (of lists)
-##'   are the collection ids. The names of the inner lists define the id for the
-##'   particular geneset.
+##' @param x A \code{GeneSetCollection}, a "two deep" list of either
+##'   \code{GeneSetCollection}s or lists of character vectors, which are
+##'   the gene identifers. The "two deep" list represents the different
+##'   collections (top level) at the top level, and each such list is a named
+##'   list itself, which represents the gene sets in the given collection.
 ##' @param featureIdMap A data.frame with  2 character columns. The first
 ##'   column is the ids of the genes (features) used to identify the genes in
 ##'   \code{gene.sets}, the second second column are IDs that this should be
 ##'   mapped to. Useful for testing probelevel microarray data to gene level
 ##'   geneset information.
-##' @param x The expression values measured. Could be a matrix, ExpressionSet,
-##'   etc. rownames are required on this "thing" for it to work.
-##' @param min.gs.size The minimum number of features in a geneset required
-##'   for testing (this is calculated after gene.sets to expression feature
-##'   mapping).
-##' @param max.gs.size Same as above, but is upper limit of geneset size for
-##'   testing.
-GeneSetDb <- function(x, featureIdMap=NULL) {
-  if (!is.list(x)) {
-    stop("Do not know how to handle gene.set object of class: ", class(x1))
+##' @param collectionName If \code{x} represents a singular collection, ie.
+##'   a single \code{GeneSetCollection} or a "one deep" (named (by geneset))
+##'   list of genesets, then this parameter provides the name for the
+##'   collection. If \code{x} is multiple collections, this can be character
+##'   vector of same length with the names. In all cases, if a collection name
+##'   can't be defined from this, then collections will be named anonymously.
+##'   If a value is passed here, it will overide any names stored in the list of
+##'   \code{x}.
+GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
+  gdb <- if (is(x, 'GeneSetCollection')) {
+    GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
+  } else if (is(x, 'list')) {
+    GeneSetDb.list(x, featureIdMap, collectionName)
+  } else {
+    stop("No GeneSetDb constructor defined for: ", class(x)[1L])
+  }
+
+  gdb
+}
+
+GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
+  if (!is.list(x) || length(x) == 0L) {
+    stop("A non-empty list is required for this function")
+  }
+  if (is.null(collectionName)) {
+    collectionName <- names(x)
+  }
+  if (is(x[[1]], 'GeneSetCollection')) {
+    return(GeneSetDb.list.of.GeneSetCollections(x,featureIdMap,collectionName))
   }
 
   proto <- new("GeneSetDb")
+
+  ## Is this just a "one deep" list of genesets? If so, let's wrap it in
+  ## a list
+  if (is.single.list.of.feature.vectors(x)) {
+    if (!is.character(collectionName)) {
+      collectionName <- 'anon_collection'
+    }
+    x <- list(x)
+  }
+
+  if (is.null(collectionName)) {
+    collectionName <- sprintf('anon_collection_%d', seq(x))
+  }
+  if (!is.character(collectionName)) {
+    stop("Character vector expected for `collectionName`")
+  }
+  if (length(collectionName) != length(x)) {
+    stop("length(collectionName) != length(x)")
+  }
+  names(x) <- collectionName
 
   db <- init.gsd.db.from.list.of.lists(x)
   tbl <- init.gsd.table.from.db(db)
@@ -63,8 +102,84 @@ GeneSetDb <- function(x, featureIdMap=NULL) {
                     featureIdMap=featureIdMap,
                     collectionMetadata=meta)
   out
+
 }
 
+##' @importFrom GSEABase setName geneIds organism
+GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
+                                                 collectionName=names(x)) {
+  stopifnot(is.list(x))
+  stopifnot(length(x) > 0)
+  stopifnot(all(sapply(x, is, 'GeneSetCollection')))
+  if (is.null(collectionName)) {
+    collectionName <- sprintf('anon_collection_%d', seq(x))
+  }
+  if (!is.character(collectionName) && length(collectionName) != length(x)) {
+    stop("Invalid value for `collectionName`")
+  }
+
+  lol <- sapply(1:length(x), function(i) {
+    gsc.name <- collectionName[i]
+    gsc <- x[[i]]
+    id.list <- lapply(gsc, geneIds)
+    org <- unique(sapply(gsc, organism))
+    if (length(org) > 1) {
+      warning("multiple organisms defined in geneset collection: ", gsc.name,
+              immediate.=TRUE)
+    }
+    setNames(id.list, sapply(gsc, setName))
+  }, simplify=FALSE)
+
+  GeneSetDb.list(lol, featureIdMap, collectionName)
+}
+
+
+GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
+                                        collectionName='anon_collection', ...) {
+  stopifnot(is.character(collectionName) && length(collectionName) == 1)
+  gsc.list <- setNames(list(x), collectionName)
+  GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, ...)
+}
+
+
+##' @importFrom GSEABase GeneSetCollection GeneSet
+setAs("GeneSetDb", "GeneSetCollection", function(from) {
+  gs <- geneSets(from)
+  n.coll <- length(unique(gs$collection))
+
+  ## We explicitly set the key type after subsetting here in the event that
+  ## a 0 row data.table is returned -- this isn't keyed in 1.9.4, which seems
+  ## like a bug
+  id.type <- subset(collectionMetadata(from), name == 'id_type')
+  setkeyv(id.type, 'collection')
+  org <- subset(collectionMetadata(from), name == 'organism')
+  setkeyv(org, 'collection')
+
+  gsl <- lapply(1:nrow(gs), function(i) {
+    name <- gs$name[i]
+    coll <- gs$collection[i]
+    idt <- id.type[coll]$value[[1]]
+    ids <- featureIds(from, coll, name, 'featureId')
+    xorg <- org[coll]$value[[1]]
+    if (is.null(xorg)) {
+      xorg <- ""
+    }
+    set.name <- name
+    if (n.coll > 1L) {
+      set.name <- paste0(coll, ';', set.name)
+    }
+    GeneSet(ids, setName=set.name, geneIdType=idt, organism=xorg)
+  })
+  gsc <- GeneSetCollection(gsl)
+  gsc
+})
+
+setAs("GeneSetCollection", "GeneSetDb", function(from) {
+  GeneSetDb(from)
+})
+
+
+## Constructor Helper Functions ------------------------------------------------
 init.gsd.db.from.list.of.lists <- function(x) {
   proto <-.GeneSetDb()
   ## Ensure x is list of list of geneset features

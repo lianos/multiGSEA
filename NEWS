@@ -3,6 +3,9 @@ CHANGES IN VERSION 0.2.x
 
 NEW FEATURES
 
+  o Added constructors and `as()` coercion functions to create GeneSetDb's
+    from GeneSetCollection(s), and vice versa.
+
   o `scoreSingleSamples` is another wrapper function which calls several single
     sample geneset scoring algorithms, including the ones provided by the
     GSVA package (such as plage and ssGSEA)

@@ -29,6 +29,66 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   }
 })
 
+test_that("GeneSetDb contructor converts GeneSetCollection properly", {
+  gdbo <- getMSigDBGeneSetDb('h')
+  gsc <- as(gdbo, 'GeneSetCollection')
+  gdbn <- GeneSetDb(gsc, collectionName='h')
+  expect_equal(gdbo, gdbn, features.only=TRUE)
+})
+
+test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
+  gdb.h <- getMSigDBGeneSetDb(c('h'))
+  gdb.c6 <- getMSigDBGeneSetDb(c('c6'))
+  gdbo <- append(gdb.h, gdb.c6)
+
+  gscl <- list(h=as(gdb.h, 'GeneSetCollection'),
+               c6=as(gdb.c6, 'GeneSetCollection'))
+  gdbn <- GeneSetDb(gscl)
+
+  ## Ensure that collection names are preserved, since gscl is a named list
+  ## of collections
+  expect_true(setequal(geneSets(gdbn)$collection, geneSets(gdbo)$collection),
+              info='Collection names preserved from named list of collections')
+  expect_equal(gdbn, gdbo, features.only=TRUE,
+               info="feature parity between GeneSetDb")
+})
+
+test_that("GeneSetDb constructor honors custom collectionName args", {
+  gdb.h <- getMSigDBGeneSetDb(c('h'))
+  gdb.c6 <- getMSigDBGeneSetDb(c('c6'))
+  gdbo <- append(gdb.h, gdb.c6)
+
+  lol <- as.list(gdbo, nested=TRUE)
+  new.cnames <- setNames(c('c1', 'c2'), names(lol))
+
+  ## Change collectionName from h,c6 to c2,c1
+  gdbn <- GeneSetDb(lol, collectionName=new.cnames)
+  gso <- geneSets(gdbo)
+  for (oname in names(new.cnames)) {
+    nname <- new.cnames[oname]
+    gs.names <- subset(geneSets(gdbo), collection == oname)$name
+    for (gs.name in gs.names) {
+      oids <- featureIds(gdbo, oname, gs.name)
+      nids <- featureIds(gdbn, nname, gs.name)
+      expect_true(setequal(nids, oids),
+                  info=sprintf("featureId parity for (%s:%s, %s)",
+                               oname, nname, gs.name))
+    }
+  }
+})
+
+test_that("as(gdb, 'GeneSetDb') preserves featureIds per GeneSet", {
+  gdb <- getMSigDBGeneSetDb(c('h', 'c6'))
+  gsc <- as(gdb, 'GeneSetCollection')
+  for (gs in gsc) {
+    gs.info <- strsplit(setName(gs), ';')[[1]]
+    coll <- gs.info[1]
+    name <- gs.info[2]
+    expect_true(setequal(geneIds(gs), featureIds(gdb, coll, name)),
+                info=sprintf("featureId match for geneset (%s,%s)", coll, name))
+  }
+})
+
 test_that("featureIds(GeneSetDb, i, j) accessor works", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
