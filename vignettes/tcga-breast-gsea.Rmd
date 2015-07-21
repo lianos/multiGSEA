@@ -60,7 +60,8 @@ gsea.methods <- c('camera', 'geneSetTest', 'hyperGeometricTest', 'roast')
 ## function to provide a subset of samples from the TCGA/BRCA indication
 es <- exampleExpressionSet(do.voom=FALSE)
 
-## Currently multiGSEA only supports RNA-seq data if it has been voomed
+## Currently multiGSEA only supports RNA-seq data if it has been voomed, or if
+## is passed in as a DGEList
 es.design <- local({
   d <- model.matrix(~ Cancer_Status, pData(es))
   colnames(d) <- sub('Cancer_Status', '', colnames(d))
@@ -285,6 +286,8 @@ comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera',
 C <- -log10(as.matrix(rea[, comp, with=FALSE]))
 pairs(C, pch=16, col="#3f3f3f33", gap=0.2)
 ```
+
+## multiGSEA report from edgeR::DGEList count data
 
 ```{r show-edgeR-multiGSEA, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-edgeR', mge, top.n=10)
