@@ -44,7 +44,7 @@ report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 <div class="tip">
 This document defines `knit: rmd.plugins::report.render` in the
 [YAML frontmatter][yamlknit], and therefore can be compiled directly from within
-RStudio by simply calling the "Knit" command (the "Knit" button in the tool bar, 
+RStudio by simply calling the "Knit" command (the "Knit" button in the tool bar,
 or the ⇧⌘K key  combination)
 </div>
 
@@ -77,7 +77,7 @@ vm <- voom(y, es.design, plot=FALSE)
 We will want to also define the universe of genesets that we want to test. The
 `multiGSEA` package provides helper functions that return the `MSigDB`
 collections for mouse our human. Some collections of interest may be:
-  
+
   * "h": [hallmark gene set][hsets]
   * "c2": [curated gene sets][c2sets]
   * "c7": [immunologic signatures][c7sets]
@@ -130,7 +130,7 @@ call into a `results='asis'` code chunk.
 The results of a call to `multiGSEA` is a `MultiGSEAResult` object, which can be
 interrogated at the command line. Some functions that are helpful here include:
 
-  * `result[s](mg)`: Shows the pvals & statistics of all (or a subset) of the 
+  * `result[s](mg)`: Shows the pvals & statistics of all (or a subset) of the
     methods run over each geneset.
   * `resultNames(mg)`: Lists the results available to display
   * `tabulateResults(mg)`: Tabulates number of genesets for each collection
@@ -180,8 +180,8 @@ plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 
 ## HTML Reports
 
-The `rmd.plugins` package defines an `rmd.multiGSEA` function which wraps a 
-`MultiGSEAResult` into a browseable widget for an rmarkdown document. It 
+The `rmd.plugins` package defines an `rmd.multiGSEA` function which wraps a
+`MultiGSEAResult` into a browseable widget for an rmarkdown document. It
 provides several parameters that can be used to customize which (and how many)
 results are shown.
 
@@ -273,21 +273,19 @@ ggplot(gg, aes(-log10(pval.v), -log10(pval.e))) +
 
 ## roast vs camera vs romer
 
-Are the pvalues that each method generates comparable to each other at all? 
+Are the pvalues that each method generates comparable to each other at all?
 roast is testing a different hypothesis when compared to romer and camera,
 so you might suspect that will be an "outlier", but that doesn't really seem
 to be the case.
 
 ```{r roast-vs-camera-vs-romer}
 rea <- results(mge)
-comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera', 
+comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera',
           'pval.romer', 'pval.up.romer', 'pval.down.romer')
 C <- -log10(as.matrix(rea[, comp, with=FALSE]))
-pairs(C, pch=16, col="#3f3f3f33")
+pairs(C, pch=16, col="#3f3f3f33", gap=0.2)
 ```
 
 ```{r show-edgeR-multiGSEA, results='asis'}
-## DEBUG: why do the bacground densities look different between these results
-## and the limma/voom ones?
 rmd.multiGSEA('tumor-vs-normal-gsea-edgeR', mge, top.n=10)
 ```
