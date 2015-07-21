@@ -287,7 +287,7 @@ C <- -log10(as.matrix(rea[, comp, with=FALSE]))
 pairs(C, pch=16, col="#3f3f3f33", gap=0.2)
 ```
 
-## multiGSEA report from edgeR::DGEList count data
+# edgeR GSEA results
 
 ```{r show-edgeR-multiGSEA, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-edgeR', mge, top.n=10)
