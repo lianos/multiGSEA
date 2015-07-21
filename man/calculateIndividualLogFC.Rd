@@ -33,6 +33,8 @@ A data.table with the logFC results per row of \code{x}. The
   \code{$featureId} column is the rownames (ids) of x.
 }
 \description{
-Runs a vanilla limma differential expression analysis
+Note that differential expression analysis is always run through limma,
+so if \code{x} is a \code{DGEList}, it will be voomd first and then
+processed "as usual".
 }
 

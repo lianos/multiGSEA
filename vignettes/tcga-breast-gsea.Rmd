@@ -240,15 +240,16 @@ rmd.multiGSEA('tumor-vs-normal-gsea-top10-fdr', mg, plot.stat='t',
 Up until now we have run GSEA using voom'd data, one could also perform
 `roast`, `camera`, *and* `romer` gene set testing with count data using `edgeR`.
 
-Let's see how these two voom'd vs edgeR results compare, and let's add
-`romer` to the mix, too!
-
 ```{r edger-gsea, cache=TRUE}
 mge <- multiGSEA(gsd, y, es.design, contrast=2,
                  methods=c(gsea.methods, 'romer'))
 ```
 
 ## Nominal p-value comparison
+
+We can see from the plot below that the analogous `roast` and `camera` runs
+using voom/limma vs edgeR are rather comparable, with edgeR giving slihgtly more
+optimistic p-values.
 
 ```{r voom-edger-pvals}
 cmeths <- c('camera', 'roast')
@@ -269,6 +270,22 @@ ggplot(gg, aes(-log10(pval.v), -log10(pval.e))) +
   ylab("-log10(edgeR pvalue)") +
   geom_abline(intercept=0, slope=1, colour='red')
 ```
+
+## roast vs camera vs romer
+
+Are the pvalues that each method generates comparable to each other at all? 
+roast is testing a different hypothesis when compared to romer and camera,
+so you might suspect that will be an "outlier", but that doesn't really seem
+to be the case.
+
+```{r roast-vs-camera-vs-romer}
+rea <- results(mge)
+comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera', 
+          'pval.romer', 'pval.up.romer', 'pval.down.romer')
+C <- -log10(as.matrix(rea[, comp, with=FALSE]))
+pairs(C, pch=16, col="#3f3f3f33")
+```
+
 ```{r show-edgeR-multiGSEA, results='asis'}
 ## DEBUG: why do the bacground densities look different between these results
 ## and the limma/voom ones?

@@ -6,7 +6,7 @@
 \usage{
 do.hyperGeometricTest(gsd, x, design, contrast = ncol(design),
   direction = "over", logFC = NULL, feature.min.logFC = 1,
-  feature.max.padj = 0.1, ...)
+  feature.max.padj = 0.1, vm = x, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}

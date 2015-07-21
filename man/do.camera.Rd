@@ -6,9 +6,20 @@
 \usage{
 do.camera(gsd, x, design, contrast = ncol(design), outdir = NULL,
   use.cache = TRUE, weights = NULL, use.ranks = FALSE,
-  allow.neg.cor = TRUE, trend.var = FALSE, sort = FALSE, ...)
+  allow.neg.cor = TRUE, inter.gene.cor = NULL, trend.var = FALSE,
+  sort = FALSE, ...)
 }
 \description{
 Runs camera on the given experiment.
+}
+\section{Gene Set Enrichment Methods}{
+
+
+camera tends to be very conservative, especially when trying to estimate
+residual correlation of gene sets from experiments with small N. For this
+reason,  Gordon has added the ability provide a prespecified
+\code{inter.gene.correlation} value.
+\href{https://support.bioconductor.org/p/70005/#70195}{
+He suggests to try a small positive number (0.05)}
 }
 
