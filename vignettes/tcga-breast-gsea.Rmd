@@ -17,7 +17,7 @@ vignette: |
 
 ```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
 library(Biobase)
-library(limma)
+library(edgeR)
 library(multiGSEA)
 library(rmd.plugins)
 library(knitr)
@@ -67,23 +67,29 @@ es.design <- local({
   d
 })
 
-vm <- voom(es, es.design, plot=FALSE)
+y <- DGEList(exprs(es), group=pData(es)$Cancer_Status)
+y <- calcNormFactors(y)
+y <- estimateDisp(y, es.design)
+
+vm <- voom(y, es.design, plot=FALSE)
 ```
 
 We will want to also define the universe of genesets that we want to test. The
 `multiGSEA` package provides helper functions that return the `MSigDB`
 collections for mouse our human. Some collections of interest may be:
-
+  
+  * "h": [hallmark gene set][hsets]
   * "c2": [curated gene sets][c2sets]
   * "c7": [immunologic signatures][c7sets]
 
+[hsets]: http://www.broadinstitute.org/gsea/msigdb/genesets.jsp?collection=H
 [c2sets]: http://www.broadinstitute.org/gsea/msigdb/genesets.jsp?collection=C2
 [c7sets]: http://www.broadinstitute.org/gsea/msigdb/genesets.jsp?collection=C7
 
 So let's fetch them:
 
 ```{r genesetdb-init, results='asis', cache=TRUE}
-gsd.all <- getMSigDBset(c('c2', 'c7'), 'human')
+gsd.all <- getMSigDBset(c('h', 'c2', 'c7'), 'human')
 tally.all <- table(geneSets(gsd.all)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
@@ -95,16 +101,16 @@ There are `r nrow(geneSets(gsd.all))` gene sets defined among the `c2` and `c7`
 gene set collections:
 
 We could use these for the downstream analysis, but to
-save time on computation, we will use a predefined subset of them here:
+save time on computation, we will use all of the hallmark genes, and a
+predefined subset of c2 and c7.
 
 ```{r genesetdb-ex, results='asis'}
-gsd <- exampleGeneSetDb()
+gsd <- append(getMSigDBset('h'), exampleGeneSetDb())
 tally <- table(geneSets(gsd)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
 kable(tally)
 ```
-
 
 # Tumor vs. Normal
 
@@ -175,9 +181,9 @@ plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 ## HTML Reports
 
 The `rmd.plugins` package defines an `rmd.multiGSEA` function which wraps a 
-`MultiGSEAResult` into a browseable widget for an rmarkdown document. It provides
-several parameters that can be used to customize which (and how many) results
-are shown.
+`MultiGSEAResult` into a browseable widget for an rmarkdown document. It 
+provides several parameters that can be used to customize which (and how many)
+results are shown.
 
 ### Report all significant results
 
@@ -208,7 +214,7 @@ to a value of your choosing.
 In the reports below, the top 10 results *per GSEA method* are reported.
 
 ```{r show-multiGSEA-top10, results='asis'}
-rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
+rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, top.n=10)
 ```
 
 ### Report maximum of top.n significant reuslts
@@ -216,10 +222,55 @@ rmd.multiGSEA('tumor-vs-normal-gsea-top10', mg, plot.stat='t', top.n=10)
 Maybe you want to show the `top.n` genesets per method that pass the given FDR.
 In this case you have to pass in both a `max.p` and `top.n` parameter.
 
+<div class="note">
+Note that we are also asking to plot the **t-statistics** in the distributions
+below.
+</div>
+
 In the report below, the top 10 *significant* geneset results are reported
 *per method*:
 
 ```{r show-multiGSEA-top10-fdr, results='asis'}
-rmd.multiGSEA('tumor-vs-normal-gsea-top10-fdr', mg, plot.stat='t', top.n=10,
-              max.p=0.30)
+rmd.multiGSEA('tumor-vs-normal-gsea-top10-fdr', mg, plot.stat='t',
+              top.n=10, max.p=0.30)
+```
+
+# Comparing voom vs edgeR GSEA
+
+Up until now we have run GSEA using voom'd data, one could also perform
+`roast`, `camera`, *and* `romer` gene set testing with count data using `edgeR`.
+
+Let's see how these two voom'd vs edgeR results compare, and let's add
+`romer` to the mix, too!
+
+```{r edger-gsea, cache=TRUE}
+mge <- multiGSEA(gsd, y, es.design, contrast=2,
+                 methods=c(gsea.methods, 'romer'))
+```
+
+## Nominal p-value comparison
+
+```{r voom-edger-pvals}
+cmeths <- c('camera', 'roast')
+rv <- results(mg, cmeths)
+re <- results(mge, cmeths)
+gg <- local({
+  cam <- cbind(rv[, list(collection, name, method='camera', pval.v=pval.camera)],
+               re[, list(pval.e=pval.camera)])
+  ro <- cbind(rv[, list(collection, name, method='roast', pval.v=pval.roast)],
+              re[, list(pval.e=pval.roast)])
+  rbind(cam, ro)
+})
+
+ggplot(gg, aes(-log10(pval.v), -log10(pval.e))) +
+  geom_point(alpha=0.8) +
+  facet_wrap(~ method) +
+  xlab("-log10(voom pvalue)") +
+  ylab("-log10(edgeR pvalue)") +
+  geom_abline(intercept=0, slope=1, colour='red')
+```
+```{r show-edgeR-multiGSEA, results='asis'}
+## DEBUG: why do the bacground densities look different between these results
+## and the limma/voom ones?
+rmd.multiGSEA('tumor-vs-normal-gsea-edgeR', mge, top.n=10)
 ```

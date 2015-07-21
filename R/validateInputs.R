@@ -40,20 +40,33 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     stop("Illegal type for `methods`: ", class(methods)[1L])
   }
 
-  if (is(x, 'DGEList')) {
-    ## TODO: stop if estimateDisp(x, design) was called on input DGEList
-    warning("Not checking if estimateDisp() was called", immediate.=TRUE)
+  if (is(x, 'DGEList') && !is.numeric(x$common.dispersion)) {
+    warning("It doesn't look like you ran estimateDisp(x) on DGEList x",
+            immediate.=TRUE)
   }
 
   if (is.vector(x)) {
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
-  if (!inherits(x, .valid.x)) {
-    stop("Invalid expression object (x) type: ", class(x)[1L])
-  }
-  if (!is.character(rownames(x)) && require.x.rownames) {
-    stop("The expression object does not have rownames ...")
+  if (!is.null(methods)) {
+    is.valid.x <- sapply(methods, function(meth) {
+      fn <- getFunction(paste0('validate.x.', meth))
+      fn(x)
+    }, simplify=FALSE)
+    bad <- which(sapply(is.valid.x, Negate(isTRUE)))
+    if (length(bad)) {
+      msg <- sprintf("Error validating x for (%s): %s", meth,
+                     is.valid.x[bad[1]])
+      stop(msg)
+    }
+  } else {
+    if (!inherits(x, .valid.x)) {
+      stop("Invalid expression object (x) type: ", class(x)[1L])
+    }
+    if (!is.character(rownames(x)) && require.x.rownames) {
+      stop("The expression object does not have rownames ...")
+    }
   }
 
   if (is.matrix(design)) {
@@ -186,4 +199,48 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     }
   }
   errs
+}
+
+## Validation Methods for Expression Objects -----------------------------------
+
+##' @importFrom edgeR DGEList
+validate.DGEList <- function(x) {
+  if (!isTRUE(is(x, 'DGEList'))) {
+    return("x is not a DGEList")
+  }
+  if (!is.numeric(x$common.dispersion)) {
+    return("dispersion is not estimated, minimally call estimateDisp on x")
+  }
+  TRUE
+}
+
+validate.XwithWeights <- function(x) {
+  if (!isTRUE(is(x, 'EList') || is(x, 'eSet'))) {
+    return("x must be an EList or ExpressionSet")
+  }
+  if (is(x, 'EList')) {
+    if (!isTRUE(dim(x$weights), dim(x))) {
+      return("EList does not have weights")
+    }
+  }
+  if (is(x, 'eSet')) {
+    if (!'weights' %in% assayDataElementNames(x)) {
+      return("weights assay not in eSet x")
+    }
+  }
+
+  TRUE
+}
+
+validate.X <- function(x) {
+  if (!inherits(x, .valid.x)) {
+    return("Invalid expression object (x) type: ", class(x)[1L])
+  }
+  if (!is.character(rownames(x))) {
+    return("The expression object does not have rownames ...")
+  }
+  if (is(x, 'DGEList')) {
+    return(validate.DGEList(x))
+  }
+  TRUE
 }

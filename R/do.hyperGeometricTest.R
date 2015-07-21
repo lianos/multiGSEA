@@ -2,6 +2,7 @@
 NULL
 
 validate.inputs.hyperGeometricTest <- .validate.inputs.full.design
+validate.x.hyperGeometricTest <- validate.X
 
 ##' Performs a hypergeometric test for significance of gene set membership.
 ##'
@@ -23,7 +24,10 @@ validate.inputs.hyperGeometricTest <- .validate.inputs.full.design
 do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
                                   direction='over', logFC=NULL,
                                   feature.min.logFC=1,
-                                  feature.max.padj=0.10, ...) {
+                                  feature.max.padj=0.10, vm=x, ...) {
+  if (is(x, "DGEList")) {
+    x <- vm
+  }
   stopifnot(is.conformed(gsd, x))
 
   if (is.null(logFC)) {

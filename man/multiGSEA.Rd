@@ -75,9 +75,12 @@ multiGSEA is wrapper function which delegates GSEA analyses to different
 statistics without running any of the GSEA methods in particular.
 }
 \details{
-Currently this primarily wraps the GSEA functinos from limma, but others
+Currently this primarily wraps the GSEA functions from limma, but others
 will be added over time. Refer to the \code{method} documentation to see
 which GSEA methods are supported.
+
+logFC statistics are always calcualted via a limma pipeline, so if \code{x}
+is a \code{DGEList}, it is first "voom"ed, then processed.
 
 This function will write several results to an output directory if
   a valid value for \code{outdir} is provided. Furthermore, the results of

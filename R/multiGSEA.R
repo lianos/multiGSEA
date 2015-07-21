@@ -6,9 +6,12 @@
 ##' statistics without running any of the GSEA methods in particular.
 ##'
 ##'
-##' Currently this primarily wraps the GSEA functinos from limma, but others
+##' Currently this primarily wraps the GSEA functions from limma, but others
 ##' will be added over time. Refer to the \code{method} documentation to see
 ##' which GSEA methods are supported.
+##'
+##' logFC statistics are always calcualted via a limma pipeline, so if \code{x}
+##' is a \code{DGEList}, it is first "voom"ed, then processed.
 ##'
 ##' @details This function will write several results to an output directory if
 ##'   a valid value for \code{outdir} is provided. Furthermore, the results of
@@ -93,8 +96,16 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       cache.inputs=FALSE, feature.min.logFC=1,
                       feature.max.padj=0.10, trim=0.10, ...) {
   if (!is(gsd, 'GeneSetDb')) {
-    stop("GeneSetDb required")
+    if (is(gsd, 'GeneSetCollection') || is(gsd, 'GeneSet')) {
+      stop("A GeneSetDb is required. GeneSetCollections can be can be ",
+           "converted to a GeneSetDb via the GeneSetDb constructor, or a call ",
+           "to as(gene_set_collection, 'GeneSetDb). See ?GeneSetDb for more ",
+           "info")
+    }
+    stop("GeneSetDb required. Please see `?GeneSetDb` for ways to turn your ",
+         "gene sets into a GeneSetDb")
   }
+
   if (missing(methods) || length(methods) == 0) {
     methods <- 'logFC'
   }
@@ -151,6 +162,12 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   design <- inputs$design
   contrast <- inputs$contrast
 
+  if (is(x, 'DGEList')) {
+    vm <- voom(x, design, plot=FALSE)
+  } else {
+    vm <- x
+  }
+
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x)
   }
@@ -164,7 +181,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   ## ---------------------------------------------------------------------------
   ## Run the analyses
-  logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+  logFC <- calculateIndividualLogFC(vm, design, contrast, ...)
   logFC <- within(logFC, {
     significant <- abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
     direction <- ifelse(logFC > 0, 'up', 'down')
@@ -178,7 +195,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     tryCatch({
       dt <- fn(gsd, x, design, contrast, outdir=noutdir, use.cache=use.cache,
                logFC=logFC, feature.min.logFC=feature.min.logFC,
-               feature.max.padj=feature.max.padj, ...)
+               feature.max.padj=feature.max.padj, vm=vm, ...)
       dt[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
     }, error=function(e) NULL)
   }, simplify=FALSE)

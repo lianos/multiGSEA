@@ -2,6 +2,7 @@
 NULL
 
 validate.inputs.roast <- .validate.inputs.full.design
+validate.x.roast <- validate.X
 
 do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
                      use.cache=TRUE, set.statistic='mean', gene.weights=NULL,

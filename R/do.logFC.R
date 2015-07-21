@@ -2,6 +2,7 @@
 NULL
 
 validate.inputs.logFC <- .validate.inputs.logFC.only
+validate.x.logFC <- validate.X
 
 ##' A "pass through" function. The caller asks for "logFC" if she only wants
 ##' to calculate the geneSet statistics for each of the geneSets, ie. their

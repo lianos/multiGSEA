@@ -2,13 +2,17 @@
 NULL
 
 validate.inputs.geneSetTest <- .validate.inputs.logFC.only
+validate.x.geneSetTest <- validate.X
 
 do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            use.cache=TRUE,
                            alternative="mixed", type="auto", ranks.only=TRUE,
                            nsim=9999, robust.fit=FALSE, robust.eBayes=FALSE,
                            logFC=NULL, score.by=c('t', 'logFC'), mc.cores=1L,
-                           ...) {
+                           vm=x, ...) {
+  if (is(x, "DGEList")) {
+    x <- vm
+  }
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))
   extra.args <- c('alternative', 'type', 'ranks.only')

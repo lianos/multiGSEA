@@ -1,5 +1,9 @@
 ##' Runs a vanilla limma differential expression analysis
 ##'
+##' Note that differential expression analysis is always run through limma,
+##' so if \code{x} is a \code{DGEList}, it will be voomd first and then
+##' processed "as usual".
+##'
 ##' @export
 ##' @importFrom data.table setnames
 ##'
@@ -22,6 +26,10 @@
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      with.fit=FALSE, ...) {
+  if (is(x, 'DGEList')) {
+    message("vooming DGEList to calculate logFCs")
+    x <- voom(x, design, plot=FALSE)
+  }
   if (ncol(x) > 1) {
     ## Do limma fits on this thing and let it rip
     fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)

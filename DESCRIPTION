@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.2.7
+Version: 0.3.0
 Date: 2015-05-21
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -43,6 +43,7 @@ Collate:
     'do.logFC.R'
     'do.npGSEA.R'
     'do.roast.R'
+    'do.romer.R'
     'expression-utils.R'
     'gsea-helpers.R'
     'msigdb-broad.R'

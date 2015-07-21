@@ -2,6 +2,7 @@
 NULL
 
 validate.inputs.camera <- .validate.inputs.full.design
+validate.x.camera <- validate.X
 
 ##' Runs camera on the given experiment.
 ##'
