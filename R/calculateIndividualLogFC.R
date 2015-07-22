@@ -42,7 +42,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     }
     fit  <- eBayes(fit, robust=robust.eBayes)
     tt <- topTable(fit, contrast, number=Inf, sort.by='none')
-    tt <- transform(as.data.table(tt), featureId=rownames(tt))
+    tt <- transform(as.data.table(tt), featureId=rownames(x))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
     out <- tt
   } else {

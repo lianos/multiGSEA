@@ -248,6 +248,20 @@ function(x, i, j, value=c('x.id', 'featureId'), ...) {
              active.only=TRUE)
 })
 
+##' Fetch the logFC statistics for a geneset
+##'
+##' @export
+##'
+##' @param x \code{MultiGSEAResult}
+##' @param i The collection name
+##' @param j The gene set name
+##' @return data.table with the stats for the features in the geneset
+geneSetStats <- function(x, i, j) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  fids <- featureIds(x@gsd, i, j)
+  subset(logFC(x), featureId %in% fids)
+}
+
 ##' Summarize the statistics for each feature at the geneset level.
 ##'
 ##' This function calculates the mean and trimmed mean of the logFC and

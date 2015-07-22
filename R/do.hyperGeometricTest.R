@@ -62,6 +62,10 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
       numW <- length(ids)
       Wdrawn <- intersect(ids, drawn)
       numWdrawn <- length(Wdrawn)
+      ## numW: number of genes in GO category
+      ## numB: size of universe
+      ## numDrawn: number of differentially expressed genes
+      ## numWdrawn: the number of genes differentially expressed in category
       hg <- .doHyperGInternal(numW, numB, numDrawn, numWdrawn, dir.over)
       c(list(n.in.set=n, n.drawn=numWdrawn), hg)
     }, by=c('collection', 'name')]
@@ -70,26 +74,6 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   }
 
   out
-}
-
-##' Identify the features that were "selected" for a given geneset for the
-##' hyperGeometricTest for enrichment.
-##'
-##' @export
-##'
-##' @param x a \code{MultiGSEAResult}
-##' @param i the collection of the gene set
-##' @param j the id of the geneset
-##'
-##' @return A character vector of features in the expression object that were
-##'   identified as part of the geneset that was "selected"
-selectedByHyperG <- function(x, i, j) {
-  stopifnot(is(x, 'MultiGSEAResult'))
-  if (!'hyperGeometricTest' %in% resultNames(x)) {
-    stop("A hypergeometric test was not performed")
-  }
-  fids <- featureIds(x@gsd, i, j, value='x.id')
-  intersect(fids, subset(x@logFC, hyperG.selected == TRUE)$featureId)
 }
 
 ## -----------------------------------------------------------------------------

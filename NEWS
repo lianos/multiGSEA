@@ -37,6 +37,9 @@ NEW FEATURES
 
 BUG FIXES
 
+  o do.hyperGeometricTest was failing when the expression object `x` was a
+    matrix.
+
 
 CHANGES IN VERSION 0.1
 ----------------------

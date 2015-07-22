@@ -303,7 +303,7 @@ subset.GeneSetDb <- function(x, keep) {
   stopifnot(is(x, 'GeneSetDb'))
   nr <- nrow(geneSets(x, active.only=FALSE))
 
-  if (!is.logical(keep) && lenght(keep) != nr) {
+  if (!is.logical(keep) && length(keep) != nr) {
     stop("The `keep` vector is FUBAR'd")
   }
 

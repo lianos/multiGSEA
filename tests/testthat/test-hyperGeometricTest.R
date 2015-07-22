@@ -35,5 +35,5 @@ test_that("do.hyperGeometricTest sets incoming logFC correctly", {
   expect_true(is.logical(tt$hyperG.selected))
 
   tt[, expect.selected := abs(logFC) >= min.logFC & padj <= max.padj]
-  expect_true(all(tt$hyperG.selected == tt$expect.selected))
+  expect_equal(tt$hyperG.selected, tt$expect.selected)
 })
