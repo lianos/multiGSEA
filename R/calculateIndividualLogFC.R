@@ -50,7 +50,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                       featureId=rownames(x))
     fit <- NULL
   }
-
+  out[, x.idx := 1:nrow(x)]
   if (with.fit) list(result=out, fit=fit) else out
 }
 
