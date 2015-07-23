@@ -3,6 +3,9 @@ CHANGES IN VERSION 0.2.x
 
 NEW FEATURES
 
+  o Added geneSetFeatureStats to return the logFC (and membership) information
+    for a geneset after a multiGSEA run.
+
   o Added constructors and `as()` coercion functions to create GeneSetDb's
     from GeneSetCollection(s), and vice versa.
 
@@ -34,6 +37,9 @@ NEW FEATURES
   o Added J-G statistic calculation as additional measure to summarize geneset
     effects in `geneSetFeatureStatistics` and for ranking (result(..., rank.by))
 
+USER VISIBLE CHANGES
+
+  o Changed geneSetFeatureStatistics to geneSetsStats
 
 BUG FIXES
 

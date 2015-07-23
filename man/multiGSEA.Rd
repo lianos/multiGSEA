@@ -50,7 +50,7 @@ for a given \code{method} before computing it.}
 \item{feature.min.logFC}{The minimum logFC required for an individual
 feature (not geneset) to be considered differentialy expressed. Used in
 conjunction with \code{feature.max.padj} primarily for summarization
-of genesets (by \code{\link{geneSetFeatureStatistics}}), but can also be
+of genesets (by \code{\link{geneSetsStats}}), but can also be
 used by GSEA methods that require differential expression calls at the
 individual feature level, like \code{hyperGeometricTest}.}
 
@@ -60,7 +60,7 @@ conjunction with \code{feature.min.logFC}.}
 
 \item{trim}{The amount to trim when calculated trimmed \code{t} and
 \code{logFC} statistics for each geneset. This is passed down to the
-\code{\link{geneSetFeatureStatistics}} function.}
+\code{\link{geneSetsStats}} function.}
 
 \item{...}{The arguments are passed down into the various geneset analysis
   functions.}

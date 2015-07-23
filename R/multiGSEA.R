@@ -78,7 +78,7 @@
 ##' @param feature.min.logFC The minimum logFC required for an individual
 ##'   feature (not geneset) to be considered differentialy expressed. Used in
 ##'   conjunction with \code{feature.max.padj} primarily for summarization
-##'   of genesets (by \code{\link{geneSetFeatureStatistics}}), but can also be
+##'   of genesets (by \code{\link{geneSetsStats}}), but can also be
 ##'   used by GSEA methods that require differential expression calls at the
 ##'   individual feature level, like \code{hyperGeometricTest}.
 ##' @param feature.max.padj The maximum adjusted pvalue used to consider an
@@ -86,7 +86,7 @@
 ##'   conjunction with \code{feature.min.logFC}.
 ##' @param trim The amount to trim when calculated trimmed \code{t} and
 ##'   \code{logFC} statistics for each geneset. This is passed down to the
-##'   \code{\link{geneSetFeatureStatistics}} function.
+##'   \code{\link{geneSetsStats}} function.
 ##' @param ... The arguments are passed down into the various geneset analysis
 ##'   functions.
 ##'
@@ -208,9 +208,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   setkeyv(logFC, 'featureId')
 
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC, outdir=noutdir)
-  gs.stats <- geneSetFeatureStatistics(out, feature.min.logFC=feature.min.logFC,
-                                       feature.max.padj=feature.max.padj,
-                                       trim=trim)
+  gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
+                            feature.max.padj=feature.max.padj,
+                            trim=trim)
   out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
   finished <- TRUE
   out
@@ -256,13 +256,13 @@ function(x, i, j, value=c('x.id', 'featureId'), ...) {
 ##' @param i The collection name
 ##' @param j The gene set name
 ##' @return data.table with the stats for the features in the geneset
-geneSetStats <- function(x, i, j) {
+geneSetFeatureStats <- function(x, i, j) {
   stopifnot(is(x, 'MultiGSEAResult'))
   fids <- featureIds(x@gsd, i, j)
   subset(logFC(x), featureId %in% fids)
 }
 
-##' Summarize the statistics for each feature at the geneset level.
+##' Summarize useful feature-level statistics across gene sets.
 ##'
 ##' This function calculates the mean and trimmed mean of the logFC and
 ##' t-statistics, as well as the J-G statistic
@@ -279,8 +279,8 @@ geneSetStats <- function(x, i, j) {
 ##'
 ##' @return A data.table with statistics on the effect size shift for the gene
 ##'   set as well as numbers of members that shift up or down.
-geneSetFeatureStatistics <- function(x, feature.min.logFC=1,
-                                     feature.max.padj=0.10, trim=0.10) {
+geneSetsStats <- function(x, feature.min.logFC=1,
+                          feature.max.padj=0.10, trim=0.10) {
   stopifnot(is(x, 'MultiGSEAResult'))
   lfc <- logFC(x)
 

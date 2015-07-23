@@ -1,6 +1,6 @@
-context("geneSetFeatureStatistics")
+context("geneSetsStats")
 
-test_that("geneSetFeatureStatistics", {
+test_that("geneSetsStats", {
 
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsl <- exampleGeneSets()
@@ -12,7 +12,7 @@ test_that("geneSetFeatureStatistics", {
   trim <- 0.10
   min.logFC <- 1
   max.padj <- 0.10
-  gs.stats <- geneSetFeatureStatistics(mg, min.logFC, max.padj, trim)
+  gs.stats <- geneSetsStats(mg, min.logFC, max.padj, trim)
 
   ## calculate expected
   istats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design))
