@@ -46,11 +46,15 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
     out <- tt
   } else {
-    out <- data.table(logFC=x[, 1L], t=x[, 1L], pval=NA_real_, padj=NA_real_,
+    out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
+                      pval=NA_real_, padj=NA_real_,
                       featureId=rownames(x))
     fit <- NULL
   }
   out[, x.idx := 1:nrow(x)]
+  if ('ID' %in% names(out)) {
+    out[, ID := NULL]
+  }
   if (with.fit) list(result=out, fit=fit) else out
 }
 
