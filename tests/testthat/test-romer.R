@@ -3,6 +3,7 @@ context("romer")
 ## TODO: Test why the mixied pvalues are so significant always!!?!
 
 test_that('romer runs equivalently from do.romer vs direct call', {
+  library(edgeR)
   es <- exampleExpressionSet(do.voom=FALSE)
   gdb <- GeneSetDb(exampleGeneSets())
 

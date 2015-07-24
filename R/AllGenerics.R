@@ -1,4 +1,3 @@
-
 ##' Returns the featureIds associated with a given GeneSetDb or one of the
 ##' individual gene sets within it.
 ##'
@@ -57,6 +56,27 @@ setGeneric("geneSetCollectionURLfunction", signature="x", function(x, i, ...) {
 setGeneric("geneSetCollectionURLfunction<-", signature="x", function(x, i, value) {
   standardGeneric("geneSetCollectionURLfunction<-")
 })
+
+setGeneric("collectionUrlFunction<-", signature="x", function(x, i, value, ...) {
+  standardGeneric("collectionUrlFunction<-")
+})
+
+setGeneric("identifierType", signature="x", function(x, i, ...) {
+  standardGeneric("identifierType")
+})
+
+setGeneric("identifierType<-", signature="x", function(x, i, value) {
+  standardGeneric("identifierType<-")
+})
+
+setGeneric("org", signature="x", function(x, i, ...) {
+  standardGeneric("org")
+})
+
+setGeneric("org<-", signature="x", function(x, i, value) {
+  standardGeneric("org<-")
+})
+
 
 ##' @exportMethod geneSet
 setGeneric("geneSet", signature="x", function(x, i, j, ...) {

@@ -1,6 +1,7 @@
 context("Using DGEList's as input")
 
 test_that("logFC calculations are similar between voom and DGEList input", {
+  library(edgeR)
   gdb <- GeneSetDb(exampleGeneSets())
   es <- exampleExpressionSet(do.voom=FALSE)
   d <-  model.matrix(~ es$Cancer_Status)

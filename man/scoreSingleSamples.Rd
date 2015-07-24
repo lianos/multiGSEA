@@ -4,7 +4,7 @@
 \alias{scoreSingleSamples}
 \title{Score each genes over the columns of an expression matrix.}
 \usage{
-scoreSingleSamples(gdb, y, methods = "plage", melted = FALSE, ...)
+scoreSingleSamples(gdb, y, methods = "ssgsea", melted = FALSE, ...)
 }
 \arguments{
 \item{gdb}{A GeneSetDb}
@@ -22,6 +22,20 @@ geneset genes/features.}
   as many columns as \code{ncol(x)}
 }
 \description{
-Score each genes over the columns of an expression matrix.
+These functions provide gene set scores at the sample level. No need for
+designs and contrasts.
+}
+\details{
+Current scoring methods include:
+
+\enumerate{
+  \item zscore: features in geneset rowwise z transformed, then normalized
+        by size of geneset (or sqrt(size))
+  \item gsva: GSVA package
+  \item plage: from GSVA package
+  \item ssgsea: from GSVA package
+  \item gsdecon: Jason Hackeny's method (kind of like plage), but not
+        really.
+}
 }
 

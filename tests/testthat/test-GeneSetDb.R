@@ -30,15 +30,15 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
 })
 
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
-  gdbo <- getMSigDBGeneSetDb('h')
+  gdbo <- getMSigDBset('h')
   gsc <- as(gdbo, 'GeneSetCollection')
   gdbn <- GeneSetDb(gsc, collectionName='h')
   expect_equal(gdbo, gdbn, features.only=TRUE)
 })
 
 test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
-  gdb.h <- getMSigDBGeneSetDb(c('h'))
-  gdb.c6 <- getMSigDBGeneSetDb(c('c6'))
+  gdb.h <- getMSigDBset(c('h'))
+  gdb.c6 <- getMSigDBset(c('c6'))
   gdbo <- append(gdb.h, gdb.c6)
 
   gscl <- list(h=as(gdb.h, 'GeneSetCollection'),
@@ -59,7 +59,7 @@ test_that("GeneSetDb constructor honors custom collectionName args", {
   gdbo <- append(gdb.h, gdb.c6)
 
   lol <- as.list(gdbo, nested=TRUE)
-  new.cnames <- setNames(c('c1', 'c2'), names(lol))
+  new.cnames <- setNames(c('x1', 'x2'), names(lol))
 
   ## Change collectionName from h,c6 to c2,c1
   gdbn <- GeneSetDb(lol, collectionName=new.cnames)
@@ -77,14 +77,14 @@ test_that("GeneSetDb constructor honors custom collectionName args", {
   }
 })
 
-test_that("as(gdb, 'GeneSetDb') preserves featureIds per GeneSet", {
+test_that("as(gdb, 'GeneSetCollection') preserves featureIds per GeneSet", {
   gdb <- getMSigDBGeneSetDb(c('h', 'c6'))
   gsc <- as(gdb, 'GeneSetCollection')
   for (gs in gsc) {
-    gs.info <- strsplit(setName(gs), ';')[[1]]
+    gs.info <- strsplit(GSEABase::setName(gs), ';')[[1]]
     coll <- gs.info[1]
     name <- gs.info[2]
-    expect_true(setequal(geneIds(gs), featureIds(gdb, coll, name)),
+    expect_true(setequal(GSEABase::geneIds(gs), featureIds(gdb, coll, name)),
                 info=sprintf("featureId match for geneset (%s,%s)", coll, name))
   }
 })
@@ -268,8 +268,8 @@ test_that("GeneSetDb,incidenceMatrix is correct", {
   gsd <- conform(GeneSetDb(gsl), es)
 
   im <- incidenceMatrix(gsd, es)
-  g.cols <- sub(';.*', '', rownames(im))
-  g.names <- sub('.*?;', '', rownames(im))
+  g.cols <- sub(';;.*', '', rownames(im))
+  g.names <- sub('.*?;;', '', rownames(im))
   for (i in 1:nrow(im)) {
     col <- g.cols[i]
     name <- g.names[i]

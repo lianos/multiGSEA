@@ -122,7 +122,7 @@ incidenceMatrix <- function(x, y) {
     all.fids <- unique(x@db$featureId)
     out <- matrix(0L, nrow=nrow(gs), ncol=length(all.fids),
                   dimnames=list(
-                    paste(gs$collection, gs$name, sep=';'),
+                    paste(gs$collection, gs$name, sep=';;'),
                     all.fids))
   } else {
     val <- 'x.idx'
@@ -135,7 +135,7 @@ incidenceMatrix <- function(x, y) {
     gs <- geneSets(x)
     out <- matrix(0L, nrow(gs), nrow(y),
                   dimnames=list(
-                    paste(gs$collection, gs$name, sep=';'),
+                    paste(gs$collection, gs$name, sep=';;'),
                     rownames(y)))
   }
 
@@ -470,28 +470,114 @@ setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {
 
 setReplaceMethod("geneSetCollectionURLfunction", "GeneSetDb",
 function(x, i, value) {
-  stopifnot(is.character(i))
-  if (!is.function(value)) {
-    stop("Function required")
+  valid <- function(v) {
+    if (!isTRUE(is.function(v))) return(FALSE)
+    if (length(formalArgs(v)) != 2L) {
+      ## "URL function needs to take two arguments"
+      return(FALSE)
+    }
+    TRUE
   }
-  if (length(formalArgs(value)) != 2L) {
-    stop("URL function needs to take two arguments")
-  }
-  idx <- x@collectionMetadata[J(i, 'url_function'), which=TRUE]
-  if (is.na(idx)) {
-    ## This should never have happened, since x would fail validObject(x), but
-    ## I'm being generous here
-    add.me <- x@collectionMetadata[NA]
-    add.me$collection[1L] <- i
-    add.me$name[1L] <- 'url_function'
-    add.me$value[[1L]] <- value
-    x@collectionMetadata <- rbind(x@collectionMetadata, add.me)
-  } else {
-    x@collectionMetadata$value[[idx]] <- value
-  }
+  addCollectionMetadata(x, i, 'url_function', value, valid)
   x
 })
 
+setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
+  valid <- function(v) {
+    if (!isTRUE(is.function(v))) return(FALSE)
+    if (length(formalArgs(v)) != 2L) {
+      ## "URL function needs to take two arguments"
+      return(FALSE)
+    }
+    TRUE
+  }
+  addCollectionMetadata(x, i, 'url_function', value, valid)
+})
+
+##' @import GSEABase
+setReplaceMethod("identifierType", "GeneSetDb", function(x, i, value) {
+  valid <- function(v) is(v, 'GeneIdentifierType')
+  addCollectionMetadata(x, i, 'id_type', value, valid)
+})
+
+setMethod("identifierType", "GeneSetDb", function(x, i, ...) {
+  x@collectionMetadata[J(i, 'id_type')]$value[[1L]]
+})
+
+setReplaceMethod("org", "GeneSetDb", function(x, i, value) {
+  valid <- function(v) {
+    if (!is.character(v) && length(v) == 1L) {
+      return(FALSE)
+    }
+    info <- strsplit(v, '_')[[1L]]
+    if (length(info) != 2L) {
+      return(FALSE)
+    }
+    known <- c('Mus_musculus', 'Homo_sapiens')
+    if (!v %in% known) {
+      warning("Value '",v,"' for organism is unrecognized (but will be used).",
+              v, immediate.=TRUE)
+    }
+    TRUE
+  }
+  addCollectionMetadata(x, i, 'organism', value, valid)
+})
+
+setMethod("org", "GeneSetDb", function(x, i, ...) {
+  x@collectionMetadata[J(i, 'organism')]$value[[1L]]
+})
+
+##' Adds metadata to a gene set collection of a GeneSetDb
+##'
+##' This function is exported, but I imagine this being used mostly through
+##' different replace methods that use this as a utility function.
+##'
+##' @export
+##' @param x \code{GeneSetDb}
+##' @param xcoll The collection name
+##' @param xname The name of the metadata variable
+##' @param value The value of the metadata variable
+##' @param validate.value.fn If a function is provided, it is run on
+##'   \code{value} and msut return \code{TRUE} for addition to be made
+##' @param allow.add If \code{FALSE}, this xcoll,xname should be in the
+##'   \code{GeneSetDb} already, and this will fail because something is
+##'   deeply wrong with the world
+##' @return The updated \code{GeneSetDb}
+addCollectionMetadata <- function(x, xcoll, xname, value,
+                                  validate.value.fn=NULL, allow.add=TRUE) {
+  stopifnot(is.character(xcoll))
+  if (!hasGeneSetCollection(x, xcoll)) {
+    stop("GeneSetDb does not have collection: ", xcoll)
+  }
+  if (is.function(validate.value.fn)) {
+    if (!isTRUE(validate.value.fn(value))) {
+      stop(sprintf("Invalude value used to update %s,%s", xcoll, xname))
+    }
+  }
+
+  ## update or replace
+  if (!is.list(value)) {
+    value <- list(value)
+  }
+  idx <- x@collectionMetadata[J(xcoll, xname), which=TRUE]
+  if (is.na(idx)) {
+    if (!allow.add) {
+      msg <- sprintf("%s,%s metadata does not exist in the GeneSetDb, but it",
+                     "should be there. Your GeneSetDb is hosed")
+      stop(msg)
+    }
+    ## the variable you want to ender here is not there yet, so let's put it in
+    add.me <- x@collectionMetadata[NA]
+    add.me$collection[1L] <- xcoll
+    add.me$name[1L] <- xname
+    add.me$value[[1L]] <- value
+    x@collectionMetadata <- setkeyv(rbind(x@collectionMetadata, add.me),
+                                    key(x@collectionMetadata))
+  } else {
+    x@collectionMetadata$value[idx] <- value
+  }
+  x
+}
 
 ##' @importFrom BiocGenerics append
 ##' @export append

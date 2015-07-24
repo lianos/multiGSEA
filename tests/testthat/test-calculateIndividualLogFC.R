@@ -40,8 +40,8 @@ test_that("logFC's calculated from contrast vectors are correct", {
   my.tt0.her2 <- calculateIndividualLogFC(vm, d0, cm[, 'her2.vs.basal'])
 
   ## The topTables returned from calculateIndividualLogFc's should be the same
-  expect_equal(tt.lumA, my.tt.lumA)
-  expect_equal(tt.her2, my.tt.her2)
-  expect_equal(tt.lumA, my.tt0.lumA)
-  expect_equal(tt.her2, my.tt0.her2)
+  expect_equal(tt.lumA, my.tt.lumA[, names(tt.lumA), with=FALSE])
+  expect_equal(tt.her2, my.tt.her2[, names(tt.her2), with=FALSE])
+  expect_equal(tt.lumA, my.tt0.lumA[, names(tt.lumA), with=FALSE])
+  expect_equal(tt.her2, my.tt0.her2[, names(tt.her2), with=FALSE])
 })

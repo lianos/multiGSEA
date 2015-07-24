@@ -53,11 +53,12 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   if (!is.list(x) || length(x) == 0L) {
     stop("A non-empty list is required for this function")
   }
-  if (is.null(collectionName)) {
-    collectionName <- names(x)
-  }
   if (is(x[[1]], 'GeneSetCollection')) {
-    return(GeneSetDb.list.of.GeneSetCollections(x,featureIdMap,collectionName))
+    if (is.null(collectionName)) {
+      collectionName <- names(x)
+    }
+    out <- GeneSetDb.list.of.GeneSetCollections(x, featureIdMap, collectionName)
+    return(out)
   }
 
   proto <- new("GeneSetDb")
@@ -65,12 +66,11 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   ## Is this just a "one deep" list of genesets? If so, let's wrap it in
   ## a list
   if (is.single.list.of.feature.vectors(x)) {
-    if (!is.character(collectionName)) {
-      collectionName <- 'anon_collection'
-    }
     x <- list(x)
   }
-
+  if (is.null(collectionName)) {
+    collectionName <- names(x)
+  }
   if (is.null(collectionName)) {
     collectionName <- sprintf('anon_collection_%d', seq(x))
   }
@@ -105,7 +105,7 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
 
 }
 
-##' @importFrom GSEABase setName geneIds organism
+##' @importFrom GSEABase setName geneIds geneIdType
 GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
                                                  collectionName=names(x)) {
   stopifnot(is.list(x))
@@ -118,27 +118,31 @@ GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
     stop("Invalid value for `collectionName`")
   }
 
-  lol <- sapply(1:length(x), function(i) {
+  lol <- lapply(1:length(x), function(i) {
     gsc.name <- collectionName[i]
     gsc <- x[[i]]
     id.list <- lapply(gsc, geneIds)
-    org <- unique(sapply(gsc, organism))
+    org <- unique(sapply(gsc, GSEABase::organism))
+    id.type <- unique(sapply(gsc, function(x) class(geneIdType(x))))
     if (length(org) > 1) {
       warning("multiple organisms defined in geneset collection: ", gsc.name,
               immediate.=TRUE)
     }
+    if (length(id.type) > 1) {
+      stop("different idtypes used in genesets: ", paste(id.type, collapse=','))
+    }
     setNames(id.list, sapply(gsc, setName))
-  }, simplify=FALSE)
-
+  })
+  names(lol) <- collectionName
   GeneSetDb.list(lol, featureIdMap, collectionName)
 }
 
 
 GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
-                                        collectionName='anon_collection', ...) {
+                                        collectionName='anon_collection') {
   stopifnot(is.character(collectionName) && length(collectionName) == 1)
   gsc.list <- setNames(list(x), collectionName)
-  GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, ...)
+  GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, collectionName)
 }
 
 

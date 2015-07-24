@@ -1,5 +1,20 @@
 ##' Score each genes over the columns of an expression matrix.
 ##'
+##' These functions provide gene set scores at the sample level. No need for
+##' designs and contrasts.
+##'
+##' Current scoring methods include:
+##'
+##' \enumerate{
+##'   \item zscore: features in geneset rowwise z transformed, then normalized
+##'         by size of geneset (or sqrt(size))
+##'   \item gsva: GSVA package
+##'   \item plage: from GSVA package
+##'   \item ssgsea: from GSVA package
+##'   \item gsdecon: Jason Hackeny's method (kind of like plage), but not
+##'         really.
+##' }
+##'
 ##' @export
 ##'
 ##' @param gdb A GeneSetDb
@@ -10,12 +25,14 @@
 ##'   geneset genes/features.
 ##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
 ##'   as many columns as \code{ncol(x)}
-scoreSingleSamples <- function(gdb, y, methods='plage', melted=FALSE, ...) {
+scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
     stop("Uknown geneset scoring methods: ",
-         paste(bad.methods, collapse=','))
+         paste(bad.methods, collapse=','),
+         "\nValid methods are: ",
+         paste(names(gs.score.map), collapse=','))
   }
   ## TODO: Enable dispatch on whatever `method`s user asks for
   stopifnot(is(gdb, 'GeneSetDb'))
@@ -133,8 +150,23 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
   gres
 }
 
+
+##' Jason's method
+do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, ...) {
+  if (!require('GSDecon')) {
+    stop("Jason Hackney's GSDecon package required")
+  }
+  des <- cbind(Intercept=rep(1L, ncol(y)))
+  im <- incidenceMatrix(gdb)
+  res <- decon(y, des, im, doPerm=FALSE)
+  out <- t(res@eigengenes)
+  rownames(out) <- rownames(im)
+  out
+}
+
 gs.score.map <- list(
   zscore=do.scoreSingleSamples.zscore,
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
-  ssgsea=do.scoreSingleSamples.gsva)
+  ssgsea=do.scoreSingleSamples.gsva,
+  gsdecon=do.scoreSingleSamples.gsdecon)

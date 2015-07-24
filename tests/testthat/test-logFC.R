@@ -8,8 +8,6 @@ test_that("logFC pass through generates expected gene-set stats", {
   mgc <- multiGSEA(gsd, vm, vm$design, methods='camera')
   mgf <- multiGSEA(gsd, vm, vm$design)
   expect_equal(geneSets(mgc), geneSets(mgf))
-
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='camera')
 })
 
 test_that("t-stats and logFCs match full design when only stats passed", {
