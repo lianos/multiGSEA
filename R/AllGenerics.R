@@ -14,6 +14,7 @@ setGeneric("featureIdMap<-", function(x, value) {
 })
 
 
+##' exportMethod collectionMetadata
 setGeneric("collectionMetadata", signature=c("x", "collection", "name"),
 function(x, collection, name) {
   standardGeneric("collectionMetadata")
@@ -53,26 +54,32 @@ setGeneric("geneSetCollectionURLfunction", signature="x", function(x, i, ...) {
   standardGeneric("geneSetCollectionURLfunction")
 })
 
+##' @export
 setGeneric("geneSetCollectionURLfunction<-", signature="x", function(x, i, value) {
   standardGeneric("geneSetCollectionURLfunction<-")
 })
 
+##' @export
 setGeneric("collectionUrlFunction<-", signature="x", function(x, i, value, ...) {
   standardGeneric("collectionUrlFunction<-")
 })
 
-setGeneric("identifierType", signature="x", function(x, i, ...) {
-  standardGeneric("identifierType")
+##' @exportMethod featureIdType
+setGeneric("featureIdType", signature="x", function(x, i, ...) {
+  standardGeneric("featureIdType")
 })
 
-setGeneric("identifierType<-", signature="x", function(x, i, value) {
-  standardGeneric("identifierType<-")
+##' @export
+setGeneric("featureIdType<-", signature="x", function(x, i, value) {
+  standardGeneric("featureIdType<-")
 })
 
+##' @exportMethod org
 setGeneric("org", signature="x", function(x, i, ...) {
   standardGeneric("org")
 })
 
+##' @export
 setGeneric("org<-", signature="x", function(x, i, value) {
   standardGeneric("org<-")
 })

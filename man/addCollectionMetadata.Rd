@@ -27,7 +27,10 @@ deeply wrong with the world}
 The updated \code{GeneSetDb}
 }
 \description{
-This function is exported, but I imagine this being used mostly through
-different replace methods that use this as a utility function.
+Note that this is not a replacement method! You must catch the returned
+object to keep the one with the updated `collectionMetadata`. Although this
+function is exported, I imagine this being used mostly through predefined
+replace methods that use this as a utility function, such as the replacement
+methods for \code{\link{org}}, and \code{\link{featureIdType}}.
 }
 

@@ -495,12 +495,12 @@ setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
 })
 
 ##' @import GSEABase
-setReplaceMethod("identifierType", "GeneSetDb", function(x, i, value) {
+setReplaceMethod("featureIdType", "GeneSetDb", function(x, i, value) {
   valid <- function(v) is(v, 'GeneIdentifierType')
   addCollectionMetadata(x, i, 'id_type', value, valid)
 })
 
-setMethod("identifierType", "GeneSetDb", function(x, i, ...) {
+setMethod("featureIdType", "GeneSetDb", function(x, i, ...) {
   x@collectionMetadata[J(i, 'id_type')]$value[[1L]]
 })
 
@@ -520,17 +520,31 @@ setReplaceMethod("org", "GeneSetDb", function(x, i, value) {
     }
     TRUE
   }
+  if (missing(i)) {
+    colls <- unique(x@collectionMetadata$collection)
+    for (coll in colls) {
+      org(x, coll) <- value
+    }
+    return(x)
+  }
   addCollectionMetadata(x, i, 'organism', value, valid)
 })
 
 setMethod("org", "GeneSetDb", function(x, i, ...) {
-  x@collectionMetadata[J(i, 'organism')]$value[[1L]]
+  if (missing(i)) {
+    x@collectionMetadata[name == 'organism']
+  } else {
+    x@collectionMetadata[J(i, 'organism')]$value[[1L]]
+  }
 })
 
 ##' Adds metadata to a gene set collection of a GeneSetDb
 ##'
-##' This function is exported, but I imagine this being used mostly through
-##' different replace methods that use this as a utility function.
+##' Note that this is not a replacement method! You must catch the returned
+##' object to keep the one with the updated `collectionMetadata`. Although this
+##' function is exported, I imagine this being used mostly through predefined
+##' replace methods that use this as a utility function, such as the replacement
+##' methods for \code{\link{org}}, and \code{\link{featureIdType}}.
 ##'
 ##' @export
 ##' @param x \code{GeneSetDb}
