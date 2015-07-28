@@ -479,7 +479,6 @@ function(x, i, value) {
     TRUE
   }
   addCollectionMetadata(x, i, 'url_function', value, valid)
-  x
 })
 
 setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
@@ -565,7 +564,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
   }
   if (is.function(validate.value.fn)) {
     if (!isTRUE(validate.value.fn(value))) {
-      stop(sprintf("Invalude value used to update %s,%s", xcoll, xname))
+      stop(sprintf("Invalid value used to update %s,%s", xcoll, xname))
     }
   }
 

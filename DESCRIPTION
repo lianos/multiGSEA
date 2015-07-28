@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.3.5
+Version: 0.3.6
 Date: 2015-05-21
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -23,7 +23,9 @@ Suggests:
     DESeq2,
     edgeR,
     testthat,
-    rvest
+    rvest,
+    panther,
+    GSDecon
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:
@@ -50,6 +52,7 @@ Collate:
     'msigdb-broad.R'
     'msigdb-wehi.R'
     'multiGSEA.R'
+    'panther.R'
     'plots.R'
     'reactome.R'
     'scoreSingleSamples.R'

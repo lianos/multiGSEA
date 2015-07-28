@@ -3,6 +3,9 @@ CHANGES IN VERSION 0.2.x
 
 NEW FEATURES
 
+  o Adds support for PANTHER genesets in PANTHER.db package via `getPanther`
+    function.
+
   o Added geneSetFeatureStats to return the logFC (and membership) information
     for a geneset after a multiGSEA run.
 
