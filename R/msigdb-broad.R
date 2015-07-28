@@ -41,15 +41,6 @@ getMSigDBset <- function(collection, species='human',
     return(getMSigDBset.wehi(collection, spec, version=version))
   }
 
-  if (species == 'Mus_musculus') {
-    cmd <- paste0('getMSigDBset(c(',
-                  paste(sprintf('"%s"', collection), collapse=","),
-                  '), species="mouse", version="v4.0")')
-    stop("MSigDB v5.0 GeneSetDb has not yet been built for v5.0.\n",
-         "  The v4.0 signatures can still be retrieved like so:\n\n    ",
-         cmd, "\n")
-  }
-
   fn <- sprintf('MSigDB.%s.GeneSetDb.rds', species)
   fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
   out <- readRDS(fn)
