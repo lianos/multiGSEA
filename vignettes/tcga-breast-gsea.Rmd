@@ -292,3 +292,20 @@ pairs(C, pch=16, col="#3f3f3f33", gap=0.2)
 ```{r show-edgeR-multiGSEA, results='asis'}
 rmd.multiGSEA('tumor-vs-normal-gsea-edgeR', mge, top.n=10)
 ```
+
+# PANTHER database
+
+We've also wrapped the [PANTHER database](http://pantherdb.org/) for easy
+geneset testing.
+
+```{r edgeR-panther, cache=TRUE}
+pdb <- getPanther(type='pathway', species='human')
+mgp <- multiGSEA(pdb, y, es.design, contrast=2, 
+                 methods=c('camera', 'roast', 'romer'))
+```
+
+```{r display-panther-result, results='asis'}
+rmd.multiGSEA('tumor-vs-normal-gsea-panther-edgeR', mgp, top.n=20)
+```
+
+```
