@@ -550,6 +550,15 @@ subset.MultiGSEAResult <- function(x, keep) {
   x
 }
 
+if (FALSE) {
+##' @export
+##' @importFrom BiocGenerics subset
+setMethod("subset", "MultiGSEAResult",
+function(x, subject, select, drop=FALSE, ...) {
+
+})
+}
+
 setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
                "---------------------------------------------------", sep='\n')

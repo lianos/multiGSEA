@@ -348,6 +348,14 @@ subset.GeneSetDb <- function(x, keep) {
   out
 }
 
+if (FALSE) {
+##' @exportMethod subset
+##' @importFrom BiocGenerics subset
+setMethod("subset", "GeneSetDb", function(x, subject, select, drop=FALSE, ...) {
+  data.table:::subset.data.table(geneSets(x), substitute(subject))
+})
+}
+
 ## -----------------------------------------------------------------------------
 ## Functions over collections
 
@@ -592,8 +600,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
   x
 }
 
-##' @importFrom BiocGenerics append
-##' @export append
+##' @importMethodsFrom BiocGenerics append
 ##' @export
 setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   if (!missing(after)) {
