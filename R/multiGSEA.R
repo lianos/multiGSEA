@@ -219,6 +219,8 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 ##' Get the GeneSetDb from MultiGSEAResult
 ##'
 ##' @export
+##' @rdname geneSetDb-accessor
+##'
 ##' @param x \code{MultiGSEAResult}
 ##' @return The \code{GeneSetDb}
 geneSetDb <- function(x) {
