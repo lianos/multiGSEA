@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.3.8
+Version: 0.3.9
 Date: 2015-05-21
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -17,7 +17,9 @@ Imports:
     limma,
     edgeR,
     reshape2,
-    GSEABase
+    GSEABase,
+    GSVA,
+    stringr
 Suggests:
     DESeq2,
     edgeR,
