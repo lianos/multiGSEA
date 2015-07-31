@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.3.7
+Version: 0.3.8
 Date: 2015-05-21
 Authors@R: as.person(c(
     "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
@@ -19,13 +19,12 @@ Imports:
     reshape2,
     GSEABase
 Suggests:
-    rmd.plugins (>= 0.3.0),
     DESeq2,
     edgeR,
     testthat,
     rvest,
-    panther,
-    GSDecon
+    PANTHER.db,
+    reactome.db
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:

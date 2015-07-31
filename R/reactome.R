@@ -1,20 +1,22 @@
-##' @import reactome.db
 ##' @importMethodsFrom AnnotationDbi select
 ##' @importMethodsFrom AnnotationDbi keys
 getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
+  if (!requireNamespace('reactome.db')) {
+    stop("reactome.db package required for this functionality")
+  }
   species <- resolve.species(species)
 
   ## Find all KEGG pathways for the given species.
   ## Pathways are prefixed with the organism name like so:
   ##  `<GENUS> <SPECIES>: <PATHWAY NAME>`
   org.prefix <- paste0('^', sub('_', ' ', species), ': *')
-  pathnames <- keys(reactome.db, keytype='PATHNAME')
+  pathnames <- keys(reactome.db::reactome.db, keytype='PATHNAME')
   org.keep <- grepl(org.prefix, pathnames)
   org.pathnames <- pathnames[org.keep]
 
   info <- suppressWarnings({
     ## Generates 1:many mapping because of ENTREZID
-    select(reactome.db,
+    select(reactome.db::reactome.db,
            columns=c('PATHID', 'PATHNAME', 'ENTREZID'),
            keys=org.pathnames,
            keytype='PATHNAME')

@@ -147,18 +147,20 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
     gres <- abs(gres) * sign(zscores)
   }
 
+  ## ssGSEA normalization:
+  ## apply(es, 2, function(x, es) x / (range(es)[2] - range(es)[1]), es)
   gres
 }
 
 
 ##' Jason's method
 do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, ...) {
-  if (!require('GSDecon')) {
+  if (!requireNamespace('GSDecon')) {
     stop("Jason Hackney's GSDecon package required")
   }
   des <- cbind(Intercept=rep(1L, ncol(y)))
   im <- incidenceMatrix(gdb)
-  res <- decon(y, des, im, doPerm=FALSE)
+  res <- GSDecon::decon(y, des, im, doPerm=FALSE)
   out <- t(res@eigengenes)
   rownames(out) <- rownames(im)
   out
