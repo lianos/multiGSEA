@@ -22,13 +22,14 @@ validate.x.hyperGeometricTest <- validate.X
 ##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
 do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
-                                  direction='over', logFC=NULL,
+                                  direction=c('over', 'under'), logFC=NULL,
                                   feature.min.logFC=1,
                                   feature.max.padj=0.10, vm=x, ...) {
   if (is(x, "DGEList")) {
     x <- vm
   }
   stopifnot(is.conformed(gsd, x))
+  direction <- match.arg(direction)
 
   if (is.null(logFC)) {
     logFC <- calculateIndividualLogFC(x, design, contrast, ...)
@@ -36,17 +37,38 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
     is.logFC.like(logFC, x, as.error=TRUE)
   }
 
-  dir.over <- direction == 'over'
-
   if (is.null(logFC$hyperG.selected)) {
     logFC[, hyperG.selected := {
       padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
     }]
   }
 
-  ## These are the IDs we are "drawing" out of the bucket
   drawn <- logFC[hyperG.selected == TRUE]$featureId
-  numDrawn <- length(drawn)     ## number of genes selected to be "interesting"
+  hyperGeometricTest(gsd, drawn, rownames(x), direction)
+}
+
+##' Perform Hypergeometric Enrichment tests across GeneSetDb.
+##'
+##' @export
+##'
+##' @param gsd The \code{GeneSetDb} object to run tests against
+##' @param selected The ids of the selected features
+##' @param universe The ids of the universe
+##' @param direction Same as direction in \code{GOstats}
+##'
+##' @return A \code{data.table} of results
+hyperGeometricTest <- function(gsd, selected, universe,
+                               direction=c('over', 'under')) {
+  stopifnot(is(gsd, 'GeneSetDb'))
+  stopifnot(is.character(selected))
+  stopifnot(is.character(universe))
+
+  direction <- match.arg(direction)
+  dir.over <- direction == 'over'
+
+  selected <- intersect(selected, universe)
+  numDrawn <- length(selected)
+
   if (numDrawn == 0) {
     warning("No selected genes in hyperGeometricTest", immediate.=TRUE)
     out <- geneSets(gsd)[, list(collection, id)]
@@ -56,11 +78,11 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
     out[, padj := NA_real_]
     out[, padj.by.collection := NA_real_]
   } else {
-    numB <- nrow(x)              ## number of genes in universe
+    numB <- length(universe) ## number of genes in universe
     out <- geneSets(gsd)[, {
       ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
       numW <- length(ids)
-      Wdrawn <- intersect(ids, drawn)
+      Wdrawn <- intersect(ids, selected)
       numWdrawn <- length(Wdrawn)
       ## numW: number of genes in GO category
       ## numB: size of universe
@@ -112,6 +134,7 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
     pvals <- phyper(numWdrawn, numW, numB,
                     numDrawn, lower.tail=TRUE)
   }
+
   list(p=pvals, odds=odds_ratio, expected=expected)
 }
 

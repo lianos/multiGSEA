@@ -5,7 +5,7 @@
 \title{Performs a hypergeometric test for significance of gene set membership.}
 \usage{
 do.hyperGeometricTest(gsd, x, design, contrast = ncol(design),
-  direction = "over", logFC = NULL, feature.min.logFC = 1,
+  direction = c("over", "under"), logFC = NULL, feature.min.logFC = 1,
   feature.max.padj = 0.1, vm = x, ...)
 }
 \arguments{

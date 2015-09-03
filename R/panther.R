@@ -1,23 +1,18 @@
 ##' Get pathways/GOslim information from PANTHER.db Biocondcutor package.
 ##'
-##' Currently we only support the pathway collections from panther
-##'
 ##' @export
 ##'
-##' @param type "pathway" (or, eventually, "GOslim")
+##' @param type "pathway" or, "goslim"
 ##' @param species "human" or "mouse"
 ##'
 ##' @return A wired up GeneSetDb
-getPanther <- function(type=c('pathway', 'GOslim'),
+getPanther <- function(type=c('pathway', 'goslim'),
                        species=c('human', 'mouse')) {
   if (!require('PANTHER.db')) {
     stop("The PANTHER.db bioconductor package is required")
   }
   species <- match.arg(species)
   type <- match.arg(type)
-  if (type != 'pathway') {
-    stop("only pathway supported now")
-  }
 
   if (species == 'human') {
     org.pkg <- 'org.Hs.eg.db'
@@ -30,11 +25,12 @@ getPanther <- function(type=c('pathway', 'GOslim'),
     stop(org.pkg, " bioconductor package required for this species query")
   }
 
-  ## p.db <- PANTHER.db
   species(PANTHER.db) <- toupper(species)
   org.db <- get(org.pkg)
 
-  out <- getPantherPathways(PANTHER.db, org.db)
+  out <- switch(type,
+                pathway=getPantherPathways(PANTHER.db, org.db),
+                goslim=getPantherGOSLIM(PANTHER.db, org.db))
   org(out) <- xorg
   out
 }
@@ -68,13 +64,54 @@ getPantherPathways <- function(p.db, org.db) {
   gdb
 }
 
-## Scratch ---------------------------------------------------------------------
-if (FALSE) {
-  ## Just exploring what's in here
-  pathways <- select(PANTHER.db, keys(PANTHER.db, keytype="PATHWAY_ID"),
-                     columns=c("PATHWAY_ID", "PATHWAY_TERM",
-                               "CLASS_ID", "CLASS_TERM",
-                               "COMPONENT_ID", "COMPONENT_TERM"),
-                     'PATHWAY_ID')
-  p <- as.data.table(pathways)
+getPantherGOSLIM <- function(p.db, org.db) {
+  if (!require("GO.db")) {
+    stop("GO.db is required for this functionality")
+  }
+  p.all <- select(p.db,
+                  keys(p.db, keytype='GOSLIM_ID'),
+                  columns=c('ENTREZ', 'GOSLIM_ID', 'GOSLIM_TERM'),
+                  'GOSLIM_ID')
+  p.all <- p.all[order(p.all$ENTREZ),]
+
+  library(GO.db)
+  go <- select(GO.db,
+               unique(p.all$GOSLIM_ID),
+               c('GOID', 'TERM'),
+               'GOID')
+  go.missed <- subset(go, is.na(TERM))
+  ## 2015-09-02 (Bioc 3.1)
+  ##       GOID TERM
+  ## GO:0005083   NA
+  ## GO:0006917   NA
+  ## GO:0019204   NA
+  go.add <- data.frame(
+    GOID=c("GO:0005083", "GO:0006917", "GO:0019204"),
+    TERM=c(
+      "GTPase regulator activity",
+      "apoptotic process",
+      "nucleotide phosphatase activity (obsolete)"
+    ), stringsAsFactors=FALSE)
+  go <- rbind(subset(go, !is.na(TERM)), go.add)
+
+  GO <- merge(p.all, go, by.x='GOSLIM_ID', by.y='GOID', all.x=TRUE)
+
+  missed <- is.na(GO$TERM)
+  mids <- unique(GO$GOSLIM_ID[missed])
+  if (length(mids)) {
+    warning(length(missed), " GOSLIM terms were not found in GO.db",
+            immediate.=TRUE)
+    GO$TERM <- ifelse(missed, GO$GOSLIM_ID, GO$TERM)
+  }
+
+  lol <- split(GO$ENTREZ, GO$TERM)
+  url.fn <- function(x, y) 'http://www.pantherdb.org/panther/ontologies.jsp'
+
+  gdb <- GeneSetDb(lol, collectionName='GOSLIM')
+  xref <- match(gdb@table$name, GO$TERM)
+  gdb@table$GOID <- GO$GOSLIM_ID[xref]
+  gdb@table$ontology <- GO$GOSLIM_TERM[xref]
+  collectionUrlFunction(gdb, 'GOSLIM') <- url.fn
+  featureIdType(gdb, 'GOSLIM') <- EntrezIdentifier()
+  gdb
 }

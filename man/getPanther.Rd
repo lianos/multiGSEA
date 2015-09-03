@@ -4,10 +4,10 @@
 \alias{getPanther}
 \title{Get pathways/GOslim information from PANTHER.db Biocondcutor package.}
 \usage{
-getPanther(type = c("pathway", "GOslim"), species = c("human", "mouse"))
+getPanther(type = c("pathway", "goslim"), species = c("human", "mouse"))
 }
 \arguments{
-\item{type}{"pathway" (or, eventually, "GOslim")}
+\item{type}{"pathway" or, "goslim"}
 
 \item{species}{"human" or "mouse"}
 }
@@ -15,6 +15,6 @@ getPanther(type = c("pathway", "GOslim"), species = c("human", "mouse"))
 A wired up GeneSetDb
 }
 \description{
-Currently we only support the pathway collections from panther
+Get pathways/GOslim information from PANTHER.db Biocondcutor package.
 }
 
