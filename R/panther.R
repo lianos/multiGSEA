@@ -6,8 +6,8 @@
 ##' @param species "human" or "mouse"
 ##'
 ##' @return A wired up GeneSetDb
-getPanther <- function(type=c('pathway', 'goslim'),
-                       species=c('human', 'mouse')) {
+getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
+                                species=c('human', 'mouse')) {
   if (!require('PANTHER.db')) {
     stop("The PANTHER.db bioconductor package is required")
   }
@@ -72,6 +72,7 @@ getPantherGOSLIM <- function(p.db, org.db) {
                   keys(p.db, keytype='GOSLIM_ID'),
                   columns=c('ENTREZ', 'GOSLIM_ID', 'GOSLIM_TERM'),
                   'GOSLIM_ID')
+  p.all <- subset(p.all, !is.na(ENTREZ))
   p.all <- p.all[order(p.all$ENTREZ),]
 
   library(GO.db)

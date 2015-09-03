@@ -11,14 +11,14 @@
 ##'   http://bioinf.wehi.edu.au/software/MSigDB/
 ##'
 ##' @export
-##'
+##' @rdname MSigDB
 ##' @param collection character vector specifying the collections you want
 ##'   (c1, c2, ..., c7, h)
 ##' @param species human or mouse?
 ##' @param version the version of the MSigDB database to use.
 ##' @return a \code{GeneSetDb} object
-getMSigDBset <- function(collection, species='human',
-                         version=.msigdb.version.current) {
+getMSigGeneSetDb <- function(collection, species='human',
+                             version=.msigdb.version.current) {
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
   avail.cols <- .msigdb.collections[[version]]
@@ -53,7 +53,9 @@ getMSigDBset <- function(collection, species='human',
   out
 }
 
-getMSigDBGeneSetDb <- getMSigDBset
+##' @rdname MSigDB
+##' @export getMSigDBset
+getMSigDBset <- getMSigGeneSetDb
 
 resolve.species <- function(x) {
   stopifnot(is.character(x) && length(character) == 1L)

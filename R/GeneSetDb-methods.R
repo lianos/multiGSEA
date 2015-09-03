@@ -5,7 +5,8 @@
 ##' @rdname conform
 ##'
 ##' @param x The GeneSetDb
-##' @param y The expression object/matrix to conform to
+##' @param y The expression object/matrix to conform to. This could also just
+##'   be a character vector of IDs.
 ##' @param unique.by If there are multiple rows that map to the identifiers
 ##'   used in the genesets, this is a means to pick the single row for that ID
 ##' @param min.gs.size Ensure that the genesets that make their way to the
@@ -31,6 +32,10 @@ function(x, y, unique.by=c('none', 'mean', 'var'),
   }
   if (max.gs.size < min.gs.size) {
     stop("max.gs.size must be larger than min.gs.size")
+  }
+  ## We are allowing y to be a character vector of featureIds here
+  if (is.vector(y) && is.character(y)) {
+    y <- matrix(1L, nrow=length(y), ncol=1L, dimnames=list(y, NULL))
   }
   if (!any(sapply(.valid.x, function(claz) is(y, claz)))) {
     stop("Illegal type of expression object to conform to")

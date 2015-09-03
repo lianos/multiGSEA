@@ -102,7 +102,6 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
                     featureIdMap=featureIdMap,
                     collectionMetadata=meta)
   out
-
 }
 
 ##' @importFrom GSEABase setName geneIds geneIdType
@@ -260,7 +259,9 @@ setValidity("GeneSetDb", function(object) {
   if (!all(object@db$featureId %in% featureIdMap(object)$featureId)) {
     return("Some @db$featureId's are not in featureIdMap(object)$featureId")
   }
-
+  if (any(is.na(object@db$featureId))) {
+    return("NA's not permitted in @db$featureId")
+  }
   ## Ensure that the collection,id combination is unique in @table
   if (any(duplicated(object@table, by=key(proto@table)))) {
     return("Duplicated gene set entries in @table")

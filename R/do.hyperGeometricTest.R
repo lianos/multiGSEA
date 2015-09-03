@@ -44,10 +44,10 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   }
 
   drawn <- logFC[hyperG.selected == TRUE]$featureId
-  hyperGeometricTest(gsd, drawn, rownames(x), direction)
+  hyperGeometricTest(gsd, drawn, rownames(x), direction, do.conform=FALSE)
 }
 
-##' Perform Hypergeometric Enrichment tests across GeneSetDb.
+##' Perform Hypergeometric Enrichment tests across a GeneSetDb.
 ##'
 ##' @export
 ##'
@@ -55,14 +55,26 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
 ##' @param selected The ids of the selected features
 ##' @param universe The ids of the universe
 ##' @param direction Same as direction in \code{GOstats}
+##' @param do.conform By default \code{TRUE}: does some gymnastics to conform
+##'   the \code{gsd} to the \code{universe} vector. This should neber be set
+##'   to \code{FALSE}, but this parameter is here so that when this function
+##'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
+##'   reconform the \code{GeneSetDb} object, because it has already been done.
 ##'
 ##' @return A \code{data.table} of results
 hyperGeometricTest <- function(gsd, selected, universe,
-                               direction=c('over', 'under')) {
+                               direction=c('over', 'under'),
+                               do.conform=TRUE) {
   stopifnot(is(gsd, 'GeneSetDb'))
   stopifnot(is.character(selected))
   stopifnot(is.character(universe))
+  selected <- unique(selected)
+  universe <- unique(universe)
 
+  ## This needs to be conformed to work
+  if (!do.conform) {
+    gsd <- conform(gsd, universe)
+  }
   direction <- match.arg(direction)
   dir.over <- direction == 'over'
 

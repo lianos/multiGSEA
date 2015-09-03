@@ -14,7 +14,8 @@ conform(x, ...)
 \arguments{
 \item{x}{The GeneSetDb}
 
-\item{y}{The expression object/matrix to conform to}
+\item{y}{The expression object/matrix to conform to. This could also just
+be a character vector of IDs.}
 
 \item{unique.by}{If there are multiple rows that map to the identifiers
 used in the genesets, this is a means to pick the single row for that ID}

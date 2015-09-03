@@ -2,9 +2,10 @@
 % Please edit documentation in R/do.hyperGeometricTest.R
 \name{hyperGeometricTest}
 \alias{hyperGeometricTest}
-\title{Perform Hypergeometric Enrichment tests across GeneSetDb.}
+\title{Perform Hypergeometric Enrichment tests across a GeneSetDb.}
 \usage{
-hyperGeometricTest(gsd, selected, universe, direction = c("over", "under"))
+hyperGeometricTest(gsd, selected, universe, direction = c("over", "under"),
+  do.conform = TRUE)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}
@@ -14,11 +15,17 @@ hyperGeometricTest(gsd, selected, universe, direction = c("over", "under"))
 \item{universe}{The ids of the universe}
 
 \item{direction}{Same as direction in \code{GOstats}}
+
+\item{do.conform}{By default \code{TRUE}: does some gymnastics to conform
+  the \code{gsd} to the \code{universe} vector. This should neber be set
+  to \code{FALSE}, but this parameter is here so that when this function
+  is called from the \code{\link{multiGSEA}} codepath, we do not have to
+  reconform the \code{GeneSetDb} object, because it has already been done.}
 }
 \value{
 A \code{data.table} of results
 }
 \description{
-Perform Hypergeometric Enrichment tests across GeneSetDb.
+Perform Hypergeometric Enrichment tests across a GeneSetDb.
 }
 
