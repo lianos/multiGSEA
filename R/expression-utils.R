@@ -45,13 +45,13 @@
 ##'   to \code{.exprs,element} param
 ##' @return A \code{matrix,numeric} of the normalized/smoothed expression values
 ##'   from \code{x}.
-CPM <- function (x, normalized.lib.sizes=TRUE, log=TRUE,
-                 prior.count=5, prior.smooth=0.25,
-                 regularized=prior.count != prior.smooth,
-                 norm.factors=NULL, lib.size=NULL,
-                 norm.factors.col='norm.factors',
-                 lib.size.col='lib.size',
-                 x.element='counts', ...) {
+CPM <- function(x, normalized.lib.sizes=TRUE, log=TRUE,
+                prior.count=5, prior.smooth=0.25,
+                regularized=prior.count != prior.smooth,
+                norm.factors=NULL, lib.size=NULL,
+                norm.factors.col='norm.factors',
+                lib.size.col='lib.size',
+                x.element='counts', ...) {
   e <- .exprs(x, x.element)
   if (is.null(lib.size) && !is.matrix(x)) {
     lib.size <- .pData(x)[[lib.size.col]]
@@ -108,6 +108,53 @@ CPM <- function (x, normalized.lib.sizes=TRUE, log=TRUE,
   out
 }
 
+##' Calculates between-sample normalized transcripts per million
+##'
+##' There is some consensus that
+##' \href{
+##'   https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
+##' }{TPM} is a good measure of transcript/gene abundance
+##'
+##' @export
+##' @seealso \code{\link{CPM2TPM}}, \code{\link{CPM}}, \code{\link{RPKM}}
+##' @inheritParams CPM
+##' @inheritParams create.glength.vector
+##' @return matrix of transcripts per million
+TPM <- function(x, gene.info=NULL, normalized.lib.sizes=TRUE, log=TRUE,
+                prior.count=5, prior.smooth=0.25,
+                regularized=prior.count != prior.smooth,
+                norm.factors=NULL, lib.size=NULL,
+                norm.factors.col='norm.factors',
+                lib.size.col='lib.size',
+                x.element='counts', ...) {
+  xx <- CPM(x, normalized.lib.sizes=normalized.lib.sizes,
+            log=FALSE, prior.count=prior.count, prior.smooth=prior.smooth,
+            regularized=regularized,
+            norm.factors=norm.factors, lib.size=lib.size,
+            norm.factors.col=norm.factors.col,
+            lib.size.col=lib.size.col, x.element=x.element, ...)
+  out <- CPM2TPM(xx, gene.info, ...)
+  if (log) log2(out) else out
+}
+
+##' Convert CPM matrix to TPM
+##'
+##' @export
+##'
+##' @param x An expression matrix of counts per million (on the natural scale)
+##' @inheritParams create.glength.vector
+##' @return A matrix of TPMs
+CPM2TPM <- function(x, gene.info=NULL, id.col='entrez.id', size.col='size',
+                    impute.missing.lengths=TRUE, ...) {
+  xlens <- create.glength.vector(x, gene.info, id.col, size.col,
+                                 impute.missing.lengths)
+  apply(x, 2, function(y) {
+    yy <- y * 1e6 ## Bring it back to raw counts
+    rate <- log(yy) - log(xlens)
+    denom <- log(sum(exp(rate)))
+    exp(rate - denom + log(1e6))
+  })
+}
 
 ##' Modfied version of edgeR RPKM for easy access to gene size
 ##'
@@ -129,6 +176,24 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
                  impute.missing.lengths=TRUE,
                  id.col='entrez.id', size.col='size',
                  ...) {
+
+  xlens <- create.glength.vector(x, gene.info, id.col, size.col,
+                                 impute.missing.lengths)
+  ## ---------------------------------------------------------------------------
+  ## calculate rpkms
+  ##
+  ## Note I original divided by the length by making a (repetative) matrix of
+  ## the length and subtracted that to make sure we did element-by-element
+  ## operations. I then tested that output against this where we just use a
+  ## single vector on the RHS, and they are equivalent.
+  out <- CPM(x, regularized=regularized, ...) - log2(xlens / 1000)
+  attr(out, 'K') <- xlens
+  out
+}
+
+create.glength.vector <- function(x, gene.info=NULL,
+                                  id.col='entrez.id', size.col='size',
+                                  impute.missing.lengths=TRUE) {
   if (is.null(gene.info)) {
     fn <- system.file('extdata', 'gene-info', 'Homo_sapiens.csv',
                       package='multiGSEA')
@@ -140,7 +205,6 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
   stopifnot(is.data.frame(gene.info))
   stopifnot(id.col %in% names(gene.info))
   stopifnot(size.col %in% names(gene.info))
-
   ## Match lengths to genes/rows in x
   lens <- setNames(gene.info[[size.col]], gene.info[[id.col]])
   ## Work around GeneID: prefix bit
@@ -156,7 +220,7 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
     if (!impute.missing.lengths) {
       stop("Can't match rownames(x) to ids in gene.info")
     }
-    if (mean(no.match) > 0.50) {
+    if (mean(no.match) > 0.30) {
       stop("Will not impute missing lengths with < 50% genes matched")
     }
     warning(sprintf("Imputing %.2f%% of gene lengths", mean(no.match)),
@@ -164,16 +228,7 @@ RPKM <- function(x, gene.info=NULL, regularized=FALSE,
     xlens[no.match] <- mean(xlens[!no.match])
   }
 
-  ## ---------------------------------------------------------------------------
-  ## calculate rpkms
-  ##
-  ## Note I original divided by the length by making a (repetative) matrix of
-  ## the length and subtracted that to make sure we did element-by-element
-  ## operations. I then tested that output against this where we just use a
-  ## single vector on the RHS, and they are equivalent.
-  out <- CPM(x, regularized=regularized, ...) - log2(xlens / 1000)
-  attr(out, 'K') <- xlens
-  out
+  xlens
 }
 
 ## Accessor Functions ----------------------------------------------------------
