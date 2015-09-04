@@ -299,7 +299,7 @@ We've also wrapped the [PANTHER database](http://pantherdb.org/) for easy
 geneset testing.
 
 ```{r edgeR-panther, cache=TRUE}
-pdb <- getPanther(type='pathway', species='human')
+pdb <- getPantherGeneSetDb(type='pathway', species='human')
 mgp <- multiGSEA(pdb, y, es.design, contrast=2, 
                  methods=c('camera', 'roast', 'romer'))
 ```
@@ -308,4 +308,35 @@ mgp <- multiGSEA(pdb, y, es.design, contrast=2,
 rmd.multiGSEA('tumor-vs-normal-gsea-panther-edgeR', mgp, top.n=20)
 ```
 
+# Calling GSEA methods ouside of `multiGSEA`
+
+Sometimes you just don't want to run the entire multiGSEA pipeline and would
+rather manually steer the car. You can do this for some (just one, for now)
+methods.
+
+## Manual Hypergeometric Testing
+
+Let's imagine you've done your own analysis, and have a list of "selected" genes
+you want to test enrichment for against a `GeneSetDb` using the traditional
+hypergeometric approach. `multiGSEA` provides the `hyperGeometricTest` for
+this purpose.
+
+Here we show how to do this enrichment for genes upregaulted in tumors vs.
+normals against the panther pathways.
+
+```{r manual-hyperG}
+## The up regulated genes in tumor vs normal
+lfc <- logFC(mgp)
+selected <- subset(lfc, padj <= 0.1 & logFC >= 1L)$featureId
+
+## conforming the GeneSetDb to the entirety of the genes that were tested
+## aginst defines the universe for the hypergeometric test. This is done
+## automatically in the `hyperGeometricTest` call if need be.
+pdbc <- conform(pdb, lfc$featureId)
+hg.res <- hyperGeometricTest(pdbc, selected, lfc$featureId)
 ```
+
+These are the pathways with an FDR <= 0.1:
+
+`r knitr::kable(subset(hg.res, padj < 0.1))`
+
