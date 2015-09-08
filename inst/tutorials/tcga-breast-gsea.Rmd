@@ -321,7 +321,7 @@ you want to test enrichment for against a `GeneSetDb` using the traditional
 hypergeometric approach. `multiGSEA` provides the `hyperGeometricTest` for
 this purpose.
 
-Here we show how to do this enrichment for genes upregaulted in tumors vs.
+Here we show how to do this enrichment for genes upregulated in tumors vs.
 normals against the panther pathways.
 
 ```{r manual-hyperG}
