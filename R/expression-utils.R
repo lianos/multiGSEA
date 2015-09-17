@@ -339,19 +339,19 @@ create.glength.vector <- function(x, gene.info=NULL,
 ##'   NULL, then they will be recalculated
 ##' @param group Either a string that is a column of \code{.pData(x)} to use
 ##'   as grouping information, or a factor for grouping information. If not
-##'   used, the group for all samples will be set to \code{'baseline'}.
+##'   used, the group for all samples will be set to \code{factor(1)}.
 ##' @param ... moar args
 ##' @return A DGEList with norm factors
 as.DGEList <- function(x, element='counts', lib.size=NULL,
                        norm.factors=.pData(x)[['norm.factors']],
-                       group=factor(rep('baseline', ncol(x))), ...) {
+                       group=factor(rep(1L, ncol(x))), ...) {
   pd <- .pData(x)
   fd <- .fData(x)
-  if (!is.atomic(group)) {
-    stop("group needs to be atomic")
-  }
   if (is.character(group) && length(group) == 1) {
     group <- pd[[group]]
+  }
+  if (!is.atomic(group)) {
+    stop("group needs to be atomic")
   }
   if (length(group) != ncol(x)) {
     stop("Illegal group param")

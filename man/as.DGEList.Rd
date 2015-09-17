@@ -5,7 +5,7 @@
 \title{Utility function to convert ExpressionSet to DGEList}
 \usage{
 as.DGEList(x, element = "counts", lib.size = NULL,
-  norm.factors = .pData(x)[["norm.factors"]], group = factor(rep("baseline",
+  norm.factors = .pData(x)[["norm.factors"]], group = factor(rep(1L,
   ncol(x))), ...)
 }
 \arguments{
@@ -23,7 +23,7 @@ NULL, then they will be recalculated}
 
 \item{group}{Either a string that is a column of \code{.pData(x)} to use
 as grouping information, or a factor for grouping information. If not
-used, the group for all samples will be set to \code{'baseline'}.}
+used, the group for all samples will be set to \code{factor(1)}.}
 
 \item{...}{moar args}
 }
