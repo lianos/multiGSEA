@@ -30,7 +30,7 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
 })
 
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
-  gdbo <- getMSigDBset('h')
+  gdbo <- getMSigGeneSetDb('h')
   gsc <- as(gdbo, 'GeneSetCollection')
   gdbn <- GeneSetDb(gsc, collectionName='h')
   expect_equal(gdbo, gdbn, features.only=TRUE)
@@ -54,8 +54,8 @@ test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
 })
 
 test_that("GeneSetDb constructor honors custom collectionName args", {
-  gdb.h <- getMSigDBGeneSetDb(c('h'))
-  gdb.c6 <- getMSigDBGeneSetDb(c('c6'))
+  gdb.h <- getMSigGeneSetDb(c('h'))
+  gdb.c6 <- getMSigGeneSetDb(c('c6'))
   gdbo <- append(gdb.h, gdb.c6)
 
   lol <- as.list(gdbo, nested=TRUE)
@@ -78,7 +78,7 @@ test_that("GeneSetDb constructor honors custom collectionName args", {
 })
 
 test_that("as(gdb, 'GeneSetCollection') preserves featureIds per GeneSet", {
-  gdb <- getMSigDBGeneSetDb(c('h', 'c6'))
+  gdb <- getMSigGeneSetDb(c('h', 'c6'))
   gsc <- as(gdb, 'GeneSetCollection')
   for (gs in gsc) {
     gs.info <- strsplit(GSEABase::setName(gs), ';')[[1]]
