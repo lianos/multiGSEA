@@ -41,17 +41,20 @@ function should behave almost identically to \code{\link[edgeR]{cpm}}}
 \item{norm.factors.col}{A column to fetch from \code{.pData(x)} that has
 precalculated norm.factors}
 
+\item{lib.size.col}{A column to fetch from \code{.pData(x)} that has
+precalculated lib.sizes}
+
 \item{x.element}{Additional param to help get counts out of \code{x}: sent
 to \code{.exprs,element} param}
+
+\item{...}{not sure why I have this here}
 }
 \value{
 matrix of transcripts per million
 }
 \description{
 There is some consensus that
-\href{
-  https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
-}{TPM} is a good measure of transcript/gene abundance
+\href{https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/}{TPM} is a good measure of transcript/gene abundance
 }
 \seealso{
 \code{\link{CPM2TPM}}, \code{\link{CPM}}, \code{\link{RPKM}}

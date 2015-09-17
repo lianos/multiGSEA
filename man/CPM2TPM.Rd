@@ -9,6 +9,18 @@ CPM2TPM(x, gene.info = NULL, id.col = "entrez.id", size.col = "size",
 }
 \arguments{
 \item{x}{An expression matrix of counts per million (on the natural scale)}
+
+\item{gene.info}{A data.frame with entrez to gene length?}
+
+\item{id.col}{The colum in \code{gene.info} that has the ids of the genes,
+which is used to match against \code{rownames(x)}.}
+
+\item{size.col}{The column in \code{gene.info} that has the gene lengths}
+
+\item{impute.missing.lengths}{If \code{TRUE}, when the length for a gene
+is not found, we use the mean of all gene lengths.}
+
+\item{...}{Moar things}
 }
 \value{
 A matrix of TPMs

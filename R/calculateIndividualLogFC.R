@@ -11,18 +11,17 @@
 ##' running any analysis, and this function essentially is just a "pass through"
 ##' @param design The design matrix for the experiment
 ##' @param contrast The contrast you want to test and provide stats for
-##' @param provide Specifies what you want to get out of this, just the
-##'   \code{logFC} or \code{t} statistics, or the whole result \code{table}.
-##'   TODO: remove this parameter and just always return the table, if one is
-##'   generated as a result of the function call (ie. \code{ncol(x) > 1})
 ##' @param robust.fit If \code{TRUE}, sets \code{method='robust'} in the
 ##'   \code{lmFit} call. Defaults to \code{FALSE}
 ##' @param robust.eBayes The value of the \code{robust} parameter in the
 ##'   \code{eBayes} call.
+##' @param with.fit If \code{TRUE}, this function returns the fit in addition
+##'   to the logFC statistics.
 ##' @param ... parameters passed through to the \code{lmFit} call.
-##'
-##' @return A data.table with the logFC results per row of \code{x}. The
-##'   \code{$featureId} column is the rownames (ids) of x.
+##' @return If \code{with.fit == FALSE} (the default) a \code{data.table} of
+##'   logFC statistics for the contrast under test. Otherwise, a list is
+##'   returned with \code{$result} containing the logFC statistics, and
+##'   \code{$fit} has the limma fit for the data/design/contrast under test.
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      with.fit=FALSE, ...) {

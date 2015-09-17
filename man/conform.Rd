@@ -14,6 +14,8 @@ conform(x, ...)
 \arguments{
 \item{x}{The GeneSetDb}
 
+\item{...}{moar args}
+
 \item{y}{The expression object/matrix to conform to. This could also just
 be a character vector of IDs.}
 
@@ -24,7 +26,11 @@ used in the genesets, this is a means to pick the single row for that ID}
 \code{GeneSetDb@table} are of a minimum size}
 
 \item{max.gs.size}{Ensure that the genesets that make their way to the
-  \code{GeneSetDb@table} are smaller than this size}
+\code{GeneSetDb@table} are smaller than this size}
+
+\item{match.tolerance}{Numeric value between [0,1]. If the fraction of
+\code{featureId}s used in \code{x} that match \code{rownames(y)} is
+below this number, a warning will be fired.}
 }
 \value{
 A \code{GeneSetDb} that has been matched/conformed to an

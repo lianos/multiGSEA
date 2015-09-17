@@ -21,16 +21,16 @@ running any analysis, and this function essentially is just a "pass through"}
 \item{robust.eBayes}{The value of the \code{robust} parameter in the
 \code{eBayes} call.}
 
-\item{...}{parameters passed through to the \code{lmFit} call.}
+\item{with.fit}{If \code{TRUE}, this function returns the fit in addition
+to the logFC statistics.}
 
-\item{provide}{Specifies what you want to get out of this, just the
-\code{logFC} or \code{t} statistics, or the whole result \code{table}.
-TODO: remove this parameter and just always return the table, if one is
-generated as a result of the function call (ie. \code{ncol(x) > 1})}
+\item{...}{parameters passed through to the \code{lmFit} call.}
 }
 \value{
-A data.table with the logFC results per row of \code{x}. The
-  \code{$featureId} column is the rownames (ids) of x.
+If \code{with.fit == FALSE} (the default) a \code{data.table} of
+  logFC statistics for the contrast under test. Otherwise, a list is
+  returned with \code{$result} containing the logFC statistics, and
+  \code{$fit} has the limma fit for the data/design/contrast under test.
 }
 \description{
 Note that differential expression analysis is always run through limma,

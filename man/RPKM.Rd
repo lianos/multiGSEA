@@ -18,11 +18,16 @@ from the TCGA::COAD datasets in ExpressionPlot}
 \item{regularized}{passed down to CPM, but set to \code{FALSE} by default
 here.}
 
+\item{impute.missing.lengths}{If \code{TRUE}, when the length for a gene
+is not found, we use the mean of all gene lengths.}
+
 \item{id.col}{The name of the column in \code{gene.info} that has the IDs
 that match to \code{rownames(x)}}
 
 \item{size.col}{The name of the column in \code{gene.info} that has the
 gene lengths to normalize by}
+
+\item{...}{Moar args}
 }
 \value{
 a matrix of RPKM values

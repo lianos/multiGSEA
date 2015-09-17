@@ -58,6 +58,7 @@ Collate:
     'msigdb-broad.R'
     'msigdb-wehi.R'
     'multiGSEA.R'
+    'package.R'
     'panther.R'
     'plots.R'
     'reactome.R'

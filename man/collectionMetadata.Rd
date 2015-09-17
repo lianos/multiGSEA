@@ -2,11 +2,14 @@
 % Please edit documentation in R/AllGenerics.R
 \name{collectionMetadata}
 \alias{collectionMetadata}
-\title{exportMethod collectionMetadata}
 \usage{
 collectionMetadata(x, collection, name)
 }
-\description{
-exportMethod collectionMetadata
+\arguments{
+\item{x}{Object to extract the collectionMetadata from}
+
+\item{collection}{The geneset collection to to query}
+
+\item{name}{The name of the metadata variable to get the value for}
 }
 

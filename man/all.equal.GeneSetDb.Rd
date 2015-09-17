@@ -6,6 +6,21 @@
 \usage{
 \method{all.equal}{GeneSetDb}(target, current, features.only = FALSE, ...)
 }
+\arguments{
+\item{target}{The reference \code{GeneSetDb} to compare against}
+
+\item{current}{The \code{GeneSetDb} you wan to compare}
+
+\item{features.only}{Only compare the "core" columns of \code{target@db}
+and \code{target@table}. It is possible that you added additional columns
+(to keep track of symbols in \code{target@db}, for instance) that you
+want to ignore for the purposes of the equality test.}
+
+\item{...}{moar args.}
+}
+\value{
+\code{TRUE} if equal, or \code{character} vector of messages if not.
+}
 \description{
 Checks equality (feature parity) between GeneSetDb objects
 }

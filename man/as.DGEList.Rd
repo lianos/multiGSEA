@@ -4,8 +4,9 @@
 \alias{as.DGEList}
 \title{Utility function to convert ExpressionSet to DGEList}
 \usage{
-as.DGEList(x, element = "counts", lib.size = NULL, group = rep(1,
-  ncol(x)), norm.factors = .pData(x)[["norm.factors"]], ...)
+as.DGEList(x, element = "counts", lib.size = NULL,
+  norm.factors = .pData(x)[["norm.factors"]], group = factor(rep("baseline",
+  ncol(x))), ...)
 }
 \arguments{
 \item{x}{ExpressionSet to convert}
@@ -13,8 +14,18 @@ as.DGEList(x, element = "counts", lib.size = NULL, group = rep(1,
 \item{element}{The name of the \code{assayDataElement(x)} to use for the
 count matrix from \code{x}}
 
+\item{lib.size}{The total lib.size to use, will take \code(colSums) of
+count matrix if not defined: this is a \code{numeric} vector as long
+as the numbe of samples}
+
 \item{norm.factors}{A numeric vector of norm.factors to use. If this is
 NULL, then they will be recalculated}
+
+\item{group}{Either a string that is a column of \code{.pData(x)} to use
+as grouping information, or a factor for grouping information. If not
+used, the group for all samples will be set to \code{'baseline'}.}
+
+\item{...}{moar args}
 }
 \value{
 A DGEList with norm factors

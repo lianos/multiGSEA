@@ -39,10 +39,11 @@
 ##'   \code{ncol(x)})
 ##' @param norm.factors.col A column to fetch from \code{.pData(x)} that has
 ##'   precalculated norm.factors
-##' @param lib.zie.col A column to fetch from \code{.pData(x)} that has
+##' @param lib.size.col A column to fetch from \code{.pData(x)} that has
 ##'   precalculated lib.sizes
 ##' @param x.element Additional param to help get counts out of \code{x}: sent
 ##'   to \code{.exprs,element} param
+##' @param ... not sure why I have this here
 ##' @return A \code{matrix,numeric} of the normalized/smoothed expression values
 ##'   from \code{x}.
 CPM <- function(x, normalized.lib.sizes=TRUE, log=TRUE,
@@ -111,9 +112,7 @@ CPM <- function(x, normalized.lib.sizes=TRUE, log=TRUE,
 ##' Calculates between-sample normalized transcripts per million
 ##'
 ##' There is some consensus that
-##' \href{
-##'   https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
-##' }{TPM} is a good measure of transcript/gene abundance
+##' \href{https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/}{TPM} is a good measure of transcript/gene abundance
 ##'
 ##' @export
 ##' @seealso \code{\link{CPM2TPM}}, \code{\link{CPM}}, \code{\link{RPKM}}
@@ -142,6 +141,13 @@ TPM <- function(x, gene.info=NULL, normalized.lib.sizes=TRUE, log=TRUE,
 ##' @export
 ##'
 ##' @param x An expression matrix of counts per million (on the natural scale)
+##' @param gene.info A data.frame with entrez to gene length?
+##' @param id.col The colum in \code{gene.info} that has the ids of the genes,
+##'   which is used to match against \code{rownames(x)}.
+##' @param size.col The column in \code{gene.info} that has the gene lengths
+##' @param impute.missing.lengths If \code{TRUE}, when the length for a gene
+##'   is not found, we use the mean of all gene lengths.
+##' @param ... Moar things
 ##' @inheritParams create.glength.vector
 ##' @return A matrix of TPMs
 CPM2TPM <- function(x, gene.info=NULL, id.col='entrez.id', size.col='size',
@@ -167,10 +173,13 @@ CPM2TPM <- function(x, gene.info=NULL, id.col='entrez.id', size.col='size',
 ##'   from the TCGA::COAD datasets in ExpressionPlot
 ##' @param regularized passed down to CPM, but set to \code{FALSE} by default
 ##'   here.
+##' @param impute.missing.lengths If \code{TRUE}, when the length for a gene
+##'   is not found, we use the mean of all gene lengths.
 ##' @param id.col The name of the column in \code{gene.info} that has the IDs
 ##'   that match to \code{rownames(x)}
 ##' @param size.col The name of the column in \code{gene.info} that has the
 ##'   gene lengths to normalize by
+##' @param ... Moar args
 ##' @return a matrix of RPKM values
 RPKM <- function(x, gene.info=NULL, regularized=FALSE,
                  impute.missing.lengths=TRUE,
@@ -323,13 +332,19 @@ create.glength.vector <- function(x, gene.info=NULL,
 ##' @param x ExpressionSet to convert
 ##' @param element The name of the \code{assayDataElement(x)} to use for the
 ##'   count matrix from \code{x}
+##' @param lib.size The total lib.size to use, will take \code(colSums) of
+##'   count matrix if not defined: this is a \code{numeric} vector as long
+##'   as the numbe of samples
 ##' @param norm.factors A numeric vector of norm.factors to use. If this is
 ##'   NULL, then they will be recalculated
+##' @param group Either a string that is a column of \code{.pData(x)} to use
+##'   as grouping information, or a factor for grouping information. If not
+##'   used, the group for all samples will be set to \code{'baseline'}.
+##' @param ... moar args
 ##' @return A DGEList with norm factors
 as.DGEList <- function(x, element='counts', lib.size=NULL,
-                       group=rep(1, ncol(x)),
                        norm.factors=.pData(x)[['norm.factors']],
-                       ...) {
+                       group=factor(rep('baseline', ncol(x))), ...) {
   pd <- .pData(x)
   fd <- .fData(x)
   if (!is.atomic(group)) {

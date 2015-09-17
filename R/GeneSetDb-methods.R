@@ -13,6 +13,10 @@
 ##'   \code{GeneSetDb@@table} are of a minimum size
 ##' @param max.gs.size Ensure that the genesets that make their way to the
 ##'   \code{GeneSetDb@@table} are smaller than this size
+##' @param match.tolerance Numeric value between [0,1]. If the fraction of
+##'   \code{featureId}s used in \code{x} that match \code{rownames(y)} is
+##'   below this number, a warning will be fired.
+##' @param ... moar args
 ##'
 ##' @return A \code{GeneSetDb} that has been matched/conformed to an
 ##'   expression object target (\code{y})
@@ -506,7 +510,6 @@ setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
   addCollectionMetadata(x, i, 'url_function', value, valid)
 })
 
-##' @import GSEABase
 setReplaceMethod("featureIdType", "GeneSetDb", function(x, i, value) {
   valid <- function(v) is(v, 'GeneIdentifierType')
   addCollectionMetadata(x, i, 'id_type', value, valid)
@@ -661,8 +664,16 @@ setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x)))
 
 ##' Checks equality (feature parity) between GeneSetDb objects
 ##'
-##' @method all.equal GeneSetDb
 ##' @export
+##' @method all.equal GeneSetDb
+##' @param target The reference \code{GeneSetDb} to compare against
+##' @param current The \code{GeneSetDb} you wan to compare
+##' @param features.only Only compare the "core" columns of \code{target@@db}
+##'   and \code{target@@table}. It is possible that you added additional columns
+##'   (to keep track of symbols in \code{target@@db}, for instance) that you
+##'   want to ignore for the purposes of the equality test.
+##' @param ... moar args.
+##' @return \code{TRUE} if equal, or \code{character} vector of messages if not.
 all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
   msg <- TRUE
 

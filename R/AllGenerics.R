@@ -14,7 +14,10 @@ setGeneric("featureIdMap<-", function(x, value) {
 })
 
 
-##' exportMethod collectionMetadata
+##' @exportMethod collectionMetadata
+##' @param x Object to extract the collectionMetadata from
+##' @param collection The geneset collection to to query
+##' @param name The name of the metadata variable to get the value for
 setGeneric("collectionMetadata", signature=c("x", "collection", "name"),
 function(x, collection, name) {
   standardGeneric("collectionMetadata")

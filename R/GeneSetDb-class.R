@@ -16,7 +16,6 @@
 ##'
 ##' TODO: document the GeneSetDb ID mapping more thoroughly.
 ##'
-##' @import GSEABase
 ##' @export
 ##'
 ##' @param x A \code{GeneSetCollection}, a "two deep" list of either

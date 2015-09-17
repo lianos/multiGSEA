@@ -40,11 +40,13 @@ function should behave almost identically to \code{\link[edgeR]{cpm}}}
 \item{norm.factors.col}{A column to fetch from \code{.pData(x)} that has
 precalculated norm.factors}
 
+\item{lib.size.col}{A column to fetch from \code{.pData(x)} that has
+precalculated lib.sizes}
+
 \item{x.element}{Additional param to help get counts out of \code{x}: sent
 to \code{.exprs,element} param}
 
-\item{lib.zie.col}{A column to fetch from \code{.pData(x)} that has
-precalculated lib.sizes}
+\item{...}{not sure why I have this here}
 }
 \value{
 A \code{matrix,numeric} of the normalized/smoothed expression values
