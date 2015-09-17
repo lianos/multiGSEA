@@ -2,6 +2,7 @@
 % Please edit documentation in R/AllGenerics.R
 \name{collectionMetadata}
 \alias{collectionMetadata}
+\title{Query for metadata associated with a collection.}
 \usage{
 collectionMetadata(x, collection, name)
 }
@@ -11,5 +12,8 @@ collectionMetadata(x, collection, name)
 \item{collection}{The geneset collection to to query}
 
 \item{name}{The name of the metadata variable to get the value for}
+}
+\description{
+Query for metadata associated with a collection.
 }
 

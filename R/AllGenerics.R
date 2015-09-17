@@ -14,6 +14,8 @@ setGeneric("featureIdMap<-", function(x, value) {
 })
 
 
+##' Query for metadata associated with a collection.
+##'
 ##' @exportMethod collectionMetadata
 ##' @param x Object to extract the collectionMetadata from
 ##' @param collection The geneset collection to to query

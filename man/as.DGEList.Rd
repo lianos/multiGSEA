@@ -14,7 +14,7 @@ as.DGEList(x, element = "counts", lib.size = NULL,
 \item{element}{The name of the \code{assayDataElement(x)} to use for the
 count matrix from \code{x}}
 
-\item{lib.size}{The total lib.size to use, will take \code(colSums) of
+\item{lib.size}{The total lib.size to use, will take \code{colSums} of
 count matrix if not defined: this is a \code{numeric} vector as long
 as the numbe of samples}
 

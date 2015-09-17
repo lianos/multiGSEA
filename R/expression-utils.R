@@ -332,7 +332,7 @@ create.glength.vector <- function(x, gene.info=NULL,
 ##' @param x ExpressionSet to convert
 ##' @param element The name of the \code{assayDataElement(x)} to use for the
 ##'   count matrix from \code{x}
-##' @param lib.size The total lib.size to use, will take \code(colSums) of
+##' @param lib.size The total lib.size to use, will take \code{colSums} of
 ##'   count matrix if not defined: this is a \code{numeric} vector as long
 ##'   as the numbe of samples
 ##' @param norm.factors A numeric vector of norm.factors to use. If this is
