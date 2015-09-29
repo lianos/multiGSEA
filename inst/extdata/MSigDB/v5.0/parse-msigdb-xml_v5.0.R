@@ -17,7 +17,7 @@ library(multiGSEA)
 
 fn <- '~/Downloads/msigdb_v5.0.xml'
 gsc <- getBroadSets(fn, membersId="MEMBERS_EZID")
-saveRDS(gsc ,'GeneSetCollection-v5-MEMBES_EZID.rds')
+saveRDS(gsc ,'GeneSetCollection-v5-MEMBERS_EZID.rds')
 
 g.go <- gsc[[1]]
 g.h <- gsc[['HALLMARK_ANGIOGENESIS']]

@@ -17,17 +17,27 @@ function(x, y, j, value=c('logFC', 't'), type=c('density', 'barcode', 'mini'),
 plot.gsea.density <- function(x, y, j, value, main, bg.density=NULL,
                               xlim=base::range(c(bg.density$x, gs.density$x)),
                               ylim=c(0, base::max(c(gs.density$y, bg.density$y)) + 0.1),
-                              jitter.sig.higher=FALSE, ...) {
+                              jitter.sig.higher=FALSE, with.rug=TRUE,
+                              gs.name=j, lwd=3, ...) {
   lfc <- logFC(x)
   if (!is(bg.density, 'density')) {
     bg.density <- density(lfc[[value]], na.rm=TRUE)
   }
-
   gs.fids <- featureIds(x@gsd, y, j, 'x.id')
   gs.lfc <- lfc[gs.fids]
   gs.lfc  <- gs.lfc[!is.na(featureId)]
   gs.n <- nrow(gs.lfc)
   gs.lfc$xval <- gs.lfc[[value]] ##jitter(gs.lfc[[value]])
+
+  ## This is probably a better default when looking at one plot at a time.
+  ## The default uses the same xlim for all plots from a result, which is
+  ## probably what we want when running through rmd.multiGSEA for quicker
+  ## comparisons.
+  ## if (missing(xlim)) {
+  ##   qtl <- max(abs(quantile(lfc[[value]], c(0.01, 0.99))),
+  ##              abs(gs.lfc[[value]]))
+  ##   xlim <- c(-qtl, qtl)
+  ## }
 
   if (jitter.sig.higher) {
     gs.lfc$yval <- ifelse(gs.lfc$significant, rep(0.05, gs.n), rep(0.02, gs.n))
@@ -43,19 +53,22 @@ plot.gsea.density <- function(x, y, j, value, main, bg.density=NULL,
   }
 
   plot(bg.density, main=main, sub=sprintf('(%d features)', gs.n), xlab=value,
-       ylim=ylim, xlim=xlim, lwd=2)
+       ylim=ylim, xlim=xlim, lwd=lwd)
   if (is(gs.density, 'density')) {
-    lines(gs.density, col='red', lwd=3)
+    lines(gs.density, col='red', lwd=lwd)
   }
-  with(subset(gs.lfc, !significant), {
-    points(xval, yval, pch=16, col='#FF0000AA', cex=0.5)
-  })
-  with(subset(gs.lfc, significant), {
-    points(xval, yval, pch=16, col='#FF0000AA', cex=0.8)
-    points(xval, yval, pch=1L, col='#000000AA', cex=0.8, lwd=2)
-  })
-  legend('topright', legend=c("all", "geneset"),
-         text.col=c('black', 'red'))
+
+  if (with.rug) {
+    with(subset(gs.lfc, !significant), {
+      points(xval, yval, pch=16, col='#FF0000AA', cex=0.5)
+    })
+    with(subset(gs.lfc, significant), {
+      points(xval, yval, pch=16, col='#FF0000AA', cex=0.8)
+      points(xval, yval, pch=1L, col='#000000AA', cex=0.8, lwd=2)
+    })
+  }
+
+  legend('topright', legend=c("all genes", gs.name), text.col=c('black', 'red'))
 
   attr(gs.lfc, 'plot.attrs') <- list(xlim=xlim, ylim=ylim)
   invisible(gs.lfc)

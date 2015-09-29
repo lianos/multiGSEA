@@ -3,9 +3,8 @@ Type: Package
 Title: One GSEA interface to rule them all
 Version: 0.3.14
 Date: 2015-05-21
-Authors@R: as.person(c(
-    "Steve Lianoglou <lianoglou.steve@gene.com> [aut, cre]"
-    ))
+Author: Steve Lianoglou
+Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
     analysis methods, along with plotting and other general GSEA utilities.
 Depends:
