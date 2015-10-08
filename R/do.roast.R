@@ -4,29 +4,46 @@ NULL
 validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
+## do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
+##                      use.cache=TRUE, set.statistic='mean', gene.weights=NULL,
+##                      array.weights=NULL, weights=NULL, block=NULL, correlation,
+##                      var.prior=NULL, df.prior=NULL, trend.var=FALSE, nrot=10000,
+##                      approx.zscore=TRUE, ...) {
 do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
-                     use.cache=TRUE, set.statistic='mean', gene.weights=NULL,
-                     array.weights=NULL, weights=NULL, block=NULL, correlation,
-                     var.prior=NULL, df.prior=NULL, trend.var=FALSE, nrot=10000,
-                     approx.zscore=TRUE, ...) {
+                     use.cache=TRUE, ...) {
   stopifnot(is.conformed(gsd, x))
-  extra.args <- c('set.statistic', 'gene.weights', 'array.weights', 'weights',
-                  'block', 'correlation', 'var.prior', 'df.prior', 'trend.var',
-                  'nrot', 'approx.zscore')
+  args <- list(...)
+  call.args <- as.list(formals(limma::mroast.default))
+  for (arg in intersect(names(args), names(call.args))) {
+    call.args[[arg]] <- args[[arg]]
+  }
+
+  ## This sucks
   extra.args <- c('set.statistic', 'nrot', 'approx.zscore')
+  set.statistic <- call.args$set.statistic
+  nrot <- call.args$nrot
+  approx.zscore <- call.args$approx.zscore
+
   cache.fn <- cache.data.fn('roast', design, contrast, extra.args,
                             outdir=outdir, ext='rds')
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   if (file.exists(cache.fn) && use.cache) {
     res <- readRDS(cache.fn)
     ## TODO: check the genesets returned from pvals to ensure that they match
     ##       the active genesets
   } else {
-    res <- mroast(x, gs.idxs, design, contrast, set.statistic=set.statistic,
-                  gene.weights=gene.weights, array.weights=array.weights,
-                  weights=weights, block=block, correlation=correlation,
-                  var.prior=var.prior, df.prior=df.prior, trend.var=trend.var,
-                  nrot=nrot, approx.zscore=approx.zscore, sort='none', ...)
+    gs.idxs <- as.expression.indexes(gsd, value='x.idx')
+    call.args[['y']] <- x
+    call.args[['index']] <- gs.idxs
+    call.args[['design']] <- design
+    call.args[['contrast']] <- contrast
+    call.args[['sort']] <- 'none'
+    call.args[['...']] <- NULL
+    ## earlier versions of edgeR::mroast was double-passing var.prior
+    if (packageVersion('edgeR') < '3.11') {
+      call.args[['var.prior']] <- NULL
+      call.args[['df.prior']] <- NULL
+    }
+    res <- do.call(limma::mroast, call.args)
     if (is.character(outdir) && isTRUE(file.exists(outdir))) {
       saveRDS(res, cache.fn)
     }
@@ -48,4 +65,3 @@ do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
 
   out
 }
-
