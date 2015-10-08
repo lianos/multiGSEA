@@ -5,7 +5,6 @@
 \title{Performs several GSEA analysis over an experiment}
 \usage{
 multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
-  outdir = NULL, use.cache = TRUE, cache.inputs = FALSE,
   feature.min.logFC = 1, feature.max.padj = 0.1, trim = 0.1, ...)
 }
 \arguments{
@@ -33,19 +32,6 @@ run. This can be any combination of:
 If no methods are specified, then only geneset level statistics, such as
 the JG score and the mean logFCs t-statistics, of the features in each
 geneset are calculated.}
-
-\item{outdir}{A character vector indicating the directory to use inorder to
-save/cache the results from the analysis. This is required if
-\code{use.cache=TRUE} or if you want to save intermediate results as they
-are being generated.}
-
-\item{use.cache}{Logical to indicate whether or not to take advantage of the
-poor-man's caching the multiGSEA does. See the "Caching" section below for
-further details, but in short the function will look for a saved result
-for a given \code{method} before computing it.}
-
-\item{cache.inputs}{If \code{TRUE}, the inputs are serialized in
-\code{outdir/cache}}
 
 \item{feature.min.logFC}{The minimum logFC required for an individual
 feature (not geneset) to be considered differentialy expressed. Used in
@@ -85,27 +71,6 @@ is a \code{DGEList}, it is first "voom"ed, then processed.
 This function will write several results to an output directory if
   a valid value for \code{outdir} is provided. Furthermore, the results of
   these analysis will be cached so that time is saved on subsequent calls.
-}
-\section{Caching}{
-
-
-  (NOTE: this documentation needs further work, and this feature isn't
-  completely functional yet.)
-
-  Running a GSEA can be a costly propositin, especially when using methods
-  that rely on permutation, such as (m)roast. When \code{outdir} is set, the
-  intermediate results from each GSEA method are saved in a
-  directory tree that is rooted at \code{outdir}. If \code{cache.inputs}
-  is set to \code{TRUE}, the inputs to this function are saved as well.
-
-  While this can be helpful for manually checking results as they are
-  generated, you can also use it to speed up future re-analyses of the data
-  -- perhaps you want to add one more method to the GSEA comparison that you
-  didn't include originally. The result of each analysis method is stored
-  in the \code{cache} directory encoded with the contrast that was tested.
-  If that method is run again, and \code{use.cache} is set to \code{TRUE},
-  then the result will be loaded if it is found instead of recalculating
-  the result again.
 }
 \seealso{
 \code{\link[limma]{camera}},

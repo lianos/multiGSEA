@@ -6,8 +6,7 @@ test_that("geneSetsStats", {
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), vm)
 
-  mg <- multiGSEA(gsd, vm, vm$design, methods='geneSetTest', ranks.only=TRUE,
-                  use.cache=FALSE)
+  mg <- multiGSEA(gsd, vm, vm$design, methods='geneSetTest', ranks.only=TRUE)
 
   trim <- 0.10
   min.logFC <- 1

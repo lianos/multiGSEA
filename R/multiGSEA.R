@@ -17,26 +17,6 @@
 ##'   a valid value for \code{outdir} is provided. Furthermore, the results of
 ##'   these analysis will be cached so that time is saved on subsequent calls.
 ##'
-##' @section Caching:
-##'
-##'   (NOTE: this documentation needs further work, and this feature isn't
-##'   completely functional yet.)
-##'
-##'   Running a GSEA can be a costly propositin, especially when using methods
-##'   that rely on permutation, such as (m)roast. When \code{outdir} is set, the
-##'   intermediate results from each GSEA method are saved in a
-##'   directory tree that is rooted at \code{outdir}. If \code{cache.inputs}
-##'   is set to \code{TRUE}, the inputs to this function are saved as well.
-##'
-##'   While this can be helpful for manually checking results as they are
-##'   generated, you can also use it to speed up future re-analyses of the data
-##'   -- perhaps you want to add one more method to the GSEA comparison that you
-##'   didn't include originally. The result of each analysis method is stored
-##'   in the \code{cache} directory encoded with the contrast that was tested.
-##'   If that method is run again, and \code{use.cache} is set to \code{TRUE},
-##'   then the result will be loaded if it is found instead of recalculating
-##'   the result again.
-##'
 ##' @export
 ##' @import limma
 ##'
@@ -65,16 +45,6 @@
 ##'   If no methods are specified, then only geneset level statistics, such as
 ##'   the JG score and the mean logFCs t-statistics, of the features in each
 ##'   geneset are calculated.
-##' @param outdir A character vector indicating the directory to use inorder to
-##'   save/cache the results from the analysis. This is required if
-##'   \code{use.cache=TRUE} or if you want to save intermediate results as they
-##'   are being generated.
-##' @param use.cache Logical to indicate whether or not to take advantage of the
-##'   poor-man's caching the multiGSEA does. See the "Caching" section below for
-##'   further details, but in short the function will look for a saved result
-##'   for a given \code{method} before computing it.
-##' @param cache.inputs If \code{TRUE}, the inputs are serialized in
-##'   \code{outdir/cache}
 ##' @param feature.min.logFC The minimum logFC required for an individual
 ##'   feature (not geneset) to be considered differentialy expressed. Used in
 ##'   conjunction with \code{feature.max.padj} primarily for summarization
@@ -92,9 +62,8 @@
 ##'
 ##' @return A \code{MultiGSEAResult}
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
-                      methods=NULL, outdir=NULL, use.cache=TRUE,
-                      cache.inputs=FALSE, feature.min.logFC=1,
-                      feature.max.padj=0.10, trim=0.10, ...) {
+                      methods=NULL, feature.min.logFC=1, feature.max.padj=0.10,
+                      trim=0.10, ...) {
   if (!is(gsd, 'GeneSetDb')) {
     if (is(gsd, 'GeneSetCollection') || is(gsd, 'GeneSet')) {
       stop("A GeneSetDb is required. GeneSetCollections can be can be ",
@@ -111,46 +80,22 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   }
   ## We know all goes well when on.exit() sees that this variable is set to TRUE
   finished <- FALSE
-
-  ## Perhaps we should use some `.call <- match.call()` mojo for some automated
-  ## cached filename generation in the future
-  ## ---------------------------------------------------------------------------
-  ## Argument sanity checking
-  .unsupportedGSEAmethods(methods)
-  if (is.null(outdir)) {
-    outdir.created <- FALSE
-    noutdir <- character()
-    if (missing(use.cache)) {
-      use.cache <- FALSE
-    } else if (use.cache) {
-      stop("Can't use.cache without an `outdir`")
-    }
-    if (missing(cache.inputs)) {
-      cache.inputs <- FALSE
-    } else if (cache.inputs) {
-      stop("Can't cache.inputs without an `outdir`")
-    }
-  } else {
-    if (!is.character(outdir)) {
-      stop("`outdir` must be path to a directory used ot save results")
-    }
-    outdir.created <- .initOutDir(outdir)
-    noutdir <- normalizePath(outdir)
-  }
-
-  if (length(methods) == 0) {
-    stop("0 GSEA methods provided")
-  }
-
   on.exit({
     if (!finished) {
       warning("An error in `multiGSEA` stopped it from finishing ...",
               immediate.=TRUE)
     }
-    ## if (outdir.created && dir.exists(outdir) && !keep.outdir.onerror) {
-    ##   unlink(outdir, recursive=TRUE)
-    ## }
   })
+
+  ## ---------------------------------------------------------------------------
+  ## Argument sanity checking
+
+  ## error-out if illegal methods were specified here
+  .unsupportedGSEAmethods(methods)
+
+  if (length(methods) == 0) {
+    stop("0 GSEA methods provided")
+  }
 
   ## ---------------------------------------------------------------------------
   ## Sanitize / cache inputs
@@ -172,13 +117,6 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     gsd <- conform(gsd, x)
   }
 
-  if (cache.inputs) {
-    inputs.fn <- file.path(noutdir, 'cache', 'inputs.rda')
-    validated <- list(gsd=gsd, x=x, design=design, contrast=contrast)
-    in.list <- c(input=args, validated=inputs)
-    save(in.list, file=inputs.fn)
-  }
-
   ## ---------------------------------------------------------------------------
   ## Run the analyses
   logFC <- calculateIndividualLogFC(vm, design, contrast, ...)
@@ -193,9 +131,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   results <- sapply(methods, function(method) {
     fn <- getFunction(paste0('do.', method))
     tryCatch({
-      dt <- fn(gsd, x, design, contrast, outdir=noutdir, use.cache=use.cache,
-               logFC=logFC, feature.min.logFC=feature.min.logFC,
-               feature.max.padj=feature.max.padj, vm=vm, ...)
+      dt <- fn(gsd, x, design, contrast, logFC=logFC,
+               feature.min.logFC=feature.min.logFC,
+               feature.max.padj=feature.max.padj,
+               vm=vm, ...)
       dt[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
     }, error=function(e) NULL)
   }, simplify=FALSE)
@@ -207,7 +146,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   setkeyv(logFC, 'featureId')
 
-  out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC, outdir=noutdir)
+  out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
                             feature.max.padj=feature.max.padj,
                             trim=trim)
@@ -592,43 +531,3 @@ p.matrix <- function(x, names=resultNames(x),
   colnames(out) <- sub(regex, '', colnames(out))
   out
 }
-
-##' Initializes the output directory for the multiGSEA call.
-##'
-##' If outdir is NULL, then no directory is checked/created. This also implies
-##' that creating plots is not possible.
-##'
-##' @param A character vector pointing to a directory to check/create
-##' @return TRUE if the output directory was created, otherwise FALSE (it might
-##' already exist).
-.initOutDir <- function(outdir) {
-  sub.dirs <- c('data', 'cache')
-  if (is.null(outdir)) {
-    return(FALSE)
-  }
-  if (!is.character(outdir) && length(outdir) != 1) {
-    stop("character required for `outdir`")
-  }
-  outdir.created <- FALSE
-  if (dir.exists(outdir)) {
-    if (!dir.writable(outdir)) {
-      stop("Can't write to output directory: ", outdir)
-    }
-  } else {
-    pdir <- dirname(outdir)
-    if (!dir.exists(pdir)) {
-      stop("Path to outdir does not exist: ", pdir)
-    }
-    if (!dir.writable(pdir)) {
-      stop("Can't create output directory in: ", pdir)
-    }
-    dir.create(outdir)
-    outdir.created <- TRUE
-  }
-  for (sd in sub.dirs) {
-    dir.create(file.path(outdir, sd))
-  }
-
-  outdir.created
-}
-
