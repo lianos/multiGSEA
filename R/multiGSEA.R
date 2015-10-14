@@ -135,7 +135,17 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                feature.min.logFC=feature.min.logFC,
                feature.max.padj=feature.max.padj,
                vm=vm, ...)
-      dt[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
+      pcols <- grepl('^pval\\.?', names(dt))
+      if (any(pcols)) {
+        for (i in which(pcols)) {
+          pcol <- names(dt)[i]
+          pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
+          padjs <- p.adjust(dt[[pcol]], 'BH')
+          dt[, (pname) := padjs]
+        }
+      }
+      ## dt[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
+      dt
     }, error=function(e) NULL)
   }, simplify=FALSE)
   failed <- sapply(results, is.null)
@@ -322,13 +332,16 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##'
 ##' @return a data.table with the results from the requested method.
 result <- function(x, name, stats.only=FALSE,
-                   rank.by=c('pval', 't', 'logFC', 'JG'),
+                   rank.by=c('pval', 't', 'logFC'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  ## no methods run?
   if (length(resultNames(x)) == 0) {
     return(results(x))
   }
+  if (length(resultNames(x)) == 1L) {
+    name <- resultNames(x)
+  }
+  ## no methods run?
   stopifnot(isSingleCharacter(name))
   invalidMethods(x, name, as.error=TRUE)
   stopifnot(isSingleLogical(stats.only))
@@ -379,7 +392,6 @@ result <- function(x, name, stats.only=FALSE,
   }
 
   ranks <- switch(rank.by,
-                  JG=rank(-abs(out$JG), ties.method="min"),
                   logFC=rank(-abs(out$mean.logFC.trim), ties.method="min"),
                   t=rank(-abs(out$mean.t.trim), ties.method="min"),
                   pval=rank(out[[pval.col]], ties.method="min"))
@@ -407,7 +419,7 @@ result <- function(x, name, stats.only=FALSE,
 ##'   be suffixed with the method name that generated them when
 ##'   \code{length(names) > 1L}
 results <- function(x, names=resultNames(x), stats.only=TRUE,
-                    rank.by=c('pval', 'logFC', 't', 'JG'),
+                    rank.by=c('pval', 'logFC', 't'),
                     add.suffix=length(names) > 1L) {
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)
@@ -451,7 +463,16 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
   p.col <- match.arg(p.col)
   res <- lapply(names, function(wut) {
     r <- result(x, wut)
-    r$pcol <- r[[p.col]]
+    ## some results (like goseq) don't have just "padj" or "pval" columns,
+    ## because it has pval.over and pval.under, so let's just grab the first
+    ## pval or padj "hit"
+    idx <- grep(p.col, names(r))[1L]
+    if (is.na(idx)) {
+      r$pcol <- rep(NA, nrow(r))
+    } else {
+      r$pcol <- r[[idx]]
+    }
+    ## r$pcol <- r[[p.col]]
     r[, {
       list(method=wut, geneset_count=length(pcol),
            sig_count=sum(pcol <= max.p, na.rm=TRUE),

@@ -5,8 +5,8 @@
 ##' @rdname conform
 ##'
 ##' @param x The GeneSetDb
-##' @param y The expression object/matrix to conform to. This could also just
-##'   be a character vector of IDs.
+##' @param target The expression object/matrix to conform to. This could also
+##'   just be a character vector of IDs.
 ##' @param unique.by If there are multiple rows that map to the identifiers
 ##'   used in the genesets, this is a means to pick the single row for that ID
 ##' @param min.gs.size Ensure that the genesets that make their way to the
@@ -21,7 +21,7 @@
 ##' @return A \code{GeneSetDb} that has been matched/conformed to an
 ##'   expression object target (\code{y})
 setMethod("conform", c(x="GeneSetDb"),
-function(x, y, unique.by=c('none', 'mean', 'var'),
+function(x, target, unique.by=c('none', 'mean', 'var'),
          min.gs.size=3L, max.gs.size=Inf, match.tolerance=0.25, ...) {
   unique.by <- match.arg(unique.by)
   if (unique.by != 'none') {
@@ -38,15 +38,16 @@ function(x, y, unique.by=c('none', 'mean', 'var'),
     stop("max.gs.size must be larger than min.gs.size")
   }
   ## We are allowing y to be a character vector of featureIds here
-  if (is.vector(y) && is.character(y)) {
-    y <- matrix(1L, nrow=length(y), ncol=1L, dimnames=list(y, NULL))
+  if (is.vector(target) && is.character(target)) {
+    target <- matrix(1L, nrow=length(target), ncol=1L,
+                     dimnames=list(target, NULL))
   }
-  if (!any(sapply(.valid.x, function(claz) is(y, claz)))) {
+  if (!any(sapply(.valid.x, function(claz) is(target, claz)))) {
     stop("Illegal type of expression object to conform to")
   }
 
   fm <- featureIdMap(x)
-  fm$x.idx <- match(fm$x.id, rownames(y))
+  fm$x.idx <- match(fm$x.id, rownames(target))
   fraction.match <- mean(!is.na(fm$x.idx))
   if (fraction.match <= match.tolerance) {
     warning("Fraction of gene set IDs that match rownames in the expression ",
@@ -104,7 +105,16 @@ is.conformed <- function(x, to) {
   } else {
     ## Verify that gsd is properly conformed to x
     fm <- subset(featureIdMap(x), !is.na(x.idx))
-    ans <- nrow(fm) > 0 && all(rownames(to)[fm$x.idx] == fm$x.id)
+    to.ids <- if (is.character(to))
+      to
+    else if (is.vector(to))
+      names(to)
+    else
+      rownames(to)
+    if (!is.character(to.ids)) {
+      stop("featureIds unsuccessfully extracted from `to`")
+    }
+    ans <- nrow(fm) > 0 && all(to.ids[fm$x.idx] == fm$x.id)
   }
   ans
 }
@@ -719,6 +729,40 @@ as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
                               ...) {
   value <- match.arg(value)
   as.expression.indexes(x, value, active.only, nested)
+}
+
+##' Convert a GeneSetDb to a data.frame
+##'
+##' @export
+##'
+##' @param x A \code{GeneSetDb} object
+##' @param value The value to use for the individual feature id's per collection
+##' @param active.only If the \code{GeneSetDb} is conformed, do you want to only
+##'   return the features that match target and are "active"?
+##' @param ... nothing
+##' @return a \code{data.frame} of the GeneSetDb
+as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
+                                    active.only=is.conformed(x), ...) {
+  stopifnot(is(x, 'GeneSetDb'))
+  value <- match.arg(value)
+  if (!is.conformed(x) && value %in% c('x.id', 'x.idx')) {
+    stop("must use value='featureId' for non-conformed GeneSetDb'")
+  }
+
+  gs <- geneSets(x, active.only=active.only)
+  gs[, category := paste(collection, name, sep=';;')]
+
+  gene2cat <- merge(x@db, featureIdMap(x), by='featureId')
+  if (is.conformed(x)) {
+    gene2cat <- subset(gene2cat, !is.na(x.idx))
+  }
+  gene2cat$finalId <- gene2cat[[value]]
+
+  gs.key <- paste(gene2cat$collection, gene2cat$name, sep=';;')
+  gene2cat <- subset(gene2cat, (gs.key %in% gs$category) & !is.na(finalId))
+
+  out <- gene2cat[, list(collection, name, featureId=finalId)]
+  setDF(setkeyv(out, c('collection', 'name', 'featureId')))
 }
 
 ##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set

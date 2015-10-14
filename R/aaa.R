@@ -3,8 +3,8 @@
 .datatable.aware <- TRUE
 
 ## .multi.gsea.methods <- c('camera', 'roast', 'gsd', 'npGSEA')
-.multi.gsea.methods <- c('camera', 'roast', 'romer', 'geneSetTest',
-                         'hyperGeometricTest', 'logFC')
+.multi.gsea.methods <- c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
+                         'goseq', 'hyperGeometricTest', 'logFC')
 
 ## valid types of objects that can be used for "Expression" (x)'s
 .valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')

@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.15
+Version: 0.4.16
 Date: 2015-05-21
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
@@ -9,7 +9,7 @@ Description: Provides a unified interface to several gene set enrichment
     analysis methods, along with plotting and other general GSEA utilities.
 Depends:
     methods,
-    data.table (>= 1.9.4),
+    data.table (>= 1.9.6),
 Imports:
     BiocGenerics,
     Biobase (>= 2.24.0),
@@ -46,7 +46,7 @@ Collate:
     'do.camera.R'
     'do.fry.R'
     'do.geneSetTest.R'
-    'do.goana.R'
+    'do.goseq.R'
     'do.hyperGeometricTest.R'
     'do.logFC.R'
     'do.npGSEA.R'

@@ -16,6 +16,7 @@
 ##' Note that when called with \code{regularized == FALSE}, this
 ##' function should behave almost identically to \code{\link[edgeR]{cpm}}.
 ##'
+##' @importFrom reshape2 melt
 ##' @export
 ##'
 ##' @param x A \code{DGEList} or something that can be converted to a count
@@ -234,7 +235,7 @@ create.glength.vector <- function(x, gene.info=NULL,
     }
     warning(sprintf("Imputing %.2f%% of gene lengths", mean(no.match)),
             immediate.=TRUE)
-    xlens[no.match] <- mean(xlens[!no.match])
+    xlens[no.match] <- median(xlens[!no.match])
   }
 
   xlens
@@ -390,7 +391,6 @@ combine.DGEList <- function(x, y) {
 ##' Melts an Expression Container
 ##'
 ##' @export
-##' @importFrom reshape2 melt
 ##'
 ##' @param x A \code{ExpressionSet}, \code{DGEList}, etc.
 ##' @param pd The "phenodata" columns to keep in melted object. Either the

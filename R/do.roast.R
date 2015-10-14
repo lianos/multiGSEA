@@ -4,11 +4,6 @@ NULL
 validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
-## do.roast <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
-##                      use.cache=TRUE, set.statistic='mean', gene.weights=NULL,
-##                      array.weights=NULL, weights=NULL, block=NULL, correlation,
-##                      var.prior=NULL, df.prior=NULL, trend.var=FALSE, nrot=10000,
-##                      approx.zscore=TRUE, ...) {
 do.roast <- function(gsd, x, design, contrast=ncol(design), ...) {
   stopifnot(is.conformed(gsd, x))
   args <- list(...)
