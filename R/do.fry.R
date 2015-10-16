@@ -4,7 +4,11 @@ NULL
 validate.inputs.fry <- .validate.inputs.full.design
 validate.x.fry <- function(x) {
   ## This is not defined for DGEList yet
-  validate.X(x) && !isTRUE(is(x, 'DGEList'))
+  if (is(x, 'DGEList')) {
+    warning("fry is not implemented for a DGEList yet", immediate.=TRUE)
+    return(FALSE)
+  }
+  validate.X(x)
 }
 
 do.fry <- function(gsd, x, design, contrast=ncol(design), ...) {

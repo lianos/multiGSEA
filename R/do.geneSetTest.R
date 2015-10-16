@@ -6,10 +6,7 @@ validate.x.geneSetTest <- validate.X
 
 do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            robust.fit=FALSE, robust.eBayes=FALSE,
-                           logFC=NULL, score.by=c('t', 'logFC'), vm=x, ...) {
-  ## if (is(x, "DGEList")) {
-  ##   x <- vm
-  ## }
+                           logFC=NULL, score.by=c('t', 'logFC'), ...) {
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))
   if (!missing(design) && missing(contrast)) {

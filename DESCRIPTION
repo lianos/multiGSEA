@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.17
+Version: 0.4.18
 Date: 2015-05-21
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>

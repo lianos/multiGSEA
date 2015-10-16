@@ -45,7 +45,7 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   }
 
   out <- es
-
+  attr(out, 'design') <- design
   if (do.voom) {
     ## require('limma', character.only=TRUE)
     out <- voom(es, design, plot=FALSE)

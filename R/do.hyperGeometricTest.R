@@ -20,30 +20,47 @@ validate.x.hyperGeometricTest <- validate.X
 ##' @param contrast The contrast to test
 ##' @param direction Same as direction in \code{GOstats}
 ##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
+##' @param really.use.hyperGeometricTest You sould really use \code{goseq}
+##'   instead. But if you insist on doing a hyperG test, set this parameter
+##'   to \code{TRUE}.
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
 do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
-                                  direction=c('over', 'under'), logFC=NULL,
-                                  feature.min.logFC=1,
-                                  feature.max.padj=0.10, vm=x, ...) {
-  ## if (is(x, "DGEList")) {
-  ##   x <- vm
-  ## }
+                                  direction=c('over', 'under'),
+                                  use.treat=TRUE,
+                                  feature.min.logFC=1, feature.max.padj=0.10,
+                                  logFC=NULL,
+                                  really.use.hyperGeometricTest=FALSE, ...) {
+  if (!really.use.hyperGeometricTest) {
+    msg <- paste(
+      "Use `goseq` instead: we know there are biases in RNAseq",
+      "(such as genelength) that a normal hyperG test doesn't capture.\n\n",
+      "`goseq` can estimate these when they are there (and if they are not,",
+      "then those results would be the same as these.\n\n",
+      "Set `really.use.hyperGeometricTest=TRUE` in your function call if",
+      "you REALLY want to use the hyperG")
+    stop(msg)
+  }
+
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
 
   if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+    logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
+                                      treat.lfc=feature.min.logFC, ...)
+    if (use.treat) {
+      logFC[, significant := padj <= feature.max.padj]
+    }
   } else {
     is.logFC.like(logFC, x, as.error=TRUE)
   }
 
-  if (is.null(logFC$hyperG.selected)) {
-    logFC[, hyperG.selected := {
-      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
+  if (is.null(logFC$significant)) {
+    logFC[, significant := {
+      logFC$padj <= feature.max.padj & abs(logFC$logFC) >= feature.min.logFC
     }]
   }
 
-  drawn <- logFC[hyperG.selected == TRUE]$featureId
+  drawn <- logFC[significant == TRUE]$featureId
   hyperGeometricTest(gsd, drawn, rownames(x), direction, do.conform=FALSE)
 }
 

@@ -5,7 +5,8 @@
 \title{Runs a vanilla limma differential expression analysis}
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
-  robust.fit = FALSE, robust.eBayes = FALSE, with.fit = FALSE, ...)
+  robust.fit = FALSE, robust.eBayes = FALSE, use.treat = TRUE,
+  treat.lfc = log2(1.25), with.fit = FALSE, ...)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -20,6 +21,12 @@ running any analysis, and this function essentially is just a "pass through"}
 
 \item{robust.eBayes}{The value of the \code{robust} parameter in the
 \code{eBayes} call.}
+
+\item{use.treat}{logical indicating whether or not to use the "treat"
+functionality to calculate pvalues based on minimum logFC
+(\code{treat.lfc})}
+
+\item{treat.lfc}{The logFC to test the dge on.}
 
 \item{with.fit}{If \code{TRUE}, this function returns the fit in addition
 to the logFC statistics.}

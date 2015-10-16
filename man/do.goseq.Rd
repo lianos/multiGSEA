@@ -6,9 +6,10 @@
 \usage{
 do.goseq(gsd, x, design, contrast = ncol(design),
   feature.bias = create.glength.vector(x), method = "Wallenius",
-  repcnt = 2000, use_genes_without_cat = TRUE, direction = c("over",
-  "under"), plot.fit = FALSE, logFC = NULL, feature.min.logFC = 1,
-  feature.max.padj = 0.1, vm = x, ...)
+  repcnt = 2000, use_genes_without_cat = TRUE, split.updown = TRUE,
+  direction = c("over", "under"), plot.fit = FALSE, use.treat = TRUE,
+  feature.min.logFC = log2(1.25), feature.max.padj = 0.1, logFC = NULL,
+  ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}
@@ -41,9 +42,6 @@ number of genes outside the category being tested.}
 \code{feature.bias}.}
 
 \item{logFC}{The logFC data.table from \code{calculateIndividualLogFC}}
-
-\item{vm}{A voomed object, if \code{multiGSEA} was original called with
-a \code{DGEList}.}
 
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
 }

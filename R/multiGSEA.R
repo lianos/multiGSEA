@@ -19,6 +19,7 @@
 ##'
 ##' @export
 ##' @import limma
+##' @importFrom parallel mclapply
 ##'
 ##' @seealso
 ##'   \code{\link[limma]{camera}},
@@ -62,8 +63,10 @@
 ##'
 ##' @return A \code{MultiGSEAResult}
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
-                      methods=NULL, feature.min.logFC=1, feature.max.padj=0.10,
-                      trim=0.10, ...) {
+                      methods=NULL, use.treat=TRUE,
+                      feature.min.logFC=if (use.treat) log2(1.25) else 1,
+                      feature.max.padj=0.10,
+                      trim=0.10, verbose=FALSE, ..., do.parallel=FALSE) {
   if (!is(gsd, 'GeneSetDb')) {
     if (is(gsd, 'GeneSetCollection') || is(gsd, 'GeneSet')) {
       stop("A GeneSetDb is required. GeneSetCollections can be can be ",
@@ -107,52 +110,52 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   design <- inputs$design
   contrast <- inputs$contrast
 
-  ## if (is(x, 'DGEList')) {
-  ##   vm <- voom(x, design, plot=FALSE)
-  ## } else {
-  ##   vm <- x
-  ## }
-
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x)
   }
 
   ## ---------------------------------------------------------------------------
   ## Run the analyses
-  ## logFC <- calculateIndividualLogFC(vm, design, contrast, ...)
-  logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+  logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
+                                    treat.lfc=feature.min.logFC,
+                                    verbose=verbose, ...)
   logFC <- within(logFC, {
-    significant <- abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
-    direction <- ifelse(logFC > 0, 'up', 'down')
+    significant <- if (use.treat) {
+      padj <= feature.max.padj
+    } else {
+      abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
+    }
   })
 
   ## the 'logFC' method is just a pass through -- we don't call it if it was
   ## provided
   methods <- setdiff(methods, 'logFC')
-  results <- sapply(methods, function(method) {
-    fn <- getFunction(paste0('do.', method))
-    tryCatch({
-      dt <- fn(gsd, x, design, contrast, logFC=logFC,
-               feature.min.logFC=feature.min.logFC,
-               feature.max.padj=feature.max.padj, ...)
-               ## vm=vm, ...)
-      pcols <- grepl('^pval\\.?', names(dt))
-      if (any(pcols)) {
-        for (i in which(pcols)) {
-          pcol <- names(dt)[i]
-          pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
-          padjs <- p.adjust(dt[[pcol]], 'BH')
-          dt[, (pname) := padjs]
-        }
-      }
-      ## dt[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
-      dt
-    }, error=function(e) NULL)
-  }, simplify=FALSE)
-  failed <- sapply(results, is.null)
-  if (any(failed)) {
-    warning("The following GSEA methods failed: ",
-            paste(names(results)[failed], collapse=','))
+  if (length(methods) > 0L) {
+    if (do.parallel) {
+      res1 <- mclapply(methods, function(method) {
+        tryCatch(mg.run(method, gsd, x, design, contrast, logFC, use.treat,
+                        feature.min.logFC, feature.max.padj, verbose=verbose,
+                        ...),
+                 error=function(e) list(NULL))
+      })
+    } else {
+      res1 <- lapply(methods, function(method) {
+        tryCatch(mg.run(method, gsd, x, design, contrast, logFC, use.treat,
+                        feature.min.logFC, feature.max.padj, verbose=verbose,
+                        ...),
+                 error=function(e) list(NULL))
+      })
+    }
+    names(res1) <- methods
+    results <- unlist(res1, recursive=FALSE)
+    names(results) <- sub('\\.all$', '', names(results))
+    failed <- sapply(results, is.null)
+    if (any(failed)) {
+      warning("The following GSEA methods failed: ",
+              paste(names(results)[failed], collapse=','))
+    }
+  } else {
+    results <- list()
   }
 
   setkeyv(logFC, 'featureId')
@@ -163,6 +166,39 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                             trim=trim)
   out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
   finished <- TRUE
+  out
+}
+
+mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
+                   use.treat=TRUE, feature.min.logFC=log2(1.25),
+                   feature.max.padj=0.10, verbose=FALSE, ...) {
+  fn.name <- paste0('do.', method)
+  if (verbose) {
+    message("... calling: ", fn.name)
+  }
+
+  fn <- getFunction(fn.name)
+  res <- fn(gsd, x, design, contrast, logFC=logFC,
+            use.treat=use.treat, feature.min.logFC=feature.min.logFC,
+            feature.max.padj=feature.max.padj, verbose=verbose, ...)
+  if (is.data.table(res)) {
+    res <- list(all=res)
+  }
+  out <- lapply(res, function(dt) {
+    pcols <- grepl('^pval\\.?', names(dt))
+    if (any(pcols)) {
+      for (i in which(pcols)) {
+        pcol <- names(dt)[i]
+        pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
+        padjs <- p.adjust(dt[[pcol]], 'BH')
+        dt[, (pname) := padjs]
+      }
+    }
+    dt
+  })
+  if (verbose) {
+    message("... ", fn.name, " finishd without error.")
+  }
   out
 }
 
@@ -336,8 +372,9 @@ result <- function(x, name, stats.only=FALSE,
                    rank.by=c('pval', 't', 'logFC'),
                    add.suffix=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  if (length(resultNames(x)) == 0) {
-    return(results(x))
+  if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
+    if (missing(name)) name <- NULL
+    return(results(x, name))
   }
   if (length(resultNames(x)) == 1L) {
     name <- resultNames(x)
@@ -423,6 +460,16 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
                     rank.by=c('pval', 'logFC', 't'),
                     add.suffix=length(names) > 1L) {
   stopifnot(is(x, 'MultiGSEAResult'))
+  if (is.null(resultNames(x)) || length(resultNames(x)) == 0L) {
+    ## No methods were run, you can only return geneset stats
+    if (!is.null(names) || length(names) > 0L) {
+      ## User is asking for something that is not there
+      stop("No GSEA methods were run, you can only get set statistics")
+    }
+    warning("No GSEA methods were run, only geneset statistics have ",
+            "been returned.", immediate.=TRUE)
+    return(geneSets(x))
+  }
   invalidMethods(x, names)
   stopifnot(isSingleLogical(stats.only))
   rank.by <- match.arg(rank.by)

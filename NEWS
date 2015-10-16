@@ -3,8 +3,27 @@ CHANGES IN VERSION 0.2.x
 
 NEW FEATURES
 
-  o Adds support for PANTHER genesets in PANTHER.db package via `getPanther`
-    function.
+  o `use.treat` parameter has been added to relevant places to run the internal
+    differential testing via the "treat" framework made available in limma and
+    edgeR via the `treat` and `glmTreat` "pipelines," respectively.
+
+  o goseq, fry, and romer testing methods have been added.
+
+  o Use of `hyperGeometricTest` strongly discouraged now that goseq is here,
+    set `really.use.hyperGeometricTest=TRUE` if you're really stubborn.
+
+  o Support for DGEList expression input fully baked in. Previously, a DGEList
+    was shot through voom to be used internally. Internal differential gene
+    expression statistics on DGELists use edgeR's quasi-likelihood framework.
+    See `?edgeR::glmQLFit` for more information, and particulary reference
+    Aaron Lun's tutorial on using this approach here:
+
+      It's DE-licious: a recipe for differential expression analyses of RNA-seq
+      experiments using quasi-likelihood methods in edgeR
+      http://www.statsci.org/smyth/pubs/QLedgeRPreprint.pdf
+
+  o Adds support for PANTHER pathway (and GOSLIM) genesets from PANTHER.db
+    package via the `getPantherGeneSetDb` function.
 
   o Added geneSetFeatureStats to return the logFC (and membership) information
     for a geneset after a multiGSEA run.
@@ -40,6 +59,8 @@ NEW FEATURES
 USER VISIBLE CHANGES
 
   o Changed geneSetFeatureStatistics to geneSetsStats
+
+  o Internal differential expression testing defaults to `use.treat=TRUE`
 
 BUG FIXES
 

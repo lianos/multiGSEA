@@ -4,6 +4,7 @@
 ##' so if \code{x} is a \code{DGEList}, it will be voomd first and then
 ##' processed "as usual".
 ##'
+##' @importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
 ##' @export
 ##'
 ##' @param x The expression object. This can be 1 column matrix if you are not
@@ -14,6 +15,10 @@
 ##'   \code{lmFit} call. Defaults to \code{FALSE}
 ##' @param robust.eBayes The value of the \code{robust} parameter in the
 ##'   \code{eBayes} call.
+##' @param use.treat logical indicating whether or not to use the "treat"
+##'   functionality to calculate pvalues based on minimum logFC
+##'   (\code{treat.lfc})
+##' @param treat.lfc The logFC to test the dge on.
 ##' @param with.fit If \code{TRUE}, this function returns the fit in addition
 ##'   to the logFC statistics.
 ##' @param ... parameters passed through to the \code{lmFit} call.
@@ -23,6 +28,7 @@
 ##'   \code{$fit} has the limma fit for the data/design/contrast under test.
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
+                                     use.treat=TRUE, treat.lfc=log2(1.25),
                                      with.fit=FALSE, ...) {
   do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
     length(contrast) > 1
@@ -38,15 +44,24 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
 
   if (is(x, 'DGEList')) {
     ## We default to using the quasi-likelihood piepline with edgeR with
-    ## robust fitting
+    ## robust fitting. Setting robust=TRUE here should be roughly equivalent
+    ## to eBayes(..., robust=TRUE) in the limma world.
     if (!disp.estimated(x)) {
       stop("Dispersions not estimated, need to run estimateDisp first")
     }
     fit <- glmQLFit(x, design, robust=TRUE)
-    if (do.contrast) {
-      tt <- glmQLFTest(fit, contrast=contrast)
+    if (use.treat) {
+      if (do.contrast) {
+        tt <- glmTreat(fit, contrast=contrast, lfc=treat.lfc)
+      } else {
+        tt <- glmTreat(fit, coef=contrast, lfc=treat.lfc)
+      }
     } else {
-      tt <- glmQLFTest(fit, coef=contrast)
+      if (do.contrast) {
+        tt <- glmQLFTest(fit, contrast=contrast)
+      } else {
+        tt <- glmQLFTest(fit, coef=contrast)
+      }
     }
     tt <- as.data.frame(topTags(tt, Inf, sort.by='none'))
     tt <- transform(as.data.table(tt), t=NA_real_, featureId=rownames(x))
@@ -60,12 +75,19 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
       fit <- contrasts.fit(fit, contrast)
       contrast <- 1L
     }
-    fit <- eBayes(fit, robust=robust.eBayes)
-    tt <- topTable(fit, contrast, number=Inf, sort.by='none')
+    if (use.treat) {
+      fit <- treat(fit, lfc=treat.lfc, robust=robust.eBayes)
+      tt <- topTreat(fit, contrast, number=Inf, sort.by='none')
+    } else {
+      fit <- eBayes(fit, robust=robust.eBayes)
+      tt <- topTable(fit, contrast, number=Inf, sort.by='none')
+    }
     tt <- transform(as.data.table(tt), featureId=rownames(x))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
     out <- tt
   } else {
+    ## The user passed in a vector of statistics. Only a very few number of
+    ## GSEA methods support this, but ...
     out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
                       pval=NA_real_, padj=NA_real_,
                       featureId=rownames(x))

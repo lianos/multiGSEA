@@ -37,13 +37,13 @@ test_that("internal goseq mimics goseq package", {
   setDF(my)
   expect_equal(my, goseq.res, check.attributes=FALSE)
 
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq')
+  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE)
 
   r <- result(mgs, 'goseq')
   rc <- r[, list(collection, name, n, n.drawn=n.sig,
                  over_represented_pvalue=pval,
                  under_represented_pvalue=pval.under)]
-  all.equal(rc, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
+  expect_equal(rc, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
 })
 
 test_that("goseq hypergeometric test is like do.hyperGeometricTest", {

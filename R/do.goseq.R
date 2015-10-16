@@ -38,8 +38,6 @@ validate.x.goseq <- validate.X
 ##' @param plot.fit To plot (or not) the bias in selected genes vs.
 ##'   \code{feature.bias}.
 ##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
-##' @param vm A voomed object, if \code{multiGSEA} was original called with
-##'   a \code{DGEList}.
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
 ##' @return A data.table of goseq results. The "pval" column here refers to
 ##'   pval.over, for simplicity in other places.
@@ -47,37 +45,49 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      feature.bias=create.glength.vector(x),
                      method="Wallenius",
                      repcnt=2000, use_genes_without_cat=TRUE,
+                     split.updown=TRUE,
                      direction=c('over', 'under'),
-                     plot.fit=FALSE,
-                     logFC=NULL,
-                     feature.min.logFC=1,
-                     feature.max.padj=0.10, vm=x, ...) {
-  ## if (is(x, "DGEList")) {
-  ##   x <- vm
-  ## }
+                     plot.fit=FALSE, use.treat=TRUE,
+                     feature.min.logFC=log2(1.25), feature.max.padj=0.10,
+                     logFC=NULL, ...) {
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
 
   if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, ...)
+    logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
+                                      treat.lfc=feature.min.logFC, ...)
+    if (use.treat) {
+      logFC[, significant := padj <= feature.max.padj]
+    }
   } else {
     is.logFC.like(logFC, x, as.error=TRUE)
   }
 
-  if (is.null(logFC$hyperG.selected)) {
-    logFC[, hyperG.selected := {
-      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
+  if (is.null(logFC$significant)) {
+    logFC[, significant := {
+      logFC$padj <= feature.max.padj & abs(logFC$logFC) >= feature.min.logFC
     }]
   }
 
-  drawn <- logFC[hyperG.selected == TRUE]$featureId
-  res <- multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
-                          repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                          do.conform=FALSE)
-  setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
-           c('pval', 'pval.under'))
-  res[, padj := p.adjust(pval, 'BH')]
-  res[, padj.under := p.adjust(pval.under, 'BH')]
+  do <- c('all', if (split.updown) c('up', 'down') else NULL)
+
+  out <- sapply(do, function(dge.dir) {
+    drawn <- switch(dge.dir,
+                    all=logFC[significant == TRUE]$featureId,
+                    up=logFC[significant == TRUE & logFC > 0]$featureId,
+                    down=logFC[significant == TRUE & logFC < 0]$featureId)
+    res <- multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
+                            repcnt, use_genes_without_cat, plot.fit=plot.fit,
+                            do.conform=FALSE)
+    setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
+             c('pval', 'pval.under'))
+    res[, padj := p.adjust(pval, 'BH')]
+    res[, padj.under := p.adjust(pval.under, 'BH')]
+  }, simplify=FALSE)
+  if (length(out) == 1L) {
+    out <- out[[1L]]
+  }
+  out
 }
 
 ##' Perform goseq Enrichment tests across a GeneSetDb.
@@ -155,25 +165,6 @@ goseq <- function(gsd, selected, universe,
   for (rcol in rcols) {
     out[, (rcol) := res[rcol]]
   }
-  attr(out, 'pwf') <- pwf
+  setattr(out, 'pwf', pwf)
   out
-}
-
-##' Takes a conformed GeneSetDb and creates a data.frame for goseq to test over
-##'
-##' @param gsd GeneSetDb to prep
-##' @return \code{data.frame} for goseq's \code{gene2cat}
-goseq.gene2cat <- function(gsd) {
-  stopifnot(is(gsd, 'GeneSetDb'))
-  stopifnot(is.conformed(gsd))
-
-  gs <- geneSets(gsd)
-  gs[, category := paste(collection, name, sep=';;')]
-
-  gene2cat <- merge(gsd@db, featureIdMap(gsd), by='featureId')
-  ## remove features/collections that are inactive
-  gene2cat <- subset(gene2cat, !(is.na(x.id) | is.na(x.idx)))
-  gene2cat[, category := paste(collection, name, sep=';;')]
-  gene2cat <- subset(gene2cat, category %in% gs$category)
-  as.data.frame(gene2cat[, list(category, featureId)], stringsAsFactors=FALSE)
 }
