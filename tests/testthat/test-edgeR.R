@@ -1,6 +1,6 @@
 context("Using DGEList's as input")
 
-test_that("logFC calculations are similar between voom and DGEList input", {
+test_that("edgeR::quasiLikelihood pipeline run for logFC's of DGEList input", {
   library(edgeR)
   gdb <- GeneSetDb(exampleGeneSets())
   es <- exampleExpressionSet(do.voom=FALSE)
@@ -9,12 +9,28 @@ test_that("logFC calculations are similar between voom and DGEList input", {
 
   y <- DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- calcNormFactors(y)
-  y <- estimateDisp(y, d)
+  y <- estimateDisp(y, d, robust=TRUE)
 
-  vm <- voom(y, d)
+  fit <- glmQLFit(y, d, robust=TRUE)
+  res <- glmQLFTest(fit, 2)
+  tte <- as.data.frame(topTags(res, Inf, sort.by='none'))
 
-  mgv <- multiGSEA(gdb, vm, d, 2)
   mge <- multiGSEA(gdb, y, d, 2)
+  lfc <- logFC(mge)
 
-  expect_equal(logFC(mge), logFC(mgv))
+  ## multiGSEA calls does some reordering of output
+  tte <- tte[lfc$featureId,]
+  expect_equal(lfc$pval, tte$PValue)
+  expect_equal(lfc$AveExpr, tte$logCPM)
+
+  if (FALSE) {
+    ## compare to voom?
+    vm <- voom(y, d)
+    mgv <- multiGSEA(gdb, vm, d, 2)
+    vfc <- logFC(mgv)
+    plot(-log10(lfc$pval), -log10(vfc$pval), pch=16, col="#3f3f3f33")
+    abline(0, 1, col='red')
+
+    not.voom <- subset(vfc, lfc$significant & !significant)
+  }
 })

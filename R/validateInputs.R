@@ -40,9 +40,8 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     stop("Illegal type for `methods`: ", class(methods)[1L])
   }
 
-  if (is(x, 'DGEList') && !is.numeric(x$common.dispersion)) {
-    warning("It doesn't look like you ran estimateDisp(x) on DGEList x",
-            immediate.=TRUE)
+  if (is(x, 'DGEList') && !disp.estimated(x)) {
+    stop("It does not look like estimateDisp has been run on DGEList")
   }
 
   if (is.vector(x)) {
@@ -100,6 +99,24 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   }
 
   list(x=x, design=design, contrast=contrast)
+}
+
+##' Checks a DGEList to see if estimateDisp() was run on it
+##' @param x Input DGEList
+##' @return TRUE if yes, FALSE if no or if x is not a DGEList.
+disp.estimated <- function(x) {
+  ## check that estimateDisp has been run
+  if (!is(x, "DGEList")) return(FALSE)
+  reqd <- c('common.dispersion', 'trended.dispersion', 'tagwise.dispersion')
+  for (wut in reqd) {
+    vals <- x[[wut]]
+    if (is.null(vals) || is.na(vals) || !is.numeric(vals)) {
+      warning(sprintf('[[%s]] was not found, did you call estimateDisp?"', wut),
+              immediate.=TRUE)
+      return(FALSE)
+    }
+  }
+  return(TRUE)
 }
 
 ## Returns a 0-length list when there is no error

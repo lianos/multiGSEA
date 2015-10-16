@@ -107,11 +107,11 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   design <- inputs$design
   contrast <- inputs$contrast
 
-  if (is(x, 'DGEList')) {
-    vm <- voom(x, design, plot=FALSE)
-  } else {
-    vm <- x
-  }
+  ## if (is(x, 'DGEList')) {
+  ##   vm <- voom(x, design, plot=FALSE)
+  ## } else {
+  ##   vm <- x
+  ## }
 
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x)
@@ -119,7 +119,8 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   ## ---------------------------------------------------------------------------
   ## Run the analyses
-  logFC <- calculateIndividualLogFC(vm, design, contrast, ...)
+  ## logFC <- calculateIndividualLogFC(vm, design, contrast, ...)
+  logFC <- calculateIndividualLogFC(x, design, contrast, ...)
   logFC <- within(logFC, {
     significant <- abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
     direction <- ifelse(logFC > 0, 'up', 'down')
@@ -133,8 +134,8 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     tryCatch({
       dt <- fn(gsd, x, design, contrast, logFC=logFC,
                feature.min.logFC=feature.min.logFC,
-               feature.max.padj=feature.max.padj,
-               vm=vm, ...)
+               feature.max.padj=feature.max.padj, ...)
+               ## vm=vm, ...)
       pcols <- grepl('^pval\\.?', names(dt))
       if (any(pcols)) {
         for (i in which(pcols)) {

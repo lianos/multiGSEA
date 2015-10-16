@@ -25,9 +25,9 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
                                   direction=c('over', 'under'), logFC=NULL,
                                   feature.min.logFC=1,
                                   feature.max.padj=0.10, vm=x, ...) {
-  if (is(x, "DGEList")) {
-    x <- vm
-  }
+  ## if (is(x, "DGEList")) {
+  ##   x <- vm
+  ## }
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
 

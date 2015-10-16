@@ -37,9 +37,6 @@ NEW FEATURES
       gdb5 <- getMSigDBsetc(c('c2', 'c7'), species='mouse')
       gdb4 <- getMSigDBsetc(c('c2', 'c7'), species='mouse', version='v4.0')
 
-  o Added J-G statistic calculation as additional measure to summarize geneset
-    effects in `geneSetFeatureStatistics` and for ranking (result(..., rank.by))
-
 USER VISIBLE CHANGES
 
   o Changed geneSetFeatureStatistics to geneSetsStats

@@ -24,21 +24,43 @@
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      with.fit=FALSE, ...) {
-  if (is(x, 'DGEList')) {
-    message("vooming DGEList to calculate logFCs")
-    x <- voom(x, design, plot=FALSE)
+  do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
+    length(contrast) > 1
+  if (do.contrast) {
+    if (length(contrast) != ncol(design)) {
+      stop("Invalid contrast vector, must be as long as columns in design")
+    }
+  } else if (!is.null(design) && !is.null(contrast) &&
+             length(contrast) != 1 &&
+             contrast > 0 && contrast <= ncol(design)) {
+    stop("Illegal coefficient to test in design")
   }
-  if (ncol(x) > 1) {
-    ## Do limma fits on this thing and let it rip
+
+  if (is(x, 'DGEList')) {
+    ## We default to using the quasi-likelihood piepline with edgeR with
+    ## robust fitting
+    if (!disp.estimated(x)) {
+      stop("Dispersions not estimated, need to run estimateDisp first")
+    }
+    fit <- glmQLFit(x, design, robust=TRUE)
+    if (do.contrast) {
+      tt <- glmQLFTest(fit, contrast=contrast)
+    } else {
+      tt <- glmQLFTest(fit, coef=contrast)
+    }
+    tt <- as.data.frame(topTags(tt, Inf, sort.by='none'))
+    tt <- transform(as.data.table(tt), t=NA_real_, featureId=rownames(x))
+    setnames(tt, c('logCPM', 'PValue', 'FDR'), c('AveExpr', 'pval', 'padj'))
+    out <- tt
+  } else if (ncol(x) > 1) {
+    ## If x is matrix-like but not a DGEList, we assume you are OK to run the
+    ## limma pipeline.
     fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
-    if (length(contrast) > 1) {
-      if (length(contrast) != ncol(design)) {
-        stop("Invalid contrast vector, must be as long as columns in design")
-      }
+    if (do.contrast) {
       fit <- contrasts.fit(fit, contrast)
       contrast <- 1L
     }
-    fit  <- eBayes(fit, robust=robust.eBayes)
+    fit <- eBayes(fit, robust=robust.eBayes)
     tt <- topTable(fit, contrast, number=Inf, sort.by='none')
     tt <- transform(as.data.table(tt), featureId=rownames(x))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))

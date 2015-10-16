@@ -28,11 +28,9 @@ test_that("t-stats and logFCs match full design when only stats passed", {
   rt <- results(mgt)
   rl <- results(mgl)
 
-  expect_equal(ro$JG, rt$JG)
   expect_equal(ro$mean.t, rt$mean.t)
   expect_equal(ro$mean.t.trim, rt$mean.t.trim)
 
-  ## expect_equal(ro$JG, rl$JG) JG stats won't be equal
   expect_equal(ro$mean.logFC, rl$mean.logFC)
   expect_equal(ro$mean.logFC.trim, rl$mean.logFC.trim)
 })
