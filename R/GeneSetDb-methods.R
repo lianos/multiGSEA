@@ -749,7 +749,7 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
     stop("must use value='featureId' for non-conformed GeneSetDb'")
   }
 
-  gs <- geneSets(x, active.only=active.only)
+  gs <- copy(geneSets(x, active.only=active.only))
   gs[, category := paste(collection, name, sep=';;')]
 
   gene2cat <- merge(x@db, featureIdMap(x), by='featureId')

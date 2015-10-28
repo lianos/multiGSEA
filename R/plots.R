@@ -90,6 +90,69 @@ plot.gsea.mini <- function(x, y, j, value, main, ...) {
   stop("plot.gsea.mini not yet implemented")
 }
 
+##' Moving average smoother with tricube distance weights to a numeric vector.
+##'
+##' Copied from limma to sidestep issue of dplyr trampling the call to
+##' \code{filter} here.
+##'
+##' @param x numeric vector
+##' @param span the smoother span. This gives the proportion of \code{x} values
+##'   that contribute to each moving average. Larger values give more
+##'   smoothness. Should be positive but not greater than 1.
+##' @param power a positive exponent used to compute the tricube weights.
+##'   \code{power=3} gives the usual tricube weights.  Smaller values give more
+##'   even weighting.  Should be greater than 0.
+tricubeMovingAverage <- function(x,span=0.5,power=3)
+  #	Moving average filter for a time series with tricube weights
+  #	Gordon Smyth
+  #	Created 5 Feb 2014.  Last modified 18 August 2015.
+{
+  #	Check span
+  if(length(span)>1) {
+    warning("only first value of span used")
+    span <- span[1]
+  }
+  if(span>1) span <- 1
+  if(span<=0) return(x)
+
+  #	Check power
+  if(length(power)>1) {
+    warning("only first value of power used")
+    span <- span[1]
+  }
+  if(power<0) power <- 0
+
+  #	Convert span to width of moving window
+  n <- length(x)
+  width <- span*n
+
+  #	Round width of smoothing window to nearest odd number
+  hwidth <- as.integer(width %/% 2L)
+  if(hwidth <= 0L) return(x)
+  width <- 2L * hwidth + 1L
+
+  #	Make sure window width can't be greater than n
+  if(width>n) width <- n-1L
+
+  #	Tricube weights with all positive values
+  u <- seq(from=-1,to=1,length=width) * width / (width+1)
+  tricube.weights <- (1-abs(u)^3)^power
+  tricube.weights <- tricube.weights/sum(tricube.weights)
+
+  #	Extend x with zeros and compute weighted moving averages
+  z <- numeric(hwidth)
+  x <- as.vector(stats::filter(c(z,x,z),tricube.weights), mode="numeric")
+  x <- x[(hwidth+1):(n+hwidth)]
+
+  #	Rescale boundary values to remove influence of the outside values of zero
+  cw <- cumsum(tricube.weights)
+  x[1:hwidth] <- x[1:hwidth] / cw[(width-hwidth):(width-1)]
+  x[(n-hwidth+1):n] <- x[(n-hwidth+1):n] / cw[(width-1):(width-hwidth)]
+
+  x
+}
+
+
 
 ##' limma's barcodeplot of one or two genesets (with enrichment)
 ##'

@@ -29,6 +29,23 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   }
 })
 
+test_that("GeneSetDb constructor works with an input data.frame", {
+  gdb0 <- GeneSetDb(exampleGeneSets())
+  df <- as.data.frame(gdb0)
+  meta <- data.table(featureId=unique(df$featureId))
+  faux <- replicate(nrow(meta),
+                    paste(sample(letters, 5, replace=TRUE), collapse=""))
+  meta[, symbol := faux]
+  dt.in <- setDT(merge(df, meta, by='featureId'))
+  setkeyv(dt.in, key(gdb0@db))
+
+  ## A warning is fired if merging extra columns (symbol, here) hoses something
+  ## in the GeneSetDb, so let's make sure there is no such warning here.
+  gdb <- GeneSetDb(dt.in[sample(nrow(dt.in))]) ## randomize rows for fun
+  expect_equal(geneSets(gdb), geneSets(gdb0))
+})
+
+
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
   gdbo <- getMSigGeneSetDb('h')
   gsc <- as(gdbo, 'GeneSetCollection')

@@ -13,6 +13,7 @@
 ##'   \item ssgsea: from GSVA package
 ##'   \item gsdecon: Jason Hackeny's method (kind of like plage), but not
 ##'         really.
+##'   \item svd: More direct call to Jason's eigengene-like scoring method.
 ##' }
 ##'
 ##' @export
@@ -154,15 +155,64 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
 
 
 ##' Jason's method
-do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, ...) {
+do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
+                                          doPerm=FALSE, nPerm=249,
+                                          pvalueCutoff=0.01, nComp=1, seed=NULL,
+                                          ...) {
   if (!requireNamespace('GSDecon')) {
     stop("Jason Hackney's GSDecon package required")
   }
-  des <- cbind(Intercept=rep(1L, ncol(y)))
+  if (is.null(design)) {
+    design <- cbind(Intercept=rep(1L, ncol(y)))
+  }
+  stopifnot(is.matrix(design))
+  stopifnot(ncol(design))
   im <- incidenceMatrix(gdb)
-  res <- GSDecon::decon(y, des, im, doPerm=FALSE)
+  res <- GSDecon::decon(y, design, im, doPerm=doPerm, nPerm=nPerm,
+                        pvalueCutoff=pvalueCutoff, nComp=nComp, seed=seed)
   out <- t(res@eigengenes)
   rownames(out) <- rownames(im)
+  out
+}
+
+##' A simpler call to Jason's eigengene-like scoring
+do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
+                                      unscale=TRUE, ...) {
+  if (!requireNamespace('GSDecon')) {
+    stop("Jason Hackney's GSDecon package required")
+  }
+  stopifnot(is.matrix(y))
+  stopifnot(is.conformed(gdb, y))
+
+  ## Check for 0 sd rows, and add some noise
+  sds <- apply(y, 1, sd, na.rm=TRUE)
+  sd0 <- sds < 1e-4
+  if (any(sd0)) {
+    for (i in which(sd0)) {
+      y[i,] <- y[i,] + rnorm(ncol(y), 0, sd=0.01)
+    }
+  }
+
+  y.scale <- t(scale(t(y)))
+  cnt <- if (uncenter) {
+    attributes(y.scale)$"scaled:center"
+  } else {
+    rep(0, nrow(y))
+  }
+  scl <- if (unscale) {
+    attributes(y.scale)$"scaled:scale"
+  } else {
+    rep(1, nrow(y))
+  }
+
+  gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
+  out <- sapply(gs.idxs, function(idxs) {
+    SVD <- svd(y.scale[idxs,])
+    GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
+  })
+  out <- t(out)
+  rownames(out) <- names(gs.idxs)
+  colnames(out) <- colnames(y)
   out
 }
 
@@ -171,4 +221,5 @@ gs.score.map <- list(
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
   ssgsea=do.scoreSingleSamples.gsva,
-  gsdecon=do.scoreSingleSamples.gsdecon)
+  gsdecon=do.scoreSingleSamples.gsdecon,
+  svd=do.scoreSingleSamples.svd)

@@ -29,7 +29,7 @@ NEW FEATURES
     for a geneset after a multiGSEA run.
 
   o Added constructors and `as()` coercion functions to create GeneSetDb's
-    from GeneSetCollection(s), and vice versa.
+    from GeneSetCollection(s) and data.frames (and vice versa).
 
   o `scoreSingleSamples` is another wrapper function which calls several single
     sample geneset scoring algorithms, including the ones provided by the

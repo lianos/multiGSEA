@@ -39,12 +39,51 @@
 GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb <- if (is(x, 'GeneSetCollection')) {
     GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
+  } else if (is(x, 'data.frame')) {
+    GeneSetDb.data.frame(x, featureIdMap, collectionName)
   } else if (is(x, 'list')) {
     GeneSetDb.list(x, featureIdMap, collectionName)
   } else {
     stop("No GeneSetDb constructor defined for: ", class(x)[1L])
   }
 
+  gdb
+}
+
+GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
+  stopifnot(is.data.frame(x) && nrow(x) > 0)
+  x <- setDT(as.data.frame(copy(x)))
+  if (!'collection' %in% names(x)) {
+    if (!is.character(collectionName) &&
+        !length(collectionName) %in% c(1L, nrow(x))) {
+      stop("If no `collection` column is provided in `x`, ",
+           "collectionName must be well defined")
+    }
+    x[, collection := collectionName]
+  }
+  req.cols <- c('collection', 'name', 'featureId')
+  cols.missed <- setdiff(req.cols, names(x))
+  if (length(cols.missed)) {
+    stop("The following columns are missing from `x`:\n ",
+         paste(cols.missed, collapse=", "))
+  }
+
+  lol <- sapply(unique(x[['collection']]), function(col) {
+    with(x[collection == col], split(featureId, name))
+  }, simplify=FALSE)
+  gdb <- GeneSetDb(lol, featureIdMap=featureIdMap)
+
+  add.cols <- setdiff(names(x), req.cols)
+  if (length(add.cols)) {
+    db <- merge(gdb@db, x, by=req.cols, all.x=TRUE)
+    db0 <- setkeyv(copy(gdb@db), req.cols)
+    setkeyv(db, req.cols)
+    if (!all.equal(db0, db[, req.cols, with=FALSE])) {
+      warning("Something unexpected happened merging more feature metadata",
+              immediate.=TRUE)
+    }
+    gdb@db <- setkeyv(db, key(gdb@db))
+  }
   gdb
 }
 
