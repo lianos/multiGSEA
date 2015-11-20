@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.19
+Version: 0.4.20
 Date: 2015-05-21
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
@@ -64,3 +64,4 @@ Collate:
     'scoreSingleSamples.R'
     'testing-helpers.R'
     'utilities.R'
+RoxygenNote: 5.0.0

@@ -368,8 +368,8 @@ subset.GeneSetDb <- function(x, keep) {
 }
 
 if (FALSE) {
-##' @exportMethod subset
-##' @importFrom BiocGenerics subset
+## @exportMethod subset
+## @importFrom BiocGenerics subset
 setMethod("subset", "GeneSetDb", function(x, subject, select, drop=FALSE, ...) {
   data.table:::subset.data.table(geneSets(x), substitute(subject))
 })
@@ -762,6 +762,15 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   gene2cat <- subset(gene2cat, (gs.key %in% gs$category) & !is.na(finalId))
 
   out <- gene2cat[, list(collection, name, featureId=finalId)]
+
+  more.cols <- setdiff(names(gene2cat),
+                       c(names(out), names(featureIdMap(gdb)), 'finalId'))
+  if (length(more.cols)) {
+    for (col in more.cols) {
+      out[, (col) := gene2cat[[col]]]
+    }
+  }
+
   setDF(setkeyv(out, c('collection', 'name', 'featureId')))
 }
 

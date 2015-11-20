@@ -559,8 +559,8 @@ subset.MultiGSEAResult <- function(x, keep) {
 }
 
 if (FALSE) {
-##' @export
-##' @importFrom BiocGenerics subset
+## @export
+## @importFrom BiocGenerics subset
 setMethod("subset", "MultiGSEAResult",
 function(x, subject, select, drop=FALSE, ...) {
 
