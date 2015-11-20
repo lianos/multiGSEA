@@ -1,3 +1,5 @@
+## This code really shouldn't be in this package
+##
 ## Utility functions for working with expression container objects, ie. with
 ## the following classes:
 ##  * ExpressionSet

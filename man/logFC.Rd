@@ -5,7 +5,7 @@
 \title{Extract the individual fold changes statistics for elements in the
 expression object.}
 \usage{
-logFC(x)
+logFC(x, .external = TRUE)
 }
 \arguments{
 \item{x}{A \code{MultiGSEAResult}}

@@ -16,7 +16,7 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
   if (ncol(x) > 1) {
     if (is.null(logFC)) {
       logFC <- calculateIndividualLogFC(x, design, contrast, robust.fit,
-                                        robust.eBayes, ...)
+                                        robust.eBayes, ..., .external=FALSE)
     } else {
       is.logFC.like(logFC, x, as.error=TRUE)
     }
@@ -52,7 +52,7 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
     do.call(limma::geneSetTest, xargs)
   })
 
-  out <- geneSets(gsd)[, list(collection, name)]
+  out <- geneSets(gsd, .external=FALSE)[, list(collection, name)]
   out[, pval := pvals]
   out[, padj := p.adjust(pval, 'BH')]
 }

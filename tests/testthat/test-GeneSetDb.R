@@ -32,16 +32,15 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
 test_that("GeneSetDb constructor works with an input data.frame", {
   gdb0 <- GeneSetDb(exampleGeneSets())
   df <- as.data.frame(gdb0)
-  meta <- data.table(featureId=unique(df$featureId))
+  meta <- data.frame(featureId=unique(df$featureId), stringsAsFactors=FALSE)
   faux <- replicate(nrow(meta),
                     paste(sample(letters, 5, replace=TRUE), collapse=""))
-  meta[, symbol := faux]
-  dt.in <- setDT(merge(df, meta, by='featureId'))
-  setkeyv(dt.in, key(gdb0@db))
+  meta$symbol <- faux
+  df.in <- merge(df, meta, by='featureId')
 
   ## A warning is fired if merging extra columns (symbol, here) hoses something
   ## in the GeneSetDb, so let's make sure there is no such warning here.
-  gdb <- GeneSetDb(dt.in[sample(nrow(dt.in))]) ## randomize rows for fun
+  gdb <- GeneSetDb(df.in[sample(nrow(df.in)),]) ## randomize rows for fun
   expect_equal(geneSets(gdb), geneSets(gdb0))
 })
 
@@ -247,12 +246,14 @@ test_that("append,GeneSetDb works", {
 test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
   m <- getMSigDBset('h')
   r <- getReactomeGeneSetDb()
+
   a <- append(r, m)
 
   ## Check that all columns are there
   expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
                        names(geneSets(a))))
 
+  ## Add a species column to m@table to check if it carries through after append
   m@table$species <- 'human'
   a2 <- append(m, r)
   expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),

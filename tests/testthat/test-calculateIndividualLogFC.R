@@ -2,8 +2,9 @@ context("calculateIndividualLogFC")
 
 tt2dt <- function(x) {
   x$featureId <- rownames(x)
-  setnames(x, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
-  as.data.table(x)
+  data.table::setnames(x, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
+  rownames(x) <- NULL
+  ret.df(x)
 }
 
 ## TODO: Test that logFC's are calculated correctly when using contrast
@@ -16,22 +17,22 @@ test_that("logFC's calculated from contrast vectors are correct", {
 
   ## limma ----------------------------------------------------------
   ## with intercept
-  vmi <- voom(es, di)
-  fit <- lmFit(vmi, vmi$design)
-  e <- eBayes(fit)
-  tt.lumA <- tt2dt(topTable(e, 'LumA', number=Inf, sort='none'))
-  tt.her2 <- tt2dt(topTable(e, 'Her2', number=Inf, sort='none'))
+  vmi <- limma::voom(es, di)
+  fit <- limma::lmFit(vmi, vmi$design)
+  e <- limma::eBayes(fit)
+  tt.lumA <- tt2dt(limma::topTable(e, 'LumA', number=Inf, sort='none'))
+  tt.her2 <- tt2dt(limma::topTable(e, 'Her2', number=Inf, sort='none'))
 
   ## no intercept
-  cm <- makeContrasts(her2.vs.basal=Her2 - Basal,
-                      lumA.vs.basal=LumA - Basal,
-                      levels=d0)
-  vm0 <- voom(es, d0)
-  fit0 <- lmFit(vm0, vm0$design)
-  e0 <- eBayes(contrasts.fit(fit0, cm))
+  cm <- limma::makeContrasts(her2.vs.basal=Her2 - Basal,
+                             lumA.vs.basal=LumA - Basal,
+                             levels=d0)
+  vm0 <- limma::voom(es, d0)
+  fit0 <- limma::lmFit(vm0, vm0$design)
+  e0 <- limma::eBayes(limma::contrasts.fit(fit0, cm))
 
-  tt0.lumA <- tt2dt(topTable(e0, 'lumA.vs.basal', number=Inf, sort='none'))
-  tt0.her2 <- tt2dt(topTable(e0, 'her2.vs.basal', number=Inf, sort='none'))
+  tt0.lumA <- tt2dt(limma::topTable(e0, 'lumA.vs.basal', number=Inf, sort='none'))
+  tt0.her2 <- tt2dt(limma::topTable(e0, 'her2.vs.basal', number=Inf, sort='none'))
 
   ## Checks results from analysis w/ and w/o intercepts
   expect_equal(tt.lumA, tt0.lumA)
@@ -43,16 +44,16 @@ test_that("logFC's calculated from contrast vectors are correct", {
                                          use.treat=FALSE)
   my.tt.her2 <- calculateIndividualLogFC(vmi, vmi$design, 'Her2',
                                          use.treat=FALSE)
-  expect_equal(tt.lumA, my.tt.lumA[, names(tt.lumA), with=FALSE])
-  expect_equal(tt.her2, my.tt.her2[, names(tt.her2), with=FALSE])
+  expect_equal(tt.lumA, my.tt.lumA[, names(tt.lumA)])
+  expect_equal(tt.her2, my.tt.her2[, names(tt.her2)])
 
   ## 2. Using a contrast vector
   my.tt0.lumA <- calculateIndividualLogFC(vm0, d0, cm[, 'lumA.vs.basal'],
                                           use.treat=FALSE)
   my.tt0.her2 <- calculateIndividualLogFC(vm0, d0, cm[, 'her2.vs.basal'],
                                           use.treat=FALSE)
-  expect_equal(tt.lumA, my.tt0.lumA[, names(tt.lumA), with=FALSE])
-  expect_equal(tt.her2, my.tt0.her2[, names(tt.her2), with=FALSE])
+  expect_equal(tt.lumA, my.tt0.lumA[, names(tt.lumA)])
+  expect_equal(tt.her2, my.tt0.her2[, names(tt.her2)])
 })
 
 test_that("treat pvalues are legit", {
@@ -60,15 +61,15 @@ test_that("treat pvalues are legit", {
   es <- exampleExpressionSet(do.voom=FALSE)
   d <- es@design
 
-  vm <- voom(es, d)
+  vm <- limma::voom(es, d)
   y <- edgeR::DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- edgeR::calcNormFactors(y)
   y <- edgeR::estimateDisp(y, d, robust=TRUE)
 
   ## limma/voom ----------------------------------------------------------------
-  fit <- lmFit(vm, vm$design)
-  e <- treat(fit, lfc=lfc)
-  tt <- topTreat(e, 'tumor', number=Inf, sort='none')
+  fit <- limma::lmFit(vm, vm$design)
+  e <- limma::treat(fit, lfc=lfc)
+  tt <- limma::topTreat(e, 'tumor', number=Inf, sort='none')
 
   xx <- calculateIndividualLogFC(vm, d, 'tumor', use.treat=TRUE, treat.lfc=lfc)
 

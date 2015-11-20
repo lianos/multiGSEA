@@ -55,7 +55,8 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 
   if (is.null(logFC)) {
     logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                      treat.lfc=feature.min.logFC, ...)
+                                      treat.lfc=feature.min.logFC, ...,
+                                      .external=FALSE)
     if (use.treat) {
       logFC[, significant := padj <= feature.max.padj]
     }
@@ -78,7 +79,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                     down=logFC[significant == TRUE & logFC < 0]$featureId)
     res <- multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
                             repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                            do.conform=FALSE)
+                            do.conform=FALSE, .external=FALSE)
     setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
              c('pval', 'pval.under'))
     res[, padj := p.adjust(pval, 'BH')]
@@ -122,7 +123,7 @@ goseq <- function(gsd, selected, universe,
                   feature.bias=NULL,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
-                  plot.fit=TRUE, do.conform=TRUE) {
+                  plot.fit=TRUE, do.conform=TRUE, .external=TRUE) {
   stopifnot(is(gsd, 'GeneSetDb'))
   stopifnot(is.character(selected))
   stopifnot(is.character(universe))
@@ -143,7 +144,7 @@ goseq <- function(gsd, selected, universe,
   }
   stopifnot(is.conformed(gsd, universe))
 
-  gs <- geneSets(gsd, active.only=TRUE)
+  gs <- geneSets(gsd, active.only=TRUE, .external=FALSE)
   gs[, category := paste(collection, name, sep=';;')]
   g2c <- as.data.frame(gsd, active.only=TRUE, value='x.id')
   g2c <- transform(g2c, category=paste(collection, name, sep=';;'))
@@ -165,6 +166,7 @@ goseq <- function(gsd, selected, universe,
   for (rcol in rcols) {
     out[, (rcol) := res[rcol]]
   }
+  out <- ret.df(out, .external=.external)
   setattr(out, 'pwf', pwf)
   out
 }

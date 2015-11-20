@@ -5,7 +5,7 @@
 \title{Summarize useful feature-level statistics across gene sets.}
 \usage{
 geneSetsStats(x, feature.min.logFC = 1, feature.max.padj = 0.1,
-  trim = 0.1)
+  trim = 0.1, .external = TRUE)
 }
 \arguments{
 \item{x}{A \code{multiGSEAResult} object}

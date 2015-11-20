@@ -12,12 +12,13 @@ test_that("geneSetTest matches re-implememtation", {
   gsd.idxs <- multiGSEA:::as.expression.indexes(gsd, value='x.idx')
   gsi <- gsi[names(gsd.idxs)]
 
-  stats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design))
+  stats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design),
+                                    .external=FALSE)
 
   nsim <- 250
   seed <- 123
   set.seed(seed)
-  expected <- sapply(gsi, geneSetTest, stats$t, nsim=nsim)
+  expected <- sapply(gsi, limma::geneSetTest, stats$t, nsim=nsim)
 
   set.seed(seed)
   my.gsd <- multiGSEA:::do.geneSetTest(gsd, vm, logFC=stats, nsim=nsim,

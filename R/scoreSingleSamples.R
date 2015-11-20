@@ -46,7 +46,9 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
     colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
 
-  gs.names <- with(geneSets(gdb), paste(collection, name, sep=';;'))
+  gs.names <- with(geneSets(gdb, .external=FALSE), {
+    paste(collection, name, sep=';;')
+  })
   scores <- sapply(methods, function(method) {
     out <- gs.score.map[[method]](gdb, y, method=method, melted=melted, ...)
     rownames(out) <- gs.names
@@ -70,7 +72,7 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
 ##'   \code{do.scoreSingleSamples.*} methods.
 ##' @param a melted \code{data.table} of scores
 melt.gs.scores <- function(gdb, scores) {
-  out <- cbind(geneSets(gdb)[, list(collection, name, n)],
+  out <- cbind(geneSets(gdb, .external=FALSE)[, list(collection, name, n)],
                scores)
   data.table:::melt.data.table(out, c('collection', 'name', 'n'),
                                variable.name='sample',
@@ -97,7 +99,7 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
     }
   }
 
-  gs <- geneSets(gdb)
+  gs <- geneSets(gdb, .external=FALSE)
   gs.idxs <- lapply(1:nrow(gs), function(i) {
     featureIds(gdb, gs$collection[i], gs$name[i], 'x.idx')
   })
@@ -125,7 +127,7 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
 
 ##' @importFrom GSVA gsva
 do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
-                                  tweak.plage.sign=FALSE, ...) {
+                                       tweak.plage.sign=FALSE, ...) {
   idxs <- .xformGdbForGSVA(gdb, y)
   f <- formals(GSVA:::.gsva)
   args <- list(...)

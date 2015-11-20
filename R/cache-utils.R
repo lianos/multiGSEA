@@ -1,3 +1,7 @@
+##
+## The code in this file should be on its way out
+##
+
 design.params.name <- function(design, contrast, with.space=FALSE) {
   if (length(contrast) == 1) {
     if (is.character(contrast)) {

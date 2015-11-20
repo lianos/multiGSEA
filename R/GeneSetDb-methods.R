@@ -46,7 +46,7 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
     stop("Illegal type of expression object to conform to")
   }
 
-  fm <- featureIdMap(x)
+  fm <- featureIdMap(x, .external=FALSE)
   fm$x.idx <- match(fm$x.id, rownames(target))
   fraction.match <- mean(!is.na(fm$x.idx))
   if (fraction.match <= match.tolerance) {
@@ -101,10 +101,10 @@ is.conformed <- function(x, to) {
     stop("Only works on the GeneSetDb")
   }
   if (missing(to)) {
-    ans <- any(!is.na(featureIdMap(x)$x.idx))
+    ans <- any(!is.na(featureIdMap(x, .external=FALSE)$x.idx))
   } else {
     ## Verify that gsd is properly conformed to x
-    fm <- subset(featureIdMap(x), !is.na(x.idx))
+    fm <- subset(featureIdMap(x, .external=FALSE), !is.na(x.idx))
     to.ids <- if (is.character(to))
       to
     else if (is.vector(to))
@@ -137,7 +137,7 @@ incidenceMatrix <- function(x, y) {
   gs <- NULL
   if (missing(y)) {
     val <- 'featureId'
-    gs <- geneSets(x)
+    gs <- geneSets(x, .external=FALSE)
     all.fids <- unique(x@db$featureId)
     out <- matrix(0L, nrow=nrow(gs), ncol=length(all.fids),
                   dimnames=list(
@@ -151,7 +151,7 @@ incidenceMatrix <- function(x, y) {
     if (!is.conformed(x, y)) {
       x <- conform(x, y)
     }
-    gs <- geneSets(x)
+    gs <- geneSets(x, .external=FALSE)
     out <- matrix(0L, nrow(gs), nrow(y),
                   dimnames=list(
                     paste(gs$collection, gs$name, sep=';;'),
@@ -237,7 +237,7 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
     whole.collection <- FALSE
   }
 
-  gs <- geneSets(x, active.only=active.only)
+  gs <- geneSets(x, active.only=active.only, .external=FALSE)
   gs <- gs[, key(gs), with=FALSE]
   gs <- gs[J(i)]
 
@@ -259,7 +259,7 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
     }
   }
 
-  fid.map <- merge(db, featureIdMap(x), by='featureId')
+  fid.map <- merge(db, featureIdMap(x, .external=FALSE), by='featureId')
   if (is.conformed(x) && !fetch.all) {
     fid.map <- subset(fid.map, !is.na(x.idx))
   }
@@ -267,7 +267,9 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
   fid.map[[value]]
 })
 
-setMethod("featureIdMap", c(x="GeneSetDb"), function(x) x@featureIdMap)
+setMethod("featureIdMap", c(x="GeneSetDb"), function(x, .external=TRUE) {
+  ret.df(x@featureIdMap, .external=.external)
+})
 
 ##' Replacing the featureIdMap blows away the "conform"-ation status of x
 ##'
@@ -295,18 +297,20 @@ setReplaceMethod('featureIdMap', 'GeneSetDb', function(x, value) {
 })
 
 setMethod("geneSets", c(x="GeneSetDb"),
-function(x, active.only=is.conformed(x), ...) {
-  if (active.only[1L]) x@table[active == TRUE] else x@table
+function(x, active.only=is.conformed(x), ... , .external=TRUE) {
+  out <- if (active.only[1L]) x@table[active == TRUE] else x@table
+  ret.df(out, .external=.external)
 })
 
 ##' @exportMethod geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
-  function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE, ...) {
+  function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE, ...,
+           .external=TRUE) {
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
                      fetch.all=fetch.all, ...)
-  info <- geneSets(x, active.only=FALSE)[J(i, j)]
-  finfo <- featureIdMap(x)[J(fids)]
-  cbind(info[rep(1, nrow(finfo))], finfo)
+  info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
+  finfo <- featureIdMap(x, .external=FALSE)[J(fids)]
+  ret.df(cbind(info[rep(1, nrow(finfo))], finfo), .external=.external)
 })
 
 ##' Subset GeneSetDb to only include specified genesets.
@@ -320,7 +324,7 @@ setMethod("geneSet", c(x="GeneSetDb"),
 ##'   genesets.
 subset.GeneSetDb <- function(x, keep) {
   stopifnot(is(x, 'GeneSetDb'))
-  nr <- nrow(geneSets(x, active.only=FALSE))
+  nr <- nrow(geneSets(x, active.only=FALSE, .external=FALSE))
 
   if (!is.logical(keep) && length(keep) != nr) {
     stop("The `keep` vector is FUBAR'd")
@@ -371,7 +375,7 @@ if (FALSE) {
 ## @exportMethod subset
 ## @importFrom BiocGenerics subset
 setMethod("subset", "GeneSetDb", function(x, subject, select, drop=FALSE, ...) {
-  data.table:::subset.data.table(geneSets(x), substitute(subject))
+  data.table:::subset.data.table(geneSets(x, .external=FALSE), substitute(subject))
 })
 }
 
@@ -394,7 +398,8 @@ hasGeneSetCollection <- function(x, collections, as.error=FALSE) {
   ##   stop("This GeneSetDb is not valid")
   ## }
 
-  meta.idxs <- match(collections, collectionMetadata(x)$collection)
+  meta.idxs <- match(collections,
+                     collectionMetadata(x, .external=FALSE)$collection)
   gsc.exists <- !is.na(meta.idxs)
   if (!all(gsc.exists) && as.error) {
     bad <- paste("    * ", collections[!gsc.exists], collapse='\n', sep='')
@@ -427,19 +432,20 @@ hasGeneSet <- function(x, collection, name, as.error=FALSE) {
 
 setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="missing", name="missing"),
-  function(x, collection, name) x@collectionMetadata)
+  function(x, collection, name, .external=TRUE)
+    ret.df(x@collectionMetadata, .external=.external))
 
 setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="character", name="missing"),
-  function(x, collection, name) {
+  function(x, collection, name, .external=TRUE) {
     stopifnot(isSingleCharacter(collection))
     hasGeneSetCollection(x, collection, as.error=TRUE)
-    x@collectionMetadata[collection]
+    ret.df(x@collectionMetadata[collection], .external=.external)
   })
 
 setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="character", name="character"),
-  function(x, collection, name) {
+  function(x, collection, name, .external=TRUE) {
     stopifnot(isSingleCharacter(collection))
     stopifnot(isSingleCharacter(name))
     hasGeneSetCollection(x, collection, as.error=TRUE)
@@ -636,7 +642,8 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   db <- unique(db, by=c('collection', 'name', 'featureId'))
   db <- setkeyv(db, key(x@db))
 
-  fms <- list(featureIdMap(x), featureIdMap(values))
+  fms <- list(featureIdMap(x, .external=FALSE),
+              featureIdMap(values, .external=FALSE))
   fm <- rbindlist(fms, use.names=TRUE, fill=TRUE)
   ## ensure that a featureId entry maps to only one x.id entry
   ## DEBUG: Is this uniquification necessary?
@@ -658,7 +665,8 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   add.gs.cols <- setdiff(names(gs), names(out@table))
   if (length(add.gs.cols) > 0) {
     gs.keys <- key(out@table)
-    new.table <- merge(out@table, gs[, c(gs.keys, add.gs.cols), with=FALSE],
+    new.table <- merge(out@table,
+                       gs[, c(gs.keys, add.gs.cols), with=FALSE],
                        by=gs.keys, all.x=TRUE)
     if (!all.equal(out@table, new.table[, names(out@table), with=FALSE])) {
       stop("There was a problem adding additional columns to geneset@table ",
@@ -688,16 +696,16 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
   msg <- TRUE
 
   dbt <- setkeyv(copy(target@db), c('collection', 'name', 'featureId'))
-  gst <- geneSets(target, active.only=FALSE)
+  gst <- geneSets(target, active.only=FALSE, .external=FALSE)
 
   dbc <- setkeyv(copy(current@db), key(dbt))
-  gsc <- geneSets(current, active.only=FALSE)
+  gsc <- geneSets(current, active.only=FALSE, .external=FALSE)
 
   proto <- new("GeneSetDb")
   if (features.only) {
     dbt <- dbt[, names(proto@db), with=FALSE]
     dbc <- dbc[, names(proto@db), with=FALSE]
-    gst <- gst[, names(geneSets(proto)), with=FALSE]
+    gst <- gst[, names(geneSets(proto, .external=FALSE)), with=FALSE]
     gsc <- gsc[, names(gst), with=FALSE]
   }
 
@@ -711,24 +719,8 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
     return(msg)
   }
 
-  all.equal(collectionMetadata(target), collectionMetadata(current))
-}
-
-##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
-##' have different default values for the \code{active.only} parameter.
-##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
-##' returns the integer index into the expression matrix that the
-##' \code{GeneSetDb} is conformed to.
-##'
-##' @aliases as.list.GeneSetDb
-##' @rdname GeneSetDb-conversion
-##' @method as.list GeneSetDb
-##' @export
-as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
-                              active.only=is.conformed(x),
-                              ...) {
-  value <- match.arg(value)
-  as.expression.indexes(x, value, active.only, nested)
+  all.equal(collectionMetadata(target, .external=FALSE),
+            collectionMetadata(current, .external=FALSE))
 }
 
 ##' Convert a GeneSetDb to a data.frame
@@ -749,10 +741,11 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
     stop("must use value='featureId' for non-conformed GeneSetDb'")
   }
 
-  gs <- copy(geneSets(x, active.only=active.only))
+  fid.map <- featureIdMap(x, .external=FALSE)
+  gs <- copy(geneSets(x, active.only=active.only, .external=FALSE))
   gs[, category := paste(collection, name, sep=';;')]
 
-  gene2cat <- merge(x@db, featureIdMap(x), by='featureId')
+  gene2cat <- merge(x@db, fid.map, by='featureId')
   if (is.conformed(x)) {
     gene2cat <- subset(gene2cat, !is.na(x.idx))
   }
@@ -764,7 +757,7 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   out <- gene2cat[, list(collection, name, featureId=finalId)]
 
   more.cols <- setdiff(names(gene2cat),
-                       c(names(out), names(featureIdMap(gdb)), 'finalId'))
+                       c(names(out), names(fid.map), 'finalId'))
   if (length(more.cols)) {
     for (col in more.cols) {
       out[, (col) := gene2cat[[col]]]
@@ -773,6 +766,25 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
 
   setDF(setkeyv(out, c('collection', 'name', 'featureId')))
 }
+
+
+##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
+##' have different default values for the \code{active.only} parameter.
+##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
+##' returns the integer index into the expression matrix that the
+##' \code{GeneSetDb} is conformed to.
+##'
+##' @aliases as.list.GeneSetDb
+##' @rdname GeneSetDb-conversion
+##' @method as.list GeneSetDb
+##' @export
+as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
+                              active.only=is.conformed(x),
+                              ...) {
+  value <- match.arg(value)
+  as.expression.indexes(x, value, active.only, nested)
+}
+
 
 ##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set
 ##'
@@ -795,7 +807,7 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
   if (value == 'x.idx' && !is.conformed(x)) {
     stop("GeneSetDb has not been conformed to an expression object")
   }
-  gs <- geneSets(x, active.only=active.only)
+  gs <- geneSets(x, active.only=active.only, .external=FALSE)
   cats <- gs$collection
   nms <- gs$name
   out <- lapply(seq(cats), function(idx) {
@@ -831,7 +843,7 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
   ## if (!isTRUE(validObject(x))) {
   ##   stop("Invalid GeneSetDb")
   ## }
-  geneSets(x, active.only=FALSE)[J(i, j), which=TRUE]
+  geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j), which=TRUE]
 }
 
 ## setMethod("[", "GeneSetDb", function(x, i, j, ..., drop) {

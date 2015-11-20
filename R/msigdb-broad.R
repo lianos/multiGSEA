@@ -46,8 +46,9 @@ getMSigGeneSetDb <- function(collection, species='human',
   out <- readRDS(fn)
 
   if (!setequal(collection, avail.cols)) {
-    keep <- geneSets(out)$collection %in% collection
-    out <- subset.GeneSetDb(out, geneSets(out)$collection %in% collection)
+    gs <- geneSets(out, .external=FALSE)
+    keep <- gs$collection %in% collection
+    out <- subset.GeneSetDb(out, gs$collection %in% collection)
   }
 
   out

@@ -4,7 +4,7 @@
 \alias{collectionMetadata}
 \title{Query for metadata associated with a collection.}
 \usage{
-collectionMetadata(x, collection, name)
+collectionMetadata(x, collection, name, ...)
 }
 \arguments{
 \item{x}{Object to extract the collectionMetadata from}

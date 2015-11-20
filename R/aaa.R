@@ -16,3 +16,35 @@
   }
   bad.methods
 }
+
+##' Returns data.table objects in formats people like.
+##'
+##' Apparently some people don't like getting data.table(s). Use
+##' \code{options(multiGSEA.df.return='data.frame')} if you want to get
+##' a \code{data.frame}
+ret.df <- function(x, .external=TRUE) {
+  if (!.external) {
+    return(x)
+  }
+  if (!is(x, 'data.frame')) {
+    return(x)
+  }
+  df.return <- getOption('multiGSEA.df.return')
+  if (!df.return %in% c('data.table', 'data.frame')) {
+    warning("Invalid value for options(multiGSEA.df.return) (",
+            df.return, "), returning default object", immediate.=TRUE)
+    return(x)
+  }
+
+  clazz <- class(x)[1L]
+  switch(df.return,
+         data.table=if (is.data.table(x)) x else setDT(copy(x)),
+         data.frame=if (clazz == 'data.frame') {
+           x
+         } else if (is.data.table(x)) {
+           setDF(copy(x))
+          } else {
+            warning("Unknown object type, returning as is: ", clazz)
+            x
+          })
+}

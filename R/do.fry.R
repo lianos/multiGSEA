@@ -40,7 +40,8 @@ do.fry <- function(gsd, x, design, contrast=ncol(design), ...) {
   call.args[['...']] <- NULL
   res <- do.call(limma::fry, call.args)
 
-  out <- cbind(geneSets(gsd)[, list(collection, name)], as.data.table(res))
+  out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
+               as.data.table(res))
   out[, NGenes := NULL]
   out <- subset(out, name != dummy.gs)
 

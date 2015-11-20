@@ -6,19 +6,19 @@ test_that('camera runs equivalently from do.camera vs direct call', {
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), vm)
 
-  photo <- camera(vm, gsi, vm$design, ncol(vm$design))
+  photo <- limma::camera(vm, gsi, vm$design, ncol(vm$design))
   my <- multiGSEA:::do.camera(gsd, vm, vm$design, ncol(vm$design))
 
   ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd)[, list(collection, name)],
+  expect_equal(geneSets(gsd, .external=FALSE)[, list(collection, name)],
                my[, list(collection, name)])
-  my[, n := geneSets(gsd)$n]
+  my[, n := geneSets(gsd, .external=FALSE)$n]
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
   comp <- local({
     out <- my[, list(n, Correlation, Direction, pval, padj)]
-    setnames(out, names(photo))
+    data.table::setnames(out, names(photo))
     out <- as.data.frame(out)
     rownames(out) <- paste(my$collection, my$name, sep=';;')
     out[rownames(photo),]

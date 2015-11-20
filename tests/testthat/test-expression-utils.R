@@ -25,7 +25,7 @@ test_that("CPM is like edgeR::cpm", {
   expect_equivalent(c.y, c.expect) ## CPM adds some attribs
 
   es$norm.factors <- calcNormFactors(exprs(es))
-  c.es <- CPM(es, prior.count=5, regularized=FALSE)
+  c.es <- CPM(es, prior.count=5, regularized=FALSE, x.element='exprs')
   expect_equivalent(c.es, c.expect)
 
   ## The multiplication of 1 million to bring counts back to "normal" scale

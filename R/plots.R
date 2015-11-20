@@ -19,7 +19,7 @@ plot.gsea.density <- function(x, y, j, value, main, bg.density=NULL,
                               ylim=c(0, base::max(c(gs.density$y, bg.density$y)) + 0.1),
                               jitter.sig.higher=FALSE, with.rug=TRUE,
                               gs.name=j, lwd=3, ...) {
-  lfc <- logFC(x)
+  lfc <- logFC(x, .external=FALSE)
   if (!is(bg.density, 'density')) {
     bg.density <- density(lfc[[value]], na.rm=TRUE)
   }
@@ -75,7 +75,7 @@ plot.gsea.density <- function(x, y, j, value, main, bg.density=NULL,
 }
 
 plot.gsea.barcode <- function(x, y, j, value, main, ...) {
-  lfc <- logFC(x)
+  lfc <- logFC(x, .external=FALSE)
 
   gs.fids <- featureIds(x@gsd, y, j, 'x.id')
   idx <- lfc[gs.fids, which=TRUE]
@@ -89,69 +89,6 @@ plot.gsea.barcode <- function(x, y, j, value, main, ...) {
 plot.gsea.mini <- function(x, y, j, value, main, ...) {
   stop("plot.gsea.mini not yet implemented")
 }
-
-##' Moving average smoother with tricube distance weights to a numeric vector.
-##'
-##' Copied from limma to sidestep issue of dplyr trampling the call to
-##' \code{filter} here.
-##'
-##' @param x numeric vector
-##' @param span the smoother span. This gives the proportion of \code{x} values
-##'   that contribute to each moving average. Larger values give more
-##'   smoothness. Should be positive but not greater than 1.
-##' @param power a positive exponent used to compute the tricube weights.
-##'   \code{power=3} gives the usual tricube weights.  Smaller values give more
-##'   even weighting.  Should be greater than 0.
-tricubeMovingAverage <- function(x,span=0.5,power=3)
-  #	Moving average filter for a time series with tricube weights
-  #	Gordon Smyth
-  #	Created 5 Feb 2014.  Last modified 18 August 2015.
-{
-  #	Check span
-  if(length(span)>1) {
-    warning("only first value of span used")
-    span <- span[1]
-  }
-  if(span>1) span <- 1
-  if(span<=0) return(x)
-
-  #	Check power
-  if(length(power)>1) {
-    warning("only first value of power used")
-    span <- span[1]
-  }
-  if(power<0) power <- 0
-
-  #	Convert span to width of moving window
-  n <- length(x)
-  width <- span*n
-
-  #	Round width of smoothing window to nearest odd number
-  hwidth <- as.integer(width %/% 2L)
-  if(hwidth <= 0L) return(x)
-  width <- 2L * hwidth + 1L
-
-  #	Make sure window width can't be greater than n
-  if(width>n) width <- n-1L
-
-  #	Tricube weights with all positive values
-  u <- seq(from=-1,to=1,length=width) * width / (width+1)
-  tricube.weights <- (1-abs(u)^3)^power
-  tricube.weights <- tricube.weights/sum(tricube.weights)
-
-  #	Extend x with zeros and compute weighted moving averages
-  z <- numeric(hwidth)
-  x <- as.vector(stats::filter(c(z,x,z),tricube.weights), mode="numeric")
-  x <- x[(hwidth+1):(n+hwidth)]
-
-  #	Rescale boundary values to remove influence of the outside values of zero
-  cw <- cumsum(tricube.weights)
-  x[1:hwidth] <- x[1:hwidth] / cw[(width-hwidth):(width-1)]
-  x[(n-hwidth+1):n] <- x[(n-hwidth+1):n] / cw[(width-1):(width-hwidth)]
-
-  x
-}
-
 
 
 ##' limma's barcodeplot of one or two genesets (with enrichment)
@@ -632,87 +569,4 @@ plot.barcode <- function(statistics, index=NULL, index2=NULL, gene.weights=NULL,
   }
 
   invisible()
-}
-
-## -----------------------------------------------------------------------------
-##' Generates GSEA plots for the genesets over a given experiment.
-##'
-##' @param x The expression object used in the multiGSEA call
-##' @param design The desing matrix for this GSEA
-##' @param contrast The contrast being analyzed in the GSEA
-##' @param result The result data.table returned (or being generated) in the
-##' \code{multiGSEA} call.
-##' @param outdir The path to the parent directory that holds the output for
-##' this run.
-##' @param use.cache If true, the function checks if the image already exists
-##' before replotting it.
-##' @param logFC pre-computed logFCs for the contrast we are running GSEA
-##' against.
-##' @param padj.threshold plot generation to only include genesets that
-##' have some value in an FDR column that is less than or equal to this
-##' threshold.
-##'
-##' @return A data.table that has the collection, id, gene set name, image page
-##'   and whether or not the image was plotted columns for each row in \code{x}
-generate.GSEA.plots <- function(x, design, contrast, result, outdir,
-                                use.cache=TRUE, logFC.stats=NULL,
-                                padj.threshold=1,
-                                score.by=c('logFC', 't'), ...) {
-  score.by <- match.arg(score.by)
-  score.by <- 'logFC'
-  if (is.null(logFC.stats)) {
-    logFC.stats <- calculateIndividualLogFC(x, design, contrast,
-                                            provide='table', ...)
-  }
-  if (!all(rownames(logFC.stats) == rownames(x))) {
-    stop("The logFC values do not match the rownames if x")
-  }
-
-  x.axis <- switch(score.by, logFC='logFC', t='t-statistic')
-  d.summary <- sprintf('%s(%s)', score.by, design.params.name(design, contrast))
-  fn.base <- paste0('%s-', d.summary, '.png')
-
-  scores <- setNames(logFC.stats[[score.by]], rownames(logFC.stats))
-
-  bg.dens <- density(scores, na.rm=TRUE)
-  xrange <- c(min(scores, na.rm=TRUE) - 0.5, max(scores, na.rm=TRUE) + 0.5)
-  f.ids <- names(scores)
-
-  should.plot <- significantGeneSets(result, 'adjusted', padj.threshold)
-  work.me <- result[, list(collection, id)]
-  work.me[, gs.name := paste(collection, id, sep='.')]
-  work.me[, fn := file.path(outdir, 'images', sprintf(fn.base, gs.name))]
-  work.me[, fn.exists.pre := file.exists(fn)]
-  work.me[, do.plot := should.plot & (!fn.exists.pre | !use.cache)]
-
-  for (i in which(work.me$do.plot)) {
-    gs.features <- result$feature.id[[i]]
-    gs.logFC <- scores[gs.features]
-    gs.logFC <- gs.logFC[!is.na(gs.logFC)]
-
-    if (length(gs.logFC) < 3) {
-      ## You can't plot a density of this
-      gs.dens <- NULL
-      ymax <- base::max(bg.dens$y)
-    } else {
-      gs.dens <- density(gs.logFC, na.rm=TRUE)
-      ymax <- base::max(bg.dens$y, gs.dens$y)
-    }
-
-    xstats <- sprintf('(%d genes)', length(gs.logFC))
-
-    png(work.me$fn[i], 800, 800, res=150)
-    plot(bg.dens, main=work.me$gs.name[i], sub=xstats, xlab=x.axis,
-         ylim=c(0, ymax), xlim=xrange, lwd=2, )
-    if (!is.null(gs.dens)) {
-      lines(gs.dens, col='red', lwd=3)
-    }
-    rug(gs.logFC, col='#FF000033', lwd=3)
-    legend('topright', legend=c("all", "geneset"),
-           text.col=c('black', 'red'))
-    dev.off()
-  }
-
-  work.me[, fn.exists.post := file.exists(fn)]
-  work.me
 }

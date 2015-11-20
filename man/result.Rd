@@ -5,7 +5,7 @@
 \title{Extract the result from a given enrichment test from a MultiGSEAResult}
 \usage{
 result(x, name, stats.only = FALSE, rank.by = c("pval", "t", "logFC"),
-  add.suffix = FALSE)
+  add.suffix = FALSE, .external = TRUE)
 }
 \arguments{
 \item{x}{MultiGSEAResult}

@@ -25,7 +25,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
     stop(org.pkg, " bioconductor package required for this species query")
   }
 
-  species(PANTHER.db) <- toupper(species)
+  pthOrganisms(PANTHER.db) <- toupper(species)
   org.db <- get(org.pkg)
 
   out <- switch(type,
@@ -75,7 +75,6 @@ getPantherGOSLIM <- function(p.db, org.db) {
   p.all <- subset(p.all, !is.na(ENTREZ))
   p.all <- p.all[order(p.all$ENTREZ),]
 
-  library(GO.db)
   go <- select(GO.db,
                unique(p.all$GOSLIM_ID),
                c('GOID', 'TERM'),

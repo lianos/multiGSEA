@@ -4,7 +4,7 @@
 \alias{geneSetFeatureStats}
 \title{Fetch the logFC statistics for a geneset}
 \usage{
-geneSetFeatureStats(x, i, j)
+geneSetFeatureStats(x, i, j, .external = TRUE)
 }
 \arguments{
 \item{x}{\code{MultiGSEAResult}}

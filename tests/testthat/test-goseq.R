@@ -17,33 +17,36 @@ test_that("internal goseq mimics goseq package", {
   degenes <- setNames(integer(length(universe)), universe)
   degenes[selected] <- 1L
 
-  my.res <- multiGSEA::goseq(gsd, selected, universe, method='Wallenius',
-                             use_genes_without_cat=TRUE)
+  my.res <- suppressWarnings({
+    multiGSEA::goseq(gsd, selected, universe, method='Wallenius',
+                     use_genes_without_cat=TRUE)
+  })
   ## pwf <- attr(my.res, 'pwf')
 
   ## expected
   g2c <- transform(as.data.frame(gsd), category=name)
   g2c <- g2c[, c('category', 'featureId')]
-  pwf <- goseq::nullp(degenes, bias.data=mylens)
+  pwf <- suppressWarnings(goseq::nullp(degenes, bias.data=mylens))
   goseq.res <- goseq::goseq(pwf, gene2cat=g2c, method='Wallenius',
                             use_genes_without_cat=TRUE)
 
   ## Match up and compare
   goseq.res <- goseq.res[match(my.res$name, goseq.res$category),]
-  my <- setnames(copy(my.res),
-                 c("name", "n", "n.drawn"),
-                 c("category", "numInCat", "numDEInCat"))
-  my <- my[, names(goseq.res), with=FALSE]
-  setDF(my)
+  my <- data.table::setnames(data.table::copy(my.res),
+                             c("name", "n", "n.drawn"),
+                             c("category", "numInCat", "numDEInCat"))
+  my <- my[, names(goseq.res)]
   expect_equal(my, goseq.res, check.attributes=FALSE)
 
   mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE)
 
   r <- result(mgs, 'goseq')
-  rc <- r[, list(collection, name, n, n.drawn=n.sig,
-                 over_represented_pvalue=pval,
-                 under_represented_pvalue=pval.under)]
-  expect_equal(rc, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
+  data.table::setnames(r,
+                       c('n.sig', 'pval', 'pval.under'),
+                       c('n.drawn', 'over_represented_pvalue',
+                         'under_represented_pvalue'))
+  r <- r[, names(my.res)]
+  expect_equal(r, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
 })
 
 test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
@@ -57,7 +60,9 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
   selected <- subset(lfc, significant)$featureId
   universe <- rownames(vm)
 
-  mygoh <- multiGSEA::goseq(gsd, selected, universe, method='Hypergeometric')
+  mygoh <- suppressWarnings({
+    multiGSEA::goseq(gsd, selected, universe, method='Hypergeometric')
+  })
 
   myhyp <- multiGSEA::hyperGeometricTest(gsd, selected, universe)
   if (FALSE) {

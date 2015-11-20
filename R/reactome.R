@@ -37,11 +37,23 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
     info[, PATHNAME := sub(org.prefix, '', PATHNAME)]
   }
 
-  fids <- split(info$ENTREZID, info$PATHNAME)
-  lol <- list(reactome=fids)
-  gdb <- GeneSetDb(lol)
+  ## Somehow only one of the 'name's of the reatome genesets is encoded in
+  ## UTF-8:
+  ##   Loss of proteins required for interphase microtubule organization
+  ##   from the centrosome
+  ## All of the rest are "unknown". This causes annoying warnings when
+  ## data.table tries to join on collection,name -- so I'm just nuking the
+  ## encoding here.
+  info <- info[, list(collection='reactome', name=PATHNAME, featureId=ENTREZID,
+                      pathId=PATHID)]
+  Encoding(info$name) <- 'unknown'
+  gdb <- GeneSetDb(info)
 
+  ## fids <- split(info$ENTREZID, info$PATHNAME)
+  ## lol <- list(reactome=fids)
+  ## gdb <- GeneSetDb(lol)
   ## Add reactome PATHID to geneSets()
-  gdb@table[, PATHID := info$PATHID[match(name, info$PATHNAME)]]
+  ## gdb@table[, PATHID := info$PATHID[match(name, info$name)]]
+
   gdb
 }

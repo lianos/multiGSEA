@@ -1,6 +1,20 @@
 CHANGES IN VERSION 0.2.x
 ------------------------
 
+USER VISIBLE CHANGES
+
+  o All methods now default to returning data.frame(s) instead of data.table(s)
+    data.table is still used internally, however I understand that some people
+    don't want to have them returned into their workspace.
+
+    A global option (multiGSEA.df.return) is available for you to tweak this
+    behavior, ie. set `options(multiGSEA.df.return='data.tabe')` to have
+    `geneSets(gdb)` return a data.table instead of a data.frame.
+
+  o Changed geneSetFeatureStatistics to geneSetsStats
+
+  o Internal differential expression testing defaults to `use.treat=TRUE`
+
 NEW FEATURES
 
   o `use.treat` parameter has been added to relevant places to run the internal
@@ -56,11 +70,6 @@ NEW FEATURES
       gdb5 <- getMSigDBsetc(c('c2', 'c7'), species='mouse')
       gdb4 <- getMSigDBsetc(c('c2', 'c7'), species='mouse', version='v4.0')
 
-USER VISIBLE CHANGES
-
-  o Changed geneSetFeatureStatistics to geneSetsStats
-
-  o Internal differential expression testing defaults to `use.treat=TRUE`
 
 BUG FIXES
 

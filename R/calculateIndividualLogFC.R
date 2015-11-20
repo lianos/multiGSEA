@@ -22,6 +22,9 @@
 ##' @param with.fit If \code{TRUE}, this function returns the fit in addition
 ##'   to the logFC statistics.
 ##' @param ... parameters passed through to the \code{lmFit} call.
+##' @param .external If called w/in multiGSEA package, we don't check to convert
+##'   outgoing data.table to user's preferred type. \code{.external} is by
+##'   default \code{TRUE}, as if someone on the outside is calling.
 ##' @return If \code{with.fit == FALSE} (the default) a \code{data.table} of
 ##'   logFC statistics for the contrast under test. Otherwise, a list is
 ##'   returned with \code{$result} containing the logFC statistics, and
@@ -29,7 +32,7 @@
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      use.treat=TRUE, treat.lfc=log2(1.25),
-                                     with.fit=FALSE, ...) {
+                                     with.fit=FALSE, ..., .external=TRUE) {
   do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
     length(contrast) > 1
   if (do.contrast) {
@@ -97,6 +100,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
   }
+
+  out <- ret.df(out, .external=.external)
+
   if (with.fit) list(result=out, fit=fit) else out
 }
 

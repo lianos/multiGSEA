@@ -1,26 +1,25 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.20
+Version: 0.4.21
 Date: 2015-05-21
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
     analysis methods, along with plotting and other general GSEA utilities.
 Depends:
-    methods,
-    data.table (>= 1.9.6),
+    methods
 Imports:
     BiocGenerics,
     Biobase (>= 2.24.0),
-    limma,
+    limma (>= 3.26.3),
     edgeR,
     reshape2,
     GSEABase,
     GSVA,
     stringr,
     AnnotationDbi,
-    data.table
+    data.table (>= 1.9.6)
 Suggests:
     DESeq2,
     edgeR,
@@ -64,4 +63,5 @@ Collate:
     'scoreSingleSamples.R'
     'testing-helpers.R'
     'utilities.R'
-RoxygenNote: 5.0.0
+    'zzz.R'
+RoxygenNote: 5.0.1

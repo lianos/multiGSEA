@@ -17,23 +17,24 @@ test_that('roast runs equivalently from do.roast vs direct call', {
   nrot <- 250
   seed <- 123
   set.seed(seed)
-  roasted <- mroast(vm, gsi, vm$design, ncol(vm$design), nrot=nrot,
-                    sort='none')
+  roasted <- limma::mroast(vm, gsi, vm$design, ncol(vm$design), nrot=nrot,
+                           sort='none')
 
   set.seed(seed)
   my <- multiGSEA:::do.roast(gsd, vm, vm$design, ncol(vm$design), nrot=nrot,
                              use.cache=FALSE)
 
   ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd)[, list(collection, name)], my[, list(collection, name)])
-  my[, n := geneSets(gsd)$n]
+  expect_equal(geneSets(gsd, .external=FALSE)[, list(collection, name)],
+               my[, list(collection, name)])
+  my[, n := geneSets(gsd, .external=FALSE)$n]
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality
   comp <- local({
     out <- my[, list(n, PropDown, PropUp, Direction, pval, padj,
                      pval.mixed, padj.mixed)]
-    setnames(out, names(roasted))
+    data.table::setnames(out, names(roasted))
     out <- as.data.frame(out)
     rownames(out) <- paste(my$collection, my$name, sep=';;')
     out[rownames(roasted),]

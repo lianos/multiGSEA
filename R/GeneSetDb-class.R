@@ -68,6 +68,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
          paste(cols.missed, collapse=", "))
   }
 
+  x <- unique(x, by=req.cols)
   lol <- sapply(unique(x[['collection']]), function(col) {
     with(x[collection == col], split(featureId, name))
   }, simplify=FALSE)
@@ -132,7 +133,7 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   if (is.null(featureIdMap)) {
     .ids <- unique(db$featureId)
     featureIdMap <- data.table(featureId=.ids, x.id=.ids, x.idx=NA_integer_)
-    setkeyv(featureIdMap, key(featureIdMap(proto)))
+    setkeyv(featureIdMap, key(featureIdMap(proto, .external=FALSE)))
   }
 
   out <- .GeneSetDb(table=tbl,
@@ -185,15 +186,17 @@ GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
 
 ##' @importFrom GSEABase GeneSetCollection GeneSet
 setAs("GeneSetDb", "GeneSetCollection", function(from) {
-  gs <- geneSets(from)
+  gs <- geneSets(from, .external=FALSE)
   n.coll <- length(unique(gs$collection))
 
   ## We explicitly set the key type after subsetting here in the event that
   ## a 0 row data.table is returned -- this isn't keyed in 1.9.4, which seems
   ## like a bug
-  id.type <- subset(collectionMetadata(from), name == 'id_type')
+  id.type <- subset(collectionMetadata(from, .external=FALSE),
+                    name == 'id_type')
   setkeyv(id.type, 'collection')
-  org <- subset(collectionMetadata(from), name == 'organism')
+  org <- subset(collectionMetadata(from, .external=FALSE),
+                name == 'organism')
   setkeyv(org, 'collection')
 
   gsl <- lapply(1:nrow(gs), function(i) {
@@ -262,7 +265,7 @@ setMethod("show", "GeneSetDb", function(object) {
   hr <- paste(rep("=", nchar(msg)), collapse='')
   hr.sub <- gsub('=', '-', hr)
   cat(hr, "\n", msg, "\n", is.conf, "\n", hr.sub, "\n", sep="")
-  data.table:::print.data.table(geneSets(object))
+  data.table:::print.data.table(geneSets(object, .external=FALSE))
   cat(hr.sub, "\n", msg, "\n", is.conf, "\n", hr, "\n", sep="")
 })
 
@@ -294,7 +297,7 @@ setValidity("GeneSetDb", function(object) {
   ## ---------------------------------------------------------------------------
   ## Further check @db slot:
   ## 1. ensure all features in @db have a row in the @featureIdMap
-  if (!all(object@db$featureId %in% featureIdMap(object)$featureId)) {
+  if (!all(object@db$featureId %in% featureIdMap(object, .external=FALSE)$featureId)) {
     return("Some @db$featureId's are not in featureIdMap(object)$featureId")
   }
   if (any(is.na(object@db$featureId))) {
@@ -374,7 +377,7 @@ setValidity("GeneSetDb", function(object) {
     return(msg)
   }
   ## 4. Ensure gene set counts match
-  gs.info <- geneSets(object, active.only=FALSE)[, {
+  gs.info <- geneSets(object, active.only=FALSE, .external=FALSE)[, {
     list(count=.N)
   }, by='collection']
   setkeyv(gs.info, 'collection')

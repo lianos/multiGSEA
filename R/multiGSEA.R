@@ -118,7 +118,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   ## Run the analyses
   logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
                                     treat.lfc=feature.min.logFC,
-                                    verbose=verbose, ...)
+                                    verbose=verbose, ..., .external=FALSE)
   logFC <- within(logFC, {
     significant <- if (use.treat) {
       padj <= feature.max.padj
@@ -163,7 +163,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
                             feature.max.padj=feature.max.padj,
-                            trim=trim)
+                            trim=trim, .external=FALSE)
   out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
   finished <- TRUE
   out
@@ -214,9 +214,22 @@ geneSetDb <- function(x) {
   x@gsd
 }
 
+setMethod("geneSet", c(x="MultiGSEAResult"),
+function(x, i, j, active.only=TRUE, fetch.all=FALSE, ...,
+         .external=TRUE) {
+  if (!isTRUE(active.only)) {
+    warning("active.only ignored on geneSet,MultiGSEAResult")
+  }
+  out <- geneSet(geneSetDb(x), i, j, active.only=TRUE, fetch.all=fetch.all,
+          .external=.external, ...)
+  out <- merge(out, logFC(x), by='x.idx')
+  out
+})
+
 setMethod("geneSets", c(x="MultiGSEAResult"),
-function(x, ...) {
-  geneSets(geneSetDb(x), active.only=TRUE)
+function(x, ..., .external=TRUE) {
+  ret.df(geneSets(geneSetDb(x), active.only=TRUE, .external=FALSE),
+         .external=.external)
 })
 
 ## Here's your chance to vectorize this. Once that's done push this code down
@@ -244,10 +257,11 @@ function(x, i, j, value=c('x.id', 'featureId'), ...) {
 ##' @param i The collection name
 ##' @param j The gene set name
 ##' @return data.table with the stats for the features in the geneset
-geneSetFeatureStats <- function(x, i, j) {
+geneSetFeatureStats <- function(x, i, j, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   fids <- featureIds(x@gsd, i, j)
-  subset(logFC(x), featureId %in% fids)
+  ret.df(subset(logFC(x, .external=FALSE), featureId %in% fids),
+         .external=.external)
 }
 
 ##' Summarize useful feature-level statistics across gene sets.
@@ -255,6 +269,7 @@ geneSetFeatureStats <- function(x, i, j) {
 ##' This function calculates the mean and trimmed mean of the logFC and
 ##' t-statistics, as well as the J-G statistic
 ##'
+##' @export
 ##' @param x A \code{multiGSEAResult} object
 ##' @param feature.min.logFC used with \code{feature.max.padj} to identify
 ##'   the individual features that are to be considered differentially
@@ -268,9 +283,9 @@ geneSetFeatureStats <- function(x, i, j) {
 ##' @return A data.table with statistics on the effect size shift for the gene
 ##'   set as well as numbers of members that shift up or down.
 geneSetsStats <- function(x, feature.min.logFC=1,
-                          feature.max.padj=0.10, trim=0.10) {
+                          feature.max.padj=0.10, trim=0.10, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  lfc <- logFC(x)
+  lfc <- logFC(x, .external=FALSE)
 
   annotate.lfc <- !missing(feature.min.logFC) ||
     !missing(feature.max.padj) ||
@@ -284,7 +299,7 @@ geneSetsStats <- function(x, feature.min.logFC=1,
     })
   }
 
-  gs <- geneSets(x)
+  gs <- geneSets(x, .external=FALSE)
   do.by <- key(gs)
 
   out <- gs[, {
@@ -304,6 +319,7 @@ geneSetsStats <- function(x, feature.min.logFC=1,
          mean.t.trim=mean(stats$t, na.rm=TRUE, trim=trim))
   }, by=do.by]
   setkeyv(out, do.by)
+  ret.df(out, .external=.external)
 }
 
 ##' Extract the individual fold changes statistics for elements in the
@@ -312,9 +328,9 @@ geneSetsStats <- function(x, feature.min.logFC=1,
 ##' @export
 ##' @param x A \code{MultiGSEAResult}
 ##' @return The log fold change \code{data.table}
-logFC <- function(x) {
+logFC <- function(x, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  x@logFC
+  ret.df(x@logFC, .external=.external)
 }
 
 ##' Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
@@ -370,7 +386,7 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##' @return a data.table with the results from the requested method.
 result <- function(x, name, stats.only=FALSE,
                    rank.by=c('pval', 't', 'logFC'),
-                   add.suffix=FALSE) {
+                   add.suffix=FALSE, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
     if (missing(name)) name <- NULL
@@ -386,7 +402,7 @@ result <- function(x, name, stats.only=FALSE,
   rank.by <- match.arg(rank.by)
   stopifnot(isSingleLogical(add.suffix))
 
-  out <- copy(geneSets(x))
+  out <- copy(geneSets(x, .external=FALSE))
 
   pval.col <- 'pval'
   rank.col <- 'rank'
@@ -435,7 +451,7 @@ result <- function(x, name, stats.only=FALSE,
                   pval=rank(out[[pval.col]], ties.method="min"))
   out[, (rank.col) := ranks]
 
-  out
+  ret.df(out, .external=.external)
 }
 
 ##' A summary of one/some/all of the results that were run.
@@ -458,7 +474,7 @@ result <- function(x, name, stats.only=FALSE,
 ##'   \code{length(names) > 1L}
 results <- function(x, names=resultNames(x), stats.only=TRUE,
                     rank.by=c('pval', 'logFC', 't'),
-                    add.suffix=length(names) > 1L) {
+                    add.suffix=length(names) > 1L, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0L) {
     ## No methods were run, you can only return geneset stats
@@ -466,9 +482,9 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
       ## User is asking for something that is not there
       stop("No GSEA methods were run, you can only get set statistics")
     }
-    warning("No GSEA methods were run, only geneset statistics have ",
-            "been returned.", immediate.=TRUE)
-    return(geneSets(x))
+    message("No GSEA methods were run, only geneset statistics have ",
+            "been returned.")
+    return(ret.df(geneSets(x, .external=FALSE)))
   }
   invalidMethods(x, names)
   stopifnot(isSingleLogical(stats.only))
@@ -480,15 +496,15 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
   }
 
   ## Idiomatic data.table, non-idiomatic R
-  out <- copy(geneSets(x))
+  out <- copy(geneSets(x, .external=FALSE))
   for (name in names) {
-    res <- result(x, name, stats.only, rank.by, add.suffix)
+    res <- result(x, name, stats.only, rank.by, add.suffix, .external=FALSE)
     for (col in setdiff(names(res), names(out))) {
       out[, (col) := res[[col]]]
     }
   }
 
-  out
+  ret.df(out, .external=.external)
 }
 
 ##' Create a summary table to indicate number of significant genesets per
@@ -510,7 +526,7 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
   stopifnot(isSingleNumeric(max.p))
   p.col <- match.arg(p.col)
   res <- lapply(names, function(wut) {
-    r <- result(x, wut)
+    r <- result(x, wut, .external=FALSE)
     ## some results (like goseq) don't have just "padj" or "pval" columns,
     ## because it has pval.over and pval.under, so let's just grab the first
     ## pval or padj "hit"
@@ -528,7 +544,7 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
            sig_down=sum(pcol <= max.p & mean.logFC.trim < 0, na.rm=TRUE))
     }, by='collection']
   })
-  rbindlist(res)
+  ret.df(rbindlist(res))
 }
 
 ##' Subset MultiGSEAResult to include include results for specified genesets
@@ -542,7 +558,7 @@ subset.MultiGSEAResult <- function(x, keep) {
   stopifnot(is(x, 'MultiGSEAResult'))
   did.gsea <- length(x@results) > 0
   ## length of x@results is 0 if no methods were run (only stats calc'd)
-  nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x))
+  nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x, .external=FALSE))
   if (!is.logical(keep) && lenght(keep) != nr) {
     stop("The `keep` vector is FUBAR'd")
   }

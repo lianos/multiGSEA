@@ -6,7 +6,7 @@
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, use.treat = TRUE,
-  treat.lfc = log2(1.25), with.fit = FALSE, ...)
+  treat.lfc = log2(1.25), with.fit = FALSE, ..., .external = TRUE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -32,6 +32,10 @@ functionality to calculate pvalues based on minimum logFC
 to the logFC statistics.}
 
 \item{...}{parameters passed through to the \code{lmFit} call.}
+
+\item{.external}{If called w/in multiGSEA package, we don't check to convert
+outgoing data.table to user's preferred type. \code{.external} is by
+default \code{TRUE}, as if someone on the outside is calling.}
 }
 \value{
 If \code{with.fit == FALSE} (the default) a \code{data.table} of

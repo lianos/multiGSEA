@@ -16,5 +16,6 @@ do.logFC <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
                      use.cache=TRUE, logFC=NULL, robust.fit=FALSE,
                      robust.eBayes=FALSE, ...) {
   ## This function is actually never called.
-  transform(geneSets(gsd), xlogFC=NA_real_, pval=NA_real_, padj=NA_real_)
+  transform(geneSets(gsd, .external=FALSE), xlogFC=NA_real_, pval=NA_real_,
+            padj=NA_real_)
 }

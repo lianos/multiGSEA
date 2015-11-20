@@ -41,7 +41,8 @@ do.camera <- function(gsd, x, design, contrast=ncol(design), ...) {
 
   res <- do.call(camera, call.args)
 
-  out <- cbind(geneSets(gsd)[, list(collection, name)], as.data.table(res))
+  out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
+               as.data.table(res))
   out[, NGenes := NULL]
   setnames(out, c('PValue', 'FDR'), c('pval', 'padj'))
 }
