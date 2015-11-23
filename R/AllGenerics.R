@@ -90,6 +90,8 @@ setGeneric("org<-", signature="x", function(x, i, value) {
 })
 
 
+##' Fetches information about the genes in a geneset.
+##'
 ##' @exportMethod geneSet
 setGeneric("geneSet", signature="x", function(x, i, j, ...) {
   standardGeneric("geneSet")

@@ -29,11 +29,11 @@
 ##'   for
 ##' @param require.x.rownames Leave this alone, should always be \code{TRUE} but
 ##'   have it in this package for dev/testing purposes.
-##'
+##' @param ... other variables that called methods can check if they want
 ##' @return A list with "normalized" versions of \code{$x}, \code{$design}, and
 ##'   \code{$contrast} for downstream use.
 validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
-                           require.x.rownames=TRUE) {
+                           require.x.rownames=TRUE, ...) {
   if (is.character(methods)) {
     .unsupportedGSEAmethods(methods)
   } else if (!is.null(methods)) {
@@ -48,6 +48,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
+  ## Validate the input expression object separately (not sure why now)
   if (!is.null(methods)) {
     is.valid.x <- sapply(methods, function(meth) {
       fn <- getFunction(paste0('validate.x.', meth))
@@ -85,16 +86,19 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     }
   }
 
+  ## method specific validation checks
   if (is.character(methods)) {
     errs.all <- sapply(methods, function(method) {
       fn <- getFunction(paste0('validate.inputs.', method))
-      errs <- fn(x, design, contrast)
+      errs <- fn(x, design, contrast, ...)
     }, simplify=FALSE)
 
     errs.un <- unlist(errs.all)
     if (length(errs.un)) {
-      stop("Erros in inputs:\n    * ",
-           paste(names(errs.un), collapse='\n    * '))
+      msg <- paste("Errors in inputs:\n    *",
+                   paste(names(errs.un), collapse='\n    * '))
+      msg <- paste(msg, '=======', unname(errs.un), sep='\n')
+      stop(msg)
     }
   }
 
@@ -183,7 +187,7 @@ disp.estimated <- function(x) {
   if (ret.err.only || length(errs)) errs else contrast
 }
 
-.validate.inputs.full.design <- function(x, design, contrast) {
+.validate.inputs.full.design <- function(x, design, contrast, ...) {
   errs <- list()
   if (!inherits(x, .valid.x)) {
     errs <- c(errs,
@@ -206,7 +210,7 @@ disp.estimated <- function(x) {
   errs
 }
 
-.validate.inputs.logFC.only <- function(x, design, contrast) {
+.validate.inputs.logFC.only <- function(x, design, contrast, ...) {
   errs <- list()
   if (ncol(x) > 1) {
     errs <- .validate.inputs.full.design(x, design, contrast)

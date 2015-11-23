@@ -1,5 +1,27 @@
 context("goseq")
 
+test_that("multiGSEA(method='goseq') requires valid feature.bias vector", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+  gsd <- conform(gsd, vm)
+
+  mg <- multiGSEA(gsd, vm, vm$design)
+  lfc <- logFC(mg)
+  selected <- subset(lfc, significant)$featureId
+  universe <- rownames(vm)
+
+  ## lens <- goseq::getlength(universe, 'hg19', 'knownGene')
+  mylens <- multiGSEA:::create.glength.vector(vm)
+
+  expect_error({
+    suppressWarnings({
+      multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE)
+    })
+  })
+})
+
+
 test_that("internal goseq mimics goseq package", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsl <- exampleGeneSets()
@@ -18,7 +40,7 @@ test_that("internal goseq mimics goseq package", {
   degenes[selected] <- 1L
 
   my.res <- suppressWarnings({
-    multiGSEA::goseq(gsd, selected, universe, method='Wallenius',
+    multiGSEA::goseq(gsd, selected, universe, mylens, method='Wallenius',
                      use_genes_without_cat=TRUE)
   })
   ## pwf <- attr(my.res, 'pwf')
@@ -38,7 +60,8 @@ test_that("internal goseq mimics goseq package", {
   my <- my[, names(goseq.res)]
   expect_equal(my, goseq.res, check.attributes=FALSE)
 
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE)
+  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE,
+                   feature.bias=mylens)
 
   r <- result(mgs, 'goseq')
   data.table::setnames(r,
@@ -49,11 +72,50 @@ test_that("internal goseq mimics goseq package", {
   expect_equal(r, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
 })
 
+test_that("goseq,split.updown=TRUE is sane", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+  gsd <- conform(gsd, vm)
+
+  mylens <- multiGSEA:::create.glength.vector(vm)
+
+  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
+                   feature.bias=mylens)
+  mg <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE,
+                  feature.bias=mylens)
+
+  expect_true(setequal(resultNames(mgs), c('goseq', 'goseq.up', 'goseq.down')))
+  expect_equal(result(mgs, 'goseq'), result(mg, 'goseq'))
+})
+
+test_that("goseq,split.updown=TRUE plays well with other multiGSEA methods", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+  gsd <- conform(gsd, vm)
+  mylens <- multiGSEA:::create.glength.vector(vm)
+
+  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
+                   feature.bias=mylens)
+  mga <- multiGSEA(gsd, vm, vm$design, methods=c('goseq', 'camera'),
+                   split.updown=TRUE, feature.bias=mylens)
+  expect_true(setequal(resultNames(mga),
+                       c('camera', 'goseq', 'goseq.up', 'goseq.down')))
+
+  both <- intersect(resultNames(mgs), resultNames(mga))
+  for (wut in both) {
+    expect_equal(result(mgs, wut), result(mga, wut), info=wut)
+  }
+})
+
+
 test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
+  mylens <- multiGSEA:::create.glength.vector(vm)
 
   mg <- multiGSEA(gsd, vm, vm$design)
   lfc <- logFC(mg)
@@ -61,7 +123,8 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
   universe <- rownames(vm)
 
   mygoh <- suppressWarnings({
-    multiGSEA::goseq(gsd, selected, universe, method='Hypergeometric')
+    multiGSEA::goseq(gsd, selected, universe, method='Hypergeometric',
+                     feature.bias=mylens)
   })
 
   myhyp <- multiGSEA::hyperGeometricTest(gsd, selected, universe)

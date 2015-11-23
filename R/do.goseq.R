@@ -4,9 +4,27 @@
 ##' @include validateInputs.R
 NULL
 
-
-validate.inputs.goseq <- .validate.inputs.full.design
 validate.x.goseq <- validate.X
+validate.inputs.goseq <- function(x, design, contrast, feature.bias, ...) {
+  default <- .validate.inputs.full.design(x, design, contrast)
+  if (length(default)) {
+    return(default)
+  }
+  ## Ensure that caller provides a named feature.bias vector
+  errs <- list()
+  if (missing(feature.bias)) {
+    errs <- paste('feature.bias vector is required, use "hyperGeometricTest"',
+                  'if you do not have one')
+    return(errs)
+  }
+  if (!is.numeric(feature.bias)) {
+    errs <- 'feature.bias must be a numeric vector'
+  }
+  if (!all(rownames(x) %in% names(feature.bias))) {
+    errs <- c(errs, 'some rownames(x) not in names(feature.bias)')
+  }
+  return(errs)
+}
 
 ##' Performs goseq analysis significance of gene set membership.
 ##'
@@ -22,8 +40,14 @@ validate.x.goseq <- validate.X
 ##' @param x The expression object
 ##' @param design Experimental design
 ##' @param contrast The contrast to test
-##' @param feature.bias a vector as long as \code{nrow(x)} that has the "bias"
-##'   information for the features/genes tested (ie. vector of gene lengths).
+##' @param feature.bias a named vector as long as \code{nrow(x)} that has the
+##'   "bias" information for the features/genes tested (ie. vector of gene
+##'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+##'   The caller MUST provide this. The goseq package provides a
+##'   \code{\link[goseq]{getlength}} function which facilitates getting default
+##'   values for these if you do not have the correct values used in your
+##'   analysis. If there is no way for you to get this information, then use
+##'   \code{method='hyperGeometricTest'}.
 ##' @param method The method to use to calculate the unbiased category
 ##'   enrichment scores
 ##' @param repcnt Number of random samples to be calculated when random sampling
@@ -42,7 +66,7 @@ validate.x.goseq <- validate.X
 ##' @return A data.table of goseq results. The "pval" column here refers to
 ##'   pval.over, for simplicity in other places.
 do.goseq <- function(gsd, x, design, contrast=ncol(design),
-                     feature.bias=create.glength.vector(x),
+                     feature.bias,
                      method="Wallenius",
                      repcnt=2000, use_genes_without_cat=TRUE,
                      split.updown=TRUE,
@@ -77,9 +101,11 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                     all=logFC[significant == TRUE]$featureId,
                     up=logFC[significant == TRUE & logFC > 0]$featureId,
                     down=logFC[significant == TRUE & logFC < 0]$featureId)
-    res <- multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
-                            repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                            do.conform=FALSE, .external=FALSE)
+    res <- suppressWarnings({
+      multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
+                       repcnt, use_genes_without_cat, plot.fit=plot.fit,
+                       do.conform=FALSE, .external=FALSE)
+    })
     setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
              c('pval', 'pval.under'))
     res[, padj := p.adjust(pval, 'BH')]
@@ -99,8 +125,13 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 ##' @param gsd The \code{GeneSetDb} object to run tests against
 ##' @param selected The ids of the selected features
 ##' @param universe The ids of the universe
-##' @param feature.bias a vector as long as \code{nrow(x)} that has the "bias"
-##'   information for the features/genes tested (ie. vector of gene lengths).
+##' @param feature.bias a named vector as long as \code{nrow(x)} that has the
+##'   "bias" information for the features/genes tested (ie. vector of gene
+##'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+##'   If this is not provided, all feature lengths are set to 1 (no bias).
+##'   The goseq package provides a \code{\link[goseq]{getlength}} function which
+##'   facilitates getting default values for these if you do not have the
+##'   correct values used in your analysis.
 ##' @param method The method to use to calculate the unbiased category
 ##'   enrichment scores
 ##' @param repcnt Number of random samples to be calculated when random sampling
@@ -119,8 +150,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 ##' @param active.only If \code{TRUE}, only "active" genesets are used
 ##' @param value The featureId types to extract from \code{gsd}
 ##' @return A \code{data.table} of results, similar to goseq output.
-goseq <- function(gsd, selected, universe,
-                  feature.bias=NULL,
+goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
                   plot.fit=TRUE, do.conform=TRUE, .external=TRUE) {
@@ -130,13 +160,9 @@ goseq <- function(gsd, selected, universe,
   selected <- unique(selected)
   universe <- unique(universe)
   method <- match.arg(method)
-
-  if (missing(feature.bias)) {
-    gmat <- matrix(rep(1, length(universe)),
-                   nrow=length(universe),
-                   dimnames=list(universe, NULL))
-    feature.bias <- create.glength.vector(gmat)
-  }
+  stopifnot(all(selected %in% universe))
+  stopifnot(is.numeric(feature.bias) && all(universe %in% names(feature.bias)))
+  feature.bias <- feature.bias[universe]
 
   ## This needs to be conformed to work
   if (!is.conformed(gsd) || !do.conform) {
@@ -149,6 +175,7 @@ goseq <- function(gsd, selected, universe,
   g2c <- as.data.frame(gsd, active.only=TRUE, value='x.id')
   g2c <- transform(g2c, category=paste(collection, name, sep=';;'))
   g2c <- g2c[, c('category', 'featureId')]
+
   selected <- intersect(selected, universe)
   de.genes <- setNames(integer(length(universe)), universe)
   de.genes[selected] <- 1L

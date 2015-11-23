@@ -4,7 +4,7 @@
 \alias{goseq}
 \title{Perform goseq Enrichment tests across a GeneSetDb.}
 \usage{
-goseq(gsd, selected, universe, feature.bias = NULL, method = c("Wallenius",
+goseq(gsd, selected, universe, feature.bias, method = c("Wallenius",
   "Sampling", "Hypergeometric"), repcnt = 2000,
   use_genes_without_cat = TRUE, plot.fit = TRUE, do.conform = TRUE,
   .external = TRUE)
@@ -16,8 +16,13 @@ goseq(gsd, selected, universe, feature.bias = NULL, method = c("Wallenius",
 
 \item{universe}{The ids of the universe}
 
-\item{feature.bias}{a vector as long as \code{nrow(x)} that has the "bias"
-information for the features/genes tested (ie. vector of gene lengths).}
+\item{feature.bias}{a named vector as long as \code{nrow(x)} that has the
+"bias" information for the features/genes tested (ie. vector of gene
+lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+If this is not provided, all feature lengths are set to 1 (no bias).
+The goseq package provides a \code{\link[goseq]{getlength}} function which
+facilitates getting default values for these if you do not have the
+correct values used in your analysis.}
 
 \item{method}{The method to use to calculate the unbiased category
 enrichment scores}

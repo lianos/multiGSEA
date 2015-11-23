@@ -104,7 +104,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   ## Sanitize / cache inputs
   args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
   inputs <- validateInputs(x, design, contrast, methods,
-                           require.x.rownames=TRUE)
+                           require.x.rownames=TRUE, ...)
 
   x <- inputs$x
   design <- inputs$design
@@ -220,10 +220,17 @@ function(x, i, j, active.only=TRUE, fetch.all=FALSE, ...,
   if (!isTRUE(active.only)) {
     warning("active.only ignored on geneSet,MultiGSEAResult")
   }
-  out <- geneSet(geneSetDb(x), i, j, active.only=TRUE, fetch.all=fetch.all,
-          .external=.external, ...)
-  out <- merge(out, logFC(x), by='x.idx')
-  out
+  if (isTRUE(fetch.all)) {
+    warning("fetch.all must be `FALSE` when called on MultiGSEAResult")
+  }
+  fids <- featureIds(x, i, j, value='featureId', active.only=TRUE,
+                     fetch.all=FALSE, ...)
+  out <- subset(logFC(x, .external=FALSE), featureId %in% fids)
+  out[, collection := i]
+  out[, name := j]
+  fc <- c('collection', 'name')
+  setcolorder(out, c(fc, setdiff(names(out), fc)))
+  ret.df(out, .external=.external)
 })
 
 setMethod("geneSets", c(x="MultiGSEAResult"),
@@ -390,7 +397,7 @@ result <- function(x, name, stats.only=FALSE,
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
     if (missing(name)) name <- NULL
-    return(results(x, name))
+    return(results(x, name, .external=.external))
   }
   if (length(resultNames(x)) == 1L) {
     name <- resultNames(x)
@@ -590,7 +597,7 @@ setMethod("show", "MultiGSEAResult", function(object) {
   if (length(resultNames(object)) == 0) {
     cat("No GSEA methods were run, only geneset level statistics calculated")
   } else {
-    data.table:::print.data.table(tabulateResults(object, max.p=0.30))
+    base::print.data.frame(as.data.frame(tabulateResults(object, max.p=0.30)))
   }
   cat("\n")
 })

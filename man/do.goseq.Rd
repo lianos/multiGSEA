@@ -4,12 +4,11 @@
 \alias{do.goseq}
 \title{Performs goseq analysis significance of gene set membership.}
 \usage{
-do.goseq(gsd, x, design, contrast = ncol(design),
-  feature.bias = create.glength.vector(x), method = "Wallenius",
-  repcnt = 2000, use_genes_without_cat = TRUE, split.updown = TRUE,
-  direction = c("over", "under"), plot.fit = FALSE, use.treat = TRUE,
-  feature.min.logFC = log2(1.25), feature.max.padj = 0.1, logFC = NULL,
-  ...)
+do.goseq(gsd, x, design, contrast = ncol(design), feature.bias,
+  method = "Wallenius", repcnt = 2000, use_genes_without_cat = TRUE,
+  split.updown = TRUE, direction = c("over", "under"), plot.fit = FALSE,
+  use.treat = TRUE, feature.min.logFC = log2(1.25),
+  feature.max.padj = 0.1, logFC = NULL, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}
@@ -20,8 +19,14 @@ do.goseq(gsd, x, design, contrast = ncol(design),
 
 \item{contrast}{The contrast to test}
 
-\item{feature.bias}{a vector as long as \code{nrow(x)} that has the "bias"
-information for the features/genes tested (ie. vector of gene lengths).}
+\item{feature.bias}{a named vector as long as \code{nrow(x)} that has the
+"bias" information for the features/genes tested (ie. vector of gene
+lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+The caller MUST provide this. The goseq package provides a
+\code{\link[goseq]{getlength}} function which facilitates getting default
+values for these if you do not have the correct values used in your
+analysis. If there is no way for you to get this information, then use
+\code{method='hyperGeometricTest'}.}
 
 \item{method}{The method to use to calculate the unbiased category
 enrichment scores}

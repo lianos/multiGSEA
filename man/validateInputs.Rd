@@ -5,7 +5,7 @@
 \title{Validate the input objects to a GSEA call.}
 \usage{
 validateInputs(x, design = NULL, contrast = NULL, methods = NULL,
-  require.x.rownames = TRUE)
+  require.x.rownames = TRUE, ...)
 }
 \arguments{
 \item{x}{The expression object to use}
@@ -16,6 +16,8 @@ validateInputs(x, design = NULL, contrast = NULL, methods = NULL,
 
 \item{require.x.rownames}{Leave this alone, should always be \code{TRUE} but
 have it in this package for dev/testing purposes.}
+
+\item{...}{other variables that called methods can check if they want}
 
 \item{A}{character vector of the GSEA methods that these inputs will be used
 for}

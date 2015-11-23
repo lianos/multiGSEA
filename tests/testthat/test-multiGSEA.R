@@ -5,21 +5,24 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 
-  methods <-c('camera', 'goseq', 'roast', 'geneSetTest')
-
+  methods <-c('camera', 'hyperGeometricTest', 'roast', 'geneSetTest')
+  min.logFC <- log2(1.25)
+  max.padj <- 0.10
   mg <- multiGSEA(gsd, vm, vm$design, methods=methods,
-                  nrot=250, nsim=500, split.updown=FALSE)
+                  nrot=250, nsim=500, split.updown=FALSE,
+                  feature.min.logFC=min.logFC, feature.max.padj=max.padj)
 
   gsc <- conform(gsd, vm)
   do <- sapply(methods, function(m) {
     fn <- getFunction(paste0('do.', m), where=getNamespace('multiGSEA'))
-    fn(gsc, vm, vm$design, nrot=250, nsim=500, split.updown=FALSE)
+    fn(gsc, vm, vm$design, nrot=250, nsim=500, split.updown=FALSE,
+       feature.min.logFC=min.logFC, feature.max.padj=max.padj)
   }, simplify=FALSE)
 
   ## Some GSEA results use sampling and their outputs only converge under higher
   ## iterations, which will slow down testing. To avoid that we just use methods
   ## that are deterministic.
-  no.random <- c('camera', 'goseq')
+  no.random <- c('camera', 'hyperGeometricTest')
   for (m in no.random) {
     did.x <- do[[m]]
     res.x <- mg@results[[m]]

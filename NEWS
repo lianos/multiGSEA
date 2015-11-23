@@ -23,9 +23,6 @@ NEW FEATURES
 
   o goseq, fry, and romer testing methods have been added.
 
-  o Use of `hyperGeometricTest` strongly discouraged now that goseq is here,
-    set `really.use.hyperGeometricTest=TRUE` if you're really stubborn.
-
   o Support for DGEList expression input fully baked in. Previously, a DGEList
     was shot through voom to be used internally. Internal differential gene
     expression statistics on DGELists use edgeR's quasi-likelihood framework.

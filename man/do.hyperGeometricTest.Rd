@@ -6,8 +6,7 @@
 \usage{
 do.hyperGeometricTest(gsd, x, design, contrast = ncol(design),
   direction = c("over", "under"), use.treat = TRUE, feature.min.logFC = 1,
-  feature.max.padj = 0.1, logFC = NULL,
-  really.use.hyperGeometricTest = FALSE, ...)
+  feature.max.padj = 0.1, logFC = NULL, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}
@@ -21,10 +20,6 @@ do.hyperGeometricTest(gsd, x, design, contrast = ncol(design),
 \item{direction}{Same as direction in \code{GOstats}}
 
 \item{logFC}{The logFC data.table from \code{calculateIndividualLogFC}}
-
-\item{really.use.hyperGeometricTest}{You sould really use \code{goseq}
-instead. But if you insist on doing a hyperG test, set this parameter
-to \code{TRUE}.}
 
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
 }
