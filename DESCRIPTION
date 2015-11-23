@@ -19,7 +19,8 @@ Imports:
     GSVA,
     stringr,
     AnnotationDbi,
-    data.table (>= 1.9.6)
+    data.table (>= 1.9.6),
+    goseq
 Suggests:
     DESeq2,
     edgeR,
