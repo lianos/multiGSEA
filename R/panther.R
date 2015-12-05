@@ -8,12 +8,12 @@
 ##' @return A wired up GeneSetDb
 getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
                                 species=c('human', 'mouse')) {
-  if (!require('PANTHER.db')) {
-    stop("The PANTHER.db bioconductor package is required")
-  }
   species <- match.arg(species)
   type <- match.arg(type)
 
+  if (!requireNamespace('PANTHER.db')) {
+    stop("The PANTHER.db bioconductor package is required")
+  }
   if (species == 'human') {
     org.pkg <- 'org.Hs.eg.db'
     xorg <- 'Homo_sapiens'
@@ -21,18 +21,36 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
     org.pkg <- 'org.Mm.eg.db'
     xorg <- 'Mus_musculus'
   }
-  if (!require(org.pkg, character.only=TRUE)) {
+  if (!requireNamespace(org.pkg)) {
     stop(org.pkg, " bioconductor package required for this species query")
   }
 
-  pthOrganisms(PANTHER.db) <- toupper(species)
-  org.db <- get(org.pkg)
+  p.db <- PANTHER.db::PANTHER.db
+  PANTHER.db::pthOrganisms(p.db) <- toupper(species)
+  org.db <- getFromNamespace(org.pkg, org.pkg)
 
   out <- switch(type,
-                pathway=getPantherPathways(PANTHER.db, org.db),
-                goslim=getPantherGOSLIM(PANTHER.db, org.db))
+                pathway=getPantherPathways(p.db, org.db),
+                goslim=getPantherGOSLIM(p.db, org.db))
   org(out) <- xorg
   out
+}
+
+##' Return the GO slim annotations
+##'
+##' \href{http://geneontology.org/page/go-slim-and-subset-guide}{GO Slims} are
+##' "cut down" versions of the GO ontology that contain a subset of the terms in
+##' the whole GO.
+##'
+##' PANTHER provides their own set of
+##' \href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
+##' it's not clear how often these get updated.
+##'
+##' @export
+##' @param species "human" or "mouse"
+##' @return \code{GeneSetDb} of the GO slim mappings
+getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
+  getPantherGeneSetDb('goslim', species)
 }
 
 getPantherPathways <- function(p.db, org.db) {

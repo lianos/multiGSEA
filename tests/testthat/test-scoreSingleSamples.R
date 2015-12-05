@@ -32,6 +32,23 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   #                       zsummary='sqrt')
 })
 
+test_that("simple svd scoring method is same as (naive) GSDecon scores", {
+  vm <- exampleExpressionSet()
+  gdb <- getMSigDBset('h')
+
+  gsd <- scoreSingleSamples(gdb, vm$E, 'gsdecon')
+  ssvd <- scoreSingleSamples(gdb, vm$E, 'svd')
+  plage <- scoreSingleSamples(gdb, vm$E, 'plage')
+})
+
+test_that("GeneSetDb <-> incidence matrix properly setup for GSDecon methods", {
+  ## GSdecon wires up an incidence matrix with genes in the columns and genesets
+  ## in the rows.
+  vm <- exampleExpressionSet()
+  gdb <- getMSigDBset('h')
+  im <- incidenceMatrix(gdb, vm)
+})
+
 if (FALSE) {
   library(Biobase)
   library(multiGSEA)

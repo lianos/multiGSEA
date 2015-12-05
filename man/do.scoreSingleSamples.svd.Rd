@@ -2,12 +2,14 @@
 % Please edit documentation in R/scoreSingleSamples.R
 \name{do.scoreSingleSamples.svd}
 \alias{do.scoreSingleSamples.svd}
-\title{A simpler call to Jason's eigengene-like scoring}
+\title{A no dependency call to GSDecon's eigengene scoring}
 \usage{
 do.scoreSingleSamples.svd(gdb, y, melted = FALSE, uncenter = TRUE,
   unscale = TRUE, ...)
 }
 \description{
-A simpler call to Jason's eigengene-like scoring
+TODO: Need to debug this. For some reason the results aren't the same
+as what GSDecon methos provides, even though the codepath should be
+identical
 }
 

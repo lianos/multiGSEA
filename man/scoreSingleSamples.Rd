@@ -36,7 +36,9 @@ Current scoring methods include:
   \item ssgsea: from GSVA package
   \item gsdecon: Jason Hackeny's method (kind of like plage), but not
         really.
-  \item svd: More direct call to Jason's eigengene-like scoring method.
+  \item svd: Simple score that (should) mimic Jason's SVD/eigengene score.
+        This is included here mainly to facilitate use of this scoring
+        method for people who would have a hard time installing GSDecon2
 }
 }
 

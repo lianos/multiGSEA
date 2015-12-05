@@ -13,7 +13,9 @@
 ##'   \item ssgsea: from GSVA package
 ##'   \item gsdecon: Jason Hackeny's method (kind of like plage), but not
 ##'         really.
-##'   \item svd: More direct call to Jason's eigengene-like scoring method.
+##'   \item svd: Simple score that (should) mimic Jason's SVD/eigengene score.
+##'         This is included here mainly to facilitate use of this scoring
+##'         method for people who would have a hard time installing GSDecon2
 ##' }
 ##'
 ##' @export
@@ -41,7 +43,17 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
     y <- t(t(y)) ## column vectorization that sets names to rownames
   }
   stopifnot(is.matrix(y) && is.numeric(y))
-  stopifnot(is.conformed(gdb, y))
+
+  ## Removing genes that have almost-zero std.dev across the dataset.
+  sds <- apply(y, 1, sd, na.rm=TRUE)
+  sd0 <- sds < 1e-4
+  y.all <- y
+  y <- y.all[!sd0,]
+  if (any(sd0)) {
+    warning(sum(sd0), " rows from expression objet (y) due to 0sd")
+  }
+  gdb <- conform(gdb, y, ...)
+
   if (is.null(colnames(y))) {
     colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
@@ -168,7 +180,7 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
     design <- cbind(Intercept=rep(1L, ncol(y)))
   }
   stopifnot(is.matrix(design))
-  stopifnot(ncol(design))
+  stopifnot(nrow(design) == ncol(y))
   im <- incidenceMatrix(gdb)
   res <- GSDecon::decon(y, design, im, doPerm=doPerm, nPerm=nPerm,
                         pvalueCutoff=pvalueCutoff, nComp=nComp, seed=seed)
@@ -177,23 +189,18 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
   out
 }
 
-##' A simpler call to Jason's eigengene-like scoring
+##' A no dependency call to GSDecon's eigengene scoring
+##'
+##' TODO: Need to debug this. For some reason the results aren't the same
+##' as what GSDecon methos provides, even though the codepath should be
+##' identical
 do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
                                       unscale=TRUE, ...) {
-  if (!requireNamespace('GSDecon')) {
-    stop("Jason Hackney's GSDecon package required")
-  }
+  ## if (!requireNamespace('GSDecon')) {
+  ##   stop("Jason Hackney's GSDecon package required")
+  ## }
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
-
-  ## Check for 0 sd rows, and add some noise
-  sds <- apply(y, 1, sd, na.rm=TRUE)
-  sd0 <- sds < 1e-4
-  if (any(sd0)) {
-    for (i in which(sd0)) {
-      y[i,] <- y[i,] + rnorm(ncol(y), 0, sd=0.01)
-    }
-  }
 
   y.scale <- t(scale(t(y)))
   cnt <- if (uncenter) {
@@ -206,12 +213,23 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
   } else {
     rep(1, nrow(y))
   }
-
+  message("=== SVD ===")
   gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
   out <- sapply(gs.idxs, function(idxs) {
+    ## idxs <- setdiff(idxs, sd0.idx)
     SVD <- svd(y.scale[idxs,])
-    GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
+    ## GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
+    n <- 1
+    center <- cnt[idxs]
+    scale <- scl[idxs]
+    newD <- SVD$d
+    newD[-n] <- 0
+    sv <- SVD$u %*% diag(newD) %*% t(SVD$v)
+    sv <- sweep(sweep(sv, 1, FUN = "*", scale), 1, FUN = "+", center)
+    sv <- colMeans(sv)
+    sv
   })
+  browser()
   out <- t(out)
   rownames(out) <- names(gs.idxs)
   colnames(out) <- colnames(y)

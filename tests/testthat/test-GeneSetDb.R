@@ -280,20 +280,30 @@ test_that("GeneSetDb returns proper limma lists via as.expression.indexes", {
   }
 })
 
-test_that("GeneSetDb,incidenceMatrix is correct", {
+test_that("conformed & unconformed GeneSetDb,incidenceMatrix is kosher", {
   es <- exampleExpressionSet()
   gsl <- exampleGeneSets()
-  gsd <- conform(GeneSetDb(gsl), es)
+  gsd <- GeneSetDb(gsl)
+  gsdc <- conform(gsd, es)
 
-  im <- incidenceMatrix(gsd, es)
+  im <- incidenceMatrix(gsd)
+  imc <- incidenceMatrix(gsdc)
   g.cols <- sub(';;.*', '', rownames(im))
   g.names <- sub('.*?;;', '', rownames(im))
   for (i in 1:nrow(im)) {
     col <- g.cols[i]
     name <- g.names[i]
-    fids <- featureIds(gsd, col, name)
-    expected <- intersect(gsl[[col]][[name]], rownames(es))
-    expect_true(setequal(expected, fids))
+    fidx <- im[i,] == 1
+    fidxc <- imc[i,] == 1
+
+    fids <- gsl[[col]][[name]]
+    fidsc <- intersect(fids, rownames(es))
+
+    im.fids <- colnames(im)[fidx]
+    imc.fids <- colnames(imc)[fidxc]
+    ## Check ids from incidence matrix
+    expect_true(setequal(im.fids, fids), info=paste(i, "unconformed GeneSetDb"))
+    expect_true(setequal(imc.fids, fidsc), info=paste(i ,"conformed GeneSetDb"))
   }
 })
 

@@ -23,10 +23,9 @@ Imports:
     goseq
 Suggests:
     DESeq2,
-    edgeR,
     testthat,
     rvest,
-    PANTHER.db,
+    PANTHER.db (>= 1.0.3),
     reactome.db,
     magrittr,
     GO.db,
@@ -52,7 +51,6 @@ Collate:
     'do.npGSEA.R'
     'do.roast.R'
     'do.romer.R'
-    'expression-utils.R'
     'gsea-helpers.R'
     'msigdb-broad.R'
     'msigdb-wehi.R'
