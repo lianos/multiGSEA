@@ -11,6 +11,11 @@ validate.x.fry <- function(x) {
   validate.X(x)
 }
 
+## NOTE: Upcoming changes to fry for Bioc 3.3
+## 1. edgeR::fry.DGEList method added
+## 2. sort argument will be same type as roast. In bioc-3.2, fry,sort is
+##    TRUE/FALSE, but roast uses character ('directional'). You will have to
+##    set this to 'none'.
 do.fry <- function(gsd, x, design, contrast=ncol(design), ...) {
   ## This function was defined in limma v3.23.13 in April 2015
   ## ------------------------------------------------------------------------

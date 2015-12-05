@@ -229,7 +229,7 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
     sv <- colMeans(sv)
     sv
   })
-  browser()
+
   out <- t(out)
   rownames(out) <- names(gs.idxs)
   colnames(out) <- colnames(y)

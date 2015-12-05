@@ -1,8 +1,13 @@
-##' @importMethodsFrom AnnotationDbi select
-##' @importMethodsFrom AnnotationDbi keys
+##' @importFrom GSEABase EntrezIdentifier
+##' @export
 getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
-  if (!requireNamespace('reactome.db')) {
+  rdb <- tryCatch(loadNamespace('reactome.db'), error=function(e) NULL)
+  if (is.null(rdb)) {
     stop("reactome.db package required for this functionality")
+  }
+  dbi <- tryCatch(loadNamespace('AnnotationDbi'), error=function(e) NULL)
+  if (is.null(dbi)) {
+    stop("AnnotationDbi required")
   }
   species <- resolve.species(species)
 
@@ -10,16 +15,16 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
   ## Pathways are prefixed with the organism name like so:
   ##  `<GENUS> <SPECIES>: <PATHWAY NAME>`
   org.prefix <- paste0('^', sub('_', ' ', species), ': *')
-  pathnames <- keys(reactome.db::reactome.db, keytype='PATHNAME')
+  pathnames <- dbi$keys(rdb$reactome.db, keytype='PATHNAME')
   org.keep <- grepl(org.prefix, pathnames)
   org.pathnames <- pathnames[org.keep]
 
-  info <- suppressWarnings({
+  info <- suppressMessages({
     ## Generates 1:many mapping because of ENTREZID
-    select(reactome.db::reactome.db,
-           columns=c('PATHID', 'PATHNAME', 'ENTREZID'),
-           keys=org.pathnames,
-           keytype='PATHNAME')
+    dbi$select(rdb$reactome.db,
+               columns=c('PATHID', 'PATHNAME', 'ENTREZID'),
+               keys=org.pathnames,
+               keytype='PATHNAME')
   })
   stopifnot(setequal(org.pathnames, info$PATHNAME))
   info <- subset(info, !is.na(ENTREZID))
@@ -48,12 +53,7 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
                       pathId=PATHID)]
   Encoding(info$name) <- 'unknown'
   gdb <- GeneSetDb(info)
-
-  ## fids <- split(info$ENTREZID, info$PATHNAME)
-  ## lol <- list(reactome=fids)
-  ## gdb <- GeneSetDb(lol)
-  ## Add reactome PATHID to geneSets()
-  ## gdb@table[, PATHID := info$PATHID[match(name, info$name)]]
-
+  featureIdType(gdb, 'reactome') <- EntrezIdentifier()
+  org(gdb, 'reactome') <- species
   gdb
 }

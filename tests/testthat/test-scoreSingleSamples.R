@@ -39,6 +39,9 @@ test_that("simple svd scoring method is same as (naive) GSDecon scores", {
   gsd <- scoreSingleSamples(gdb, vm$E, 'gsdecon')
   ssvd <- scoreSingleSamples(gdb, vm$E, 'svd')
   plage <- scoreSingleSamples(gdb, vm$E, 'plage')
+
+  ## TODO: Finish this test. For somre reason 'gsdecon' and 'svd' are not
+  ## producing the same results!
 })
 
 test_that("GeneSetDb <-> incidence matrix properly setup for GSDecon methods", {

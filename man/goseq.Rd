@@ -48,9 +48,16 @@ reconform the \code{GeneSetDb} object, because it has already been done.}
 \item{value}{The featureId types to extract from \code{gsd}}
 }
 \value{
-A \code{data.table} of results, similar to goseq output.
+A \code{data.table} of results, similar to goseq output. The output
+  from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
+  an attribue named \code{"pwf"}.
 }
 \description{
-Perform goseq Enrichment tests across a GeneSetDb.
+Note that we do not import things from goseq directly, and only load
+it if this function is fired. I can't figure out a way to selectively
+import functions from the goseq package without it having to load its
+dependencies, which take a long time -- and I don't want loading multiGSEA
+to take a long time. So, the goseq package has moved to Suggests and then
+is loaded within this function when necessary.
 }
 

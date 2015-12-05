@@ -1,7 +1,7 @@
 ##' Get pathways/GOslim information from PANTHER.db Biocondcutor package.
 ##'
 ##' @export
-##'
+##' @importFrom GSEABase EntrezIdentifier
 ##' @param type "pathway" or, "goslim"
 ##' @param species "human" or "mouse"
 ##'
@@ -21,6 +21,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
     org.pkg <- 'org.Mm.eg.db'
     xorg <- 'Mus_musculus'
   }
+
   if (!requireNamespace(org.pkg)) {
     stop(org.pkg, " bioconductor package required for this species query")
   }

@@ -64,7 +64,10 @@ validate.inputs.goseq <- function(x, design, contrast, feature.bias, ...) {
 ##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
 ##' @return A data.table of goseq results. The "pval" column here refers to
-##'   pval.over, for simplicity in other places.
+##'   pval.over, for simplicity in other places. If \code{split.updown=TRUE},
+##'   a list of data.table's are returned named 'goseq', 'goseq.up', and
+##'   'goseq.down' which are the results of running goseq three independent
+##'   times.
 do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      feature.bias,
                      method="Wallenius",
@@ -119,8 +122,14 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 
 ##' Perform goseq Enrichment tests across a GeneSetDb.
 ##'
+##' Note that we do not import things from goseq directly, and only load
+##' it if this function is fired. I can't figure out a way to selectively
+##' import functions from the goseq package without it having to load its
+##' dependencies, which take a long time -- and I don't want loading multiGSEA
+##' to take a long time. So, the goseq package has moved to Suggests and then
+##' is loaded within this function when necessary.
+##'
 ##' @export
-##' @import goseq
 ##'
 ##' @param gsd The \code{GeneSetDb} object to run tests against
 ##' @param selected The ids of the selected features
@@ -149,11 +158,17 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 ##'   reconform the \code{GeneSetDb} object, because it has already been done.
 ##' @param active.only If \code{TRUE}, only "active" genesets are used
 ##' @param value The featureId types to extract from \code{gsd}
-##' @return A \code{data.table} of results, similar to goseq output.
+##' @return A \code{data.table} of results, similar to goseq output. The output
+##'   from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
+##'   an attribue named \code{"pwf"}.
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
                   plot.fit=TRUE, do.conform=TRUE, .external=TRUE) {
+  gseq <- tryCatch(loadNamespace("goseq"), error=function(e) NULL)
+  if (is.null(goseq)) {
+    stop("You must install the goseq package to enable this functionality")
+  }
   stopifnot(is(gsd, 'GeneSetDb'))
   stopifnot(is.character(selected))
   stopifnot(is.character(universe))
@@ -180,9 +195,9 @@ goseq <- function(gsd, selected, universe, feature.bias,
   de.genes <- setNames(integer(length(universe)), universe)
   de.genes[selected] <- 1L
 
-  pwf <- goseq::nullp(de.genes, bias.data=feature.bias, plot.fit=plot.fit)
-  res <- goseq::goseq(pwf, gene2cat=g2c, method=method, repcnt=repcnt,
-                      use_genes_without_cat=use_genes_without_cat)
+  pwf <- gseq$nullp(de.genes, bias.data=feature.bias, plot.fit=plot.fit)
+  res <- gseq$goseq(pwf, gene2cat=g2c, method=method, repcnt=repcnt,
+                    use_genes_without_cat=use_genes_without_cat)
 
   ## resort output to match gs ordering
   res <- res[match(gs$category, res$category),]

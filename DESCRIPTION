@@ -1,8 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.22
-Date: 2015-05-21
+Version: 0.4.23
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -12,19 +11,19 @@ Depends:
 Imports:
     BiocGenerics,
     Biobase (>= 2.24.0),
+    GSEABase,
     limma (>= 3.26.3),
     edgeR,
     reshape2,
-    GSEABase,
     GSVA,
     stringr,
-    AnnotationDbi,
-    data.table (>= 1.9.6),
-    goseq
+    data.table (>= 1.9.6)
 Suggests:
+    goseq,
     DESeq2,
     testthat,
     rvest,
+    AnnotationDbi,
     PANTHER.db (>= 1.0.3),
     reactome.db,
     magrittr,

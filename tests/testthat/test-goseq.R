@@ -11,9 +11,6 @@ test_that("multiGSEA(method='goseq') requires valid feature.bias vector", {
   selected <- subset(lfc, significant)$featureId
   universe <- rownames(vm)
 
-  ## lens <- goseq::getlength(universe, 'hg19', 'knownGene')
-  mylens <- multiGSEA:::create.glength.vector(vm)
-
   expect_error({
     suppressWarnings({
       multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE)
@@ -32,10 +29,7 @@ test_that("internal goseq mimics goseq package", {
   lfc <- logFC(mg)
   selected <- subset(lfc, significant)$featureId
   universe <- rownames(vm)
-
-  ## lens <- goseq::getlength(universe, 'hg19', 'knownGene')
-  mylens <- multiGSEA:::create.glength.vector(vm)
-
+  mylens <- setNames(vm$genes$size, rownames(vm))
   degenes <- setNames(integer(length(universe)), universe)
   degenes[selected] <- 1L
 
@@ -43,6 +37,7 @@ test_that("internal goseq mimics goseq package", {
     multiGSEA::goseq(gsd, selected, universe, mylens, method='Wallenius',
                      use_genes_without_cat=TRUE)
   })
+
   ## pwf <- attr(my.res, 'pwf')
 
   ## expected
@@ -78,7 +73,7 @@ test_that("goseq,split.updown=TRUE is sane", {
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
 
-  mylens <- multiGSEA:::create.glength.vector(vm)
+  mylens <- setNames(vm$genes$size, rownames(vm))
 
   mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
                    feature.bias=mylens)
@@ -94,7 +89,7 @@ test_that("goseq,split.updown=TRUE plays well with other multiGSEA methods", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
-  mylens <- multiGSEA:::create.glength.vector(vm)
+  mylens <- setNames(vm$genes$size, rownames(vm))
 
   mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
                    feature.bias=mylens)
@@ -115,7 +110,7 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
-  mylens <- multiGSEA:::create.glength.vector(vm)
+  mylens <- setNames(vm$genes$size, rownames(vm))
 
   mg <- multiGSEA(gsd, vm, vm$design)
   lfc <- logFC(mg)
