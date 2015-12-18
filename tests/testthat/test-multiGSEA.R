@@ -1,5 +1,18 @@
 context("multiGSEA")
 
+test_that("multiGSEA fails on not-full-rank design matrix", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsl <- exampleGeneSets()
+  gsd <- GeneSetDb(gsl)
+  design <- vm$design
+
+  ## Add `extra` column to design matix which is linear combination
+  ## other columns: not full rank
+  design <- cbind(design, extra=design[, 1] + design[, 2])
+
+  expect_error(suppressWarnings(multiGSEA(gsd, vm, design)))
+})
+
 test_that("multiGSEA wrapper generates same results as individual do.*", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsl <- exampleGeneSets()

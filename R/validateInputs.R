@@ -19,7 +19,7 @@
 ##'
 ##' I know that the validation/checking logic is a bit painful (and repetitive)
 ##' here. I will (perhaps) clean that up some day.
-##'
+##' @importFrom Matrix rankMatrix
 ##' @export
 ##'
 ##' @param x The expression object to use
@@ -134,6 +134,9 @@ disp.estimated <- function(x) {
     }
     if (!is.character(colnames(design))) {
       errs$design.no.colnames <- TRUE
+    }
+    if (rankMatrix(design) != ncol(design)) {
+      errs$design.not.full.rank <- TRUE
     }
   }
   errs
