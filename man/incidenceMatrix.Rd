@@ -4,7 +4,7 @@
 \alias{incidenceMatrix}
 \title{Creates a 1/0 matrix to indicate geneset membership to target object.}
 \usage{
-incidenceMatrix(x, y)
+incidenceMatrix(x, y, ...)
 }
 \arguments{
 \item{x}{A \code{GeneSetDb}}

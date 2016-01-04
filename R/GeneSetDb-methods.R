@@ -1,3 +1,35 @@
+##' Annotates rows of a data.frame with geneset membership from a GeneSetDb
+##'
+##' @export
+##'
+##' @param x A data.frame with genes/features in rows
+##' @param gdb A \code{GeneSetDb} object with geneset membership
+##' @param x.ids The name of the column in \code{x} that holds the feautre
+##'   id's in \code{x} that match the featureId's in \code{gdb}, or a vector
+##'   of id's to use for each row in \code{x} that represent these.
+##' @return Returns the original \code{x} with additional columns: each is a
+##'   logical vector that indicates membership for genesets defined in
+##'   \code{gdb}.
+annotateGeneSetMembership <- function(x, gdb, x.ids='entrez_id', ...) {
+  stopifnot(is(x, 'data.frame'))
+  stopifnot(is(gdb, 'GeneSetDb'))
+  stopifnot(is(x.ids, 'character'))
+
+  if (length(x.ids) == 1L && is.character(x[[x.ids]])) {
+    ## This is a column in df that has the gene IDs that `x` expects
+    x.ids <- x[[x.ids]]
+  }
+  if (nrow(x) != length(x.ids)) {
+    stop("x.ids must be a vector of gene ids, or a column name in x of these")
+  }
+
+  im <- incidenceMatrix(gdb, x.ids, ...)
+  storage.mode(im) <- 'logical'
+  cbind(x, t(im))
+}
+
+setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
+
 ##' (Re)-map geneset IDs to the rows in an expression object.
 ##'
 ##' This uses the already-set featureIdMap for the GeneSetDb
@@ -132,39 +164,32 @@ is.conformed <- function(x, to) {
 ##' @return incidence matrix with nrows = number of genesets and columns are
 ##'   featureIDs. If \code{y} is passed in, the columns of the returned value
 ##'   match the rows of \code{y}.
-incidenceMatrix <- function(x, y) {
+incidenceMatrix <- function(x, y, ...) {
   stopifnot(is(x, 'GeneSetDb'))
   gs <- NULL
   if (missing(y)) {
     val <- 'featureId'
-    gs <- geneSets(x, .external=FALSE)
-    all.fids <- unique(x@db$featureId)
-    out <- matrix(0L, nrow=nrow(gs), ncol=length(all.fids),
-                  dimnames=list(
-                    paste(gs$collection, gs$name, sep=';;'),
-                    all.fids))
+    ynames <- unique(x@db$featureId)
+    ncol <- length(ynames)
   } else {
     val <- 'x.idx'
-    if (!inherits(y, .valid.x)) {
-      stop("Invalid expression object (x) type: ", class(x)[1L])
+    x <- conform(x, y, ...)
+    if (is.vector(y)) {
+      ynames <- y
+      ncol <- length(y)
+    } else {
+      ynames <- rownames(y)
+      ncol <- nrow(y)
     }
-    if (!is.conformed(x, y)) {
-      x <- conform(x, y)
-    }
-    gs <- geneSets(x, .external=FALSE)
-    out <- matrix(0L, nrow(gs), nrow(y),
-                  dimnames=list(
-                    paste(gs$collection, gs$name, sep=';;'),
-                    rownames(y)))
   }
+
+  gs <- geneSets(x, .external=FALSE)
+  dimnames <- list(paste(gs$collection, gs$name, sep=';;'), ynames)
+  out <- matrix(0L, nrow(gs), ncol, dimnames=dimnames)
 
   for (i in 1:nrow(gs)) {
     fids <- featureIds(x, gs$collection[i], gs$name[i], value=val)
     out[i, fids] <- 1L
-  }
-
-  if (val == 'featureId') {
-    out <- out[, colSums(out) > 0]
   }
 
   out
