@@ -13,7 +13,8 @@
 ##
 ## TODO: We need to do ortholog mapping to mouse IDs
 library(GSEABase)
-library(multiGSEA)
+## library(multiGSEA)
+dev.lib('multiGSEA')
 library(data.table)
 
 fn <- '~/Downloads/msigdb_v5.0.xml'
@@ -41,6 +42,8 @@ library(org.Hs.eg.db)
 info[, symbol := mapIds(org.Hs.eg.db, featureId, 'SYMBOL', 'ENTREZID')]
 
 gdb <- GeneSetDb(info[, list(collection, name, featureId, symbol)])
+
+## Update the gdb@table
 gdb@table <- local({
   gs <- unique(info[, list(collection, name, subcategory, organism)])
   stopifnot(sum(duplicated(gs$name)) == 0)
@@ -89,57 +92,41 @@ ortho <- local({
 
 ## I want to keep around the sourge human entrez ID that mapped to mouse
 mm.db <- merge(gdbh@db, ortho, by='featureId')
-setnames(mm.db, c('featureId', 'featureId.Mm'), c('featureId.Hs', 'featureId'))
-setcolorder(mm.db, c(names(gdbh@db), 'featureId.Hs'))
+setnames(mm.db, c('featureId', 'symbol', 'featureId.Mm'), c('featureId.Hs', 'symbol.Hs', 'featureId'))
+
+library(org.Mm.eg.db)
+mm.db$symbol <- mapIds(org.Mm.eg.db, mm.db$featureId, 'SYMBOL', 'ENTREZID')
+setcolorder(mm.db, c(names(gdbh@db), setdiff(names(mm.db), names(gdbh@db))))
 
 ## we don't want to make a geneset for c1, since position info doesn't translate
 ## to mouse
-lol <- sapply(setdiff(mm.db$collection, 'c1'), function(xcol) {
-  with(subset(mm.db, collection == xcol), {
-    split(featureId, name)
-  })
-}, simplify=FALSE)
+mm.db.all <- mm.db
+mm.db <- subset(mm.db.all, collection != 'c1')
 
-gdb <- GeneSetDb(lol)
+
+gdb <- GeneSetDb(mm.db)
 
 url.fn <- function(collection, name) {
   url <- "http://www.broadinstitute.org/gsea/msigdb/cards/%s.html"
   sprintf(url, name)
 }
-for (col in names(lol)) {
-  multiGSEA:::geneSetCollectionURLfunction(gdb, col) <- url.fn
+for (col in unique(geneSets(gdb)$collection)) {
+  geneSetCollectionURLfunction(gdb, col) <- url.fn
+  featureIdType(gdb, col) <- EntrezIdentifier()
+  gdb <- addCollectionMetadata(gdb, col, 'source', 'MSigDB_v5.1')
 }
 
-## Add id_type for the identifiers and species
-gdb@collectionMetadata <- local({
-  cm <- gdb@collectionMetadata
-  more <- lapply(names(lol), function(col) {
-    data.table(
-      collection=col,
-      name=c('organism', 'id_type', 'source'),
-      value=list('Mus_musculus', EntrezIdentifier(), 'MSigDB_v5.0'))
-  })
-  more <- rbindlist(more)
-  out <- rbind(cm, more)
-  setkeyv(out, key(cm))
+org(gdb) <- 'Mus_musculus'
+
+## Update the gdb@table
+gdb@table <- local({
+  otable <- gdbh@table[, c('collection', 'name', setdiff(names(gdbh@table), names(gdb@table))), with=FALSE]
+  gst <- merge(gdb@table, otable, by=c('collection', 'name'))
+  stopifnot(sum(duplicated(gst$name)) == 0)
+  setkeyv(gst, key(gdb@table))
+  stopifnot(all.equal(gst[, names(gdb@table), with=FALSE], gdb@table))
+  gst
 })
-
-## Add the human entrezId each feature was mapped from in gdb@db
-xmap <- data.table(featureId=ortho$featureId.Mm, featureId.Hs=ortho$featureId)
-xmap <- unique(xmap, by='featureId')
-udb <- merge(gdb@db, xmap, by='featureId')
-setcolorder(udb, c(names(gdb@db), 'featureId.Hs'))
-udb <- udb[order(collection, name, featureId)]
-setkeyv(udb, key(gdb@db))
-
-## Check that these are same as original db
-odb <- gdb@db[order(collection, name, featureId)]
-stopifnot(all.equal(udb$collection, odb$collection))
-stopifnot(all.equal(udb$name, odb$name))
-stopifnot(all.equal(udb$featureId, odb$featureId))
-
-gdb@db <- udb
-stopifnot(validObject(gdb))
 
 gdb.fn <- sprintf('MSigDB.Mus_musculus.GeneSetDb.rds', species)
 saveRDS(gdb, gdb.fn)
