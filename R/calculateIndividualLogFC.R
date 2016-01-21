@@ -31,7 +31,7 @@
 ##'   \code{$fit} has the limma fit for the data/design/contrast under test.
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
-                                     use.treat=TRUE, treat.lfc=log2(1.25),
+                                     use.treat=FALSE, treat.lfc=log2(1.25),
                                      with.fit=FALSE, ..., .external=TRUE) {
   do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
     length(contrast) > 1

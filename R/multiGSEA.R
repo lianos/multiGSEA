@@ -63,7 +63,7 @@
 ##'
 ##' @return A \code{MultiGSEAResult}
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
-                      methods=NULL, use.treat=TRUE,
+                      methods=NULL, use.treat=FALSE,
                       feature.min.logFC=if (use.treat) log2(1.25) else 1,
                       feature.max.padj=0.10,
                       trim=0.10, verbose=FALSE, ..., do.parallel=FALSE) {
