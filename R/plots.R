@@ -1,3 +1,5 @@
+## TODO: Add DOSE::gseaplot
+
 setMethod("plot", 'MultiGSEAResult',
 function(x, y, j, value=c('logFC', 't'), type=c('density', 'barcode', 'mini'),
          main=NULL, ...) {

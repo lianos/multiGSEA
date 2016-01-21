@@ -19,6 +19,8 @@
 ##'   functionality to calculate pvalues based on minimum logFC
 ##'   (\code{treat.lfc})
 ##' @param treat.lfc The logFC to test the dge on.
+##' @param confint add confidence intervals to \code{topTable} output (default
+##'   \code{TRUE})? Ignored if \code{x} is a \code{DGEList}.
 ##' @param with.fit If \code{TRUE}, this function returns the fit in addition
 ##'   to the logFC statistics.
 ##' @param ... parameters passed through to the \code{lmFit} call.
@@ -32,7 +34,8 @@
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      use.treat=FALSE, treat.lfc=log2(1.25),
-                                     with.fit=FALSE, ..., .external=TRUE) {
+                                     confint=TRUE, with.fit=FALSE, ...,
+                                     .external=TRUE) {
   do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
     length(contrast) > 1
   if (do.contrast) {
@@ -80,10 +83,10 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     }
     if (use.treat) {
       fit <- treat(fit, lfc=treat.lfc, robust=robust.eBayes)
-      tt <- topTreat(fit, contrast, number=Inf, sort.by='none')
+      tt <- topTreat(fit, contrast, number=Inf, sort.by='none', confint=confint)
     } else {
       fit <- eBayes(fit, robust=robust.eBayes)
-      tt <- topTable(fit, contrast, number=Inf, sort.by='none')
+      tt <- topTable(fit, contrast, number=Inf, sort.by='none', confint=confint)
     }
     tt <- transform(as.data.table(tt), featureId=rownames(x))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
@@ -92,7 +95,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     ## The user passed in a vector of statistics. Only a very few number of
     ## GSEA methods support this, but ...
     out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
-                      pval=NA_real_, padj=NA_real_,
+                      pval=NA_real_, padj=NA_real_, confint=NA_real_,
                       featureId=rownames(x))
     fit <- NULL
   }

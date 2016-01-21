@@ -23,7 +23,7 @@ validate.x.hyperGeometricTest <- validate.X
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
 do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
                                   direction=c('over', 'under'),
-                                  use.treat=TRUE,
+                                  use.treat=FALSE,
                                   feature.min.logFC=1, feature.max.padj=0.10,
                                   logFC=NULL, ...) {
   stopifnot(is.conformed(gsd, x))
@@ -41,9 +41,10 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   }
 
   if (is.null(logFC$significant)) {
-    logFC[, significant := {
-      logFC$padj <= feature.max.padj & abs(logFC$logFC) >= feature.min.logFC
-    }]
+    is.sig <- with(logFC, {
+      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
+    })
+    logFC[, significant := is.sig]
   }
 
   drawn <- logFC[significant == TRUE]$featureId

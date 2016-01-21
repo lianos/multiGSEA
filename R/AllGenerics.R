@@ -25,6 +25,7 @@ function(x, collection, name, ...) {
   standardGeneric("collectionMetadata")
 })
 
+##' @export
 setGeneric("collectionMetadata<-", signature=c("x", "collection", "name"),
 function(x, collection, name, value) {
   standardGeneric("collectionMetadata<-")

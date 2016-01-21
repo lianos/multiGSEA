@@ -19,12 +19,13 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   gsd <- GeneSetDb(gsl)
 
   methods <-c('camera', 'hyperGeometricTest', 'roast', 'geneSetTest')
+  methods <- c('camera', 'hyperGeometricTest')
   min.logFC <- log2(1.25)
   max.padj <- 0.10
   mg <- multiGSEA(gsd, vm, vm$design, methods=methods,
                   nrot=250, nsim=500, split.updown=FALSE,
                   feature.min.logFC=min.logFC, feature.max.padj=max.padj)
-
+  lfc <- logFC(mg)
   gsc <- conform(gsd, vm)
   do <- sapply(methods, function(m) {
     fn <- getFunction(paste0('do.', m), where=getNamespace('multiGSEA'))
@@ -37,12 +38,12 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   ## that are deterministic.
   no.random <- c('camera', 'hyperGeometricTest')
   for (m in no.random) {
-    did.x <- do[[m]]
-    res.x <- mg@results[[m]]
-    expect_true(all(names(did.x) %in% names(res.x)),
+    do.x <- do[[m]]
+    mg.x <- mg@results[[m]]
+    expect_true(all(names(do.x) %in% names(mg.x)),
                 info=paste('colnames check for', m))
-    res.x <- res.x[, names(did.x), with=FALSE]
-    expect_equal(did.x, res.x, info=paste('values check for', m),
+    mg.res <- mg.x[, names(do.x), with=FALSE]
+    expect_equal(do.x, mg.res, info=paste('values check for', m),
                  check.attributes=FALSE)
   }
 })

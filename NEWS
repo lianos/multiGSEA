@@ -3,6 +3,14 @@ CHANGES IN VERSION 0.2.x
 
 USER VISIBLE CHANGES
 
+  o Internal MSigDB collections updated to v5.1 (as of v0.4.30).
+    The major difference in v5.1 vs v5.0 seems to be an updated c7 (immunologic)
+    collection, which comes on the heels of this paper:
+
+      Compendium of Immune Signatures Identifies Conserved and Species-Specific
+      Biology in Response to Inflammation
+      http://www.cell.com/immunity/abstract/S1074-7613(15)00532-4
+
   o All methods now default to returning data.frame(s) instead of data.table(s)
     data.table is still used internally, however I understand that some people
     don't want to have them returned into their workspace.
@@ -13,13 +21,12 @@ USER VISIBLE CHANGES
 
   o Changed geneSetFeatureStatistics to geneSetsStats
 
-  o Internal differential expression testing defaults to `use.treat=TRUE`
-
 NEW FEATURES
 
   o `use.treat` parameter has been added to relevant places to run the internal
     differential testing via the "treat" framework made available in limma and
-    edgeR via the `treat` and `glmTreat` "pipelines," respectively.
+    edgeR via the `treat` and `glmTreat` "pipelines," respectively. By default,
+    all pipelines do not use the treat framework (but perhaps they should).
 
   o goseq, fry, and romer testing methods have been added.
 

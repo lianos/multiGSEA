@@ -1,14 +1,29 @@
 .msigdb.species <- c('human', 'mouse')
 .msigdb.collections <- list(
   'v4.0'=paste0('c', 1:7),
-  'v5.0'=c(paste0('c', 1:7), 'h'))
+  'v5.0'=c(paste0('c', 1:7), 'h'),
+  'v5.1'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
 
-##' Fetches an MSigDB GeneSetDb
+##' Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.
 ##'
-##' The gene sets for version 5.0 were parsed straight from MSigDB's XML dumps.
-##' Version 4.0 was based off of the data provided by WEHI:
-##'   http://bioinf.wehi.edu.au/software/MSigDB/
+##' @description
+##' This provides versioned genesets from gene set collections defined in
+##' \href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. The following
+##' versions are included in this package:
+##'
+##' \itemize{
+##'   \item v4.0
+##'   \item v5.0
+##'   \item v5.1
+##' }
+##'
+##' Starting from version 5.1, the \code{GeneSetDb} includes the symbols for
+##' the features in the genesets (in \code{gdb@db}) as well as additional meta
+##' information about the genesets (in \code{geneSets(gdb)}) for "subcategory"
+##' (which may be most useful for GO gene sets, eg. CC vs BP vs MF) and
+##' "organism" which defines the organism in which the geneset was derived
+##' from ("Homo sapiens" or "Mus musculus").
 ##'
 ##' @export
 ##' @rdname MSigDB

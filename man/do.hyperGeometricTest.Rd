@@ -5,8 +5,8 @@
 \title{Performs a hypergeometric test for significance of gene set membership.}
 \usage{
 do.hyperGeometricTest(gsd, x, design, contrast = ncol(design),
-  direction = c("over", "under"), use.treat = TRUE, feature.min.logFC = 1,
-  feature.max.padj = 0.1, logFC = NULL, ...)
+  direction = c("over", "under"), use.treat = FALSE,
+  feature.min.logFC = 1, feature.max.padj = 0.1, logFC = NULL, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}

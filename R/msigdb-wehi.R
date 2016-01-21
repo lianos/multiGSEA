@@ -16,7 +16,7 @@
 ##' such list.
 ##'
 ##' @docType data
-##' @name MSigDB
+##' @name MSigDB-wehi
 NULL
 
 .wehi.msigdb.species <- c('human', 'mouse')

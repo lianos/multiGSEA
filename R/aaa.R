@@ -4,7 +4,7 @@
 
 ## .multi.gsea.methods <- c('camera', 'roast', 'gsd', 'npGSEA')
 .multi.gsea.methods <- c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
-                         'goseq', 'hyperGeometricTest', 'logFC')
+                         'gseap', 'goseq', 'hyperGeometricTest', 'logFC')
 
 ## valid types of objects that can be used for "Expression" (x)'s
 .valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')

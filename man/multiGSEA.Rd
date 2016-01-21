@@ -5,7 +5,7 @@
 \title{Performs several GSEA analysis over an experiment}
 \usage{
 multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
-  use.treat = TRUE, feature.min.logFC = if (use.treat) log2(1.25) else 1,
+  use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else 1,
   feature.max.padj = 0.1, trim = 0.1, verbose = FALSE, ...,
   do.parallel = FALSE)
 }

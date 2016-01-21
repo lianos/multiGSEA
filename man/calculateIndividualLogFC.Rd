@@ -5,8 +5,9 @@
 \title{Runs a vanilla limma differential expression analysis}
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
-  robust.fit = FALSE, robust.eBayes = FALSE, use.treat = TRUE,
-  treat.lfc = log2(1.25), with.fit = FALSE, ..., .external = TRUE)
+  robust.fit = FALSE, robust.eBayes = FALSE, use.treat = FALSE,
+  treat.lfc = log2(1.25), confint = TRUE, with.fit = FALSE, ...,
+  .external = TRUE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -27,6 +28,9 @@ functionality to calculate pvalues based on minimum logFC
 (\code{treat.lfc})}
 
 \item{treat.lfc}{The logFC to test the dge on.}
+
+\item{confint}{add confidence intervals to \code{topTable} output (default
+\code{TRUE})? Ignored if \code{x} is a \code{DGEList}.}
 
 \item{with.fit}{If \code{TRUE}, this function returns the fit in addition
 to the logFC statistics.}
