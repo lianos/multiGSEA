@@ -20,7 +20,10 @@ do.roast <- function(gsd, x, design, contrast=ncol(design), ...) {
   call.args[['sort']] <- 'none'
   call.args[['...']] <- NULL
   ## earlier versions of edgeR::mroast was double-passing var.prior
-  if (packageVersion('edgeR') < '3.11') {
+  if (is(x, 'DGEList')) {
+    ## var.prior and df.prior are set internally in edgeR::mroast.DGEList
+    ## if we don't nuke them here, they will be passed in twice to limma::mroast
+    ## and the call will error out
     call.args[['var.prior']] <- NULL
     call.args[['df.prior']] <- NULL
   }

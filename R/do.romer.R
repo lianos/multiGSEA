@@ -2,7 +2,27 @@
 NULL
 
 validate.inputs.romer <- .validate.inputs.full.design
-validate.x.romer <- validate.DGEList
+
+## validate.x.romer <- validate.DGEList
+
+## romer works on normal EList or DGEList. It has not been adapted
+## to work with a $weights matrix (that you get from voom)
+validate.x.romer <- function(x) {
+  if (isTRUE(is(x, 'DGEList'))) {
+    if (!is.numeric(x$common.dispersion)) {
+      return("dispersion is not estimated, minimally call estimateDisp(x)")
+    }
+  } else if (is(x, 'EList')) {
+    if (is.matrix(x$weights)) {
+      ## This is coming from voom?
+      warning("x has $weights. romer hasn't been implemented for voom",
+              immediate.=TRUE)
+    }
+  } else if (!is.matrix(x)) {
+    return("romer only works with DGEList, EList, or matrix for x")
+  }
+  return(TRUE)
+}
 
 do.romer <- function(gsd, x, design, contrast=ncol(design), ...) {
   stopifnot(is.conformed(gsd, x))
@@ -35,4 +55,3 @@ do.romer <- function(gsd, x, design, contrast=ncol(design), ...) {
 
   out
 }
-
