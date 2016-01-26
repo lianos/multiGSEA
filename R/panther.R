@@ -48,6 +48,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
 ##' it's not clear how often these get updated.
 ##'
 ##' @export
+##' @importFrom AnnotationDbi select
 ##' @param species "human" or "mouse"
 ##' @return \code{GeneSetDb} of the GO slim mappings
 getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
