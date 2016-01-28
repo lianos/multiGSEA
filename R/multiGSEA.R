@@ -420,7 +420,7 @@ result <- function(x, name, stats.only=FALSE,
 
   res <- local({
     r <- x@results[[name]]
-    if (!all.equal(out[, key(out), with=FALSE], r[, key(out), with=FALSE])) {
+    if (!isTRUE(all.equal(out[, key(out), with=FALSE], r[, key(out), with=FALSE])[1])) {
       stop("Unexpected geneset ordering in `", name, "` result")
     }
     if (stats.only) {

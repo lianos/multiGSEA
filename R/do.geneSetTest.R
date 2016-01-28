@@ -20,11 +20,21 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
     } else {
       is.logFC.like(logFC, x, as.error=TRUE)
     }
+    ## t will be NA if statistics were computed using edgeR from a DGEList
+    if (score.by == 't' && any(is.na(logFC[['t']]))) {
+      warning("t statistics not found in dge results, switching to logFC",
+              immediate.=TRUE)
+      score.by <- 'logFC'
+    }
     stats <- setNames(logFC[[score.by]], logFC$featureId)
   } else {
     ## This already a column matrix of precomputed things (logFC, perhaps)
     ## to rank
     stats <- setNames(x[, 1L], rownames(x))
+  }
+
+  if (any(is.na(stats))) {
+    stop("NA values are found in the stats vector for geneSetTest")
   }
 
   args <- list(...)

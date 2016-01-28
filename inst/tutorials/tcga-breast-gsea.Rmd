@@ -337,7 +337,7 @@ pdbc <- conform(pdb, lfc$featureId)
 hg.res <- hyperGeometricTest(pdbc, selected, lfc$featureId)
 ```
 
-These are the pathways with an FDR <= 0.1:
+These are the pathways with an FDR <= 0.3:
 
 `r knitr::kable(subset(hg.res, padj < 0.1))`
 

@@ -56,7 +56,7 @@ getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
 }
 
 getPantherPathways <- function(p.db, org.db) {
-  p.all <- select(p.db, keys(p.db, keytype="PATHWAY_ID"),
+  p.all <- select(p.db, AnnotationDbi::keys(p.db, keytype="PATHWAY_ID"),
                   columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
                   'PATHWAY_ID')
   ## Map uniprot to entrez
