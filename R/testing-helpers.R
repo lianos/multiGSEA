@@ -49,6 +49,7 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   if (do.voom) {
     ## require('limma', character.only=TRUE)
     out <- voom(es, design, plot=FALSE)
+    out$genes <- fData(es)
   } else {
   }
 

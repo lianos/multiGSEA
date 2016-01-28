@@ -105,6 +105,21 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   }
 
   out <- ret.df(out, .external=.external)
+  if ((is(x, 'EList') || is(x, 'DGEList')) && is.data.frame(x$genes)) {
+    gdf <- x$genes
+    ## Remove columns that already appear in out, or are the featureIds loaded
+    ## into $genes by another name
+    keep <- sapply(names(gdf), function(col) {
+      if (col %in% names(out)) return(FALSE)
+      vals <- gdf[[col]]
+      if (is.factor(vals)) vals <- as.character(vals)
+      !(is.character(vals) && isTRUE(all.equal(rownames(x), vals)[1]))
+    })
+    if (any(keep)) {
+      xref <- match(out$featureId, rownames(x))
+      out <- cbind(out, gdf[xref, !drop.cols])
+    }
+  }
 
   if (with.fit) list(result=out, fit=fit) else out
 }

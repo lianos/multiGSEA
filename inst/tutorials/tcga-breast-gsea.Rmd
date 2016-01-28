@@ -69,7 +69,7 @@ es.design <- local({
   d
 })
 
-y <- DGEList(exprs(es), group=pData(es)$Cancer_Status)
+y <- DGEList(exprs(es), group=pData(es)$Cancer_Status, genes=fData(es))
 y <- calcNormFactors(y)
 y <- estimateDisp(y, es.design)
 
