@@ -22,6 +22,7 @@ library(multiGSEA)
 library(rmd.plugins)
 library(knitr)
 library(magrittr)
+library(data.table)
 ## Set defaults to hide errors and warnings, show output, and create highres
 ## pngs
 report.init(echo=TRUE, results='markup')
@@ -254,8 +255,8 @@ optimistic p-values.
 
 ```{r voom-edger-pvals}
 cmeths <- c('camera', 'roast')
-rv <- results(mg, cmeths)
-re <- results(mge, cmeths)
+rv <- setDT(results(mg, cmeths))
+re <- setDT(results(mge, cmeths))
 gg <- local({
   cam <- cbind(rv[, list(collection, name, method='camera', pval.v=pval.camera)],
                re[, list(pval.e=pval.camera)])
@@ -280,10 +281,10 @@ so you might suspect that will be an "outlier", but that doesn't really seem
 to be the case.
 
 ```{r roast-vs-camera-vs-romer}
-rea <- results(mge)
+reac <- results(mge)
 comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera',
           'pval.romer', 'pval.up.romer', 'pval.down.romer')
-C <- -log10(as.matrix(rea[, comp, with=FALSE]))
+C <- -log10(as.matrix(reac[, comp]))
 pairs(C, pch=16, col="#3f3f3f33", gap=0.2)
 ```
 
@@ -339,4 +340,6 @@ hg.res <- hyperGeometricTest(pdbc, selected, lfc$featureId)
 These are the pathways with an FDR <= 0.1:
 
 `r knitr::kable(subset(hg.res, padj < 0.1))`
+
+## Manual goseq Testing
 

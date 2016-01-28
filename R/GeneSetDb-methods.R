@@ -10,11 +10,21 @@
 ##' @return Returns the original \code{x} with additional columns: each is a
 ##'   logical vector that indicates membership for genesets defined in
 ##'   \code{gdb}.
-annotateGeneSetMembership <- function(x, gdb, x.ids='entrez_id', ...) {
+annotateGeneSetMembership <- function(x, gdb, x.ids=NULL, ...) {
   stopifnot(is(x, 'data.frame'))
   stopifnot(is(gdb, 'GeneSetDb'))
-  stopifnot(is(x.ids, 'character'))
 
+  if (is.null(x.ids)) {
+    ## Guess the column of x that has featureIds by identifying the column of
+    ## x that has the highest percent membership in gdb@featureIdMap
+    membership <- sapply(x, function(col) {
+      if (!is.character(col)) 0 else mean(col %in% featureIdMap(gdb)$x.id)
+    })
+    x.ids <- names(x)[which.max(membership)]
+  }
+  if (!is.character(x.ids)) {
+    stop("character expected for x.ids")
+  }
   if (length(x.ids) == 1L && is.character(x[[x.ids]])) {
     ## This is a column in df that has the gene IDs that `x` expects
     x.ids <- x[[x.ids]]

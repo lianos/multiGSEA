@@ -307,6 +307,26 @@ test_that("conformed & unconformed GeneSetDb,incidenceMatrix is kosher", {
   }
 })
 
+test_that("annotateGeneSetMembership works", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gdb <- GeneSetDb(exampleGeneSets())
+  mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), NULL)
+  lfc <- logFC(mg)
+
+  ## Test that annotation is consistent with pre-conformed gdb vs uncormed
+  lfc.anno.u <- annotateGeneSetMembership(lfc, gdb)    ## unconformed
+  lfc.anno.p <- annotateGeneSetMembership(lfc, mg@gsd) ## preconformed
+  expect_equal(lfc.anno.u, lfc.anno.p)
+
+  ## ensure that annotateGeneSetMembership guessed the right column
+  lfc.anno.x <- annotateGeneSetMembership(lfc, gdb, x.ids=lfc$featureId)
+  expect_equal(lfc.anno.x, lfc.anno.u)
+
+  ## ensure that x.ids specified by column name in lfc works
+  lfc.anno.c <- annotateGeneSetMembership(lfc, gdb, x.ids='featureId')
+  expect_equal(lfc.anno.x, lfc.anno.c)
+})
+
 test_that("subset.GeneSetDb works", {
   ## TODO: Test subset.GeneSetDb
 })
