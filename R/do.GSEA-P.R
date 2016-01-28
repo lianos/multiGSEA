@@ -9,7 +9,7 @@ validate.x.gseap <- validate.X
 ##' See the following link for reference
 ##' http://guangchuangyu.github.io/2015/11/comparison-of-clusterprofiler-and-gsea-p/
 ##'
-##' @importFrom clusterProfiler GSEA
+## @importFrom clusterProfiler GSEA
 do.gseap <- function(gsd, x, design, contrast,
                      logFC=NULL, score.by=c('t', 'logFC'),
                      robust.fit=FALSE, robust.eBayes=FALSE, ...) {
