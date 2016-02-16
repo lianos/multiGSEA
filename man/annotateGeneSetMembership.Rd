@@ -4,7 +4,7 @@
 \alias{annotateGeneSetMembership}
 \title{Annotates rows of a data.frame with geneset membership from a GeneSetDb}
 \usage{
-annotateGeneSetMembership(x, gdb, x.ids = "entrez_id", ...)
+annotateGeneSetMembership(x, gdb, x.ids = NULL, ...)
 }
 \arguments{
 \item{x}{A data.frame with genes/features in rows}

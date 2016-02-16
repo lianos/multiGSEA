@@ -194,15 +194,17 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
 ##' TODO: Need to debug this. For some reason the results aren't the same
 ##' as what GSDecon methos provides, even though the codepath should be
 ##' identical
-do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
-                                      unscale=TRUE, ...) {
+do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=FALSE,
+                                      unscale=FALSE, drop.sd=1e-4, ...) {
   ## if (!requireNamespace('GSDecon')) {
   ##   stop("Jason Hackney's GSDecon package required")
   ## }
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
+  sd0.idx <- which(apply(y, 1, sd, na.rm=TRUE) < drop.sd)
   y.scale <- t(scale(t(y)))
+
   cnt <- if (uncenter) {
     attributes(y.scale)$"scaled:center"
   } else {
@@ -213,10 +215,12 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
   } else {
     rep(1, nrow(y))
   }
+
   message("=== SVD ===")
   gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
+
   out <- sapply(gs.idxs, function(idxs) {
-    ## idxs <- setdiff(idxs, sd0.idx)
+    idxs <- setdiff(idxs, sd0.idx)
     SVD <- svd(y.scale[idxs,])
     ## GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
     n <- 1
@@ -224,10 +228,14 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=TRUE,
     scale <- scl[idxs]
     newD <- SVD$d
     newD[-n] <- 0
-    sv <- SVD$u %*% diag(newD) %*% t(SVD$v)
-    sv <- sweep(sweep(sv, 1, FUN = "*", scale), 1, FUN = "+", center)
-    sv <- colMeans(sv)
-    sv
+    egene <- SVD$u %*% diag(newD) %*% t(SVD$v)
+    if (unscale) {
+      egene <- sweep(egene, 1, FUN="*", scale)
+    }
+    if (uncenter) {
+      egene <- sweep(egene, 1, FUN="+", center)
+    }
+    colMeans(egene)
   })
 
   out <- t(out)

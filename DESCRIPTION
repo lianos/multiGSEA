@@ -1,14 +1,13 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.34
+Version: 0.4.35
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
     analysis methods, along with plotting and other general GSEA utilities.
-Depends:
-    methods
 Imports:
+    methods,
     BiocGenerics,
     Biobase (>= 2.24.0),
     GSEABase,
