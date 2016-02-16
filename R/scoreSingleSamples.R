@@ -50,7 +50,7 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
   y.all <- y
   y <- y.all[!sd0,]
   if (any(sd0)) {
-    warning(sum(sd0), " rows from expression objet (y) due to 0sd")
+    warning(sum(sd0), " row(s) from expression object (y) due to 0sd")
   }
   gdb <- conform(gdb, y, ...)
 
@@ -202,7 +202,7 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=FALSE,
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
-  sd0.idx <- which(apply(y, 1, sd, na.rm=TRUE) < drop.sd)
+  ## sd0.idx <- which(apply(y, 1, sd, na.rm=TRUE) < drop.sd)
   y.scale <- t(scale(t(y)))
 
   cnt <- if (uncenter) {
@@ -220,7 +220,7 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=FALSE,
   gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
 
   out <- sapply(gs.idxs, function(idxs) {
-    idxs <- setdiff(idxs, sd0.idx)
+    ## idxs <- setdiff(idxs, sd0.idx)
     SVD <- svd(y.scale[idxs,])
     ## GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
     n <- 1
