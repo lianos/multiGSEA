@@ -4,18 +4,20 @@
 \alias{scoreSingleSamples}
 \title{Score each genes over the columns of an expression matrix.}
 \usage{
-scoreSingleSamples(gdb, y, methods = "ssgsea", melted = FALSE, ...)
+scoreSingleSamples(gdb, y, methods = "ssgsea", melted = FALSE,
+  drop.sd = 1e-04, ...)
 }
 \arguments{
 \item{gdb}{A GeneSetDb}
 
 \item{y}{An expression matrix to score genesets against}
 
-\item{score.fn}{The function used to summarize the genes in a geneset.
-If left \code{NULL}, defaults to \code{mean}}
+\item{methods}{A character vector of methods to score samples by}
 
-\item{trim}{The amount to trim in the trimmed mean of the individual
-geneset genes/features.}
+\item{melted}{Return a melted data.frame of the results?}
+
+\item{drop.sd}{Genes with a standard deviation across columns in \code{y}
+with a standard deviation less than this value will be dropped.}
 }
 \value{
 \code{matrix} with as many rows as \code{geneSets(gdb)} and

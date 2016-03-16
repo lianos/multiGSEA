@@ -4,8 +4,8 @@
 \alias{do.scoreSingleSamples.svd}
 \title{A no dependency call to GSDecon's eigengene scoring}
 \usage{
-do.scoreSingleSamples.svd(gdb, y, melted = FALSE, uncenter = FALSE,
-  unscale = FALSE, drop.sd = 1e-04, ...)
+do.scoreSingleSamples.svd(gdb, y, melted = FALSE, center = TRUE,
+  scale = TRUE, uncenter = FALSE, unscale = FALSE, ...)
 }
 \description{
 TODO: Need to debug this. For some reason the results aren't the same

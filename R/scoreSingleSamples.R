@@ -22,13 +22,15 @@
 ##'
 ##' @param gdb A GeneSetDb
 ##' @param y An expression matrix to score genesets against
-##' @param score.fn The function used to summarize the genes in a geneset.
-##'   If left \code{NULL}, defaults to \code{mean}
-##' @param trim The amount to trim in the trimmed mean of the individual
-##'   geneset genes/features.
+##' @param methods A character vector of methods to score samples by
+##' @param melted Return a melted data.frame of the results?
+##' @param drop.sd Genes with a standard deviation across columns in \code{y}
+##'   with a standard deviation less than this value will be dropped.
+##'
 ##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
 ##'   as many columns as \code{ncol(x)}
-scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
+scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
+                               drop.sd=1e-4, ...) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
@@ -46,11 +48,11 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE, ...) {
 
   ## Removing genes that have almost-zero std.dev across the dataset.
   sds <- apply(y, 1, sd, na.rm=TRUE)
-  sd0 <- sds < 1e-4
+  sd0 <- sds < drop.sd
   y.all <- y
   y <- y.all[!sd0,]
   if (any(sd0)) {
-    warning(sum(sd0), " row(s) from expression object (y) due to 0sd")
+    warning(sum(sd0), " row(s) removed from expression object (y) due to 0sd")
   }
   gdb <- conform(gdb, y, ...)
 
@@ -194,23 +196,22 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
 ##' TODO: Need to debug this. For some reason the results aren't the same
 ##' as what GSDecon methos provides, even though the codepath should be
 ##' identical
-do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, uncenter=FALSE,
-                                      unscale=FALSE, drop.sd=1e-4, ...) {
-  ## if (!requireNamespace('GSDecon')) {
-  ##   stop("Jason Hackney's GSDecon package required")
-  ## }
+##'
+##' @importFrom matrixStats rowSds
+do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, center=TRUE,
+                                      scale=TRUE, uncenter=FALSE,
+                                      unscale=FALSE, ...) {
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
-  ## sd0.idx <- which(apply(y, 1, sd, na.rm=TRUE) < drop.sd)
-  y.scale <- t(scale(t(y)))
+  y.scale <- t(scale(t(y), center=center, scale=scale))
 
-  cnt <- if (uncenter) {
+  cnt <- if (center && uncenter) {
     attributes(y.scale)$"scaled:center"
   } else {
     rep(0, nrow(y))
   }
-  scl <- if (unscale) {
+  scl <- if (scale && unscale) {
     attributes(y.scale)$"scaled:scale"
   } else {
     rep(1, nrow(y))
