@@ -99,7 +99,7 @@ melt.gs.scores <- function(gdb, scores) {
 ##
 ##
 do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
-                                    trim=0.10, melted=FALSE, ...) {
+                                         trim=0.10, melted=FALSE, ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
   score.fn <- if (zsummary == 'mean') {

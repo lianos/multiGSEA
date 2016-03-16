@@ -132,7 +132,11 @@ hyperGeometricTest <- function(gsd, selected, universe,
 ##          White   Black
 ## selected  n11     n12
 ## not       n21     n22
-
+##
+## numW: number of genes in GO category
+## numB: size of universe
+## numDrawn: number of differentially expressed genes
+## numWdrawn: the number of genes differentially expressed in category
 .doHyperGInternal <- function(numW, numB, numDrawn, numWdrawn, over) {
   n21 <- numW - numWdrawn
   n12 <- numDrawn - numWdrawn
