@@ -1,3 +1,19 @@
+##' Reads in a semi-annotated genelist (one symbol per line)
+##'
+##' Often we are given a list of gene names, and the symbols provided are not
+##' the official HGNC ones. In these cases (when small enough) I will replace
+##' the symbol provided by the official one, and leave the submitted symbol
+##' there after a comment character ("#"). This just strips the stuff after
+##' the comment character to provide only the offiical symbols.
+##'
+##' @export
+##' @param fn the path to the gene list file
+##' @return character vector of gene names.
+readGeneSymbols <- function(fn) {
+  out <- readLines(fn)
+  sub(' +#.*', '', out)
+}
+
 isSingleCharacter <- function(x, allow.na=FALSE) {
   is.character(x) && length(x) == 1L && (!is.na(x) || allow.na)
 }
