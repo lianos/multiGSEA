@@ -67,7 +67,8 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
     out <- gs.score.map[[method]](gdb, y, method=method, melted=melted, ...)
     rownames(out) <- gs.names
     if (melted) {
-      out <- melt.gs.scores(gdb, out)
+      out <- ret.df(melt.gs.scores(gdb, out))
+      out$method <- method
     }
     out
   }, simplify=FALSE)
