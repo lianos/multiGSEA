@@ -89,9 +89,10 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
 melt.gs.scores <- function(gdb, scores) {
   out <- cbind(geneSets(gdb, .external=FALSE)[, list(collection, name, n)],
                scores)
-  data.table:::melt.data.table(out, c('collection', 'name', 'n'),
-                               variable.name='sample',
-                               value.name='score')
+  out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
+                                      variable.name='sample',
+                                      value.name='score')
+  out[, sample := as.character(sample)]
 }
 
 ## Default to sqrt in denominator of zscores to stabilize the variance of
