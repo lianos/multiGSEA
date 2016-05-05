@@ -201,8 +201,8 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
 ##'
 ##' @importFrom matrixStats rowSds
 do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, center=TRUE,
-                                      scale=TRUE, uncenter=FALSE,
-                                      unscale=FALSE, ...) {
+                                      scale=TRUE, uncenter=center,
+                                      unscale=scale, ...) {
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
@@ -219,7 +219,6 @@ do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, center=TRUE,
     rep(1, nrow(y))
   }
 
-  message("=== SVD ===")
   gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
 
   out <- sapply(gs.idxs, function(idxs) {

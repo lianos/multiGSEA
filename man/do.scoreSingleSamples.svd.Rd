@@ -5,7 +5,7 @@
 \title{A no dependency call to GSDecon's eigengene scoring}
 \usage{
 do.scoreSingleSamples.svd(gdb, y, melted = FALSE, center = TRUE,
-  scale = TRUE, uncenter = FALSE, unscale = FALSE, ...)
+  scale = TRUE, uncenter = center, unscale = scale, ...)
 }
 \description{
 TODO: Need to debug this. For some reason the results aren't the same
