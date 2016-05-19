@@ -23,14 +23,15 @@
 ##' @param gdb A GeneSetDb
 ##' @param y An expression matrix to score genesets against
 ##' @param methods A character vector of methods to score samples by
-##' @param melted Return a melted data.frame of the results?
+##' @param as.matrix Return results as a list of matrices instead of a melted
+##'   data.frame? Defaults to \code{FALSE}.
 ##' @param drop.sd Genes with a standard deviation across columns in \code{y}
 ##'   with a standard deviation less than this value will be dropped.
-##'
+##' @param verbose make some noise? Defaults to \code{FALSE}.
 ##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
 ##'   as many columns as \code{ncol(x)}
-scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
-                               drop.sd=1e-4, ...) {
+scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
+                               drop.sd=1e-4, verbose=FALSE, ...) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
@@ -63,10 +64,12 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
   gs.names <- with(geneSets(gdb, .external=FALSE), {
     paste(collection, name, sep=';;')
   })
+
   scores <- sapply(methods, function(method) {
-    out <- gs.score.map[[method]](gdb, y, method=method, melted=melted, ...)
+    fn <- gs.score.map[[method]]
+    out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose, ...)
     rownames(out) <- gs.names
-    if (melted) {
+    if (!as.matrix) {
       out <- ret.df(melt.gs.scores(gdb, out))
       out$method <- method
     }
@@ -75,6 +78,10 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', melted=FALSE,
 
   if (length(scores) == 1L) {
     scores <- scores[[1L]]
+  } else {
+    if (!as.matrix) {
+      scores <- ret.df(rbindlist(scores))
+    }
   }
 
   scores
@@ -103,7 +110,7 @@ melt.gs.scores <- function(gdb, scores) {
 ##
 ##
 do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
-                                         trim=0.10, melted=FALSE, ...) {
+                                         trim=0.10, as.matrix=FALSE, ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
   score.fn <- if (zsummary == 'mean') {
@@ -142,38 +149,50 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
 }
 
 ##' @importFrom GSVA gsva
-do.scoreSingleSamples.gsva <- function(gdb, y, method, melted=FALSE,
-                                       tweak.plage.sign=FALSE, ...) {
+do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
+                                       parallel.sz=4, ssgsea.norm=FALSE, ...) {
   idxs <- .xformGdbForGSVA(gdb, y)
   f <- formals(GSVA:::.gsva)
   args <- list(...)
+  ## I want to explicity show that we are setting parallel.sz to 4 here, since
+  ## it will defalut to "Infinity" (all your cores are belong to GSVA)
+  args$parallel.sz <- parallel.sz
+  args$ssgsea.norm <- ssgsea.norm
   take <- intersect(names(args), names(f))
   gargs <- list(expr=y, gset.idx.list=idxs, method=method)
   gargs <- c(gargs, args[take])
-
-  normalize.ssGSEA <- isTRUE(gargs$ssgsea.norm)
 
   gres <- do.call(gsva, gargs)
   if (is.list(gres)) {
     gres <- gres$es.obs
   }
 
-  if (method == 'plage' && tweak.plage.sign) {
-    ## The sign of the result can be flipped due to vagaries of SVD assigning
-    ## the "correct" sign to either the right or left singula values, so let's
-    ## put some duct tape on that and fix the sign
-    zscores <- do.scoreSingleSamples.zscore(gdb, y)
-    gres <- abs(gres) * sign(zscores)
-  }
-
-  ## ssGSEA normalization:
-  ## apply(es, 2, function(x, es) x / (range(es)[2] - range(es)[1]), es)
   gres
 }
 
+##' Normalize a vector of ssGSEA scores in the ssGSEA way.
+##'
+##' ssGSEA normalization (as implemented in GSVA (ssgsea.norm)) normalizes the
+##' individual scores based on ALL scores calculated across samples AND
+##' genesets. It does NOTE normalize the scores within each geneset
+##' independantly of the others.
+##'
+##' @export
+##' @param x a \code{numeric} vector of ssGSEA scores for a single signature
+##' @param bounds the maximum and minimum scores obvserved used to normalize
+##'   against.
+##' @return normalized \code{numeric} vector of \code{x}
+ssGSEA.normalize <- function(x, bounds=range(x)) {
+  ## apply(es, 2, function(x, es) x / (range(es)[2] - range(es)[1]), es)
+  stopifnot(length(bounds) == 2L)
+  max.b <- max(bounds)
+  min.b <- min(bounds)
+  stopifnot(all(x <= max.b) && all(x >= min.b))
+  x / (max.b - min.b)
+}
 
 ##' Jason's method
-do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
+do.scoreSingleSamples.gsdecon <- function(gdb, y, as.matrix=FALSE, design=NULL,
                                           doPerm=FALSE, nPerm=249,
                                           pvalueCutoff=0.01, nComp=1, seed=NULL,
                                           ...) {
@@ -200,7 +219,7 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, melted=FALSE, design=NULL,
 ##' identical
 ##'
 ##' @importFrom matrixStats rowSds
-do.scoreSingleSamples.svd <- function(gdb, y, melted=FALSE, center=TRUE,
+do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, ...) {
   stopifnot(is.matrix(y))

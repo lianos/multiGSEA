@@ -3,6 +3,10 @@ CHANGES IN VERSION 0.4.x
 
 USER VISIBLE CHANGES
 
+  o scoreSingleSamples now defualts to returning a melted data.frame of results
+    (previously we returned a (list of) matrix of scores). `melted=FALSE`
+    parameter was changed to `as.matrix=FALSE`
+
   o Internal MSigDB collections updated to v5.1 (as of v0.4.30).
     The major difference in v5.1 vs v5.0 seems to be an updated c7 (immunologic)
     collection, which comes on the heels of this paper:

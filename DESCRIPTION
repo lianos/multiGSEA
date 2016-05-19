@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.4.39
+Version: 0.4.40
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -29,7 +29,8 @@ Suggests:
     reactome.db,
     magrittr,
     GO.db,
-    knitr
+    knitr,
+    parallel
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:
