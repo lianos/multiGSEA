@@ -62,6 +62,7 @@ Collate:
     'plots.R'
     'reactome.R'
     'scoreSingleSamples.R'
+    'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
     'zzz.R'

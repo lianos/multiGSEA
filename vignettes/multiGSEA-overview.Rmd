@@ -9,6 +9,7 @@ output:
 vignette: |
   %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
   %\VignetteEngine{knitr::rmarkdown_notangle}
+  %\VignetteEncoding{UTF-8}
 ---
 
 # Overview
@@ -17,6 +18,9 @@ The `multiGSEA` package was built to facilitate the comparison of multiple
 GSEA methods at once. While the outputs of the various methods are saved in
 their "original form", they can also be presented to the user in a homogeneous
 form to facilitate this comparison.
+
+Overview of The Broad's GSEA:
+http://baderlab.org/CancerStemCellProject/VeroniqueVoisin/AdditionalResources/GSEA
 
 # Adding new GSEA methods
 

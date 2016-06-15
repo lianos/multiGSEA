@@ -4,8 +4,8 @@
 \alias{scoreSingleSamples}
 \title{Score each genes over the columns of an expression matrix.}
 \usage{
-scoreSingleSamples(gdb, y, methods = "ssgsea", melted = FALSE,
-  drop.sd = 1e-04, ...)
+scoreSingleSamples(gdb, y, methods = "ssgsea", as.matrix = FALSE,
+  drop.sd = 1e-04, verbose = FALSE, ...)
 }
 \arguments{
 \item{gdb}{A GeneSetDb}
@@ -14,10 +14,13 @@ scoreSingleSamples(gdb, y, methods = "ssgsea", melted = FALSE,
 
 \item{methods}{A character vector of methods to score samples by}
 
-\item{melted}{Return a melted data.frame of the results?}
+\item{as.matrix}{Return results as a list of matrices instead of a melted
+data.frame? Defaults to \code{FALSE}.}
 
 \item{drop.sd}{Genes with a standard deviation across columns in \code{y}
 with a standard deviation less than this value will be dropped.}
+
+\item{verbose}{make some noise? Defaults to \code{FALSE}.}
 }
 \value{
 \code{matrix} with as many rows as \code{geneSets(gdb)} and

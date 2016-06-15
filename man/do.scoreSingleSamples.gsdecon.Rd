@@ -4,7 +4,7 @@
 \alias{do.scoreSingleSamples.gsdecon}
 \title{Jason's method}
 \usage{
-do.scoreSingleSamples.gsdecon(gdb, y, melted = FALSE, design = NULL,
+do.scoreSingleSamples.gsdecon(gdb, y, as.matrix = FALSE, design = NULL,
   doPerm = FALSE, nPerm = 249, pvalueCutoff = 0.01, nComp = 1,
   seed = NULL, ...)
 }

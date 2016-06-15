@@ -4,15 +4,21 @@
 \alias{ssGSEA.normalize}
 \title{Normalize a vector of ssGSEA scores in the ssGSEA way.}
 \usage{
-ssGSEA.normalize(x)
+ssGSEA.normalize(x, bounds = range(x))
 }
 \arguments{
 \item{x}{a \code{numeric} vector of ssGSEA scores for a single signature}
+
+\item{bounds}{the maximum and minimum scores obvserved used to normalize
+against.}
 }
 \value{
 normalized \code{numeric} vector of \code{x}
 }
 \description{
-Normalize a vector of ssGSEA scores in the ssGSEA way.
+ssGSEA normalization (as implemented in GSVA (ssgsea.norm)) normalizes the
+individual scores based on ALL scores calculated across samples AND
+genesets. It does NOTE normalize the scores within each geneset
+independantly of the others.
 }
 

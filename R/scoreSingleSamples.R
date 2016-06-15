@@ -225,41 +225,13 @@ do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
-  y.scale <- t(scale(t(y), center=center, scale=scale))
-
-  cnt <- if (center && uncenter) {
-    attributes(y.scale)$"scaled:center"
-  } else {
-    rep(0, nrow(y))
-  }
-  scl <- if (scale && unscale) {
-    attributes(y.scale)$"scaled:scale"
-  } else {
-    rep(1, nrow(y))
-  }
-
   gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
-
-  out <- sapply(gs.idxs, function(idxs) {
-    ## idxs <- setdiff(idxs, sd0.idx)
-    SVD <- svd(y.scale[idxs,])
-    ## GSDecon:::eigencomponent(SVD, n=1, center=cnt[idxs], scale=scl[idxs])
-    n <- 1
-    center <- cnt[idxs]
-    scale <- scl[idxs]
-    newD <- SVD$d
-    newD[-n] <- 0
-    egene <- SVD$u %*% diag(newD) %*% t(SVD$v)
-    if (unscale) {
-      egene <- sweep(egene, 1, FUN="*", scale)
-    }
-    if (uncenter) {
-      egene <- sweep(egene, 1, FUN="+", center)
-    }
-    colMeans(egene)
+  scores <- lapply(gs.idxs, function(idxs) {
+    svdScore(y[idxs,], center=center, scale=scale, uncenter=uncenter,
+             unscale=unscale)
   })
 
-  out <- t(out)
+  out <- t(sapply(scores, '[[', 'score'))
   rownames(out) <- names(gs.idxs)
   colnames(out) <- colnames(y)
   out

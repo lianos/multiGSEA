@@ -4,7 +4,7 @@
 \alias{do.scoreSingleSamples.svd}
 \title{A no dependency call to GSDecon's eigengene scoring}
 \usage{
-do.scoreSingleSamples.svd(gdb, y, melted = FALSE, center = TRUE,
+do.scoreSingleSamples.svd(gdb, y, as.matrix = FALSE, center = TRUE,
   scale = TRUE, uncenter = center, unscale = scale, ...)
 }
 \description{
