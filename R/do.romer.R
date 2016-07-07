@@ -24,7 +24,8 @@ validate.x.romer <- function(x) {
   return(TRUE)
 }
 
-do.romer <- function(gsd, x, design, contrast=ncol(design), ...) {
+do.romer <- function(gsd, x, design, contrast=ncol(design),
+                     gs.idxs=as.expression.indexes(gsd, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))
   args <- list(...)
   call.args <- as.list(formals(limma::romer.default))
@@ -32,7 +33,6 @@ do.romer <- function(gsd, x, design, contrast=ncol(design), ...) {
     call.args[[arg]] <- args[[arg]]
   }
 
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   call.args[['y']] <- x
   call.args[['index']] <- gs.idxs
   call.args[['design']] <- design

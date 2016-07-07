@@ -16,7 +16,8 @@ validate.x.fry <- function(x) {
 ## 2. sort argument will be same type as roast. In bioc-3.2, fry,sort is
 ##    TRUE/FALSE, but roast uses character ('directional'). You will have to
 ##    set this to 'none'.
-do.fry <- function(gsd, x, design, contrast=ncol(design), ...) {
+do.fry <- function(gsd, x, design, contrast=ncol(design),
+                   gs.idxs=as.expression.indexes(gsd, value='x.idx'), ...) {
   ## This function was defined in limma v3.23.13 in April 2015
   ## ------------------------------------------------------------------------
   ## r102075 | smyth@wehi.edu.au | 2015-04-07 22:56:02 -0700 (Tue, 07 Apr 2015)
@@ -30,7 +31,6 @@ do.fry <- function(gsd, x, design, contrast=ncol(design), ...) {
     call.args[[arg]] <- args[[arg]]
   }
 
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   add.dummy <- length(gs.idxs) == 1
   dummy.gs <- 'zYxWvUt'
   if (add.dummy) {

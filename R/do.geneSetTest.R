@@ -6,7 +6,9 @@ validate.x.geneSetTest <- validate.X
 
 do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            robust.fit=FALSE, robust.eBayes=FALSE,
-                           logFC=NULL, score.by=c('t', 'logFC'), ...) {
+                           logFC=NULL, score.by=c('t', 'logFC'),
+                           gs.idxs=as.expression.indexes(gsd, value='x.idx'),
+                           ...) {
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))
   if (!missing(design) && missing(contrast)) {
@@ -43,7 +45,6 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
     call.args[[arg]] <- args[[arg]]
   }
 
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   stats <- stats[rownames(x)]
 
   ## Double checking that feature <-> expression IDs match up here. This is

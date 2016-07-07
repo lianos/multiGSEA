@@ -32,7 +32,22 @@ test_that('fry runs equivalently from do.roast vs direct call', {
     out[rownames(fried),]
   })
 
-
-    expect_equal(fried, comp)
+  expect_equal(fried, comp)
 })
 
+test_that("fry runs through multiGSEA wrapper", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsi <- exampleGeneSets(vm)
+  gsl <- exampleGeneSets()
+  gsd <- conform(GeneSetDb(gsl), vm)
+
+  ## We have to ensure that the genesets are tested in the same order as they
+  ## are tested from the GeneSetDb for the pvalues to be equivalent given
+  ## the same random seed.
+  gsd.idxs <- as.list(gsd, value='x.idx')
+  gsi <- gsi[names(gsd.idxs)]
+
+  fried <- limma::fry(vm, gsi, vm$design, ncol(vm$design), sort=FALSE)
+  my <- multiGSEA(gsd, vm, vm$design, ncol(vm$design), methods='fry')
+
+})

@@ -14,7 +14,13 @@ validate.x.camera <- validate.X
 ##' \code{inter.gene.correlation} value.
 ##' \href{https://support.bioconductor.org/p/70005/#70195}{
 ##' He suggests to try a small positive number (0.05)}
-do.camera <- function(gsd, x, design, contrast=ncol(design), ...) {
+##'
+##' NOTE: As of Bioc3.3 camera has a default inter.gene.cor of 0.01. If this
+##        parameter isn't explicitly set to NULL, then it is used and the
+##        Correlation column of camera's output is dropped
+do.camera <- function(gsd, x, design, contrast=ncol(design),
+                      gs.idxs=as.expression.indexes(gsd, value='x.idx'),
+                      ...) {
   stopifnot(is.conformed(gsd, x))
 
   args <- list(...)
@@ -31,7 +37,7 @@ do.camera <- function(gsd, x, design, contrast=ncol(design), ...) {
     call.args[[arg]] <- args[[arg]]
   }
 
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
+
   call.args[['y']] <- x
   call.args[['index']] <- gs.idxs
   call.args[['design']] <- design

@@ -4,7 +4,8 @@
 \alias{do.camera}
 \title{Runs camera on the given experiment.}
 \usage{
-do.camera(gsd, x, design, contrast = ncol(design), ...)
+do.camera(gsd, x, design, contrast = ncol(design),
+  gs.idxs = as.expression.indexes(gsd, value = "x.idx"), ...)
 }
 \description{
 Runs camera on the given experiment.
@@ -18,5 +19,7 @@ reason,  Gordon has added the ability provide a prespecified
 \code{inter.gene.correlation} value.
 \href{https://support.bioconductor.org/p/70005/#70195}{
 He suggests to try a small positive number (0.05)}
+
+NOTE: As of Bioc3.3 camera has a default inter.gene.cor of 0.01. If this
 }
 

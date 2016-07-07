@@ -4,7 +4,8 @@ NULL
 validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
-do.roast <- function(gsd, x, design, contrast=ncol(design), ...) {
+do.roast <- function(gsd, x, design, contrast=ncol(design),
+                     gs.idxs=as.expression.indexes(gsd, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))
   args <- list(...)
   call.args <- as.list(formals(limma::mroast.default))
@@ -12,7 +13,6 @@ do.roast <- function(gsd, x, design, contrast=ncol(design), ...) {
     call.args[[arg]] <- args[[arg]]
   }
 
-  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   call.args[['y']] <- x
   call.args[['index']] <- gs.idxs
   call.args[['design']] <- design

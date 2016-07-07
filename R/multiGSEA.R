@@ -130,12 +130,16 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   ## the 'logFC' method is just a pass through -- we don't call it if it was
   ## provided
   methods <- setdiff(methods, 'logFC')
+
+  ## Many methods create a geneset to rowname/index vector. Let's run it once
+  ## here and pass it along
+  gs.idxs <- as.expression.indexes(gsd, value='x.idx')
   if (length(methods) > 0L) {
     if (do.parallel) {
       res1 <- mclapply(methods, function(method) {
         tryCatch(mg.run(method, gsd, x, design, contrast, logFC, use.treat,
                         feature.min.logFC, feature.max.padj, verbose=verbose,
-                        ...),
+                        gs.idxs=gs.idxs, ...),
                  error=function(e) list(NULL))
       })
     } else {
