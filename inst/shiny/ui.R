@@ -12,7 +12,7 @@ dashboardPage(
 
   dashboardBody(
     tags$head(
-      tags$link(rel="stylesheet", type="text/css", href="rmd_plugins.css")
+      tags$link(rel="stylesheet", type="text/css", href="dashboard.css")
     ),
     tabItems(
       ## -----------------------------------------------------------------------
@@ -22,9 +22,17 @@ dashboardPage(
         fluidRow(
           box(
             title="Gene Set Expression Profile",
-            ## selectInput("genesetView_plot_type", "Plot Type", c('density')),
-            ##h3("Gene Set Expression Profile"),
-            plotlyOutput("genesetView_gseaPlot")),
+            plotlyOutput("genesetView_gseaPlot"),
+            fluidRow(
+              column(8,
+                selectInput("genesetView_plot_type", NULL,
+                            c('boxplot', 'density'), 'boxplot')),
+              column(4,
+                selectInput("gensetView_plot_statistic", NULL,
+                            c('logFC'='logFC', 't-statistic'='t'), 'logFC'))
+            )
+          ),
+
           box(
             title="Gene Set Membership",
             ## h3("Gene Set Membership"),
@@ -48,11 +56,16 @@ dashboardPage(
       ), ## tabItem: genesetView
 
       ## -----------------------------------------------------------------------
-      ## tabName: genesView
+      ## tabName: geneView
       tabItem(
         tabName="geneView",
         fluidRow(
-          box(plotlyOutput("geneView_volcanoPlot")),
+          box(
+            p("Gene-centric exploration across genesets coming soon"),
+            tags$ul(
+              tags$li("Overlap of genes across genesets"),
+              tags$li("etc ...")),
+            plotlyOutput("geneView_volcanoPlot")),
           box(DT::dataTableOutput("geneView_interGenesetMembers"))
         )
       )

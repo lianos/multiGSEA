@@ -31,7 +31,7 @@ render.dt <- function(x, mg) {
   res <- round.dt(res)
 
   res[, name := {
-    url <- geneSetURL(mg, collection, name)
+    url <- geneSetURL(mg, as.character(collection), name)
     xname <- gsub('_', ' ', name)
     html <- '<a href="%s" target="_blank">%s</a>'
     ifelse(is.na(url), xname, sprintf(html, url, xname))
@@ -40,25 +40,39 @@ render.dt <- function(x, mg) {
   ## If MSigDB hallmark collections are include, always put those first
   ## regardless of padj sorting
   dt.order <- list()
-  if ('h' %in% res$collection) {
-    lvls <- c('h', sort(setdiff(res$collection, 'h')))
-    ## dt.order <- list(list(0, 'asc'))
-  } else {
-    lvls <- sort(unique(res$collection))
-  }
-  res[, collection := factor(collection, lvls, ordered=TRUE)]
+  # if ('h' %in% res$collection) {
+  #   lvls <- c('h', sort(setdiff(res$collection, 'h')))
+  #   ## dt.order <- list(list(0, 'asc'))
+  # } else {
+  #   lvls <- sort(unique(res$collection))
+  # }
+  # res[, collection := factor(collection, lvls, ordered=TRUE)]
 
   res <- res[, rcols, with=FALSE]
   lfc.col <- which(colnames(res) == 'logFC') - 1L
   dt.order[[length(dt.order) + 1]] <- list(lfc.col, 'desc')
-  dt <- datatable(res,
-                  filter='top',
-                  selection='single',
-                  escape=FALSE, rownames=FALSE,
-                  options=list(
-                    dom='ltpir',
-                    order=dt.order)
-  )
+
+  length.opts <- c(10, 20, 50, 100, 250)
+  length.opts <- length.opts[length.opts < nrow(res)]
+  length.opts <- c(length.opts, nrow(res))
+
+  # if ('h'%in% res$collection) {
+  #   res <- arrange(res, collection, -logFC)
+  # } else {
+  #   res <- arrange(res, -logFC)
+  # }
+
+  dt <- datatable(
+    res, filter='top',
+    selection=list(mode='single', selected=1, target='row'),
+    extensions='Buttons',
+    escape=FALSE, rownames=FALSE,
+    options=list(
+      dom='lBtpir',
+      # order=dt.order,
+      pageLength=length.opts[1L],
+      lengthMenu=length.opts,
+      buttons=c('copy', 'csv', 'excel')))
 
   DT::renderDataTable(dt)
 }

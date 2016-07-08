@@ -4,8 +4,8 @@
 \alias{iplot}
 \title{Create interactive GSEA plots}
 \usage{
-iplot(x, y, j, value = c("logFC", "t"), type = c("volcano", "density"),
-  main = NULL, ...)
+iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot",
+  "volcano"), main = NULL, ...)
 }
 \description{
 export

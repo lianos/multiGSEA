@@ -9,8 +9,9 @@ library(data.table)
 library(dplyr)
 library(dtplyr)
 theme_set(theme_bw())
-## By default shiny limits upload size to 5 MB, let's change this to 20MB
-options(shiny.maxRequestSize=29*1024^2)
+## By default shiny limits upload size to 5 MB, let's change this to 30MB
+## (which is kind of big, no?)
+options(shiny.maxRequestSize=30*1024^2)
 options(multiGSEA.df.return='data.table')
 
 source('utils.R')
