@@ -1,5 +1,10 @@
+on.rescomp <- dir.exists('/gne')
+if (on.rescomp) {
+  devtools::load_all('/gnet/is7/workspace/lianogls/Rpkgs/GNE/multiGSEA')
+} else {
+  devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
+}
 ## library(multiGSEA)
-devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
 library(shiny)
 library(shinydashboard)
 library(DT)
@@ -16,6 +21,8 @@ options(multiGSEA.df.return='data.table')
 
 source('utils.R')
 
-xmg <- readRDS('~/workspace/projects/rutz/BAP1/reports/johnnycache/multiGSEA-NGS429-joint.rds')
-xcol <- 'h'
-xname <- 'HALLMARK_E2F_TARGETS'
+if (!on.rescomp) {
+  xmg <- readRDS('~/workspace/projects/rutz/BAP1/reports/johnnycache/multiGSEA-NGS429-joint.rds')
+  xcol <- 'h'
+  xname <- 'HALLMARK_E2F_TARGETS'
+}

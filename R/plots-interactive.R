@@ -65,6 +65,7 @@ iplot.boxplot.gg <- function(x, y, j, value, main, dat, ...) {
                position=position_jitter(width=0.25)) +
     ggtitle(main) +
     ylab(value) +
+    xlab(sprintf("Gene Set Group<br>(%d genes)", sum(dat$group == 'geneset'))) +
     scale_color_manual(values=cols)
   ggplotly(gg)
 }

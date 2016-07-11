@@ -3,7 +3,8 @@
 for f in $(ls .); do
   ext="${f##*.}"
   if [ "Rmd" != "${ext}" -a "sh" != "${ext}" ]; then
-    cmd="rm -rf ${f}"
+    cmd="rm -rfv ${f}"
+    echo "$cmd"
     eval $cmd
   fi
 done

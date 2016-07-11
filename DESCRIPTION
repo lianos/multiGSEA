@@ -33,7 +33,9 @@ Suggests:
     GO.db,
     knitr,
     parallel,
-    NMF
+    NMF,
+    BiocStyle,
+    airway
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:

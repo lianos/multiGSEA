@@ -1,26 +1,134 @@
 ---
 title: "An Introduction to the multiGSEA Package"
 author: "Steve Lianoglou"
-date: '`r Sys.Date()`'
-output:
-  knitr:::html_vignette:
-    number_sections: yes
-    toc: yes
-vignette: |
+date: "`r doc_date()`"
+package: "`r pkg_ver('multiGSEA')`"
+abstract: >
+  The multiGSEA package facilitates the running and comparison of many GSEA
+  approaches for a single experimental contrast.
+vignette: >
   %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
-  %\VignetteEngine{knitr::rmarkdown_notangle}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+output: 
+  BiocStyle::html_document:
+    toc: true
+    code_folding: hide
+    toc_float:
+    collapsed: no
+    smooth_scroll: yes
 ---
 
 # Overview
 
 The `multiGSEA` package was built to facilitate the comparison of multiple
-GSEA methods at once. While the outputs of the various methods are saved in
-their "original form", they can also be presented to the user in a homogeneous
-form to facilitate this comparison.
+GSEA methods over given experimental contrast. The outputs of the various
+methods are interanlly saved in their original form and can be retrieved
+for individual scrutiny, or they can be combined to facilitate comparison.
+
+The package also provides a shiny application that allows the user to
+interactively explore the gene set membership and enrichment.
+
+## Background
+
+The initial GSEA methods that multiGSEA wrapped were the ones provided by limma
+and edgeR. As such, most analyses using multiGSEA expect you to re-use the same
+data objects used for differential expression analysis, namely:
+
+* Expression data (an `EList`, `DGEList`, or expression matrix)
+* A design matrix
+* A contrast vector/matrix (if your design and comparison require it)
+
+Currenty supported gene set enrichment methods include:
+
+  * camera
+  * (m)roast / fry
+  * romer
+  * geneSetTest
+  * goseq
+  * hypergeometric test
+
+# Standard Workflow
+
+We'll use the `r Biocpkg("airway")` data package as the basis for analysis here
+and extend the analysis presented in the following workflow:
+"[RNA-Seq workflow: gene-level exploratory analysis and differential expression][rnaseqworkflow"
+
+[rnaseqworkflow]: http://f1000research.com/articles/4-1070/v1
+
+## Data Setup
+
+We need to do some work to the `airway` data in order to facilitate downstream
+analysis. We'll first convert it to a DGEList and provide relevant annotation.
+
+```{r data-setup}
+library(edgeR)
+# library("airway")
+# data("airway")
+# se <- airway
+library("parathyroidSE")
+data("parathyroidGenesSE")
+se <- parathyroidGenesSE
+
+y.all <- DGEList(
+  assay(se),
+  group=paste(se$treatment, se$time, sep='_'),
+  samples=as.data.frame(colData(se)[, c('patient', 'treatment', 'time')]))
+y.all <- calcNormFactors(y.all)
+
+## Annotate genes
+library(org.Hs.eg.db)
+y.all$genes <- data.frame(
+  ensg_id=rownames(y.all),
+  entrez_id=mapIds(org.Hs.eg.db, rownames(y.all), 'ENTREZID', 'ENSEMBL'),
+  symbol=mapIds(org.Hs.eg.db, rownames(y.all), 'SYMBOL', 'ENSEMBL'),
+  stringsAsFactors=FALSE)
+
+des <- model.matrix(~ 0 + group, y.all$samples)
+colnames(des) <- sub('group', '', colnames(des))
+cm <- makeContrasts(
+  DPN24=DPN_24h - Control_24h,
+  DPN48=DPN_48h - (0.5 * Control_24h + 0.5 * Control_48h),
+  levels=des)
+
+```
+
+We'll then filter out genes from the dataset that are either poorly annotated
+(ie. no entrez ID) or are lowly expressed. We consider a gene to be lowly
+expressed if it's not expressed above 1 cpm in at least 4 experiments (because
+this dataset has n=4 replication between dex treatments).
+
+```{r filter}
+keep <- !is.na(y.all$genes$entrez_id) & 
+  !duplicated(y.all$genes$entrez_id) &
+  rowSums(cpm(y.all) >= 1) >= 4
+y <- y.all[keep,,keep.lib.sizes=FALSE]
+y <- calcNormFactors(y)
+rownames(y) <- y$genes$entrez_id
+vm <- voom(y, des, plot=TRUE)
+```
+
+## GSEA
+
+```{r gsea}
+gdb <- getMSigGeneSetDb('h', 'human')
+mg <- multiGSEA(gdb, vm, vm$design, cm[, 'DPN48'], 
+                methods=c('camera', 'fry'),
+                inter.gene.cor=NULL)
+```
+
+
+
+vignette
+# Background reading for Gene Set Enrichment Analyses
+
 
 Overview of The Broad's GSEA:
 http://baderlab.org/CancerStemCellProject/VeroniqueVoisin/AdditionalResources/GSEA
+
+
+
+
 
 # Adding new GSEA methods
 

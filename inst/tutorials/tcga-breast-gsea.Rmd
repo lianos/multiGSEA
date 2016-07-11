@@ -16,13 +16,17 @@ vignette: |
 ---
 
 ```{r setup,echo=FALSE,results="hide",warning=FALSE,message=FALSE,error=FALSE}
+library(ggplot2)
+library(rmarkdown)
+library(knitr)
+library(DT)
 library(Biobase)
 library(edgeR)
 library(multiGSEA)
 library(rmd.plugins)
-library(knitr)
 library(magrittr)
 library(data.table)
+options('multiGSEA.df.return'='data.table')
 ## Set defaults to hide errors and warnings, show output, and create highres
 ## pngs
 report.init(echo=TRUE, results='markup')
@@ -39,7 +43,7 @@ from the `rmd.plugins` package like so:
 
 ```{r compile-example, eval=FALSE}
 ## Note that specifying `gen.dir` is optional
-report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
+## report.render("vignettes/tcga-breast-gsea.Rmd", gen.dir='_rmd_plugins_gen_brca')
 ```
 
 <div class="tip">
@@ -281,7 +285,7 @@ so you might suspect that will be an "outlier", but that doesn't really seem
 to be the case.
 
 ```{r roast-vs-camera-vs-romer}
-reac <- results(mge)
+reac <- as.data.frame(results(mge))
 comp <- c('pval.roast', 'pval.mixed.roast', 'pval.camera',
           'pval.romer', 'pval.up.romer', 'pval.down.romer')
 C <- -log10(as.matrix(reac[, comp]))
@@ -330,7 +334,7 @@ Here we show how to do this enrichment for genes upregulated in tumors vs.
 normals against the panther pathways.
 
 
-```{r manual-hyperG, eval=FALSE}
+```{r manual-hyperG, eval=TRUE}
 ## The up regulated genes in tumor vs normal
 lfc <- logFC(mg)
 selected <- subset(lfc, padj <= 0.1 & logFC >= 1L)$featureId
