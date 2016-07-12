@@ -37,8 +37,8 @@ Suggests:
     BiocStyle,
     airway,
     dplyr,
-    shiny,
-    plotly
+    dtplyr,
+    shiny
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:
