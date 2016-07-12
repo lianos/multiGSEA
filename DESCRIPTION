@@ -35,7 +35,10 @@ Suggests:
     parallel,
     NMF,
     BiocStyle,
-    airway
+    airway,
+    dplyr,
+    shiny,
+    plotly
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:
