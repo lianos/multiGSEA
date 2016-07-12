@@ -8,6 +8,6 @@ iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot",
   "volcano"), main = NULL, ...)
 }
 \description{
-export
+Create interactive GSEA plots
 }
 

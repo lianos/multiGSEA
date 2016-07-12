@@ -58,15 +58,15 @@ shinyServer(function(input, output, session) {
         out[, collection := factor(collection, lvls)]
         out <- arrange_(out, ~ -mean.logFC.trim)
       }
+      # Trigger refresh of "active" geneset to update graphs and members
+      xcol <- as.character(out$collection[1L])
+      xname <- out$name[1L]
+      xstats <- arrange_(geneSet(mg(), xcol, xname), ~ -logFC)
+      vals$geneset <- list(collection=xcol, name=xname, stats=xstats)
     } else {
       out <- NULL
     }
 
-    # Trigger refresh of "active" geneset to update graphs and members
-    xcol <- as.character(out$collection[1L])
-    xname <- out$name[1L]
-    xstats <- arrange_(geneSet(mg(), xcol, xname), ~ -logFC)
-    vals$geneset <- list(collection=xcol, name=xname, stats=xstats)
     out
   })
 

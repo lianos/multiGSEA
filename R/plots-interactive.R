@@ -1,6 +1,6 @@
 ##' Create interactive GSEA plots
 ##'
-##' export
+##' @export
 iplot <- function(x, y, j, value=c('logFC', 't'),
                   type=c('density', 'boxplot', 'volcano'),
                   main=NULL, ...) {
@@ -12,7 +12,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   stopifnot(is(x, 'MultiGSEAResult'))
   type <- match.arg(type)
   value <- match.arg(value)
-  message("... iplot.", type)
+
   if (is.null(main)) {
     main <- sprintf("%s (%s)", j, y)
   }
