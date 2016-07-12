@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.5.1
+Version: 0.5.2
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -71,6 +71,7 @@ Collate:
     'plots.R'
     'reactome.R'
     'scoreSingleSamples.R'
+    'shiny.R'
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'

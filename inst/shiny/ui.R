@@ -48,9 +48,10 @@ dashboardPage(
             column(3, selectInput("gseaMethod", "GSEA Methods", "")),
             column(4, sliderInput("gseaReportFDR", "FDR Cutoff", min=0, max=1, value=0.2, step=0.05))
           ),
-          uiOutput("gseaResultName"),
+          uiOutput("gseaResultLabel"),
           uiOutput("gseaMethodSummary"),
           h4("Gene Set Statistics"),
+          uiOutput("resultTableMessage"),
           DT::dataTableOutput("gseaResultTable")
         )
       ), ## tabItem: genesetView

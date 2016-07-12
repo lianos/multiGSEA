@@ -6,11 +6,17 @@ shinyServer(function(input, output, session) {
     gsea.result.table=NULL,
     genes=character())
 
-  ## The active MultiGSEAResult object
+  ## Construct the active MultiGSEAResult object. Currently this can only be
+  ## set by the user uploading the MultiGSEAResult, but I want to update this
+  ## such that the shiny app can be launched with the MultiGSEAResult object
+  ## in hand, either because:
+  ##   (1) The workspace that launched it already has it available, ie. the user
+  ##       called explore(mg); or
+  ##   (2) The app is pointed to a path on the filesystem where the
+  ##       MultiGSEAResult object is already saved.
   mg <- reactive({
     infile <- input$mgresult
     if (is.null(infile)) {
-      message("NULL mgresult")
       return(NULL)
     }
 
@@ -25,57 +31,73 @@ shinyServer(function(input, output, session) {
       message("No GSEA methods found in MultiGSEAResult")
       return(NULL)
     }
-    method <- if ('camera' %in% methods) 'camera' else methods[1L]
-    updateSelectInput(session, "gseaMethod", choices=methods, selected=method)
     out
   })
 
+  ## Don't put side effects in your reactives, or Joe Cheng will kill you
+  ## When a new MultiGSEAResult (mg) object is set, we need to update/reset some
+  ## parts of the UI, including:
+  ## (1) Picking which GSEA method is the default to show results for first. I
+  ##     prefer to pick `camera` as the default method if it was run.
+  observeEvent(mg(), {
+    if (!is(mg(), 'MultiGSEAResult')) {
+      return(NULL)
+    }
+    methods <- resultNames(mg())
+    method <- if ('camera' %in% methods) 'camera' else methods[1L]
+    updateSelectInput(session, "gseaMethod", choices=methods, selected=method)
+    # reset any previously picked GSEA result
+    vals$genelist <- list()
+    vals$gs.name <- character()
+  })
+
+  ## Holds the current table of "active" GSEA statistics that are browseable.
+  ## These are determined by:
+  ##   (1) The GSEA method the user has chosen to browse via the gseaMethod
+  ##       selectInput; and
+  ##   (2) The maximum FDR selected to show
   gsea.result.table <- reactive({
-    method <- input$gseaMethod
     if (!is(mg(), 'MultiGSEAResult')) {
       message("mg() is not MultiGSEAResult in reactive gsea.result.table")
       return(NULL)
     }
-    if (method == "") {
+    if (input$gseaMethod == "") {
       message("... gseaMethod not selected yet")
       return(NULL)
     }
 
-    ## Method is selected: let's act
-    method <- input$gseaMethod
-    message("... updating result.table with method: ", method)
-    output$gseaResultName <- renderUI(h4(sprintf("%s summary", method)))
-    out <- subset(result(mg(), method), padj.by.collection <= input$gseaReportFDR)
-
-    if (nrow(out)) {
-      has.hallmark <- 'h' %in% out$collection
-      if (has.hallmark) {
-        lvls <- c('h', sort(setdiff(out$collection, 'h')))
-        out[, collection := factor(collection, lvls, ordered=TRUE)]
-        out <- arrange_(out, ~collection, ~ -mean.logFC.trim)
-      } else {
-        lvls <- sort(unique(out$collection))
-        out[, collection := factor(collection, lvls)]
-        out <- arrange_(out, ~ -mean.logFC.trim)
-      }
-      # Trigger refresh of "active" geneset to update graphs and members
-      xcol <- as.character(out$collection[1L])
-      xname <- out$name[1L]
-      xstats <- arrange_(geneSet(mg(), xcol, xname), ~ -logFC)
-      vals$geneset <- list(collection=xcol, name=xname, stats=xstats)
-    } else {
-      out <- NULL
-    }
-
-    out
+    ## MultiGSEResult object, method, and FDR thersholds all set, now fetch
+    ## the data that corresponds to this criteria
+    constructGseaResultTable(mg(), input$gseaMethod, input$gseaReportFDR)
   })
 
-  observeEvent(gsea.result.table(), {
-    if (is.null(gsea.result.table())) {
-      message("NULL gsea.result.table() in observeEvent(gsea.result.table())")
-      return(NULL)
+  output$gseaResultLabel <- renderUI({
+    if (is.null(input$gseaMethod) || input$gseaMethod == '') {
+      ''
+    } else {
+      input$gseaMethod
     }
-    output$gseaResultTable <- render.dt(gsea.result.table(), mg())
+  })
+
+  output$resultTableMessage <- renderUI({
+    req(gst <- gsea.result.table())
+    if (!is(gst, 'data.frame')) {
+      msg <- ''
+    } else if (nrow(gst) == 0) {
+      msg <- sprintf('No results at FDR cutoff of %.2f',
+                     input$gseaReportFDR)
+    } else {
+      msg <- sprintf('Showing %d genesets at FDR cutoff of %.2f',
+                     nrow(gst), input$gseaReportFDR)
+    }
+    h5(msg)
+  })
+
+  output$gseaResultTable <- DT::renderDataTable({
+    req(gsea.result.table())
+    req(mg())
+    dtargs <- prepareRenderGseaResultTable(gsea.result.table(), mg())
+    do.call(datatable, dtargs)
   })
 
   output$gseaMethodSummary <- renderUI({
@@ -86,6 +108,8 @@ shinyServer(function(input, output, session) {
                                p.col='padj.by.collection')
   })
 
+  ## When the user clicks a row in the geneset statistics datatable, we want
+  ## to update the current geneset to the row that was clicked.
   observeEvent(input$gseaResultTable_row_last_clicked, {
     idx <- input$gseaResultTable_row_last_clicked
     xcol <- as.character(gsea.result.table()$collection[idx])
@@ -94,21 +118,11 @@ shinyServer(function(input, output, session) {
     vals$geneset <- list(collection=xcol, name=xname, stats=xstats)
   })
 
-  observeEvent(vals$geneset, {
-    ## Whenever our 'active geneset' is updated, we want to update the
-    ## geneset plot as well as the geneset table with dge statistics
-    if (!all(c('collection', 'name', 'stats') %in% names(vals$geneset))) {
-      return(NULL)
-    }
-    xcol <- vals$geneset$collection[1L]
-    xname <- vals$geneset$name[1L]
+  ## Lists the differential expression statistics for the active geneset
+  output$genesetView_genesetMembers <- DT::renderDataTable({
+    req(mg())
+    if (length(vals$geneset) == 0) return(NULL)
 
-    ## Update GSEA Plot
-    iplt <- iplot(mg(), xcol, xname, value=input$gensetView_plot_statistic,
-                  type=input$genesetView_plot_type)
-    output$genesetView_gseaPlot <- renderPlotly(iplt)
-
-    ## Update members table
     gcols <- c('symbol', 'featureId', 'logFC', 'padj')
     gs <- vals$geneset$stats[, gcols, with=FALSE]
     gs <- round.dt(gs)
@@ -120,24 +134,26 @@ shinyServer(function(input, output, session) {
       length.opts <- length.opts[length.opts < nrow(gs)]
       length.opts <- c(length.opts, nrow(gs))
     }
-    output$genesetView_genesetMembers <- DT::renderDataTable(
-      gs, filter='top', extension='Buttons', rownames=FALSE, selection='none',
-      options=list(
-        pageLength=length.opts[1L],
-        lengthMenu=length.opts,
-        dom='lBtipr',
-        buttons=c('copy', 'csv', 'excel')))
+
+    dt.opts <- list(
+      pageLength=length.opts[1L],
+      lengthMenu=length.opts,
+      dom='lBtipr',
+      buttons=c('copy', 'csv', 'excel'))
+
+    datatable(gs, filter='top', extension='Buttons', rownames=FALSE,
+              selection='none', options=dt.opts)
   })
 
-  observeEvent(list(input$genesetView_plot_type, input$gensetView_plot_statistic), {
-    if (!is(mg(), 'MultiGSEAResult')) {
-      return(NULL)
-    }
+  ## Creates the geneset enrichment plot
+  output$genesetView_gseaPlot <- renderPlotly({
+    req(mg())
+    if (length(vals$geneset) == 0) return(NULL)
     xcol <- vals$geneset$collection[1L]
     xname <- vals$geneset$name[1L]
     iplt <- iplot(mg(), xcol, xname,
                   value=input$gensetView_plot_statistic,
                   type=input$genesetView_plot_type)
-    output$genesetView_gseaPlot <- renderPlotly(iplt)
   })
+
 })

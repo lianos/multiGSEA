@@ -10,7 +10,43 @@ round.dt <- function(x, digits=2) {
   x
 }
 
-render.dt <- function(x, mg) {
+##' Builds the subset of the GSEA statistics to present to the user
+##'
+##' This function sets the collection to a factor and puts the MSigDB Hallmark
+##' collection ("h") at the top of the totem pole, if it is included in
+##' \code{mg}.
+##'
+##' @param mg \code{MultiGSEAResult} object
+##' @param method the method to show statistics for
+##' @param the FDR cut off to present statistics for
+##' @return a data.table of the statistics that match the filtering criteria.
+##'   A 0-row data.table is returned if nothing passes.
+constructGseaResultTable <- function(mg, method, fdr) {
+  out <- result(mg, method) %>%
+    filter(padj.by.collection <= fdr)
+
+  if (nrow(out)) {
+    has.hallmark <- 'h' %in% out$collection
+    if (has.hallmark) {
+      lvls <- c('h', sort(setdiff(out$collection, 'h')))
+      out[, collection := factor(collection, lvls, ordered=TRUE)]
+      out <- arrange_(out, ~collection, ~ -mean.logFC.trim)
+    } else {
+      lvls <- sort(unique(out$collection))
+      out[, collection := factor(collection, lvls)]
+      out <- arrange_(out, ~ -mean.logFC.trim)
+    }
+  }
+
+  out
+}
+
+##' Prepares the datatable arguments to use for the gsea.result.table display
+##'
+##' @param x The \code{gsea.result.table} \code{data.table} object
+##' @param mg The \code{MultiGSEAResult} object
+##' @return a list of arguments to use for a \code{do.call, datatable, retlist}
+prepareRenderGseaResultTable <- function(x, mg) {
   if (FALSE) {
     mg <- xmg
     xresult <- 'camera'
@@ -56,25 +92,16 @@ render.dt <- function(x, mg) {
   length.opts <- length.opts[length.opts < nrow(res)]
   length.opts <- c(length.opts, nrow(res))
 
-  # if ('h'%in% res$collection) {
-  #   res <- arrange(res, collection, -logFC)
-  # } else {
-  #   res <- arrange(res, -logFC)
-  # }
-
-  dt <- datatable(
-    res, filter='top',
-    selection=list(mode='single', selected=1, target='row'),
-    extensions='Buttons',
-    escape=FALSE, rownames=FALSE,
-    options=list(
-      dom='lBtpir',
-      # order=dt.order,
-      pageLength=length.opts[1L],
-      lengthMenu=length.opts,
-      buttons=c('copy', 'csv', 'excel')))
-
-  DT::renderDataTable(dt)
+  list(data=res, filter='top',
+       selection=list(mode='single', selected=1, target='row'),
+       extensions='Buttons',
+       escape=FALSE, rownames=FALSE,
+       options=list(
+         dom='lBtpir',
+         # order=dt.order,
+         pageLength=length.opts[1L],
+         lengthMenu=length.opts,
+         buttons=c('copy', 'csv', 'excel')))
 }
 
 summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x),
