@@ -1,3 +1,4 @@
+## use the imultiGSEA package for now
 on.rescomp <- dir.exists('/gne')
 if (on.rescomp) {
   library(switchr)

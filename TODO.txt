@@ -14,3 +14,6 @@ GSEA references:
 
   * Robert Gentleman (2014):
     http://www.bioconductor.org/help/course-materials/2014/CSAMA2014/3_Wednesday/lectures/GSEA2014.pdf
+
+Add back limma version requirement: (>= 3.26.3)
+

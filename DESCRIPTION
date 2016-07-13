@@ -11,7 +11,7 @@ Imports:
     BiocGenerics,
     Biobase (>= 2.24.0),
     GSEABase,
-    limma (>= 3.26.3),
+    limma,
     edgeR,
     reshape2,
     GSVA,
@@ -77,6 +77,6 @@ Collate:
     'utilities.R'
     'zzz.R'
 RoxygenNote: 5.0.1
-SwitchrLibrary: FacileData
+SwitchrLibrary: facile
 FullSandbox: FALSE
 DeploySubPath: GSEAx
