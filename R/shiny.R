@@ -1,4 +1,4 @@
-## This code should be pushed back into the package
+##' @export round.dt
 round.dt <- function(x, digits=2) {
   stopifnot(is(x, 'data.table'))
   for (cname in names(x)[sapply(x, is.numeric)]) {
@@ -16,6 +16,7 @@ round.dt <- function(x, digits=2) {
 ##' collection ("h") at the top of the totem pole, if it is included in
 ##' \code{mg}.
 ##'
+##' @export
 ##' @param mg \code{MultiGSEAResult} object
 ##' @param method the method to show statistics for
 ##' @param the FDR cut off to present statistics for
@@ -42,7 +43,7 @@ constructGseaResultTable <- function(mg, method, fdr) {
 }
 
 ##' Prepares the datatable arguments to use for the gsea.result.table display
-##'
+##' @export
 ##' @param x The \code{gsea.result.table} \code{data.table} object
 ##' @param mg The \code{MultiGSEAResult} object
 ##' @return a list of arguments to use for a \code{do.call, datatable, retlist}
@@ -104,6 +105,7 @@ prepareRenderGseaResultTable <- function(x, mg) {
          buttons=c('copy', 'csv', 'excel')))
 }
 
+##' @export
 summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x),
                                        max.p, p.col) {
   stopifnot(is(x, 'MultiGSEAResult'))

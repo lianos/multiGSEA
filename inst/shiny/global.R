@@ -1,6 +1,7 @@
 on.rescomp <- dir.exists('/gne')
 if (on.rescomp) {
-  devtools::load_all('/gnet/is7/workspace/lianogls/Rpkgs/GNE/multiGSEA')
+  ## devtools::load_all('/gnet/is7/workspace/lianogls/Rpkgs/GNE/multiGSEA')
+  library(multiGSEA)
 } else {
   devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
 }
@@ -18,8 +19,6 @@ theme_set(theme_bw())
 ## (which is kind of big, no?)
 options(shiny.maxRequestSize=30*1024^2)
 options(multiGSEA.df.return='data.table')
-
-source('utils.R')
 
 if (!on.rescomp) {
   xmg <- readRDS('~/workspace/projects/rutz/BAP1/reports/johnnycache/multiGSEA-NGS429-joint.rds')
