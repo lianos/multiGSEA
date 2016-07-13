@@ -1,14 +1,22 @@
 on.rescomp <- dir.exists('/gne')
+
+## Loading Custom Libraries ----------------------------------------------------
+## Let's make sure to load custom-deployed packages first so that we don't
+## accidentally load older ones that live deeper-down our .libPaths()
+library(DT)
+
+## Loading "standard" Libraries ------------------------------------------------
+
 if (on.rescomp) {
   ## devtools::load_all('/gnet/is7/workspace/lianogls/Rpkgs/GNE/multiGSEA')
   library(multiGSEA)
 } else {
   devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
 }
+
 ## library(multiGSEA)
 library(shiny)
 library(shinydashboard)
-library(DT)
 library(ggplot2)
 library(plotly)
 library(data.table)
