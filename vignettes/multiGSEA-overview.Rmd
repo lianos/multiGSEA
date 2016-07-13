@@ -1,8 +1,7 @@
 ---
 title: "An Introduction to the multiGSEA Package"
 author: "Steve Lianoglou"
-date: "`r doc_date()`"
-package: "`r pkg_ver('multiGSEA')`"
+date: "`r Sys.Date()`"
 abstract: >
   The multiGSEA package facilitates the running and comparison of many GSEA
   approaches for a single experimental contrast.
@@ -10,13 +9,17 @@ vignette: >
   %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+# date: "r doc_date()"
+# package: "r pkg_ver('multiGSEA')"
 output:
-  BiocStyle::html_document:
+  html_document:
     toc: true
-    code_folding: hide
-    toc_float:
-    collapsed: no
-    smooth_scroll: yes
+    toc_depth: 3
+    toc_float: 
+      collapsed: false
+      smooth_scroll: yes
+    code_folding: show
+    
 ---
 
 ```{r init, include=FALSE}
@@ -61,7 +64,7 @@ Currenty supported gene set enrichment methods include:
 
 # Standard Workflow
 
-We'll use the `r Biocpkg("airway")` data package from [Himes et al.][himes] as
+We'll use the `"r Biocpkg("airway")"` data package from [Himes et al.][himes] as
 the basis for our analysis here[^rnaseqworkflow]. This dataset contains
 treatment (with the glucocorticoid dexamethasone) and control samples from four
 airway smooth muscle (ASM) cell lines in order to study the mechanism by which
@@ -89,6 +92,7 @@ library(magrittr)
 library(dplyr)
 library(dtplyr)
 library(ggplot2)
+library(plotly)
 theme_set(theme_bw())
 
 data("airway")
@@ -330,10 +334,23 @@ go.res <- result(mg.dex, 'goseq')
 go.up <- result(mg.dex, 'goseq.up')
 
 go <- results(mg.dex, c('goseq', 'goseq.up'))
+```
 
+#### Plotting
+
+*multiGSEA* provides a number of interactive plotting facilities to explore the
+enrichment of a single geneset under the given contrast.
+
+**Boxplot**
+
+```{r iplot-tnfa-box, fig.width=4, fig.height=3}
 iplot(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB',
       type='boxplot', value='t')
+```
 
+**Density**
+
+```{r iplot-tnfa-density, fig.width=4, fig.height=3}
 iplot(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB',
       type='density', value='t')
 ```
