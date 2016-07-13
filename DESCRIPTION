@@ -77,3 +77,6 @@ Collate:
     'utilities.R'
     'zzz.R'
 RoxygenNote: 5.0.1
+SwitchrLibrary: FacileData
+FullSandbox: FALSE
+DeploySubPath: GSEAx
