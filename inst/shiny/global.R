@@ -1,5 +1,7 @@
 on.rescomp <- dir.exists('/gne')
-
+if (on.rescomp) {
+  .libPaths(c('/gnet/is7/workspace/lianogls/Rlib/shinydev', .libPaths()))
+}
 ## Loading Custom Libraries ----------------------------------------------------
 ## Let's make sure to load custom-deployed packages first so that we don't
 ## accidentally load older ones that live deeper-down our .libPaths()
