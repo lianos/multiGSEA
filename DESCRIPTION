@@ -20,7 +20,8 @@ Imports:
     Matrix,
     AnnotationDbi,
     ggplot2 (>= 2.1.0),
-    plotly (>= 3.6.0)
+    plotly (>= 3.6.0),
+    matrixStats
 Suggests:
     goseq,
     DESeq2,
