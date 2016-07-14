@@ -3,8 +3,10 @@ title: "An Introduction to the multiGSEA Package"
 author: "Steve Lianoglou"
 date: "`r Sys.Date()`"
 abstract: >
-  The multiGSEA package facilitates the running and comparison of many GSEA
-  approaches for a single experimental contrast.
+  The *multiGSEA* package facilitates the running and comparison of many GSEA
+  approaches for a single experimental contrast. This vignette covers the
+  features found in *multiGSEA (>= 0.5.5)*, which is currently available in
+  `apps/R/current`, and soon to `be apps/R/stable` (ie. Bioc 3.3).
 vignette: >
   %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
   %\VignetteEngine{knitr::rmarkdown}
@@ -405,8 +407,11 @@ You need to first save the `MultiGSEAResult` object to your filesystem, like so:
 saveRDS(mg.dex, 'mgdex.rds')
 ```
 
-Then upload the file to [the shiny application][mgshiny]. [You can download a
-serialized version of `mg.dex` here][mgdex] to play with the app now.
+Then upload the file to [the shiny application][mgsweb].
+
+You can [download a serialized version of `mg.dex` here][mgdex] to play with the
+app now, but you'll probably have more fun poking around the application using
+results from a dataset more important to you.
 
 <div class="note">
 For now this is the mechanism you need to use to allow your collaborators to
