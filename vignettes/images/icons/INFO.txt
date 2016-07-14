@@ -1,0 +1,3 @@
+These icons were taken from asciidoc:
+
+  http://www.methods.co.nz/asciidoc/images/icons/
