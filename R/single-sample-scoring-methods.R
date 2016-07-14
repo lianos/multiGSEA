@@ -5,14 +5,13 @@
 ##' @export
 ##' @param x matrix of genes x samples
 svdScore <- function(x, center=TRUE, scale=FALSE, uncenter=center,
-                     unscale=scale) {
+                     unscale=scale, n=1L) {
   xs <- t(scale(t(x), center=center, scale=scale))
 
   cnt <- attributes(xs)$"scaled:center"
   scl <- attributes(xs)$"scaled:scale"
 
   s <- svd(xs)
-  n <- 1L
   newD <- s$d
   newD[-n] <- 0
   s$D <- diag(newD)
@@ -36,13 +35,9 @@ svdScore <- function(x, center=TRUE, scale=FALSE, uncenter=center,
               scale=if (scale) scl else NULL,
               percentVar=pca.d^2 / sum(pca.d))
 
-  out <- list(
-    score=colMeans(egene),
-    egene=egene,
-    svd=s,
-    pca=pca,
-    center=cnt, scale=scl)
-  out
+  list(score=colMeans(egene), egene=egene,
+       svd=s, pca=pca,
+       center=cnt, scale=scl)
 }
 
 ##' Calculate geneset score by average z-score method
