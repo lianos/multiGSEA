@@ -362,8 +362,10 @@ tnfa %>%
   knitr::kable(digits=3)
 ```
 
-Note that the results provided in the table generated from a call to `geneSet`
-are independant of GSEA method.
+<div class="note">
+The results provided in the table generated from a call to `geneSet` are
+independant of GSEA method.
+</div>
 
 #### Plotting
 
