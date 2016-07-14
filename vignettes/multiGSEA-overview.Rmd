@@ -92,7 +92,6 @@ library(airway)
 library(magrittr)
 library(dplyr)
 library(dtplyr)
-library(ggplot2)
 library(plotly)
 theme_set(theme_bw())
 
@@ -132,23 +131,6 @@ des
 
 `r knitr::kable(as.data.frame(des))`
 
-<div class="note">
-Many of the GSEA methods provided by limma support arbitrarily
-complex experiments/designs. For instance, we can consider the `cell` factor
-to be a random effect (as opposed to the fixed effect we've setup above) and use
-limma's `duplicateCorrelation` functionality to model this, like so:
-
-```{r random-effects, eval=FALSE}
-## This code isn't runnable right now, but just putting it here so you can get
-## the general idea. We will compare results of fixed vs random effects later
-des.re <- model.matrix(~ 0 + group, y.all$samples)
-vm.re <- voom(y, des.re)
-corfit <- duplicateCorrelation(vm.re, vm.re$design, block=y$samples$cell)
-vm.re <- voom(y, des.re, plot=TRUE, block=y$samples$cell,
-              correlation=corfit$consensus)
-```
-</div>
-
 To test for the general affect of dexamethasone treatment independant of
 cell-type, we would test the following contrast:
 
@@ -156,6 +138,24 @@ cell-type, we would test the following contrast:
 cm <- makeContrasts(dex=trt - untrt, levels=des)
 cm
 ```
+
+<div class="note">
+Many of the GSEA methods provided by limma support arbitrarily
+complex experimental designs. For instance, we can consider the `cell` factor
+to be a random effect (as opposed to the fixed effect we've setup above) and use
+limma's `duplicateCorrelation` functionality to model this, like so:
+
+```{r random-effects, eval=FALSE}
+## This code isn't runnable now. It is included here to provide an
+## example of the more exotic models that multiGSEA can support by
+## virtue of leveraging limma internally.
+des.re <- model.matrix(~ 0 + group, y.all$samples)
+vm.re <- voom(y, des.re)
+corfit <- duplicateCorrelation(vm.re, vm.re$design, block=y$samples$cell)
+vm.re <- voom(y, des.re, plot=TRUE, block=y$samples$cell,
+              correlation=corfit$consensus)
+```
+</div>
 
 ### Differential Gene Expression
 
@@ -168,7 +168,7 @@ expressed if it's not expressed above 1 cpm in at least 4 experiments (because
 this dataset has n=4 replication between dex treatments).
 
 Note that the rowname/gene identifiers are currently Ensemble Gene Identifiers 
-(eg. `ENSGnnnnnnnnn`), and we convert these to EntrezIDs for easier downstream
+(eg. `ENSG00000119203`), and we convert these to EntrezIDs for easier downstream
 analysis.
 
 ```{r gene-filter, fig.width=5, fig.height=4.5}
@@ -266,11 +266,11 @@ cached(mg.dex, {
 
 ```{r run-multi-GSEA, eval=FALSE}
 mg.dex <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
-            methods=c('camera', 'fry', 'goseq'),
-            ## GSEA specific parameters
-            feature.max.padj=0.01, feature.min.logFC=1,
-            feature.bias=setNames(vm$genes$length, rownames(vm)),
-            inter.gene.cor=0.01)
+                    methods=c('camera', 'fry', 'goseq'),
+                    ## GSEA specific parameters
+                    feature.max.padj=0.01, feature.min.logFC=1,
+                    feature.bias=setNames(vm$genes$length, rownames(vm)),
+                    inter.gene.cor=0.01)
 ```
 
 #### Implicit Differential Expression
@@ -315,9 +315,13 @@ ggplot(comp, aes(t.tt, t.mg)) +
 The internally performed differential expression analysis within the `mulitGSEA`
 call can be customized almost as extensively as an explicitly performed analysis
 that you would run using limma or edgeR by sending more paramaters through
-`multiGSEA`'s `...` argument. See the
+`multiGSEA`'s `...` argument.
+
+See the
 *[Custom Differential Expression](#custom-differential-expression)*
-section further in the vignette for more information.
+section further in the vignette as well as the help available in
+`?calculateIndividualLogFC` (which is called inside the `multiGSEA` function)
+for more information.
 
 #### Explicit GSEA
 
@@ -355,7 +359,7 @@ tnfa <- geneSet(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB')
 tnfa %>%
   select(symbol, entrez_id, logFC, pval, padj) %>%
   head %>%
-  knitr::kable()
+  knitr::kable(digits=3)
 ```
 
 Note that the results provided in the table generated from a call to `geneSet`
