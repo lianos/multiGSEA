@@ -7,6 +7,7 @@ div.tip {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/tip.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.note {
@@ -16,6 +17,7 @@ div.note {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/note.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.caution {
@@ -25,6 +27,7 @@ div.caution {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/caution.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.warning {
@@ -34,6 +37,7 @@ div.warning {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/warning.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.important {
@@ -43,6 +47,7 @@ div.important {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/important.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.example {
@@ -52,6 +57,7 @@ div.example {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/example.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
 
 div.download {
@@ -61,4 +67,5 @@ div.download {
   background-position: 5px 5px, 68px 0px;
   background-image: url('images/icons/download.png'), url('images/icons/callout-border.png');
   background-repeat: no-repeat, repeat-y;
+  width: 90%;
 }
