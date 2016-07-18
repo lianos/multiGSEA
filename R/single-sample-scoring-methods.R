@@ -4,8 +4,18 @@
 ##'
 ##' @export
 ##' @param x matrix of genes x samples
-svdScore <- function(x, center=TRUE, scale=FALSE, uncenter=center,
-                     unscale=scale, n=1L) {
+##' @param eigengene the "eigengene" you want to get the score for. only accepts
+##'   a single value for now.
+##' @param center center the data first?
+##' @param scale scale the data first?
+##' @param uncenter uncenter the data on the way out?
+##' @param unscale the data on the way out?
+##' @param
+##' @return list of useful transformation information
+svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
+                     uncenter=center, unscale=scale) {
+  eigengene <- as.integer(eigengene)
+  stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
   xs <- t(scale(t(x), center=center, scale=scale))
 
   cnt <- attributes(xs)$"scaled:center"
@@ -13,7 +23,7 @@ svdScore <- function(x, center=TRUE, scale=FALSE, uncenter=center,
 
   s <- svd(xs)
   newD <- s$d
-  newD[-n] <- 0
+  newD[-eigengene] <- 0
   s$D <- diag(newD)
 
   egene <- s$u %*% s$D %*% t(s$v)
@@ -31,9 +41,11 @@ svdScore <- function(x, center=TRUE, scale=FALSE, uncenter=center,
   pca.v <- s$v
   dimnames(pca.v) <- list(colnames(x), paste0('PC', seq_len(ncol(s$v))))
 
+  ## Make this look ilke the output of `prcomp`
   pca <- list(sdev=pca.d, rotation=s$v, center=if (center) cnt else NULL,
               scale=if (scale) scl else NULL,
               percentVar=pca.d^2 / sum(pca.d))
+  class(pca) <- 'prcomp'
 
   list(score=colMeans(egene), egene=egene,
        svd=s, pca=pca,
