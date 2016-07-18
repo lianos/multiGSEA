@@ -19,6 +19,7 @@
 ##' }
 ##'
 ##' @export
+##' @importFrom matrixStats rowSds
 ##'
 ##' @param gdb A GeneSetDb
 ##' @param y An expression matrix to score genesets against
@@ -48,7 +49,8 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
   stopifnot(is.matrix(y) && is.numeric(y))
 
   ## Removing genes that have almost-zero std.dev across the dataset.
-  sds <- apply(y, 1, sd, na.rm=TRUE)
+  ## sds <- apply(y, 1, sd, na.rm=TRUE)
+  sds <- rowSds(y)
   sd0 <- sds < drop.sd
   y.all <- y
   y <- y.all[!sd0,]
@@ -217,8 +219,6 @@ do.scoreSingleSamples.gsdecon <- function(gdb, y, as.matrix=FALSE, design=NULL,
 ##' TODO: Need to debug this. For some reason the results aren't the same
 ##' as what GSDecon methos provides, even though the codepath should be
 ##' identical
-##'
-##' @importFrom matrixStats rowSds
 do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, ...) {

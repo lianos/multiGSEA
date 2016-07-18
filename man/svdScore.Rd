@@ -4,11 +4,25 @@
 \alias{svdScore}
 \title{Calculates the (optinally) expression-rescaled eigengene for each sample.}
 \usage{
-svdScore(x, center = TRUE, scale = FALSE, uncenter = center,
-  unscale = scale)
+svdScore(x, eigengene = 1L, center = TRUE, scale = FALSE,
+  uncenter = center, unscale = scale)
 }
 \arguments{
 \item{x}{matrix of genes x samples}
+
+\item{eigengene}{the "eigengene" you want to get the score for. only accepts
+a single value for now.}
+
+\item{center}{center the data first?}
+
+\item{scale}{scale the data first?}
+
+\item{uncenter}{uncenter the data on the way out?}
+
+\item{unscale}{the data on the way out?}
+}
+\value{
+list of useful transformation information
 }
 \description{
 This function returns the innards of a PCA over "sample space"
