@@ -56,8 +56,8 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     }, simplify=FALSE)
     bad <- which(sapply(is.valid.x, Negate(isTRUE)))
     if (length(bad)) {
-      msg <- sprintf("Error validating x for (%s): %s", meth,
-                     is.valid.x[bad[1]])
+      msg <- paste("Error validating x for methods:",
+                   paste(methods[bad], collapse=', '))
       stop(msg)
     }
   } else {
