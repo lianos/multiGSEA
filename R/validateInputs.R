@@ -181,9 +181,10 @@ disp.estimated <- function(x) {
       return(errs)
     }
 
-    if (sum(contrast) != 0) {
-      errs$sum.contrast.not0 <- TRUE
-      return(errs)
+    if (abs(sum(contrast)) > 1e-5) {
+      warning("Sum of contrast vector != 0", immediate.=TRUE)
+      # errs$sum.contrast.not0 <- TRUE
+      # return(errs)
     }
   }
 
