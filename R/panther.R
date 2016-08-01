@@ -33,6 +33,8 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
   out <- switch(type,
                 pathway=getPantherPathways(p.db, org.db),
                 goslim=getPantherGOSLIM(p.db, org.db))
+  mapIds <- getFromNamespace('mapIds', 'AnnotationDbi')
+  out@db$symbol <- mapIds(org.db, out@db$featureId, 'SYMBOL', 'ENTREZID')
   org(out) <- xorg
   out
 }
@@ -48,7 +50,6 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
 ##' it's not clear how often these get updated.
 ##'
 ##' @export
-##' @importFrom AnnotationDbi select
 ##' @param species "human" or "mouse"
 ##' @return \code{GeneSetDb} of the GO slim mappings
 getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
@@ -56,11 +57,12 @@ getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
 }
 
 getPantherPathways <- function(p.db, org.db) {
-  p.all <- select(p.db, AnnotationDbi::keys(p.db, keytype="PATHWAY_ID"),
-                  columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
-                  'PATHWAY_ID')
+  aselect <- getFromNamespace('select', 'AnnotationDbi')
+  p.all <- aselect(p.db, AnnotationDbi::keys(p.db, keytype="PATHWAY_ID"),
+                   columns=c("PATHWAY_ID", "PATHWAY_TERM", "UNIPROT"),
+                   'PATHWAY_ID')
   ## Map uniprot to entrez
-  umap <- select(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT')
+  umap <- aselect(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT')
   m <- merge(p.all, umap, by='UNIPROT')
   m <- subset(m, !is.na(ENTREZID))
   lol <- list(`panther pathway`=split(m$ENTREZID, m$PATHWAY_TERM))
@@ -88,17 +90,18 @@ getPantherGOSLIM <- function(p.db, org.db) {
   if (!require("GO.db")) {
     stop("GO.db is required for this functionality")
   }
-  p.all <- select(p.db,
-                  keys(p.db, keytype='GOSLIM_ID'),
-                  columns=c('ENTREZ', 'GOSLIM_ID', 'GOSLIM_TERM'),
-                  'GOSLIM_ID')
+  aselect <- getFromNamespace('select', 'AnnotationDbi')
+  p.all <- aselect(p.db,
+                   keys(p.db, keytype='GOSLIM_ID'),
+                   columns=c('ENTREZ', 'GOSLIM_ID', 'GOSLIM_TERM'),
+                   'GOSLIM_ID')
   p.all <- subset(p.all, !is.na(ENTREZ))
   p.all <- p.all[order(p.all$ENTREZ),]
 
-  go <- select(GO.db,
-               unique(p.all$GOSLIM_ID),
-               c('GOID', 'TERM'),
-               'GOID')
+  go <- aselect(GO.db,
+                unique(p.all$GOSLIM_ID),
+                c('GOID', 'TERM'),
+                'GOID')
   go.missed <- subset(go, is.na(TERM))
   ## 2015-09-02 (Bioc 3.1)
   ##       GOID TERM

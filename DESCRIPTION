@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.5.8
+Version: 0.5.9
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -18,7 +18,6 @@ Imports:
     stringr,
     data.table (>= 1.9.6),
     Matrix,
-    AnnotationDbi,
     ggplot2 (>= 2.1.0),
     plotly (>= 3.6.0),
     matrixStats

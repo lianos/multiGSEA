@@ -13,7 +13,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   type <- match.arg(type)
   value <- match.arg(value)
 
-  if (is.null(main)) {
+  if (missing(main)) {
     main <- sprintf("%s (%s)", j, y)
   }
 
@@ -63,10 +63,12 @@ iplot.boxplot.gg <- function(x, y, j, value, main, dat, ...) {
                    text=sprintf(plabel, symbol, logFC, padj)),
                data=gs,
                position=position_jitter(width=0.25)) +
-    ggtitle(main) +
     ylab(value) +
     xlab(sprintf("Gene Set Group<br>(%d genes)", sum(dat$group == 'geneset'))) +
     scale_color_manual(values=cols)
+  if (!is.null(main)) {
+    gg <- gg + ggtitle(main)
+  }
   ggplotly(gg)
 }
 
@@ -133,9 +135,10 @@ iplot.density.gg <- function(x, y, j, value, main, dat, ...) {
                data=gs.dat,
                position=position_jitter(width=0, height=jitter)) +
     xlab(sprintf("%s (%d genes)", value, sum(dat$group == 'geneset'))) +
-    ggtitle(main) +
     scale_color_manual(values=cols)
-
+  if (!is.null(main)) {
+    gg <- gg + ggtitle(main)
+  }
   ggplotly(gg)
 }
 
