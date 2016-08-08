@@ -11,8 +11,6 @@
 ##'   \item gsva: GSVA package
 ##'   \item plage: from GSVA package
 ##'   \item ssgsea: from GSVA package
-##'   \item gsdecon: Jason Hackeny's method (kind of like plage), but not
-##'         really.
 ##'   \item svd: Simple score that (should) mimic Jason's SVD/eigengene score.
 ##'         This is included here mainly to facilitate use of this scoring
 ##'         method for people who would have a hard time installing GSDecon2
@@ -193,26 +191,26 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
   x / (max.b - min.b)
 }
 
-##' Jason's method
-do.scoreSingleSamples.gsdecon <- function(gdb, y, as.matrix=FALSE, design=NULL,
-                                          doPerm=FALSE, nPerm=249,
-                                          pvalueCutoff=0.01, nComp=1, seed=NULL,
-                                          ...) {
-  if (!requireNamespace('GSDecon')) {
-    stop("Jason Hackney's GSDecon package required")
-  }
-  if (is.null(design)) {
-    design <- cbind(Intercept=rep(1L, ncol(y)))
-  }
-  stopifnot(is.matrix(design))
-  stopifnot(nrow(design) == ncol(y))
-  im <- incidenceMatrix(gdb)
-  res <- GSDecon::decon(y, design, im, doPerm=doPerm, nPerm=nPerm,
-                        pvalueCutoff=pvalueCutoff, nComp=nComp, seed=seed)
-  out <- t(res@eigengenes)
-  rownames(out) <- rownames(im)
-  out
-}
+# Jason's method
+# do.scoreSingleSamples.gsdecon <- function(gdb, y, as.matrix=FALSE, design=NULL,
+#                                           doPerm=FALSE, nPerm=249,
+#                                           pvalueCutoff=0.01, nComp=1, seed=NULL,
+#                                           ...) {
+#   if (!requireNamespace('GSDecon')) {
+#     stop("Jason Hackney's GSDecon package required")
+#   }
+#   if (is.null(design)) {
+#     design <- cbind(Intercept=rep(1L, ncol(y)))
+#   }
+#   stopifnot(is.matrix(design))
+#   stopifnot(nrow(design) == ncol(y))
+#   im <- incidenceMatrix(gdb)
+#   res <- GSDecon::decon(y, design, im, doPerm=doPerm, nPerm=nPerm,
+#                         pvalueCutoff=pvalueCutoff, nComp=nComp, seed=seed)
+#   out <- t(res@eigengenes)
+#   rownames(out) <- rownames(im)
+#   out
+# }
 
 ##' A no dependency call to GSDecon's eigengene scoring
 ##'
@@ -242,5 +240,5 @@ gs.score.map <- list(
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
   ssgsea=do.scoreSingleSamples.gsva,
-  gsdecon=do.scoreSingleSamples.gsdecon,
+  # gsdecon=do.scoreSingleSamples.gsdecon,
   svd=do.scoreSingleSamples.svd)

@@ -10,7 +10,6 @@
 ##' @param scale scale the data first?
 ##' @param uncenter uncenter the data on the way out?
 ##' @param unscale the data on the way out?
-##' @param
 ##' @return list of useful transformation information
 svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
                      uncenter=center, unscale=scale) {
