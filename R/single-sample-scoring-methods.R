@@ -70,11 +70,6 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
               percentVar=pca.d^2 / sum(pca.d^2))
   class(pca) <- 'prcomp'
 
-
-  txs <- t(scale(x))
-  gpca <- prcomp(txs, center=FALSE, scale.=FALSE)
-  contr <- abs(gpca$rotation)
-  contr <- sweep(contr, 2, colSums(contr), '/')
   list(score=score, egene=egene,
        svd=s, pca=pca, factor.contrib=ctrb)
 }
