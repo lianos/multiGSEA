@@ -10,9 +10,12 @@
 ##' @param scale scale the data first?
 ##' @param uncenter uncenter the data on the way out?
 ##' @param unscale the data on the way out?
+##' @param retx Works the same as `retx` from \code{\link[stats]{prcomp}}. If
+##'   \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
+##'   variables.
 ##' @return list of useful transformation information
 svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
-                     uncenter=center, unscale=scale) {
+                     uncenter=center, unscale=scale, retx=FALSE) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
   xs <- t(scale(t(x), center=center, scale=scale))
@@ -34,6 +37,9 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
     egene <- sweep(egene, 1, FUN="+", cnt)
   }
 
+  score <- colMeans(egene)
+  names(score) <- colnames(x)
+
   ## Reconstruct some PCA output here just because we've already done the heavy
   ## lifting calculations
   pca.d <- s$d / sqrt(max(1, nrow(x) - 1L))
@@ -41,14 +47,34 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
   dimnames(pca.v) <- list(colnames(x), paste0('PC', seq_len(ncol(s$v))))
 
   ## Make this look ilke the output of `prcomp`
-  pca <- list(sdev=pca.d, rotation=s$v, center=if (center) cnt else NULL,
-              scale=if (scale) scl else NULL,
-              percentVar=pca.d^2 / sum(pca.d))
+  ## s$v is the matrix with the eigenvectors. these entries should be correlated
+  ## to our svd scores.
+  xproj <- xs %*% s$v
+  ## Show something like the percent contribution of each gene to the PCs
+  ## This code was inspired from the biplot function, where the vectors of
+  ## a PCA biplot are drawn as a function of the projected data (ie. pca$x)
+  axproj <- abs(xproj)
+  ctrb <- sweep(axproj, 2, colSums(axproj), '/')
+  colnames(ctrb) <- paste0('PC', seq(ncol(ctrb)))
+  ctrb <- cbind(
+    data.frame(featureId=rownames(ctrb), stringsAsFactors=FALSE),
+    as.data.frame(ctrb))
+
+  pca <- list(sdev=pca.d, rotation=pca.v,
+              center=if (center) cnt else 0,
+              scale=if (scale) scl else 1,
+              x=if (retx) xproj else NULL,
+              percentVar=pca.d^2 / sum(pca.d^2))
   class(pca) <- 'prcomp'
 
-  list(score=colMeans(egene), egene=egene,
-       svd=s, pca=pca,
-       center=cnt, scale=scl)
+
+  txs <- t(scale(x))
+  gpca <- prcomp(txs, center=FALSE, scale.=FALSE)
+  contr <- abs(gpca$rotation)
+  contr <- sweep(contr, 2, colSums(contr), '/')
+  list(score=score, egene=egene,
+       svd=s, pca=pca, center=cnt, scale=scl,
+       factor.contrib=ctrb)
 }
 
 ##' Calculate geneset score by average z-score method
