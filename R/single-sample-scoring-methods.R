@@ -73,8 +73,7 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
   contr <- abs(gpca$rotation)
   contr <- sweep(contr, 2, colSums(contr), '/')
   list(score=score, egene=egene,
-       svd=s, pca=pca, center=cnt, scale=scl,
-       factor.contrib=ctrb)
+       svd=s, pca=pca, factor.contrib=ctrb)
 }
 
 ##' Calculate geneset score by average z-score method
