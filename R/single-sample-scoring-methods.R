@@ -15,9 +15,10 @@
 ##'   variables.
 ##' @return list of useful transformation information
 svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
-                     uncenter=center, unscale=scale, retx=FALSE) {
+                     uncenter=FALSE, unscale=FALSE, retx=FALSE) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
+  x <- as.matrix(x)
   xs <- t(scale(t(x), center=center, scale=scale))
 
   cnt <- attributes(xs)$"scaled:center"
@@ -42,7 +43,7 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
 
   ## Reconstruct some PCA output here just because we've already done the heavy
   ## lifting calculations
-  pca.d <- s$d / sqrt(max(1, nrow(x) - 1L))
+  pca.d <- s$d / sqrt(max(1L, nrow(x) - 1L))
   pca.v <- s$v
   dimnames(pca.v) <- list(colnames(x), paste0('PC', seq_len(ncol(s$v))))
 
@@ -56,8 +57,10 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=FALSE,
   axproj <- abs(xproj)
   ctrb <- sweep(axproj, 2, colSums(axproj), '/')
   colnames(ctrb) <- paste0('PC', seq(ncol(ctrb)))
+
+  rn <- if (!is.null(rownames(ctrb))) rownames(ctrb) else paste0('r', 1:nrow(ctrb))
   ctrb <- cbind(
-    data.frame(featureId=rownames(ctrb), stringsAsFactors=FALSE),
+    data.frame(featureId=rn, stringsAsFactors=FALSE),
     as.data.frame(ctrb))
 
   pca <- list(sdev=pca.d, rotation=pca.v,
