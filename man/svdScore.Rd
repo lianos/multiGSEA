@@ -5,7 +5,7 @@
 \title{Calculates the (optinally) expression-rescaled eigengene for each sample.}
 \usage{
 svdScore(x, eigengene = 1L, center = TRUE, scale = FALSE,
-  uncenter = center, unscale = scale)
+  uncenter = FALSE, unscale = FALSE, retx = FALSE)
 }
 \arguments{
 \item{x}{matrix of genes x samples}
@@ -20,6 +20,10 @@ a single value for now.}
 \item{uncenter}{uncenter the data on the way out?}
 
 \item{unscale}{the data on the way out?}
+
+\item{retx}{Works the same as `retx` from \code{\link[stats]{prcomp}}. If
+\code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
+variables.}
 }
 \value{
 list of useful transformation information

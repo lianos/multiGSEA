@@ -13,6 +13,10 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   type <- match.arg(type)
   value <- match.arg(value)
 
+  if (type == 'volcano') {
+    stop("volcano not yet implemented")
+  }
+
   if (missing(main)) {
     main <- sprintf("%s (%s)", j, y)
   }
@@ -30,11 +34,13 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
                             'psig', dat$significant)
 
   if (type == 'volcano') {
-    out <- iplot.volcano(x, y, j, value, main, dat=dat, ...)
+    out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat, ...)
   } else if (type == 'density') {
-    out <- iplot.density.gg(x, y, j, value, main, dat=dat, ...)
+    out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat, ...)
   } else if (type == 'boxplot') {
-    out <- iplot.boxplot.gg(x, y, j, value, main, dat=dat, ...)
+    # out <- iplot.boxplot.gg(x, y, j, value, main, dat=dat, ...)
+    out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat, ...)
+    # out <- iplot.boxplot.gg(x, y, j, value, main, dat=dat, ...)
   }
 
   out
@@ -42,13 +48,27 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 
 ## boxplot ---------------------------------------------------------------------
 iplot.boxplot <- function(x, y, j, value, main, dat, ...) {
-  bg <- filter(dat, group == 'bg')
-  gs <- filter(dat, group == 'geneset')
+  bg <- subset(dat, group == 'bg')
+  gs <- subset(dat, group == 'geneset')
   plt <- plot_ly(bg, y=val, type='box') %>%
     add_trace(y=val, type='box', boxpoints='all', jitter=0.3, pointpos=0,
               data=gs)
 
 }
+
+iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, ...) {
+  gs <- subset(dat, group == 'geneset') %>%
+   transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
+  bg <- subset(dat, group != 'geneset')
+  n.gs <- sum(dat$group == 'geneset')
+  p <- figure(xlab=sprintf("Gene Set Group (%d genes)", n.gs)) %>%
+    ly_boxplot(x="group", y="val", data=bg, fill_color='white') %>%
+    ly_boxplot(x="group", y="val", data=gs,  fill_color='white', with_outliers=FALSE) %>%
+    ly_points(x="jgrp", y="val", data=gs, color="significant",
+              hover=list(symbol, logFC, padj))
+  p
+}
+
 
 iplot.boxplot.gg <- function(x, y, j, value, main, dat, ...) {
   cols <- c('notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
@@ -141,6 +161,36 @@ iplot.density.gg <- function(x, y, j, value, main, dat, ...) {
   }
   ggplotly(gg)
 }
+
+iplot.density.rbokeh <- function(x, y, j, value, main, dat, ...) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+
+  gs.dat <- subset(dat, group == 'geneset')
+  cols <- c('bg'='black', 'geneset'='red',
+            'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
+
+  if (value == 't') {
+    value <- 't-statistic'
+    # gs.dat$y <- 0.005
+    gs.dat$y <- 0.005 + runif(nrow(gs.dat), 0, 0.040)
+    jitter <- 0.005
+  } else {
+    ## gs.dat$y <- c('notsig'=0.1, 'psig'=0.2, 'sig'=0.3)[gs.dat$significant]
+    gs.dat$y <- 0.005 + runif(nrow(gs.dat), 0, 0.040)
+    jitter <- 0.05
+  }
+
+  # gs <- filter(dat, group == 'geneset') %>%
+  #   mutate(jgrp=catjitter(group, 0.5))
+  bg <- filter(dat, group == 'bg')
+
+  p <- figure() %>%
+    ly_density(x="val", data=bg, color="black", width=2) %>%
+    ly_density(x="val", data=gs.dat, color="red", width=2) %>%
+    ly_points(x="val", y="y", data=gs.dat, color="significant",
+               hover=list(symbol, logFC, padj))
+}
+
 
 iplot.cdf.gg <- function(x, y, j, value, main, dat, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
