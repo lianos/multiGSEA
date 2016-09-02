@@ -53,7 +53,10 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE, ..
    transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
   bg <- subset(dat, group != 'geneset')
   n.gs <- sum(dat$group == 'geneset')
-  p <- figure(xlab=sprintf("Gene Set Group (%d genes)", n.gs)) %>%
+  if (value == 't') {
+    value <- 't-statistic'
+  }
+  p <- figure(xlab=sprintf("Gene Set Group (%d genes)", n.gs), ylab=value) %>%
     ly_boxplot(x="group", y="val", data=bg, fill_color='white',
                outlier_size=5) %>%
     ly_boxplot(x="group", y="val", data=gs,  fill_color='white',
@@ -74,7 +77,7 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   if (value == 't') {
     value <- 't-statistic'
     # gs.dat$y <- 0.005
-    gs.dat$y <- 0.005 + runif(nrow(gs.dat), 0, 0.040)
+    gs.dat$y <- 0.0015 + runif(nrow(gs.dat), 0, 0.004)
     jitter <- 0.005
   } else {
     ## gs.dat$y <- c('notsig'=0.1, 'psig'=0.2, 'sig'=0.3)[gs.dat$significant]
@@ -84,7 +87,7 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
 
   bg <- subset(dat, group == 'bg')
 
-  p <- figure() %>%
+  p <- figure(xlab=sprintf("%s (%d genes)", value, nrow(gs.dat))) %>%
     ly_density(x="val", data=bg, color="black", width=3) %>%
     ly_density(x="val", data=gs.dat, color="red", width=3) %>%
     ly_points(x="val", y="y", data=gs.dat, color="significant", size=5,
