@@ -6,7 +6,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
                   main=NULL, with.legend=TRUE, ...) {
   if (FALSE) {
     x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
-    main <- NULL;
+    main <- NULL; type <- 'boxplot'; with.legend <- TRUE
   }
 
   stopifnot(is(x, 'MultiGSEAResult'))
@@ -22,16 +22,18 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   }
 
   dat <- local({
-    lfc <- transform(logFC(x, .external=FALSE), group='bg')
-    lfc$val <- lfc[[value]]
-    gs.stats <- transform(geneSet(x, y, j, .external=FALSE),
-                          group='geneset', collection=NULL, name=NULL)
-    gs.stats$val <- gs.stats[[value]]
-    rbindlist(list(lfc, gs.stats))
+    lfc <- logFC(x, .external=FALSE)
+    lfc[, group := 'bg']
+    lfc[, val := lfc[[value]]]
+    gs.stats <- geneSet(x, y, j, .external=FALSE)
+    gs.stats[, group := 'geneset']
+    gs.stats[, val := gs.stats[[value]]]
+    gs.stats[, collection := NULL]
+    gs.stats[, name := NULL]
+    out <- rbindlist(list(lfc, gs.stats))
+    out[, significant := ifelse(significant, 'sig', 'notsig')]
+    out[, significant := ifelse(padj < 0.10 & significant == 'notsig', 'psig', significant)]
   })
-  dat$significant <- ifelse(dat$significant, 'sig', 'notsig')
-  dat$significant <- ifelse(dat$padj < 0.10 & dat$significant == 'notsig',
-                            'psig', dat$significant)
 
   if (type == 'density') {
     out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat,
