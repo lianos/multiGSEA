@@ -70,6 +70,9 @@ setGeneric("collectionUrlFunction<-", signature="x", function(x, i, value, ...) 
   standardGeneric("collectionUrlFunction<-")
 })
 
+##' Query/set the featureIdType for an collection
+##'
+##' EntrezIdIdentifer() or?
 ##' @exportMethod featureIdType
 setGeneric("featureIdType", signature="x", function(x, i, ...) {
   standardGeneric("featureIdType")
@@ -80,12 +83,15 @@ setGeneric("featureIdType<-", signature="x", function(x, i, value) {
   standardGeneric("featureIdType<-")
 })
 
+##' Query/set the organism for a given geneset (db or collection)
 ##' @exportMethod org
+##' @rdname org
 setGeneric("org", signature="x", function(x, i, ...) {
   standardGeneric("org")
 })
 
 ##' @export
+##' @rdname org
 setGeneric("org<-", signature="x", function(x, i, value) {
   standardGeneric("org<-")
 })

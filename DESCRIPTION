@@ -30,7 +30,6 @@ Suggests:
     AnnotationDbi,
     PANTHER.db (>= 1.0.3),
     reactome.db,
-    magrittr,
     GO.db,
     knitr,
     parallel,
@@ -40,7 +39,8 @@ Suggests:
     dplyr,
     dtplyr,
     shiny,
-    rprojroot
+    rprojroot,
+    clusterProfiler
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:

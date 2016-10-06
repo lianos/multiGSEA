@@ -97,11 +97,12 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p
 }
 
+if (FALSE) {
 ## ggplotly --------------------------------------------------------------------
 iplot.boxplot.gg <- function(x, y, j, value, main, dat, ...) {
   cols <- c('notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
-  bg <- filter(dat, group == 'bg')
-  gs <- filter(dat, group == 'geneset')
+  bg <- subset(dat, group == 'bg')
+  gs <- subset(dat, group == 'geneset')
   plabel <- 'symbol: %s<br>logFC: %.2f<br>FDR: %.2f'
   value <- if (value == 't') 't-statistic' else value
   gg <- ggplot(dat, aes(group, val)) +
@@ -150,4 +151,6 @@ iplot.density.gg <- function(x, y, j, value, main, dat, with.legend=TRUE, ...) {
     gg <- gg + ggtitle(main)
   }
   ggplotly(gg)
+}
+
 }

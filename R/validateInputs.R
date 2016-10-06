@@ -191,7 +191,8 @@ disp.estimated <- function(x) {
   if (ret.err.only || length(errs)) errs else contrast
 }
 
-.validate.inputs.full.design <- function(x, design, contrast, ...) {
+.validate.inputs.full.design <- function(x, design, contrast,
+                                         require.x.rownames=FALSE, ...) {
   errs <- list()
   if (!inherits(x, .valid.x)) {
     errs <- c(errs,

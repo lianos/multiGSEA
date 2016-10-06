@@ -92,7 +92,7 @@ library(airway)
 library(magrittr)
 library(dplyr)
 library(dtplyr)
-library(plotly)
+library(ggplot2)
 theme_set(theme_bw())
 
 data("airway")

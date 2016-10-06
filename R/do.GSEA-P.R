@@ -13,6 +13,7 @@ validate.x.gseap <- validate.X
 do.gseap <- function(gsd, x, design, contrast,
                      logFC=NULL, score.by=c('t', 'logFC'),
                      robust.fit=FALSE, robust.eBayes=FALSE, ...) {
+  nms <- loadNamespace('clusterProfiler')
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))
   if (!missing(design) && missing(contrast)) {
@@ -59,7 +60,7 @@ do.gseap <- function(gsd, x, design, contrast,
   call.args[['pvalueCutoff']] <- 1
   call.args[['minGSSize']] <- min(gs$n)
 
-  res <- do.call(clusterProfiler::GSEA, call.args)
+  res <- do.call(nms$GSEA, call.args)
   out <- gs[, list(collection, name)]
   ## TODO: Finish do.gseap function
 

@@ -1,5 +1,8 @@
 context("Errors submitted by users")
 
+test_that("We should put something here", {
+  expect_true(TRUE)
+})
 
 if (FALSE) {
   test_that("Russ's error is his fault", {

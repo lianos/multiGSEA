@@ -787,7 +787,8 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##'   return the features that match target and are "active"?
 ##' @param ... nothing
 ##' @return a \code{data.frame} of the GeneSetDb
-as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
+as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
+                                    value=c('featureId', 'x.id', 'x.idx'),
                                     active.only=is.conformed(x), ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
