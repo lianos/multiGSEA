@@ -899,8 +899,3 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
   ## }
   geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j), which=TRUE]
 }
-
-## setMethod("[", "GeneSetDb", function(x, i, j, ..., drop) {
-##   if (length(list(...)) > 0L)
-##     stop("invalid subsetting")
-## })
