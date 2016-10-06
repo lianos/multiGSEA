@@ -1,3 +1,16 @@
+CHANGES IN VERSION 0.6.x
+------------------------
+
+USER VISIBLE CHANGES
+
+  o MSigDB version updated to 5.2 in 0.6.5
+  o Interactive plots can be generated via iplot
+  o single sample scoring methods broken out into more modular functions
+  o svdScore added. Executes Jason's SVD scoring trick and also calculates
+    "all the usual" prcomp stuff.
+  o Adds a `[.GeneSetDb` method so we can subset the geneSets out of a GeneSetDb
+    more easily. Would still like to have a fully operational subset(gdb, ...).
+
 CHANGES IN VERSION 0.4.x
 ------------------------
 

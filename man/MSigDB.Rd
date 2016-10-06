@@ -31,6 +31,7 @@ versions are included in this package:
   \item v4.0
   \item v5.0
   \item v5.1
+  \item v5.2
 }
 
 Starting from version 5.1, the \code{GeneSetDb} includes the symbols for

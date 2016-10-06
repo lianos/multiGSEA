@@ -5,7 +5,7 @@
 \title{Create interactive GSEA plots}
 \usage{
 iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot",
-  "volcano"), main = NULL, ...)
+  "volcano"), main = NULL, with.legend = TRUE, ...)
 }
 \description{
 Create interactive GSEA plots

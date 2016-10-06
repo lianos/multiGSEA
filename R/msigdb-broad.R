@@ -2,7 +2,8 @@
 .msigdb.collections <- list(
   'v4.0'=paste0('c', 1:7),
   'v5.0'=c(paste0('c', 1:7), 'h'),
-  'v5.1'=c(paste0('c', 1:7), 'h'))
+  'v5.1'=c(paste0('c', 1:7), 'h'),
+  'v5.2'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
 
 ##' Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.
@@ -16,6 +17,7 @@
 ##'   \item v4.0
 ##'   \item v5.0
 ##'   \item v5.1
+##'   \item v5.2
 ##' }
 ##'
 ##' Starting from version 5.1, the \code{GeneSetDb} includes the symbols for

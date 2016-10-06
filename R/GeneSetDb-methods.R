@@ -406,6 +406,25 @@ subset.GeneSetDb <- function(x, keep) {
   out
 }
 
+##' Subset whole genesets from a GeneSetDb
+##' @exportMethod [
+setMethod("[", "GeneSetDb", function(x, i, j, ..., drop=FALSE) {
+  if (length(list(...)) > 0) {
+    stop("parameters in '...' not supported")
+  }
+  if (!missing(drop)) {
+    warning("drop argument ignored", immediate.=TRUE)
+  }
+  if (!missing(j)) {
+    warning("j is ignored", immediate.=TRUE)
+  }
+  if (!is.logical(i) && length(i) != nrow(geneSets(x))) {
+    stop("i must be a logical vector as long as nrow(geneSets(x))")
+  }
+  subset.GeneSetDb(x, i)
+})
+
+
 if (FALSE) {
 ## @exportMethod subset
 ## @importFrom BiocGenerics subset
