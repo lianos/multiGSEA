@@ -4,8 +4,9 @@
 \alias{as.data.frame.GeneSetDb}
 \title{Convert a GeneSetDb to a data.frame}
 \usage{
-\method{as.data.frame}{GeneSetDb}(x, value = c("featureId", "x.id", "x.idx"),
-  active.only = is.conformed(x), ...)
+\method{as.data.frame}{GeneSetDb}(x, row.names = NULL, optional = FALSE,
+  value = c("featureId", "x.id", "x.idx"), active.only = is.conformed(x),
+  ...)
 }
 \arguments{
 \item{x}{A \code{GeneSetDb} object}

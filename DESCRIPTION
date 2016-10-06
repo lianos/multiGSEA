@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.6.5
+Version: 0.6.6
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -21,7 +21,8 @@ Imports:
     ggplot2 (>= 2.1.0),
     rbokeh,
     matrixStats,
-    magrittr
+    dplyr,
+    dtplyr
 Suggests:
     goseq,
     DESeq2,
@@ -36,9 +37,9 @@ Suggests:
     NMF,
     BiocStyle,
     airway,
-    dplyr,
-    dtplyr,
     shiny,
+    miniUI,
+    shinydashboard,
     rprojroot,
     clusterProfiler
 VignetteBuilder: knitr
@@ -48,7 +49,6 @@ Collate:
     'AllGenerics.R'
     'GeneSetDb-class.R'
     'GeneSetDb-methods.R'
-    'MultiGSEARegistry-class.R'
     'aaa.R'
     'cache-utils.R'
     'calculateIndividualLogFC.R'
@@ -73,7 +73,11 @@ Collate:
     'plots.R'
     'reactome.R'
     'scoreSingleSamples.R'
-    'shiny.R'
+    'shiny-MultiGSEAResultContainer.R'
+    'shiny-module-geneSetContrastView.R'
+    'shiny-module-geneSetSelect.R'
+    'shiny-module-mgTableBrowser.R'
+    'shiny-utils.R'
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'

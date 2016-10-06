@@ -99,3 +99,49 @@ dir.writable <- function(path) {
     TRUE
   }, error=function(e) FALSE)
 }
+
+## Random Utilitis -------------------------------------------------------------
+##' Utility function to cat a message to stderr (by default)
+##'
+##' @export
+##' @param ... pieces of the message
+##' @param file where to send the message. Defaults to \code{stderr()}
+msg <- function(..., file=stderr()) {
+  cat(paste(rep('-', 80), collapse=''), '\n', file=file)
+  cat(..., '\n', file=file)
+  cat(paste(rep('-', 80), collapse=''), '\n', file=file)
+}
+
+##' Utility function to try and fail with grace.
+##'
+##' @export
+##' @param default the value to return if \code{expr} fails
+##' @param expr the expression to take a shot at
+##' @param frame the frame to evaluate the expression in
+##' @param silent if \code{TRUE}, sends the error message to \code{msg}
+##' @param file where msg sends the message
+##' @return the result of \code{expr} if successful, otherwis \code{default}
+failWith <- function(default=NULL, expr, frame=parent.frame(), silent=FALSE,
+                     file=stderr()) {
+  tryCatch(eval(expr, frame), error=function(e) {
+    if (!silent) msg(geterrmessage(), file)
+    default
+  })
+}
+
+
+##' Rounds every numeric column of a data.table to given precision
+##' @export
+##' @param x a \code{data.table} like thing
+##' @param digits the number of digits to round to
+##' @return the rounded \code{x}
+round.dt <- function(x, digits=3) {
+  stopifnot(is(x, 'data.table'))
+  for (cname in names(x)[sapply(x, is.numeric)]) {
+    vals <- x[[cname]]
+    if (!is.integer(vals)) {
+      x[, (cname) := round(vals, digits=3)]
+    }
+  }
+  x
+}
