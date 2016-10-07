@@ -118,13 +118,15 @@ msg <- function(..., file=stderr()) {
 ##' @param default the value to return if \code{expr} fails
 ##' @param expr the expression to take a shot at
 ##' @param frame the frame to evaluate the expression in
+##' @param message the error message to display if \code{expr} fails. Deafults
+##'   to \code{geterrmessage()}
 ##' @param silent if \code{TRUE}, sends the error message to \code{msg}
 ##' @param file where msg sends the message
 ##' @return the result of \code{expr} if successful, otherwis \code{default}
-failWith <- function(default=NULL, expr, frame=parent.frame(), silent=FALSE,
-                     file=stderr()) {
+failWith <- function(default=NULL, expr, frame=parent.frame(),
+                     message=geterrmessage(), silent=FALSE, file=stderr()) {
   tryCatch(eval(expr, frame), error=function(e) {
-    if (!silent) msg(geterrmessage(), file)
+    if (!silent) msg(message, file)
     default
   })
 }

@@ -4,8 +4,8 @@
 \alias{failWith}
 \title{Utility function to try and fail with grace.}
 \usage{
-failWith(default = NULL, expr, frame = parent.frame(), silent = FALSE,
-  file = stderr())
+failWith(default = NULL, expr, frame = parent.frame(),
+  message = geterrmessage(), silent = FALSE, file = stderr())
 }
 \arguments{
 \item{default}{the value to return if \code{expr} fails}
@@ -13,6 +13,9 @@ failWith(default = NULL, expr, frame = parent.frame(), silent = FALSE,
 \item{expr}{the expression to take a shot at}
 
 \item{frame}{the frame to evaluate the expression in}
+
+\item{message}{the error message to display if \code{expr} fails. Deafults
+to \code{geterrmessage()}}
 
 \item{silent}{if \code{TRUE}, sends the error message to \code{msg}}
 
