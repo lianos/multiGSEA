@@ -33,6 +33,7 @@
 ##'   \code{$fit} has the limma fit for the data/design/contrast under test.
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
+                                     trend.eBayes=FALSE,
                                      use.treat=FALSE, treat.lfc=log2(1.25),
                                      confint=TRUE, with.fit=FALSE, ...,
                                      .external=TRUE) {
@@ -82,10 +83,10 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
       contrast <- 1L
     }
     if (use.treat) {
-      fit <- treat(fit, lfc=treat.lfc, robust=robust.eBayes)
+      fit <- treat(fit, lfc=treat.lfc, robust=robust.eBayes, trend=trend.eBayes)
       tt <- topTreat(fit, contrast, number=Inf, sort.by='none', confint=confint)
     } else {
-      fit <- eBayes(fit, robust=robust.eBayes)
+      fit <- eBayes(fit, robust=robust.eBayes, trend=trend.eBayes)
       tt <- topTable(fit, contrast, number=Inf, sort.by='none', confint=confint)
     }
     tt <- transform(as.data.table(tt), featureId=rownames(x))

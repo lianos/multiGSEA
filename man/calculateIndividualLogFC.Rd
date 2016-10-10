@@ -5,9 +5,9 @@
 \title{Runs a vanilla limma differential expression analysis}
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
-  robust.fit = FALSE, robust.eBayes = FALSE, use.treat = FALSE,
-  treat.lfc = log2(1.25), confint = TRUE, with.fit = FALSE, ...,
-  .external = TRUE)
+  robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
+  use.treat = FALSE, treat.lfc = log2(1.25), confint = TRUE,
+  with.fit = FALSE, ..., .external = TRUE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not

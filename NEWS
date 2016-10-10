@@ -11,6 +11,12 @@ USER VISIBLE CHANGES
   o Adds a `[.GeneSetDb` method so we can subset the geneSets out of a GeneSetDb
     more easily. Would still like to have a fully operational subset(gdb, ...).
 
+NEW FEATURES
+
+  o Adds `svdGeneSetTest` method. A gene x sample expression matrix is
+    transformed into a geneset x sampel matrix, and "normal" differential
+    expression expression testing is run over the geneset scores.
+
 CHANGES IN VERSION 0.4.x
 ------------------------
 
