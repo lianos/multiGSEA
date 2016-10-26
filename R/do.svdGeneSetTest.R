@@ -26,6 +26,5 @@ do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
 
   out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
                as.data.table(res))
-  out[, NGenes := NULL]
 }
 
