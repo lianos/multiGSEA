@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.6.8
+Version: 0.6.9
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -22,7 +22,8 @@ Imports:
     rbokeh,
     matrixStats,
     dplyr,
-    dtplyr
+    dtplyr,
+    circlize
 Suggests:
     goseq,
     DESeq2,
@@ -70,6 +71,7 @@ Collate:
     'multiGSEA.R'
     'package.R'
     'panther.R'
+    'plots-corplot.R'
     'plots-interactive.R'
     'plots.R'
     'reactome.R'
