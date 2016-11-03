@@ -43,6 +43,14 @@ do.fry <- function(gsd, x, design, contrast=ncol(design),
   call.args[['contrast']] <- contrast
   call.args[['sort']] <- FALSE
   call.args[['...']] <- NULL
+  
+  ## There is a bug in edgeR::fry.DGEList that double passes the standardize
+  ## argument if it is passed in via `...`, so remove call.args$standardize
+  ## here. The bug exists in v3.17.1, and was reported to Gordon on 11/3/2016
+  if (is(x, 'DGEList')) {
+    call.args[['standardize']] <- NULL
+  }
+  
   res <- do.call(limma::fry, call.args)
 
   out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
