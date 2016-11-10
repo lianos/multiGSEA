@@ -80,10 +80,12 @@ Collate:
     'shiny-module-geneSetContrastView.R'
     'shiny-module-geneSetSelect.R'
     'shiny-module-mgTableBrowser.R'
+    'shiny-module-mgVolcano.R'
     'shiny-utils.R'
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
+    'volcano_plot.R'
     'zzz.R'
 RoxygenNote: 5.0.1
 SwitchrLibrary: facile

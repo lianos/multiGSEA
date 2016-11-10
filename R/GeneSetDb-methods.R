@@ -260,6 +260,21 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
     value <- if (is.conformed(x)) 'x.id' else 'featureId'
   }
   value <- match.arg(value, c('featureId', 'x.id', 'x.idx'))
+
+  if (missing(i) && missing(j)) {
+    ## User isn't asking about any particular collection, but just wants all
+    ## features in the GeneSetDb as a whole ... OK(?)
+    if (value == 'featureId') {
+      out <- unique(x@db$featureId)
+    } else {
+      out <- merge(unique(x@db, by='featureId'),
+                   featureIdMap(x, .external=FALSE),
+                   by='featureId')
+      out <- unique(out[[value]])
+    }
+    return(out)
+  }
+
   if (!isSingleCharacter(i)) {
     stop("collection (i) must be length 1 character vectors")
   }

@@ -7,9 +7,6 @@ dashboardPage(
   dashboardSidebar(
     fileInput("mgresult", 'multiGSEA Result'),
 
-    # selectInput("gseaMethod", "GSEA Methods", ""),
-    # sliderInput("gseaReportFDR", "FDR Cutoff", min=0, max=1, value=0.2, step=0.05),
-
     sidebarMenu(
       menuItem("Gene Set View", tabName="genesetView"),
       menuItem("Gene View", tabName="geneView")
@@ -21,6 +18,7 @@ dashboardPage(
       tags$link(rel="stylesheet", type="text/css", href="dashboard.css"),
       tags$link(rel="stylesheet", type="text/css", href="miniUI.css")
     ),
+
     tabItems(
       ## -----------------------------------------------------------------------
       ## tabName: genesetView
@@ -40,13 +38,15 @@ dashboardPage(
       tabItem(
         tabName="geneView",
         fluidRow(
-          box(
-            p("Gene-centric exploration across genesets coming soon"),
-            tags$ul(
-              tags$li("Overlap of genes across genesets"),
-              tags$li("etc ...")),
-            rbokehOutput("geneView_volcanoPlot")),
-          box(DT::dataTableOutput("geneView_interGenesetMembers"))
+          box(width=5, mgVolcanoUI("dge_volcano")),
+          box(width=7, DT::dataTableOutput("dge_stats"))
+          # box(
+          #   p("Gene-centric exploration across genesets coming soon"),
+          #   tags$ul(
+          #     tags$li("Overlap of genes across genesets"),
+          #     tags$li("etc ...")),
+          #   rbokehOutput("geneView_volcanoPlot")),
+          # box(DT::dataTableOutput("geneView_interGenesetMembers"))
         )
       )
 
