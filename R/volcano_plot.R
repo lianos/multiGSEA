@@ -10,20 +10,23 @@
 ##' @param highlight_genes A vector of featureIds to highlight, or a GeneSetDb
 ##'   that we can extract the featureIds from for this purpose.
 volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
+                         xtfrm=base::identity,
+                         ytfrm=function(vals) -log10(vals),
+                         xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
                          highlight_genes=NULL,
-                         xtfrm=identity, ytfrm=function(vals) -log10(vals),
                          horiz_lines=c('padj'=0.10),
-                         xgran=NULL, ygran=NULL) {
+                         xhex=NULL, yhex=NULL) {
   if (FALSE) {
     x <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hWT_tKO-hWT_tWT.rds')
     stats='dge'; xaxis='logFC'; yaxis='pval'; idx='idx';
     xtfrm=identity; ytfrm=function(vals) -log10(vals)
-    xgran=NULL; ygran=NULL;
-    # xgran=1.5; ygran=0.05;
+    xhex=NULL; yhex=NULL;
+    # xhex=1.5; yhex=0.05;
     horiz_lines=c('padj'=0.10);
     highlight_genes=x;
   }
   ## NOTE: I should use S3 or S4 here, but I'm lazy right now.
+  # browser()
   dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 
   yvals <- dat[['yaxis']]
@@ -37,12 +40,12 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   xlim <- c(xrange[1] - xpad, xrange[2] + xpad)
 
   ## Check if we want to hexbin some of the data: values less than
-  ## abs(input$xgran) on the xaxis or less than input$ygran on the y axis
+  ## abs(input$xhex) on the xaxis or less than input$yhex on the y axis
   ## should be hexbinized
-  do.hex <- is.numeric(xgran) && is.numeric(ygran)
+  do.hex <- is.numeric(xhex) && is.numeric(yhex)
   if (do.hex) {
-    xthresh <- xtfrm(xgran)
-    ythresh <- ytfrm(ygran)
+    xthresh <- xtfrm(xhex)
+    ythresh <- ytfrm(yhex)
     hex.me <- abs(dat[['xaxis']]) <= xthresh & dat[['yaxis']] <= ythresh
     hex <- dat[hex.me,,drop=FALSE]
     pts <- dat[!hex.me,,drop=FALSE]
@@ -54,9 +57,9 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   ## Build the figure
   ## Setup the initial figure
   tools <- c('box_select', 'box_zoom', 'reset', 'save')
-  p <- figure(xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
-              xlim=xlim, ylim=ylim, webgl=TRUE, tools=tools)
-  if (do.hex) {
+  p <- figure(xlab=xlab, ylab=ylab, xlim=xlim, ylim=ylim,
+              webgl=TRUE, tools=tools)
+  if (nrow(hex) > 0) {
     p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30)
   }
   if (nrow(pts) > 0) {
@@ -75,7 +78,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   }
 
   ## Add horizontal lines to indicate where padj of 0.10 lands
-  if (is.numeric(horiz_lines)) {
+  if (is.numeric(horiz_lines) && !any(is.na(horiz_lines))) {
     # q.thresh <- c(0.05, 0.10, 0.20)
     q.thresh <- c(horiz_lines)
     horiz.unit <- names(horiz_lines)[1L]
@@ -84,16 +87,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     } else if (yaxis == 'pval' && horiz.unit == 'padj') {
       ## Find the pvals that are closest to qvals without going over
       ypos <- sapply(q.thresh, function(val) {
-        pdiffs <- abs(dat$padj - val)
-        idx <- which.min(pdiffs)
-        idiff <- pdiffs[idx]
-        if (idiff < 1e-2) {
-          # message("Closest padj: ", dat$padj[idx])
-          return(dat$pval[idx])
-        } else {
-          # message("No pval with qval close to: ", sprintf('%.3f', val))
-          return(NA)
-        }
+        approx.target.from.transformed(val, dat$pval, dat$padj)
       })
     } else {
       warning("Not drawing horiz_lines in volcano", immediate.=TRUE)
@@ -115,6 +109,31 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   p
 }
 
+##' Get the approximate nominal pvalue for a target qvalue given the
+##' distribution of adjusted pvalues from the nominal ones.
+##'
+##' @param pval the adjust pvalue you want the nominal value for
+##' @param pvals the distribution of nominal pvalues
+##' @param padjs the adjusted pvalues from \code{pvals}
+##' @param thresh how close padj has to be in padjs to get its nominal
+##'   counterpart
+##' @return numeric answer, or NA if can't find nominal pvalue within given
+##'   threshold for padjs
+approx.target.from.transformed <- function(target, orig, xformed,
+                                           thresh=1e-2) {
+  xdiffs <- abs(xformed - target)
+  idx <- which.min(xdiffs)
+  idiff <- xdiffs[idx]
+  if (idiff < thresh) {
+    # message("Closest padj: ", dat$padj[idx])
+    out <- orig[idx]
+  } else {
+    # message("No pval with qval close to: ", sprintf('%.3f', val))
+    out <- NA_real_
+  }
+  out
+}
+
 ##' @export
 extract.genes <- function(x, ...) {
   stopifnot(is.character(x) || is(x, 'GeneSetDb') || is(x, 'MultiGSEAResult'))
@@ -134,14 +153,14 @@ volcano.source.type <- function(x) {
 }
 
 ##' @export
-volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='padj',
+volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
                                 idx='idx',
                                 xtfrm=identity,
                                 ytfrm=function(vals) -log10(vals)) {
-  type <- volcano.source.type(x)
   stopifnot(is.function(xtfrm), is.function(ytfrm))
+  type <- volcano.source.type(x)
   if (is(x, 'MultiGSEAResultContainer')) {
-    x <- x()$mg
+    x <- x$mg
   }
   if (is(x, 'MultiGSEAResult')) {
     stats <- match.arg(stats, c('dge', resultNames(x)))

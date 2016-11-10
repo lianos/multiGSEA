@@ -5,7 +5,7 @@
 \title{Creates a volcano plot from a source input}
 \usage{
 mgVolcanoUI(id, x, stats = "dge", xaxis = "logFC", yaxis = "padj",
-  idx = "idx", hex_granularity = TRUE)
+  idx = "idx", hexbin = TRUE)
 }
 \arguments{
 \item{id}{the shiny id of the output widget}

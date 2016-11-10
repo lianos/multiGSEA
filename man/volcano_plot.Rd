@@ -5,8 +5,10 @@
 \title{Create an interactive volcano plot}
 \usage{
 volcano_plot(x, stats = "dge", xaxis = "logFC", yaxis = "pval", idx,
-  highlight_genes = NULL, xtfrm = identity, ytfrm = function(vals)
-  -log10(vals), horiz_lines = c(padj = 0.1), xgran = NULL, ygran = NULL)
+  xtfrm = base::identity, ytfrm = function(vals) -log10(vals),
+  xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis),
+  highlight_genes = NULL, horiz_lines = c(padj = 0.1), xhex = NULL,
+  yhex = NULL)
 }
 \arguments{
 \item{highlight_genes}{A vector of featureIds to highlight, or a GeneSetDb

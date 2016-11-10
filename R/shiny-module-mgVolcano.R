@@ -7,22 +7,15 @@
 ##' @param x the name of the column from the stats table to use on x axis
 ##' @param y the name of the column from the stats table to use on y axis
 mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
-                        idx='idx', hex_granularity=TRUE) {
-  requireNamespace('shiny')
+                        idx='idx', hexbin=TRUE) {
+  stopifnot(requireNamespace('shiny'))
   ns <- shiny::NS(id)
-  dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx)
-
-  xvals <- dat[['xaxis']]
-  yvals <- dat[['yaxis']]
-
-  if (hex_granularity) {
-    xrange <- range(xvals)
-    yrane <- range(yvals)
+  if (hexbin) {
     out <- shiny::tagList(
-      sliderInput(ns("xgran"), sprintf('%s cloud', xaxis),
-                  min=xrange[1], max=xrange[2], value=quantile()),
-      sliderInput(ns("ygran"), sprintf('%s cloud', yaxis),
-                  min=yrange[1], max=yrange[2], value=quantile()),
+      sliderInput(ns("xhex"), 'x filter',
+                  min=0, max=5, step=0.5, value=1),
+      sliderInput(ns("yhex"), 'y filter',
+                  min=0, max=1, step=0.025, value=0.10),
       rbokehOutput(ns("volcano_plot")))
   } else {
     out <- rbokehOutput(ns("volcano_plot"))
@@ -31,20 +24,37 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
   out
 }
 
+##' @export
 mgVolcano <- function(input, output, session,
-                      x, stats='dge', xaxis='logFC', yaxis='padj', idx='idx',
-                      hex_granularity=TRUE) {
-  requireNamespace('shiny')
-
+                      x, stats='dge', xaxis='logFC', yaxis='pval', idx='idx') {
+  stopifnot(requireNamespace('shiny'))
   if (FALSE) {
     x <- mg <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hKO_tWT-hWT_tWT.rds')
-    stats='dge'; xaxis='logFC'; yaxis='padj'; idx='idx'; hex_granularity=TRUE
+    stats='dge'; xaxis='logFC'; yaxis='padj'; idx='idx';
+    xgran=NULL; ygran=NULL
   }
 
-  dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx)
+  ## Reset the labels and ranges in the "hexbin" sliders, if the UI element
+  ## has hexbin enabled.
+  observeEvent(x(), {
+    req(input$xhex)
+    dat <- volcano.stats.table(x(), stats, xaxis, yaxis, idx)
+    updateSliderInput(session, 'yhex', sprintf('%s filter', yaxis),
+                      min=0, max=1, step=0.025, value=0.10)
+    max.x <- ceiling(max(abs(dat[['xaxis']]))) - 0.5
+    updateSliderInput(session, 'xhex', sprintf('%s filter', xaxis),
+                      min=0, max=max.x, step=0.5, value=1)
+  })
 
-  output$volcano_plot <- rbokehOutput({
-    hex_volcano_plot(dat, xaxis, yaxis, idx,
-                     xgran=input$xgran, ygran=input$ygran)
+  output$volcano_plot <- renderRbokeh({
+    xhex <- input$xhex
+    yhex <- input$yhex
+    if (!is.null(xhex)) {
+      # dat <- volcano.stats.table(x(), stats, xaxis, yaxis, idx)
+      # yhex <- approx.target.from.transformed(input$yhex, dat$pval, dat$padj)
+    } else {
+      yhex <- NULL
+    }
+    volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex)
   })
 }
