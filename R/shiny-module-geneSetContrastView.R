@@ -24,7 +24,7 @@
 ##' @param height the height of the module
 ##' @return a tagList of html stuff to dump into the UI
 ##' @rdname geneSetContrastViewModule
-geneSetContrastViewUI <- function(id, height="590px") {
+geneSetContrastViewUI <- function(id, height="590px", width="400px") {
   stopifnot(requireNamespace('shiny'),
             requireNamespace('miniUI'),
             requireNamespace("DT"))
@@ -32,7 +32,9 @@ geneSetContrastViewUI <- function(id, height="590px") {
 
   shiny::tagList(
     shiny::tags$div(
-      class="gadget-container", style=paste("height:", height),
+      # class="gadget-container", style=paste("height:", height),
+      class="gadget-container",
+      style=sprintf("height: %s; width %s;", height, width),
       shiny::tags$div(
         style="padding: 0 5px 0 5px",
         geneSetSelectUI(ns("gs_select"), "Select Gene Set")),
@@ -72,12 +74,29 @@ geneSetContrastView <- function(input, output, session, mgc,
   stopifnot(requireNamespace('shiny'))
   gs <- shiny::callModule(geneSetSelect, 'gs_select', mgc, server=server,
                           maxOptions=maxOptions, sep=sep)
-  output$gs_viz <- renderRbokeh({
+
+  plt <- reactive({
     shiny::req(gs())
+    ns <- session$ns
     iplot(mgc()$mg, gs()$collection, gs()$name,
           value=input$gs_viz_stat,
           type=input$gs_viz_type,
-          main=NULL, with.legend=FALSE)
+          main=NULL, with.legend=FALSE, with.data=TRUE) %>%
+      tool_box_select(callback=shiny_callback(ns('selected')), 'points')
+  })
+
+  selected_features <- reactive({
+    brushed <- input$selected
+    if (!is.null(brushed)) {
+      brushed <- plt()$data$featureId[brushed + 1L]
+    } else {
+      brushed <- character()
+    }
+    brushed
+  })
+
+  output$gs_viz <- renderRbokeh({
+    req(plt())
   })
 
   output$gs_members <- DT::renderDataTable({
@@ -95,7 +114,13 @@ geneSetContrastView <- function(input, output, session, mgc,
   )
 
   shiny::outputOptions(output, "gs_gene_table", suspendWhenHidden=FALSE)
-  gs
+
+
+  vals <- shiny::reactive({
+    list(gs=gs, selected=selected_features)
+  })
+
+  return(vals)
 }
 
 ##' @export

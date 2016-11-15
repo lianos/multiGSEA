@@ -14,7 +14,7 @@ mgResultFilterUI <- function(id, mg=NULL) {
       shiny::column(
         3,
         shiny::tags$div(
-          style="padding-top: 3.5em;",
+          style="padding-top: 2em;",
           shiny::downloadButton(ns("gseaDownloadStats"), 'Download'))))
   )
 }

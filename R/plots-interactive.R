@@ -3,7 +3,8 @@
 ##' @export
 iplot <- function(x, y, j, value=c('logFC', 't'),
                   type=c('density', 'boxplot', 'volcano'),
-                  main=NULL, with.legend=TRUE, ...) {
+                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
+                  main=NULL, with.legend=TRUE, with.data=FALSE, ...) {
   if (FALSE) {
     x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
     main <- NULL; type <- 'boxplot'; with.legend <- TRUE
@@ -37,20 +38,25 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 
   if (type == 'density') {
     out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat,
-                                with.legend=with.legend, ...)
+                                with.legend=with.legend, tools=tools,
+                                with.data=with.data, ...)
   } else if (type == 'boxplot') {
     out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
-                                with.legend=with.legend, ...)
+                                with.legend=with.legend, tools=tools,
+                                with.data=with.data, ...)
   } else if (type == 'volcano') {
     out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
-                                with.legend=with.legend, ...)
+                                with.legend=with.legend, tools=tools,
+                                with.data=with.data, ...)
   }
 
   out
 }
 
 ## rbokeh ----------------------------------------------------------------------
-iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE, ...) {
+iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
+                                 tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
+                                 with.data=FALSE, ...) {
   gs <- subset(dat, group == 'geneset') %>%
    transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
   bg <- subset(dat, group != 'geneset')
@@ -58,18 +64,26 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE, ..
   if (value == 't') {
     value <- 't-statistic'
   }
-  p <- figure(xlab=sprintf("Gene Set Group (%d genes)", n.gs), ylab=value) %>%
+  p <- figure(xlab=sprintf("Gene Set Group (%d genes)", n.gs), ylab=value,
+              tools=tools) %>%
     ly_boxplot(x="group", y="val", data=bg, fill_color='white',
                outlier_size=5) %>%
     ly_boxplot(x="group", y="val", data=gs,  fill_color='white',
                outlier_size=NA) %>%
     ly_points(x="jgrp", y="val", data=gs, color="significant", size=5,
-              hover=list(symbol, logFC, padj), legend=with.legend)
+              hover=list(symbol, logFC, padj), lname='points',
+              legend=with.legend)
+
+  if (with.data) {
+    p$data <- gs
+  }
+
   p
 }
 
 iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
-                                 ...) {
+                                 tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
+                                 with.data=FALSE, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
 
   gs.dat <- subset(dat, group == 'geneset')
@@ -89,11 +103,18 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
 
   bg <- subset(dat, group == 'bg')
 
-  p <- figure(xlab=sprintf("%s (%d genes)", value, nrow(gs.dat))) %>%
+  p <- figure(xlab=sprintf("%s (%d genes)", value, nrow(gs.dat)),
+              tools=tools) %>%
     ly_density(x="val", data=bg, color="black", width=3) %>%
     ly_density(x="val", data=gs.dat, color="red", width=3) %>%
     ly_points(x="val", y="y", data=gs.dat, color="significant", size=5,
-              hover=list(symbol, logFC, padj), legend=with.legend)
+              hover=list(symbol, logFC, padj), legend=with.legend,
+              lname='points')
+
+  if (with.data) {
+    p$data <- gs.dat
+  }
+
   p
 }
 

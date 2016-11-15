@@ -92,7 +92,7 @@ renderGseaResultTableDataTable <- function(x, method, mg, digits=3) {
     # buttons=btn.opts,
     lengthMenu=length.opts)
   dtargs <- list(data=res, filter='top',
-                 selection=list(mode='single', selected=1, target='row'),
+                 selection=list(mode='single', selected=NA, target='row'),
                  # extensions='Buttons',
                  escape=FALSE, rownames=FALSE,
                  options=dt.opts)

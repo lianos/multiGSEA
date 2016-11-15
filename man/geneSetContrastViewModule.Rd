@@ -6,7 +6,7 @@
 \alias{updateGeneSetContrastViewGeneSet}
 \title{A module to encapsulate browsing differential statistics of a geneset.}
 \usage{
-geneSetContrastViewUI(id, height = "590px")
+geneSetContrastViewUI(id, height = "590px", width = "400px")
 
 geneSetContrastView(input, output, session, mgc, server = TRUE,
   maxOptions = Inf, sep = "_::_")

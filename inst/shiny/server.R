@@ -24,26 +24,7 @@ shinyServer(function(input, output, session) {
 
   gs_result_filter <- callModule(mgResultFilter, 'mg_result_filter', mgc)
 
-  ## genesetView ===============================================================
-  gs_table_browser <- callModule(mgTableBrowser, 'mg_table_browser', mgc,
-                                 method=gs_result_filter()$method,
-                                 fdr=gs_result_filter()$fdr,
-                                 server=TRUE)
-
-  gs_viewer <- callModule(geneSetContrastView, 'geneset_viewer',
-                          mgc, maxOptions=500, server=TRUE)
-
-
-  observeEvent(gs_table_browser()$selected, {
-    if (!is.null(gs_table_browser()$selected)) {
-      sval <- gs_table_browser()$selected
-      updateGeneSetContrastViewGeneSet(session, 'geneset_viewer',
-                                       choices=isolate(mgc()$choices),
-                                       selected=gs_table_browser()$selected,
-                                       server=TRUE)
-    }
-  })
-
+  ## Overview Tab ==============================================================
   output$gseaMethodSummary <- renderUI({
     obj <- failWith(NULL, expr=mgc(), silent=TRUE)
     if (!is(obj, 'MultiGSEAResultContainer')) {
@@ -59,7 +40,46 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  ## geneView ==================================================================
+  ## GSEA Results Tab ==========================================================
+  gs_viewer <- callModule(geneSetContrastView, 'geneset_viewer',
+                          mgc, maxOptions=500, server=TRUE)
+
+  ## A table of GSEA statistics/results for the given method and fdr threshold
+  ## The table is wired to the gs_viewer so that row clicks can signal updates
+  ## to the contrast viewer
+  gs_table_browser <- callModule(mgTableBrowser, 'mg_table_browser', mgc,
+                                 method=gs_result_filter()$method,
+                                 fdr=gs_result_filter()$fdr,
+                                 server=TRUE)
+  observeEvent(gs_table_browser()$selected, {
+    sval <- gs_table_browser()$selected
+    if (!is.null(sval)) {
+      updateGeneSetContrastViewGeneSet(session, 'geneset_viewer',
+                                       choices=isolate(mgc()$choices),
+                                       selected=sval, server=TRUE)
+    }
+  })
+
+  ## A table of other genesets that brushed genes in the contrast viewer
+  ## belong to. This table is also wired to the contrast viewer, so that
+  ## a click on a row of the table will update the contrast view, too.
+  other_genesets_gsea <- callModule(mgGeneSetSummaryByGene,
+                                    'other_genesets_gsea',
+                                    mgc, features=gs_viewer()$selected,
+                                    method=gs_result_filter()$method,
+                                    fdr=gs_result_filter()$fdr)
+  # observeEvent(other_genesets_gsea()$selected, {
+  #   ## This sends us into a tailspin of updating the plot, then updating
+  #   ## the selected genes and repupdating plot, etc ... it shouldn't, but ...
+  #   sval <- other_genesets_gsea()$selected
+  #   if (!is.null(sval)) {
+  #     updateGeneSetContrastViewGeneSet(session, 'geneset_viewer',
+  #                                      choices=isolate(mgc()$choices),
+  #                                      selected=sval, server=TRUE)
+  #   }
+  # })
+
+  ## Differential Gene Expression Tab ==========================================
   gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc)
 
   output$dge_volcano_genestats <- DT::renderDataTable({
@@ -78,22 +98,14 @@ shinyServer(function(input, output, session) {
     datatable(res, filter='top', escape=FALSE) %>% roundDT
   })
 
-  output$dge_volcano_genesetstats <- DT::renderDataTable({
-    genes <- setDF(req(gene.volcano()))
-    mg <- mgc()$mg
-
-    if (input$dge_genesets_sigonly) {
-      method <- gs_result_filter()$method()
-      max.p <- gs_result_filter()$fdr()
-    } else {
-      method <- NULL
-      max.p <- NULL
-    }
-    out <- geneSetSummaryByGenes(mg, genes$featureId, feature.rename='symbol',
-                                 method=method, max.p=max.p, .external=FALSE)
-    out <- round.dt(out)
-    datatable(out, filter='top')
-  })
+  ## A table of other genesets that brushed genes in the contrast viewer
+  ## belong to. This table is also wired to the contrast viewer, so that
+  ## a click on a row of the table will update the contrast view, too.
+  other_genesets_volcano <- callModule(mgGeneSetSummaryByGene,
+                                       'other_genesets_volcano',
+                                       mgc, features=gene.volcano,
+                                       method=gs_result_filter()$method,
+                                       fdr=gs_result_filter()$fdr)
 })
 
 if (FALSE) {

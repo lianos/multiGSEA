@@ -7,7 +7,7 @@
 \usage{
 mgTableBrowserUI(id, mg = NULL, server = TRUE)
 
-mgTableBrowser(input, output, session, mgc, server = TRUE)
+mgTableBrowser(input, output, session, mgc, method, fdr, server = TRUE)
 }
 \arguments{
 \item{id}{the shiny id of the UI module}
@@ -24,6 +24,11 @@ mgTableBrowser(input, output, session, mgc, server = TRUE)
 \item{session}{shiny server session object}
 
 \item{mgc}{the \code{MultiGSEAResultContainer} object}
+
+\item{a}{reactive that determines which method to explore from this result}
+
+\item{a}{reactive that gives the fdr threshold to filter results in the
+table by.}
 }
 \description{
 A module to explore the GSEA statistics generated from a multiGESA Run.

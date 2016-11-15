@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.6.12
+Version: 0.6.13
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -81,6 +81,8 @@ Collate:
     'shiny-MultiGSEAResultContainer.R'
     'shiny-module-geneSetContrastView.R'
     'shiny-module-geneSetSelect.R'
+    'shiny-module-mgGeneSetSummaryByGenes.R'
+    'shiny-module-mgResultFilter.R'
     'shiny-module-mgTableBrowser.R'
     'shiny-module-mgVolcano.R'
     'shiny-utils.R'

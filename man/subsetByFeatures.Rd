@@ -4,7 +4,7 @@
 \alias{subsetByFeatures}
 \title{Subset a GeneSetDb to only include geneSets with specified features.}
 \usage{
-subsetByFeatures(x, featureIds, ...)
+subsetByFeatures(x, features, ...)
 }
 \arguments{
 \item{x}{\code{GeneSetDb}}

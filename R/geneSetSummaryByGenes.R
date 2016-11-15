@@ -13,6 +13,9 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
     warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
     features <- setdiff(features, unk.f)
   }
+  if (length(features) == 0) {
+    stop("No selected features in GeneSetDb")
+  }
   x.sub <- subsetByFeatures(x, features)
   x.db <- x.sub@db[featureId %in% features]
   x.gs <- geneSets(x.sub, .external=FALSE)
@@ -48,15 +51,34 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
     features <- setdiff(features, unk.f)
   }
+  if (length(features) == 0) {
+    stop("No selected features in GeneSetDb")
+  }
   if (is.character(method)) {
     p.col <- match.arg(p.col)
     method <- match.arg(method, resultNames(x))
     stopifnot(max.p >= 0 & max.p <= 1)
+    r <- result(x, method, .external=FALSE)
   }
 
   gdb <- geneSetDb(x)
+  gs <- geneSets(x)
+
   res <- geneSetSummaryByGenes(gdb, features, with.features,
                                feature.rename=FALSE, .external=FALSE, ...)
+  # browser()
+  fstart <- ncol(res) - length(features) + 1
+  meta <- res[, 1:(fstart - 1), with=FALSE]
+  fcols <- res[, fstart:ncol(res), with=FALSE]
+
+  xref <- match(paste(res$collection, res$name), paste(gs$collection, gs$name))
+  meta$logFC <- gs$mean.logFC.trim[xref]
+
+  if (is.character(method)) {
+    rxref <- match(paste(res$collection, res$name), paste(r$collection, r$name))
+    meta$padj <- r$padj[rxref]
+  }
+
   ## When this is called on a result object, instead of a TRUE/FALSE
   ## geneset <-> feature contingency table, we replace the TRUE's with the
   ## logFC of that feature
@@ -64,8 +86,8 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     ## spank on the logFCs of the genes
     lfc <- setkeyv(copy(logFC(x, .external=FALSE)), 'featureId')
     for (fid in features) {
-      replace.me <- res[[fid]]
-      res[, (fid) := ifelse(replace.me, lfc[fid]$logFC, 0)]
+      replace.me <- fcols[[fid]]
+      fcols[, (fid) := ifelse(replace.me, lfc[fid]$logFC, 0)]
     }
 
     if (is.character(feature.rename)) {
@@ -80,13 +102,15 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
       }
     }
 
-    res <- rename.feature.columns(res, gdb, feature.rename)
+    fcols <- rename.feature.columns(fcols, gdb, feature.rename)
   }
 
+  res <- cbind(meta, fcols)
+  setkeyv(res, c('collection', 'name'))
+
   if (is.character(method)) {
-    method.stats <- result(x, method, .external=FALSE)
-    keep <- method.stats[[p.col]] <= max.p
-    keep <- method.stats[keep][, list(collection, name)]
+    keep <- r[[p.col]] <= max.p
+    keep <- r[keep][, list(collection, name)]
     res <- res[keep, nomatch=0]
   }
 

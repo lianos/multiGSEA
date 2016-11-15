@@ -12,7 +12,12 @@ geneSetSummaryByGenes(x, features, with.features = TRUE,
 
 \item{features}{The featureIds to use to select genesets from \code{x}}
 
-\item{with.features}{Inlcude the features as columns of the outgoing result?}
+\item{with.features}{Inlcude the features as columns of the outgoing result?
+(Default: \code{TRUE})}
+
+\item{feature.rename}{If features are added as columns, then we might want
+to rename them from featureIds to something else. By default these columns
+are prefixed with "featureId_", unless \code{feature.rename=FALSE}}
 
 \item{name}{If specified, one of \code{\link{resultNames}} from the
 \code{MultiGSEAResult} object \code{x} to use as a look up and filter
