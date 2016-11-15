@@ -1,4 +1,7 @@
 library(shiny)
+library(DT)
+library(dplyr)
+library(shinyBS)
 
 library(rprojroot)
 devtools::load_all(find_root(is_r_package))
@@ -10,12 +13,28 @@ server <- function(input, output, session) {
     MultiGSEAResultContainer(mg)
   })
 
-  callModule(mgVolcano, 'volcano', mgc)
+  volcano <- callModule(mgVolcano, 'volcano', mgc)
+
+  output$brushed <- DT::renderDataTable({
+    req(volcano()) %>%
+      select(symbol, featureId, logFC, pval, padj) %>%
+      datatable
+  })
+
+  observeEvent(volcano(), {
+    brushed <- volcano()
+    if (is.null(brushed)) {
+      msg("No brush here")
+    } else {
+      msg("Brushed", nrow(brushed), "genes")
+    }
+  })
 }
 
 ui <- fluidPage(
   fluidRow(
-    mgVolcanoUI("volcano", hexbin=TRUE)
+    column(4, mgVolcanoUI("volcano", hexbin=TRUE)),
+    column(8, DT::dataTableOutput('brushed'))
   ))
 
 shinyApp(ui=ui, server=server)

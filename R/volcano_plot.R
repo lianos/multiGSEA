@@ -15,7 +15,9 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                          xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
                          highlight_genes=NULL,
                          horiz_lines=c('padj'=0.10),
-                         xhex=NULL, yhex=NULL) {
+                         xhex=NULL, yhex=NULL,
+                         point.size=5,
+                         tools=c('box_select', 'reset', 'save')) {
   if (FALSE) {
     x <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hWT_tKO-hWT_tWT.rds')
     stats='dge'; xaxis='logFC'; yaxis='pval'; idx='idx';
@@ -46,22 +48,17 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   if (do.hex) {
     xthresh <- xtfrm(xhex)
     ythresh <- ytfrm(yhex)
-    hex.me <- abs(dat[['xaxis']]) <= xthresh & dat[['yaxis']] <= ythresh
-    hex <- dat[hex.me,,drop=FALSE]
-    pts <- dat[!hex.me,,drop=FALSE]
+    hex.me <- abs(dat[['xaxis']]) <= xthresh | dat[['yaxis']] <= ythresh
   } else {
-    pts <- dat
-    hex <- dat[FALSE,]
+    hex.me <- rep(FALSE, nrow(dat))
   }
+  hex <- dat[hex.me,,drop=FALSE]
+  pts <- dat[!hex.me,,drop=FALSE]
 
   ## Build the figure
   ## Setup the initial figure
-  tools <- c('box_select', 'box_zoom', 'reset', 'save')
   p <- figure(xlab=xlab, ylab=ylab, xlim=xlim, ylim=ylim,
               webgl=TRUE, tools=tools)
-  if (nrow(hex) > 0) {
-    p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30)
-  }
   if (nrow(pts) > 0) {
     col <- rep("#404040", nrow(pts))
     if (!is.null(highlight_genes)) {
@@ -69,12 +66,15 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
       col[pts$featureId %in% fids] <-"#EE4000"
     }
 
-    p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points', size=4,
-                   color=col, legend=FALSE,
+    p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
+                   size=point.size, color=col, legend=FALSE,
                    hover=list(symbol,
                               logFC=sprintf('%.3f', xaxis),
                               pval=sprintf('%.3f', pval),
                               qval=sprintf('%.3f', padj)))
+  }
+  if (nrow(hex) > 0) {
+    p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30, hover=FALSE)
   }
 
   ## Add horizontal lines to indicate where padj of 0.10 lands
@@ -105,7 +105,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     }
   }
 
-  p$data <- list(pts=pts, hex=hex)
+  p$data <- list(data=dat, hex.me=hex.me)
   p
 }
 
