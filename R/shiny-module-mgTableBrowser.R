@@ -13,19 +13,6 @@ mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
   ns <- shiny::NS(id)
 
   shiny::tagList(
-    shiny::fluidRow(
-      shiny::column(
-        3,
-        shiny::selectInput(ns("gseaMethod"), "GSEA Methods", "")),
-      column(
-        6,
-        shiny::sliderInput(ns("gseaReportFDR"), "FDR Cutoff", min=0,
-                           max=1, value=0.2, step=0.05)),
-      shiny::column(
-        3,
-        shiny::tags$div(
-          style="padding-top: 3.5em;",
-          shiny::downloadButton(ns("gseaDownloadStats"), 'Download')))),
     shiny::uiOutput(ns("resultTableMessage")),
     DT::dataTableOutput(ns("gseaResultTable")))
 }
@@ -35,28 +22,25 @@ mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
 ##' @param output shiny server output object
 ##' @param session shiny server session object
 ##' @param mgc the \code{MultiGSEAResultContainer} object
+##' @param a reactive that determines which method to explore from this result
+##' @param a reactive that gives the fdr threshold to filter results in the
+##'   table by.
 ##' @rdname mgTableBrowserModule
-mgTableBrowser <- function(input, output, session, mgc, server=TRUE) {
+mgTableBrowser <- function(input, output, session, mgc, method, fdr,
+                           server=TRUE) {
   stopifnot(requireNamespace('shiny'), requireNamespace('DT'))
-  ## When the MultiGSEAResult changes, we want to update different aspects of
-  ## the application
-  shiny::observeEvent(mgc(), {
-    shiny::req(mgc())
-    shiny::updateSelectInput(session, "gseaMethod",
-                             choices=mgc()$methods,
-                             selected=mgc()$methods[1L])
-  })
 
   ## under the FDR threshold
   gsea.result.table <- shiny::reactive({
+    # browser()
     shiny::req(mgc())
-    if (input$gseaMethod == "") {
+    if (is.null(method()) || method() == "") {
       msg("... gseaMethod not selected yet")
       return(NULL)
     }
     ## MultiGSEResult object, method, and FDR thersholds all set, now fetch
     ## the data that corresponds to this criteria
-    constructGseaResultTable(mgc()$mg, input$gseaMethod, input$gseaReportFDR)
+    constructGseaResultTable(mgc()$mg, method(), fdr())
   })
 
   output$resultTableMessage <- shiny::renderUI({
@@ -64,29 +48,19 @@ mgTableBrowser <- function(input, output, session, mgc, server=TRUE) {
     if (!is(gst, 'data.frame')) {
       tmsg <- ''
     } else if (nrow(gst) == 0) {
-      tmsg <- sprintf('No results at FDR cutoff of %.2f',
-                      input$gseaReportFDR)
+      tmsg <- sprintf('No results at FDR cutoff of %.2f', fdr())
     } else {
       tmsg <- sprintf('Showing %d genesets at FDR cutoff of %.2f',
-                      nrow(gst), input$gseaReportFDR)
+                      nrow(gst), fdr())
     }
     shiny::tags$h5(tmsg)
   })
 
   output$gseaResultTable <- DT::renderDataTable({
     shiny::req(gsea.result.table(), mgc())
-    renderGseaResultTableDataTable(gsea.result.table(), input$gseaMethod,
+    renderGseaResultTableDataTable(gsea.result.table(), method(),
                                    mgc()$mg)
   }, server=server)
-
-  output$gseaDownloadStats <- shiny::downloadHandler(
-    filename=function() {
-      sprintf('multiGSEA-gsea-statistics-%s.csv', input$gseaMethod)
-    },
-    content=function(file) {
-      write.csv(result(mgc()$mg, input$gseaMethod), file, row.names=FALSE)
-    }
-  )
 
   shiny::reactive({
     if (!is.null(input$gseaResultTable_row_last_clicked)) {
@@ -98,9 +72,6 @@ mgTableBrowser <- function(input, output, session, mgc, server=TRUE) {
       selected <- NULL
     }
 
-    list(stats=gsea.result.table,
-         method=input$gseaMethod,
-         fdr=input$gseaReportFDR,
-         selected=selected)
+    list(stats=gsea.result.table, selected=selected)
   })
 }

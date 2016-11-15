@@ -22,12 +22,17 @@ shinyServer(function(input, output, session) {
     ans
   })
 
+  gs_result_filter <- callModule(mgResultFilter, 'mg_result_filter', mgc)
+
   ## genesetView ===============================================================
   gs_table_browser <- callModule(mgTableBrowser, 'mg_table_browser', mgc,
+                                 method=gs_result_filter()$method,
+                                 fdr=gs_result_filter()$fdr,
                                  server=TRUE)
 
   gs_viewer <- callModule(geneSetContrastView, 'geneset_viewer',
                           mgc, maxOptions=500, server=TRUE)
+
 
   observeEvent(gs_table_browser()$selected, {
     if (!is.null(gs_table_browser()$selected)) {
@@ -48,7 +53,7 @@ shinyServer(function(input, output, session) {
       tagList(
         tags$h4("GSEA Analyses Overview"),
         summaryHTMLTable.multiGSEA(mgc()$mg, mgc()$methods,
-                                   gs_table_browser()$fdr,
+                                   gs_result_filter()$fdr(),
                                    p.col='padj.by.collection')
       )
     }
@@ -78,8 +83,8 @@ shinyServer(function(input, output, session) {
     mg <- mgc()$mg
 
     if (input$dge_genesets_sigonly) {
-      method <- gs_table_browser()$method
-      max.p <- gs_table_browser()$fdr
+      method <- gs_result_filter()$method()
+      max.p <- gs_result_filter()$fdr()
     } else {
       method <- NULL
       max.p <- NULL

@@ -30,7 +30,9 @@ dashboardPage(
 
         fluidRow(
           box(style="padding: 0", width=5, geneSetContrastViewUI("geneset_viewer")),
-          box(width=7, mgTableBrowserUI("mg_table_browser")))
+          box(width=7,
+              mgResultFilterUI("mg_result_filter"),
+              mgTableBrowserUI("mg_table_browser")))
       ), ## tabItem: genesetView
 
       ## -----------------------------------------------------------------------
