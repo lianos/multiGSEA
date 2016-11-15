@@ -72,3 +72,20 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
     arrange(renamed)
   expect_equal(lfc.s, lfc.ex)
 })
+
+test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets", {
+  set.seed(0xBEEF)
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gdb <- exampleGeneSetDb()
+  mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
+  p.thresh <- 0.20
+  camera.sig <- filter(result(mg, 'camera'), padj <= p.thresh)
+
+  res.all <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
+                                   feature.rename='symbol', .external=FALSE)
+  res.sig <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
+                                   feature.rename='symbol', .external=FALSE,
+                                   method='camera', max.p=p.thresh)
+  expect_true(all(res.sig$name %in% res.all$name))
+  expect_true(all(res.sig$name %in% camera.sig$name))
+})

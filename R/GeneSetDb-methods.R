@@ -226,9 +226,15 @@ is.active <- function(x, i, j) {
 }
 
 setMethod("subsetByFeatures", c(x="GeneSetDb"),
-function(x, featureIds, ...) {
+function(x, features, ...) {
   ## some good old data.table voodoo going on inside here
-  hits <- unique(x@db[featureId %in% featureIds, list(collection, name)])
+  unk.f <- setdiff(features, featureIds(x))
+  if (length(unk.f)) {
+    warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
+    features <- setdiff(features, unk.f)
+  }
+
+  hits <- unique(x@db[featureId %in% features, list(collection, name)])
   gs.all <- geneSets(x, active.only=FALSE, .external=FALSE)
   keep <- rep(FALSE, nrow(gs.all))
   gs.idx <- gs.all[hits, which=TRUE]

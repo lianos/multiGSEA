@@ -39,9 +39,14 @@ dashboardPage(
         tabName="geneView",
         fluidRow(
           box(width=5, mgVolcanoUI("dge_volcano")),
-          box(width=7, DT::dataTableOutput("dge_volcano_stats"))
-        )
-      )
+          box(width=7, DT::dataTableOutput("dge_volcano_genestats"))),
+        fluidRow(
+          box(
+            width=12,
+            checkboxInput('dge_genesets_sigonly',
+                          'Show only significant gene set membership',
+                          value=FALSE),
+            DT::dataTableOutput("dge_volcano_genesetstats"))))
 
     )  ## dashboardBody::tabItems
   ) ## dashboardBody

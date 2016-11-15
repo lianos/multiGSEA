@@ -7,6 +7,21 @@ shinyServer(function(input, output, session) {
     failWith(NULL, MultiGSEAResultContainer(input$mgresult$datapath))
   })
 
+  species <- reactive({
+    ## if symbols == touppser(symbol) this is human, else it's a mouse (GNE only)
+    req(mgc())
+    mg <- mgc()$mg
+    symbols <- logFC(mg)$symbol
+    if (is.character(symbols)) {
+      symbols <- symbols[!is.na(symbols)]
+      tests <- sample(symbols, min(20, length(symbols)))
+      ans <- if (mean(tests == toupper(tests)) > 0.7) 'human' else 'mouse'
+    } else {
+      ans <- NULL
+    }
+    ans
+  })
+
   ## genesetView ===============================================================
   gs_table_browser <- callModule(mgTableBrowser, 'mg_table_browser', mgc,
                                  server=TRUE)
@@ -41,23 +56,50 @@ shinyServer(function(input, output, session) {
 
   ## geneView ==================================================================
   gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc)
-  output$dge_volcano_stats <- DT::renderDataTable({
+
+  output$dge_volcano_genestats <- DT::renderDataTable({
     genes <- setDF(req(gene.volcano()))
-    ## Fetch the genesets that have `genes` in them and show them here.
     mg <- mgc()$mg
-    gdb <- geneSetDb(mg)
-    browser()
-    xgdb <- subsetByFeatures(gdb, genes$featureId)
-    sub.gs <- geneSets(xgdb) %>%
-      select(collection, name, n, n.sig, logFC=mean.logFC.trim)
-    lfc <- logFC(mg) %>%
-      setDF %>%
-      semi_join(genes, by='featureId') %>%
-      select(featureId, symbol, logFC)
-    lfc.wide <- t(setNames(lfc$logFC, lfc$symbol))[rep(1, nrow(sub.gs)),,drop=FALSE]
-    lfc.wide <- lfc.wide[, order(colnames(lfc.wide)),drop=FALSE]
-    out <- bind_cols(sub.gs, as.data.frame(lfc.wide))
-    datatable(out) %>% roundDT
+    res <- logFC(mg) %>%
+      filter(featureId %in% genes$featureId) %>%
+      select(symbol, featureId, pval, padj)
+    if (!is.null(species())) {
+      url <- sprintf('http://research.gene.com/genehub/#/summary/gene/%s/%s',
+                     res$featureId, species())
+      html <- sprintf('<a href="%s" target="_blank">%s</a>', url,
+                      res$symbol)
+      res$symbol <- html
+    }
+    datatable(res, filter='top', escape=FALSE) %>% roundDT
+  })
+
+  output$dge_volcano_genesetstats <- DT::renderDataTable({
+    genes <- setDF(req(gene.volcano()))
+    mg <- mgc()$mg
+
+    if (input$dge_genesets_sigonly) {
+      method <- gs_table_browser()$method
+      max.p <- gs_table_browser()$fdr
+    } else {
+      method <- NULL
+      max.p <- NULL
+    }
+    out <- geneSetSummaryByGenes(mg, genes$featureId, feature.rename='symbol',
+                                 method=method, max.p=max.p, .external=FALSE)
+    out <- round.dt(out)
+    datatable(out, filter='top')
   })
 })
 
+if (FALSE) {
+  genes <- tibble(
+    featureId=c("102633704", "12565", "242384", "19220", "72780",
+                "102636809", "319555"))
+  feature.rename <- 'symbol'
+  method <- 'camera'
+  max.p <- 0.20
+  mg <- readRDS("/Users/lianogls/tmp/schmidt/multiGSEA-EP-uber_hWT_tKO-hWT_tWT.rds")
+  out <- geneSetSummaryByGenes(mg, genes$featureId, feature.rename='symbol',
+                               method=method, max.p=max.p)
+
+}

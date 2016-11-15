@@ -148,7 +148,7 @@ setGeneric("conform", function(x, ...) standardGeneric("conform"))
 ##' @return A subset of \code{x} which contains only the geneSets that contain
 ##'   features found in \code{featureIds}
 ##' @exportMethod subsetByFeatures
-setGeneric("subsetByFeatures", function(x, featureIds, ...) {
+setGeneric("subsetByFeatures", function(x, features, ...) {
   standardGeneric("subsetByFeatures")
 })
 

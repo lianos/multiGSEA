@@ -10,7 +10,8 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   stopifnot(is.character(features))
   unk.f <- setdiff(features, featureIds(x))
   if (length(unk.f)) {
-    stop("These features do not exist in x: ", paste(unk.f, collapse=','))
+    warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
+    features <- setdiff(features, unk.f)
   }
   x.sub <- subsetByFeatures(x, features)
   x.db <- x.sub@db[featureId %in% features]
@@ -31,7 +32,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
                              collection + name ~ featureId,
                              value.var='present', fill=FALSE)
     x.dt <- rename.feature.columns(x.dt, x.sub, feature.rename)
-    out <- out[x.dt]
+    out <- out[x.dt, nomatch=0]
   }
 
   ret.df(out, .external=.external)
@@ -39,11 +40,17 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
 
 setMethod("geneSetSummaryByGenes", c(x="MultiGSEAResult"),
 function(x, features, with.features=TRUE, feature.rename=NULL,
-         name=NULL, max.p=0.3, p.col=c('padj', 'padj.by.collection', 'pval'),
+         method=NULL, max.p=0.3, p.col=c('padj', 'padj.by.collection', 'pval'),
          ..., .external=TRUE) {
-  if (is.character(name)) {
+  stopifnot(is.character(features))
+  unk.f <- setdiff(features, featureIds(x))
+  if (length(unk.f)) {
+    warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
+    features <- setdiff(features, unk.f)
+  }
+  if (is.character(method)) {
     p.col <- match.arg(p.col)
-    name <- match.arg(name, resultNames(x))
+    method <- match.arg(method, resultNames(x))
     stopifnot(max.p >= 0 & max.p <= 1)
   }
 
@@ -74,6 +81,13 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     }
 
     res <- rename.feature.columns(res, gdb, feature.rename)
+  }
+
+  if (is.character(method)) {
+    method.stats <- result(x, method, .external=FALSE)
+    keep <- method.stats[[p.col]] <= max.p
+    keep <- method.stats[keep][, list(collection, name)]
+    res <- res[keep, nomatch=0]
   }
 
   ret.df(res, .external=.external)
