@@ -19,6 +19,7 @@ library(DT)
 
 library(shiny)
 library(shinydashboard)
+library(shinyjs)
 library(rbokeh)
 library(data.table)
 library(dplyr)

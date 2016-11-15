@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.6.11
+Version: 0.6.12
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to several gene set enrichment
@@ -13,17 +13,17 @@ Imports:
     GSEABase,
     limma,
     edgeR,
-    reshape2,
     GSVA,
-    stringr,
+    reshape2,
     data.table (>= 1.9.6),
+    dplyr,
+    dtplyr,
     Matrix,
     ggplot2 (>= 2.1.0),
     rbokeh,
     matrixStats,
-    dplyr,
-    dtplyr,
-    circlize
+    circlize,
+    stringr
 Suggests:
     goseq,
     DESeq2,
@@ -50,6 +50,7 @@ Collate:
     'AllGenerics.R'
     'GeneSetDb-class.R'
     'GeneSetDb-methods.R'
+    'MultiGSEAResult-methods.R'
     'aaa.R'
     'cache-utils.R'
     'calculateIndividualLogFC.R'
@@ -65,6 +66,7 @@ Collate:
     'do.roast.R'
     'do.romer.R'
     'do.svdGeneSetTest.R'
+    'geneSetSummaryByGenes.R'
     'gsea-helpers.R'
     'msigdb-broad.R'
     'msigdb-wehi.R'

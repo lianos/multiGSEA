@@ -20,9 +20,27 @@
 
 ##' Returns data.table objects in formats people like.
 ##'
-##' Apparently some people don't like getting data.table(s). Use
-##' \code{options(multiGSEA.df.return='data.frame')} if you want to get
-##' a \code{data.frame}
+##' The data.table package is heavily used internally in this package, and I
+##' want those objects to (always) be data.table objects while they are passed
+##' around from one function to the next. When data.tables are passed back to
+##' the user, they will be automatically converted into to data.frames, by
+##' default.
+##'
+##' Internal multiGSEA functions that return a data.table are always
+##' (1) parameterized with an \code{.external=TRUE} parameter; and
+##' (2) pass the outgoing data.table through this function.
+##'
+##' If \code{.external=TRUE}, then the data.table will be transformed on the way
+##' out back to whatever is set for \code{getOption('multiGSEA.df.return')}.
+##'
+##' \code{getOption('multiGSEA.df.return')} is automatically set to "data.frame"
+##' when the package is loaded if this option isn't already set in the user's
+##' enviroment (ie. in their \code{.Rprofile}, for instance). The assumption is
+##' that user's are most accustomed to using data.frames, and some of the
+##' idiosyncracies of indexing into a data.table won't trip them up.
+##'
+##' Does this extra monkey business make the internal code of multiGSEA a bit
+##' more painful to write? Yes. So ... you're welcome.
 ret.df <- function(x, .external=TRUE) {
   if (!.external) {
     return(x)

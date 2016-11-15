@@ -17,6 +17,7 @@ a \code{GeneSetDb} that has only the results for the specified
   genesets.
 }
 \description{
-This isn't exported yet because I don't like its implementation
+This is a utility function that is called by \code{[.GeneSetDb} and is not
+exported because it is not meant for external use.
 }
 

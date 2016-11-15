@@ -7,6 +7,7 @@ shinyServer(function(input, output, session) {
     failWith(NULL, MultiGSEAResultContainer(input$mgresult$datapath))
   })
 
+  ## genesetView ===============================================================
   gs_table_browser <- callModule(mgTableBrowser, 'mg_table_browser', mgc,
                                  server=TRUE)
 
@@ -38,4 +39,25 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  ## geneView ==================================================================
+  gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc)
+  output$dge_volcano_stats <- DT::renderDataTable({
+    genes <- setDF(req(gene.volcano()))
+    ## Fetch the genesets that have `genes` in them and show them here.
+    mg <- mgc()$mg
+    gdb <- geneSetDb(mg)
+    browser()
+    xgdb <- subsetByFeatures(gdb, genes$featureId)
+    sub.gs <- geneSets(xgdb) %>%
+      select(collection, name, n, n.sig, logFC=mean.logFC.trim)
+    lfc <- logFC(mg) %>%
+      setDF %>%
+      semi_join(genes, by='featureId') %>%
+      select(featureId, symbol, logFC)
+    lfc.wide <- t(setNames(lfc$logFC, lfc$symbol))[rep(1, nrow(sub.gs)),,drop=FALSE]
+    lfc.wide <- lfc.wide[, order(colnames(lfc.wide)),drop=FALSE]
+    out <- bind_cols(sub.gs, as.data.frame(lfc.wide))
+    datatable(out) %>% roundDT
+  })
 })
+

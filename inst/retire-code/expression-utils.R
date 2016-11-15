@@ -18,7 +18,6 @@
 ##' Note that when called with \code{regularized == FALSE}, this
 ##' function should behave almost identically to \code{\link[edgeR]{cpm}}.
 ##'
-##' @importFrom reshape2 melt
 ##' @export
 ##'
 ##' @param x A \code{DGEList} or something that can be converted to a count

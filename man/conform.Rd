@@ -12,7 +12,7 @@ conform(x, ...)
   min.gs.size = 3L, max.gs.size = Inf, match.tolerance = 0.25, ...)
 }
 \arguments{
-\item{x}{The GeneSetDb}
+\item{x}{\code{GeneSetDb}}
 
 \item{...}{moar args}
 
@@ -31,6 +31,8 @@ used in the genesets, this is a means to pick the single row for that ID}
 \item{match.tolerance}{Numeric value between [0,1]. If the fraction of
 \code{featureId}s used in \code{x} that match \code{rownames(y)} is
 below this number, a warning will be fired.}
+
+\item{x}{The GeneSetDb}
 }
 \value{
 A \code{GeneSetDb} that has been matched/conformed to an

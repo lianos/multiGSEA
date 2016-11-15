@@ -87,7 +87,7 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
   if (!any(sapply(.valid.x, function(claz) is(target, claz)))) {
     stop("Illegal type of expression object to conform to")
   }
-
+  # x <- copy(x)
   fm <- featureIdMap(x, .external=FALSE)
   fm$x.idx <- match(fm$x.id, rownames(target))
   fraction.match <- mean(!is.na(fm$x.idx))
@@ -225,6 +225,19 @@ is.active <- function(x, i, j) {
   x@table$active[idx]
 }
 
+setMethod("subsetByFeatures", c(x="GeneSetDb"),
+function(x, featureIds, ...) {
+  ## some good old data.table voodoo going on inside here
+  hits <- unique(x@db[featureId %in% featureIds, list(collection, name)])
+  gs.all <- geneSets(x, active.only=FALSE, .external=FALSE)
+  keep <- rep(FALSE, nrow(gs.all))
+  gs.idx <- gs.all[hits, which=TRUE]
+  if (length(gs.idx)) {
+    keep[gs.idx] <- TRUE
+  }
+  x[keep]
+})
+
 ##' Fetch the IDs for the a given gene set.
 ##'
 ##' If the GeneSetDb \code{x} has been conformed to an expression object this
@@ -264,15 +277,12 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
   if (missing(i) && missing(j)) {
     ## User isn't asking about any particular collection, but just wants all
     ## features in the GeneSetDb as a whole ... OK(?)
-    if (value == 'featureId') {
-      out <- unique(x@db$featureId)
-    } else {
-      out <- merge(unique(x@db, by='featureId'),
-                   featureIdMap(x, .external=FALSE),
-                   by='featureId')
-      out <- unique(out[[value]])
+    fmap <- x@featureIdMap
+    if (is.conformed(x) && !fetch.all) {
+      fmap <- fmap[!is.na(x.idx)]
     }
-    return(out)
+    out <- unique(fmap, by=value)[[value]]
+    return(out[!is.na(out)])
   }
 
   if (!isSingleCharacter(i)) {
@@ -354,8 +364,8 @@ function(x, active.only=is.conformed(x), ... , .external=TRUE) {
 
 ##' @exportMethod geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
-  function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE, ...,
-           .external=TRUE) {
+function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE, ...,
+         .external=TRUE) {
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
                      fetch.all=fetch.all, ...)
   info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
@@ -365,7 +375,8 @@ setMethod("geneSet", c(x="GeneSetDb"),
 
 ##' Subset GeneSetDb to only include specified genesets.
 ##'
-##' This isn't exported yet because I don't like its implementation
+##' This is a utility function that is called by \code{[.GeneSetDb} and is not
+##' exported because it is not meant for external use.
 ##'
 ##' @param x \code{GeneSetDb}
 ##' @param keep logical vector as long as

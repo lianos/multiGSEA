@@ -1,3 +1,4 @@
+##' @import reshape2
 ##' @import data.table
 ##' @import Biobase
 ##' @import limma

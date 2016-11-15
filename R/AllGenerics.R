@@ -114,10 +114,43 @@ setGeneric("geneSet", signature="x", function(x, i, j, ...) {
 ##' @exportMethod geneSets
 setGeneric("geneSets", function(x, ...) standardGeneric('geneSets'))
 
+##' Creates a geneset summary table for genesets defined by gene membership
+##'
+##' @exportMethod geneSetSummaryByGenes
+##' @param x A GeneSetDb or a multiGSEA ResultmultiGSEA result
+##' @param features The featureIds to use to select genesets from \code{x}
+##' @param with.features Inlcude the features as columns of the outgoing result?
+##'   (Default: \code{TRUE})
+##' @param feature.rename If features are added as columns, then we might want
+##'   to rename them from featureIds to something else. By default these columns
+##'   are prefixed with "featureId_", unless \code{feature.rename=FALSE}
+##' @param name If specified, one of \code{\link{resultNames}} from the
+##'   \code{MultiGSEAResult} object \code{x} to use as a look up and filter
+##'   geneset by.
+##' @param max.p The FDR threshold to filter geneset results by in combination
+##'   with the \code{name} parameter.
+##' @return A summary data.frame
+setGeneric("geneSetSummaryByGenes", signature=c("x"),
+           function(x, features, with.features=TRUE, feature.rename=NULL, ...)
+             standardGeneric("geneSetSummaryByGenes"))
+
+
 ##' Map featureId's in a GeneSetDb to a target expression object.
 ##'
 ##' @exportMethod conform
+##' @param x \code{GeneSetDb}
 setGeneric("conform", function(x, ...) standardGeneric("conform"))
+
+##' Subset a GeneSetDb to only include geneSets with specified features.
+##'
+##' @param x \code{GeneSetDb}
+##' @param featureIds Character vector of featureIds
+##' @return A subset of \code{x} which contains only the geneSets that contain
+##'   features found in \code{featureIds}
+##' @exportMethod subsetByFeatures
+setGeneric("subsetByFeatures", function(x, featureIds, ...) {
+  standardGeneric("subsetByFeatures")
+})
 
 ##' @exportMethod unconform
 setGeneric("unconform", function(x, ...) standardGeneric("unconform"))

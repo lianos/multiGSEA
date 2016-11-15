@@ -8,7 +8,7 @@ volcano_plot(x, stats = "dge", xaxis = "logFC", yaxis = "pval", idx,
   xtfrm = base::identity, ytfrm = function(vals) -log10(vals),
   xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis),
   highlight_genes = NULL, horiz_lines = c(padj = 0.1), xhex = NULL,
-  yhex = NULL)
+  yhex = NULL, point.size = 5, tools = c("box_select", "reset", "save"))
 }
 \arguments{
 \item{highlight_genes}{A vector of featureIds to highlight, or a GeneSetDb

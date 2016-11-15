@@ -327,6 +327,34 @@ test_that("annotateGeneSetMembership works", {
   expect_equal(lfc.anno.x, lfc.anno.c)
 })
 
+test_that("subsetByFeatures returns correct genesets for features," {
+  set.seed(0xBEEEF)
+  gdb <- exampleGeneSetDb()
+  features <- sample(featureIds(gdb), 10)
+  gdb.sub <- subsetByFeatures(gdb, features)
+
+  db.all <- gdb@db
+  db.sub <- gdb.sub@db
+  db.rest <- anti_join(db.all, db.sub, by=c('collection', 'name'))
+
+  ## db.sub + db.rest should == db.all
+  expect_equal(nrow(db.sub) + nrow(db.rest), nrow(db.all))
+
+  ## 1. Ensure that each geneset in subsetted gdb (gdb.sub) has >= 1
+  ##    of requested features in its featureId column.
+  has.1 <- db.sub[, {
+    list(N=.N, n=sum(featureId %in% features))
+  }, by=c('collection', 'name')]
+  expect_true(all(has.1$n >= 1))
+
+  ## 2. Ensure that any geneset not in the subsetted GeneSetDb doesn't have
+  ##    any of the requested features
+  has.0 <- db.rest[, {
+    list(N=.N, n=sum(featureId %in% features))
+  }, by=c('collection', 'featureId')]
+  expect_true(all(has.0$n) == 0)
+})
+
 test_that("subset.GeneSetDb works", {
   ## TODO: Test subset.GeneSetDb
 })

@@ -39,14 +39,7 @@ dashboardPage(
         tabName="geneView",
         fluidRow(
           box(width=5, mgVolcanoUI("dge_volcano")),
-          box(width=7, DT::dataTableOutput("dge_stats"))
-          # box(
-          #   p("Gene-centric exploration across genesets coming soon"),
-          #   tags$ul(
-          #     tags$li("Overlap of genes across genesets"),
-          #     tags$li("etc ...")),
-          #   rbokehOutput("geneView_volcanoPlot")),
-          # box(DT::dataTableOutput("geneView_interGenesetMembers"))
+          box(width=7, DT::dataTableOutput("dge_volcano_stats"))
         )
       )
 
