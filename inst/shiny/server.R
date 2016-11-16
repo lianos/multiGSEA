@@ -95,7 +95,7 @@ shinyServer(function(input, output, session) {
                       res$symbol)
       res$symbol <- html
     }
-    datatable(res, filter='top', escape=FALSE) %>% roundDT
+    datatable(res, filter='top', escape=FALSE, rownames=FALSE) %>% roundDT
   })
 
   ## A table of other genesets that brushed genes in the contrast viewer
