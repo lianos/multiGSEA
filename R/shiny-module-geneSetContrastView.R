@@ -15,7 +15,7 @@
 ##' well as a tabular view of the statistics for a particular geneset from a
 ##' \code{MultiGSEAResultContainer}
 ##'
-##' @importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
+##' importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
 ##' @export
 ##'
 ##' @param id the shiny id of the module

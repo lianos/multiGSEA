@@ -23,7 +23,8 @@ Imports:
     rbokeh,
     matrixStats,
     circlize,
-    stringr
+    stringr,
+    magrittr
 Suggests:
     goseq,
     DESeq2,

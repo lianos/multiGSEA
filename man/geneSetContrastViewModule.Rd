@@ -35,4 +35,7 @@ well as a tabular view of the statistics for a particular geneset from a
 
 selected is null if mgTableBrowser hasn't been initialized yet
 }
+\details{
+importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
+}
 
