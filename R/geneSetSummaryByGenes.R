@@ -27,17 +27,35 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   } else {
     out <- x.gs[, c(gs.cols, 'N'), with=FALSE]
   }
+  
+  ## Each geneset row will be annotated with the number of features it
+  ## it has, even if caller doesn't ask for `with.features`. To do so we first
+  ## create geneset <-> featureId contingency table.
+  ## we turn x.dt$featureId into a factor with levels == features because there
+  ## maybe be some features that don't appear anywhere (due to conformation(?))
 
-  if (with.features) {
-    ## Create geneset <-> featureId contingency table and spank it on to the
-    ## end of the outoing data.table
-    x.dt <- dcast.data.table(x.db[, present := TRUE],
-                             collection + name ~ featureId,
-                             value.var='present', fill=FALSE)
-    x.dt <- rename.feature.columns(x.dt, x.sub, feature.rename)
-    out <- out[x.dt, nomatch=0]
+  x.dt <- dcast.data.table(x.db[, present := TRUE],
+                           collection + name ~ featureId,
+                           value.var='present', fill=FALSE)
+  
+  ## I was once given a strange GeneSetDb object with genesets in gdb@db that
+  ## were not in gdb@table. Such an object would fail validObject(gdb), so this
+  ## should never be. Let's dance around it, but also warn when it happens.
+  nfids <- intersect(features, tail(names(x.dt), -2))
+  if (!setequal(nfids, features)) {
+    warning("You are in a scenario you thought should be impossible",
+            immediate.=TRUE)
+    features <- nfids
   }
-
+  x.dt$n <- rowSums(as.matrix(x.dt[, -(1:2), with=FALSE]))
+  setcolorder(x.dt, c(setdiff(names(x.dt), features), features))
+  if (with.features) {
+    x.dt <- rename.feature.columns(x.dt, x.sub, feature.rename)
+  } else {
+    ## If the caller didn't want the features, we just return the n
+    x.dt <- x.dt[, list(collection, name, n)]
+  }
+  out <- out[x.dt, nomatch=0]
   ret.df(out, .external=.external)
 })
 
@@ -61,19 +79,27 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     r <- result(x, method, .external=FALSE)
   }
 
-  gdb <- geneSetDb(x)
+  gdb <- copy(geneSetDb(x))
   gs <- geneSets(x)
 
   res <- geneSetSummaryByGenes(gdb, features, with.features,
                                feature.rename=FALSE, .external=FALSE, ...)
-  # browser()
-  fstart <- ncol(res) - length(features) + 1
-  meta <- res[, 1:(fstart - 1), with=FALSE]
-  fcols <- res[, fstart:ncol(res), with=FALSE]
+  
+  if (with.features) {
+    ## Account for impossible scenario that I "dance around" in the function
+    ## upstairs
+    features <- intersect(features, names(res))
+    
+    fstart <- ncol(res) - length(features) + 1
+    meta <- res[, 1:(fstart - 1), with=FALSE]
+    fcols <- res[, fstart:ncol(res), with=FALSE]
+  } else {
+    meta <- res
+  }
 
+  ## add logFC and pvalues
   xref <- match(paste(res$collection, res$name), paste(gs$collection, gs$name))
   meta$logFC <- gs$mean.logFC.trim[xref]
-
   if (is.character(method)) {
     rxref <- match(paste(res$collection, res$name), paste(r$collection, r$name))
     meta$padj <- r$padj[rxref]
@@ -92,20 +118,20 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
 
     if (is.character(feature.rename)) {
       feature.rename <- feature.rename[1]
-      ## Where do we find the featureId <-> renamed xref? If it's not a column
-      ## in the gdb object, can we make it one from the logFC table?
-      if (is.null(gdb@db[[feature.rename]]) && is.character(lfc[[feature.rename]])) {
-        xref <- lfc[, c('featureId', feature.rename), with=FALSE]
-        gdb@db[, (feature.rename) := {
-          xref[[feature.rename]][match(featureId, xref$featureId)]
-        }]
+      ## Where do we find the featureId <-> renamed xref? If we find this column
+      ## in the logFC(x) table, then that trumps all.
+      if (is.character(lfc[[feature.rename]])) {
+        xref <- match(gdb@db$featureId, lfc$featureId)
+        gdb@db[[feature.rename]] <- lfc[[feature.rename]][xref]
       }
     }
 
     fcols <- rename.feature.columns(fcols, gdb, feature.rename)
+    res <- cbind(meta, fcols)
+  } else {
+    res <- meta
   }
 
-  res <- cbind(meta, fcols)
   setkeyv(res, c('collection', 'name'))
 
   if (is.character(method)) {
@@ -141,13 +167,14 @@ rename.feature.columns <- function(x, gdb, feature.rename=NULL) {
   if (!is.null(feature.rename)) {
     feature.rename <- feature.rename[1L]
     if (is.null(gdb@db[[feature.rename]])) {
-      warning("Can't rename features by: ", feature.rename)
+      warning("Can't rename features by: ", feature.rename, 
+              " (not found as a column in gdb@db")
       feature.rename <- NULL
     }
   }
-
+  
   default.names <- setNames(paste0('featureId_', rename.cols), rename.cols)
-  # browser()
+
   if (is.null(feature.rename)) {
     new.names <- default.names
   } else {

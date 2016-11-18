@@ -1,3 +1,7 @@
+##' Shiny module to pick GSEA method and fdr params used for display
+##' 
+##' @export
+##' @rdname mgResultFilter
 mgResultFilterUI <- function(id, mg=NULL) {
   stopifnot(requireNamespace('shiny'))
   ns <- shiny::NS(id)
@@ -19,6 +23,8 @@ mgResultFilterUI <- function(id, mg=NULL) {
   )
 }
 
+##' @export
+##' @rdname mgResultFilter
 mgResultFilter <- function(input, output, session, mgc) {
   stopifnot(requireNamespace('shiny'))
 

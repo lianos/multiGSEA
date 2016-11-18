@@ -2,6 +2,8 @@ library("testthat")
 library("multiGSEA")
 library("magrittr")
 library("data.table")
+library("dplyr")
+library("dtplyr")
 
 test_check("multiGSEA")
 

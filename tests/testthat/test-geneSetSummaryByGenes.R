@@ -15,16 +15,16 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
   gdb.sub <- subsetByFeatures(gdb, features)
   db.expect <- gdb.sub@db %>%
     copy %>%
-    filter(featureId %in% features) %>%
+    dplyr::filter(featureId %in% features) %>%
     setkeyv(c('collection', 'name', 'featureId'))
   db.result <- res %>%
-    select(collection, name, starts_with('featureId_')) %>%
+    dplyr::select(collection, name, starts_with('featureId_')) %>%
     melt(c('collection', 'name')) %>%
     setDT %>%
-    rename(featureId=variable, present=value) %>%
-    mutate(featureId=sub('featureId_', '', featureId)) %>%
-    filter(present) %>%
-    select(-present) %>%
+    dplyr::rename(featureId=variable, present=value) %>%
+    dplyr::mutate(featureId=sub('featureId_', '', featureId)) %>%
+    dplyr::filter(present) %>%
+    dplyr::select(-present) %>%
     setkeyv(key(db.expect))
   expect_equal(db.result, db.expect)
 })
@@ -42,34 +42,36 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
 
   ## Check that logFC for each feature is accurate
   lfc <- melt(as.matrix(res[, features, drop=FALSE])) %>%
-    transmute(featureId=as.character(Var2), logFC=value) %>%
-    filter(logFC != 0) %>%
-    distinct(featureId, .keep_all=TRUE) %>%
-    arrange(featureId)
+    dplyr::transmute(featureId=as.character(Var2), logFC=value) %>%
+    dplyr::filter(logFC != 0) %>%
+    dplyr::distinct(featureId, .keep_all=TRUE) %>%
+    dplyr::arrange(featureId)
 
   lfc.ex <- logFC(mg) %>%
-    select(featureId, logFC) %>%
-    filter(featureId %in% features) %>%
-    arrange(featureId)
+    dplyr::select(featureId, logFC) %>%
+    dplyr::filter(featureId %in% features) %>%
+    dplyr::arrange(featureId)
   expect_equal(lfc, lfc.ex)
 
   ## check that symbol remapping works, too
   res.s <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
                                  feature.rename='symbol', .external=FALSE)
-  lfc.s <- res.s %>%
-    select(-(collection:N)) %>%
+  
+  lfc.ex <- logFC(mg) %>%
+    dplyr::filter(featureId %in% features) %>%
+    dplyr::transmute(renamed=ifelse(!is.na(symbol), symbol, paste0('featureId_', featureId)),
+                     logFC) %>%
+    dplyr::arrange(renamed)
+  expect_true(all(lfc.ex$renamed %in% colnames(res.s)))
+  
+  lfc.s <- res.s %>% 
+    dplyr::select_(.dots=lfc.ex$renamed) %>% 
     as.matrix %>%
     melt %>%
-    transmute(renamed=as.character(Var2), logFC=value) %>%
-    filter(logFC != 0) %>%
-    distinct(renamed, .keep_all=TRUE) %>%
-    arrange(renamed)
-
-  lfc.ex <- logFC(mg) %>%
-    filter(featureId %in% features) %>%
-    transmute(renamed=ifelse(!is.na(symbol), symbol, paste0('featureId_', featureId)),
-              logFC) %>%
-    arrange(renamed)
+    dplyr::transmute(renamed=as.character(Var2), logFC=value) %>%
+    dplyr::filter(logFC != 0) %>%
+    dplyr::distinct(renamed, .keep_all=TRUE) %>%
+    dplyr::arrange(renamed)
   expect_equal(lfc.s, lfc.ex)
 })
 
@@ -79,8 +81,9 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
   gdb <- exampleGeneSetDb()
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
   p.thresh <- 0.20
-  camera.sig <- filter(result(mg, 'camera'), padj <= p.thresh)
-
+  camera.sig <- dplyr::filter(result(mg, 'camera'), padj <= p.thresh)
+  
+  features <- sample(featureIds(mg), 10)
   res.all <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
                                    feature.rename='symbol', .external=FALSE)
   res.sig <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
@@ -89,3 +92,11 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
   expect_true(all(res.sig$name %in% res.all$name))
   expect_true(all(res.sig$name %in% camera.sig$name))
 })
+
+if (FALSE) {
+  fn <- '~/web/rutz/BAP1/johnnycache/multiGSEA-NGS429-joint-nointeraction.rds'
+  mg <- readRDS(fn)
+  fids <- sample(featureIds(mg), 10)
+  fids <- c(Jag1='16449', Pdgfa='18590', App='11820', Vcan='13003', Nrp1='18186')
+  s <- geneSetSummaryByGenes(mg, fids, feature.rename='symbol')
+}

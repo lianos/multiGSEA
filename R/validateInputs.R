@@ -47,7 +47,10 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   if (is.vector(x)) {
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
-
+  
+  ## NAs aren't allowed in x
+  na.check(x)
+  
   ## Validate the input expression object separately (not sure why now)
   if (!is.null(methods)) {
     is.valid.x <- sapply(methods, function(meth) {
@@ -103,6 +106,17 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   }
 
   list(x=x, design=design, contrast=contrast)
+}
+
+##' Checkes that there are no NAs in x
+na.check <- function(x) {
+  if (is(x, 'DGEList')) x <- x$counts
+  if (is(x, 'EList')) x <- x$E
+  if (is(x, 'ExpressionSet')) x <- exprs(x)
+  if (is(x, 'SummarizedExperiment')) x <- assay(x)
+  if (any(is.na(x))) {
+    stop("No NA's allowed in x")
+  }
 }
 
 ##' Checks a DGEList to see if estimateDisp() was run on it

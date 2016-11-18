@@ -6,8 +6,9 @@ mgGeneSetSummaryByGeneUI <- function(id, mg=NULL) {
 
   shiny::tagList(
     checkboxInput(ns('genesets_sigonly'),
-                  'Show only significant gene set membership',
+                  'Show membership for significant gene sets only',
                   value=FALSE),
+    shiny::uiOutput(ns('selected_message')),
     DT::dataTableOutput(ns("other_genesets")))
 }
 
@@ -22,17 +23,27 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
       method <- NULL
       max.p <- NULL
     }
-
     shiny::req(mgc())
     fids <- shiny::req(features())
     if (is(fids, 'data.frame')) {
       fids <- fids$featureId
     }
-
     geneSetSummaryByGenes(mgc()$mg, fids, feature.rename='symbol',
                           method=method, max.p=max.p, .external=FALSE)
   })
-
+  
+  output$selected_message <- shiny::renderUI({
+    fids <- features()
+    if (is.null(fids)) {
+      n <- 0L
+      ngs <- 0L
+    } else {
+      n <- if (is.vector(fids)) length(fids) else nrow(fids)
+      ngs <- nrow(genesets())
+    }
+    shiny::tags$p(sprintf('%d features selected across %d genesets', n, ngs))
+  })
+  
   output$other_genesets <- DT::renderDataTable({
     out <- copy(req(genesets()))
     mg <- req(mgc()$mg)

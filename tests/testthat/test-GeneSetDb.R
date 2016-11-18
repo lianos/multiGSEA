@@ -327,7 +327,7 @@ test_that("annotateGeneSetMembership works", {
   expect_equal(lfc.anno.x, lfc.anno.c)
 })
 
-test_that("subsetByFeatures returns correct genesets for features," {
+test_that("subsetByFeatures returns correct genesets for features", {
   set.seed(0xBEEEF)
   gdb <- exampleGeneSetDb()
   features <- sample(featureIds(gdb), 10)

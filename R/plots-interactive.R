@@ -69,10 +69,16 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
     ly_boxplot(x="group", y="val", data=bg, fill_color='white',
                outlier_size=5) %>%
     ly_boxplot(x="group", y="val", data=gs,  fill_color='white',
-               outlier_size=NA) %>%
-    ly_points(x="jgrp", y="val", data=gs, color="significant", size=5,
-              hover=list(symbol, logFC, padj), lname='points',
-              legend=with.legend)
+               outlier_size=NA)
+  if ('symbol' %in% names(gs)) {
+    p <- ly_points(p, x="jgrp", y="val", data=gs, color="significant", size=5,
+                   hover=list(symbol, logFC, padj), lname='points',
+                   legend=with.legend)
+  } else {
+    p <- ly_points(p, x="jgrp", y="val", data=gs, color="significant", size=5,
+                   hover=list(featureId, logFC, padj), lname='points',
+                   legend=with.legend)
+  }
 
   if (with.data) {
     p$data <- gs
@@ -106,10 +112,16 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p <- figure(xlab=sprintf("%s (%d genes)", value, nrow(gs.dat)),
               tools=tools) %>%
     ly_density(x="val", data=bg, color="black", width=3) %>%
-    ly_density(x="val", data=gs.dat, color="red", width=3) %>%
-    ly_points(x="val", y="y", data=gs.dat, color="significant", size=5,
-              hover=list(symbol, logFC, padj), legend=with.legend,
-              lname='points')
+    ly_density(x="val", data=gs.dat, color="red", width=3)
+  if ('symbol' %in% names(gs.dat)) {
+    p <- ly_points(p, x="val", y="y", data=gs.dat, color="significant", size=5,
+                   hover=list(symbol, logFC, padj), legend=with.legend,
+                   lname='points')
+  } else {
+    p <- ly_points(p, x="val", y="y", data=gs.dat, color="significant", size=5,
+                   hover=list(featureId, logFC, padj), legend=with.legend,
+                   lname='points')
+  }
 
   if (with.data) {
     p$data <- gs.dat

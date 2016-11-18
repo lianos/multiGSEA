@@ -65,14 +65,24 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
       fids <- extract.genes(highlight_genes)
       col[pts$featureId %in% fids] <-"#EE4000"
     }
-
-    p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
-                   size=point.size, color=col, legend=FALSE,
-                   hover=list(symbol,
-                              logFC=sprintf('%.3f', xaxis),
-                              pval=sprintf('%.3f', pval),
-                              qval=sprintf('%.3f', padj)))
+    
+    if ('symbol' %in% names(pts)) {
+      p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
+                     size=point.size, color=col, legend=FALSE,
+                     hover=list(symbol,
+                                logFC=sprintf('%.3f', xaxis),
+                                pval=sprintf('%.3f', pval),
+                                qval=sprintf('%.3f', padj)))
+    } else {
+      p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
+                     size=point.size, color=col, legend=FALSE,
+                     hover=list(featureId,
+                                logFC=sprintf('%.3f', xaxis),
+                                pval=sprintf('%.3f', pval),
+                                qval=sprintf('%.3f', padj)))
+    }
   }
+  
   if (nrow(hex) > 0) {
     p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30, hover=FALSE)
   }
@@ -182,6 +192,13 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
   if (length(missed.cols)) {
     stop("Missing columns from stats data.frame from volcano object:\n  ",
          paste(missed.cols, collapse=','))
+  }
+  if (!'featureId' %in% names(x)) {
+    ids <- rownames(x)
+    if (is.null(ids)) {
+      ids <- as.character(1:nrow(x))
+    }
+    x[['featureId']] <- ids
   }
   x[['xaxis']] <- xtfrm(x[[xaxis]])
   x[['yaxis']] <- ytfrm(x[[yaxis]])

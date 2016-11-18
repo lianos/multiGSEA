@@ -106,6 +106,7 @@ renderGseaResultTableDataTable <- function(x, method, mg, digits=3) {
 renderGeneSetStatsDataTable <- function(gstats, name, digits=3) {
   requireNamespace('DT')
   gcols <- c('symbol', 'featureId', 'logFC', 'padj')
+  gcols <- intersect(gcols, names(gstats)) ## sometimes we don't have symbol
   gs <- gstats[, gcols, with=FALSE]
   setnames(gs, 'padj', 'FDR')
   if (nrow(gs) < 10) {

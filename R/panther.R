@@ -21,7 +21,10 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
     org.pkg <- 'org.Mm.eg.db'
     xorg <- 'Mus_musculus'
   }
-
+  on.exit({
+    unloadNamespace('PANTHER.db')
+    unloadNamespace(org.pkg)
+  })
   if (!requireNamespace(org.pkg)) {
     stop(org.pkg, " bioconductor package required for this species query")
   }
