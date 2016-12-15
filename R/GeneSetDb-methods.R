@@ -1,5 +1,9 @@
 ##' Annotates rows of a data.frame with geneset membership from a GeneSetDb
 ##'
+##' This is helpful when you don't have a monsterly sized GeneSetDb. There will
+##' be as many new columns added to \code{x} as there are active genesets in
+##' \code{gdb}.
+##'
 ##' @export
 ##'
 ##' @param x A data.frame with genes/features in rows
@@ -10,6 +14,16 @@
 ##' @return Returns the original \code{x} with additional columns: each is a
 ##'   logical vector that indicates membership for genesets defined in
 ##'   \code{gdb}.
+##'
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- getMSigGeneSetDb('h', 'human')
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+##' lfc <- logFC(mg)
+##' annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
+##'
+##' ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
+##' (angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`))
 annotateGeneSetMembership <- function(x, gdb, x.ids=NULL, ...) {
   stopifnot(is(x, 'data.frame'))
   stopifnot(is(gdb, 'GeneSetDb'))
@@ -42,26 +56,58 @@ setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
 
 ##' (Re)-map geneset IDs to the rows in an expression object.
 ##'
-##' This uses the already-set featureIdMap for the GeneSetDb
+##' @description \code{conform}-ing, a \code{GeneSetDb} to a target expression
+##' object is an important step required prior to perform any type of GSEA. This
+##' function maps the featureIds used in the GeneSetDb to the elements of a
+##' target expression object (ie. the rows of an expression matrix, or the
+##' elements of a vector of gene-level statistics).
+##'
+##' After \code{conform}-ation, each geneset in the \code{GeneSetDb} is flagged
+##' as active (or inactive) given the number of its features that are
+##' successfully mapped to \code{target} and the minimum and maximum number of
+##' genes per geneset required as specified by the \code{min.gs.size} and
+##' \code{max.gs.size} parameters, respectively.
+##'
+##' Only genesets that are marked with \code{active=TRUE} will be used in any
+##' downstream gene set operations.
+##'
+##' @section Related Functions:
+##' \enumerate{
+##'   \item{\code{unconform}}{Resets the conformation mapping.}
+##'   \item{\code{is.conformed}}{
+##'     If \code{to} is missing, looks for evidence if \code{coform} has
+##'     been called (at all) on \code{x}. If \code{to} is provided, specifically
+##'     checks that \code{x} has been conformed to the target object \code{to}.
+##'   }
+##' }
 ##'
 ##' @rdname conform
 ##'
 ##' @param x The GeneSetDb
 ##' @param target The expression object/matrix to conform to. This could also
 ##'   just be a character vector of IDs.
-##' @param unique.by If there are multiple rows that map to the identifiers
-##'   used in the genesets, this is a means to pick the single row for that ID
+##' @param unique.by If there are multiple rows that map to the identifiers used
+##'   in the genesets, this is a means to pick the single row for that ID
 ##' @param min.gs.size Ensure that the genesets that make their way to the
 ##'   \code{GeneSetDb@@table} are of a minimum size
 ##' @param max.gs.size Ensure that the genesets that make their way to the
 ##'   \code{GeneSetDb@@table} are smaller than this size
 ##' @param match.tolerance Numeric value between [0,1]. If the fraction of
-##'   \code{featureId}s used in \code{x} that match \code{rownames(y)} is
-##'   below this number, a warning will be fired.
+##'   \code{featureId}s used in \code{x} that match \code{rownames(y)} is below
+##'   this number, a warning will be fired.
 ##' @param ... moar args
 ##'
-##' @return A \code{GeneSetDb} that has been matched/conformed to an
-##'   expression object target (\code{y})
+##' @return A \code{GeneSetDb} that has been matched/conformed to an expression
+##'   object target (\code{y})
+##'
+##' @examples
+##' es <- exampleExpressionSet()
+##' gdb <- exampleGeneSetDb()
+##' head(geneSets(gdb))
+##' gdb <- conform(gdb, es)
+##' ## Note the updated values `active` flag, and n (the number of features
+##' ## mapped per gene set)
+##' head(geneSets(gdb))
 setMethod("conform", c(x="GeneSetDb"),
 function(x, target, unique.by=c('none', 'mean', 'var'),
          min.gs.size=3L, max.gs.size=Inf, match.tolerance=0.25, ...) {
@@ -129,15 +175,8 @@ setMethod("unconform", "GeneSetDb", function(x, ...) {
   x
 })
 
-
-##' Check if GeneSetDb has been conformed (optionally to a specific
-##' expression object)
-##'
 ##' @export
-##' @param x a \code{GeneSetDb}
-##' @param to an optional expression object
-##' @return logical indicating "conform"-ation status in general, or
-##'   specifically to an expression object \code{to}
+##' @rdname conform
 is.conformed <- function(x, to) {
   if (!is(x, 'GeneSetDb')) {
     stop("Only works on the GeneSetDb")
@@ -163,17 +202,24 @@ is.conformed <- function(x, to) {
 
 ##' Creates a 1/0 matrix to indicate geneset membership to target object.
 ##'
-##' rows are number of genesetes in \code{x}, columns are number of rows in
-##' \code{y}
+##' Generates an inidcator matrix to indicate membership of genes (columns)
+##' to gene sets (rows). If \code{y} is provided, then the incidence is mapped
+##' across the entire feature-space of \code{y}.
 ##'
 ##' @export
 ##'
 ##' @param x A \code{GeneSetDb}
-##' @param y (optiona) A target (expression) object \code{x} is (or can be)
+##' @param y (optional) A target (expression) object \code{x} is (or can be)
 ##'   conformed to
 ##' @return incidence matrix with nrows = number of genesets and columns are
 ##'   featureIDs. If \code{y} is passed in, the columns of the returned value
 ##'   match the rows of \code{y}.
+##'
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- getMSigGeneSetDb('h', 'human')
+##' im <- incidenceMatrix(gdb)
+##' imv <- incidenceMatrix(gdb, vm)
 incidenceMatrix <- function(x, y, ...) {
   stopifnot(is(x, 'GeneSetDb'))
   gs <- NULL
@@ -208,33 +254,42 @@ incidenceMatrix <- function(x, y, ...) {
 
 ##' Interrogate "active" status of a given geneset.
 ##'
-##' This method only works on one geneset at a time (ie. not vectorized)
+##' Returns the \code{active} status of genesets, which are specified by
+##' their collection,name compound keys. This function is vectorized and
+##' supports query of multiple gene sets at a time. If a requested
+##' collection,name gene set doesn't exist, this throws an error.
 ##'
 ##' @export
 ##' @param x \code{GeneSetDb}
-##' @param i collection of geneset
-##' @param j name of geneset
-##' @return logical indicating if geneset is active. throws an error if geneset
-##'   does not exist in geneSets(x)
+##' @param i collection of geneset(s)
+##' @param j name of geneset(s) (must be same length as \code{i})
+##' @return logical indicating if geneset is active. throws an error if
+##'   any requested geneset does not exist in \code{x}.
 is.active <- function(x, i, j) {
   stopifnot(is(x, 'GeneSetDb'))
-  idx <- .gsd.row.index(x, i, j)
-  if (is.na(idx)) {
-    stop(sprintf("Unknown geneset: (%s, %s)", i, j))
+  stopifnot(is.character(i), is.character(j), length(i) == length(j))
+  gsx <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i,j), nomatch=NA]
+  res <- gsx$active
+  isna <- is.na(res)
+  if (any(isna)) {
+    unk <- paste(i[isna], j[isna], sep=":", collapse=",")
+    stop(sprintf("Unknown genesets: %s", unk))
   }
-  x@table$active[idx]
+  res
 }
 
 setMethod("subsetByFeatures", c(x="GeneSetDb"),
-function(x, features, ...) {
+function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
+  value <- match.arg(value)
   ## some good old data.table voodoo going on inside here
-  unk.f <- setdiff(features, featureIds(x))
+  unk.f <- setdiff(features, featureIds(x, value=value))
   if (length(unk.f)) {
     warning(length(unk.f), "/", length(features), " do not exist in GeneSetDb")
     features <- setdiff(features, unk.f)
   }
 
-  hits <- unique(x@db[featureId %in% features, list(collection, name)])
+  dat <- merge(x@db, featureIdMap(x, .external=FALSE), by='featureId')
+  hits <- unique(dat[dat[[value]] %in% features, list(collection, name)])
   gs.all <- geneSets(x, active.only=FALSE, .external=FALSE)
   keep <- rep(FALSE, nrow(gs.all))
   gs.idx <- gs.all[hits, which=TRUE]
@@ -244,29 +299,10 @@ function(x, features, ...) {
   x[keep]
 })
 
-##' Fetch the IDs for the a given gene set.
-##'
 ##' @rdname featureIds
-##'
-##' @param x The GeneSetDb
-##' @param i The collection level identifier for the geneset
-##' @param j The name level identifier for the genest
-##' @param value What form do you want the id's in?
-##'   \describe{
-##'     \item{featureId}{the IDs used in the original geneset definitions}
-##'     \item{x.id}{the ids of the features as they are used in the expression
-##'           object}
-##'     \item{x.idx}{The integer index into the expresion object \code{x} that
-##'           the GeneSetDb has been conformed to.}
-##'   }
-##' @param fetch.all By default, this function only returns the IDs for the
-##'   geneset that are matched in the target expression object if this
-##'   \code{GeneSetDb} has been "conformed" (ie. \code{is.conformed(x) == TRUE}.
-##'   Set this to \code{TRUE} if you want to get all featureIds irrespective of
-##'   this constraint.
-##'
 setMethod("featureIds", c(x="GeneSetDb"),
-function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
+function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
+         fetch.all=FALSE, active.only=is.conformed(x), ...) {
   if (missing(value)) {
     value <- if (is.conformed(x)) 'x.id' else 'featureId'
   }
@@ -349,22 +385,24 @@ setReplaceMethod('featureIdMap', 'GeneSetDb', function(x, value) {
   setnames(value, c('featureId', 'x.id'))
   value <- unique(value, by=c('featureId', 'x.id'))
   setkeyv(value, 'featureId')
-
+  value[, x.idx := NA_integer_]
   x@featureIdMap <- value
   unconform(x)
 })
 
+##' @rdname geneSets
 setMethod("geneSets", c(x="GeneSetDb"),
 function(x, active.only=is.conformed(x), ... , .external=TRUE) {
   out <- if (active.only[1L]) x@table[active == TRUE] else x@table
   ret.df(out, .external=.external)
 })
 
-##' @exportMethod geneSet
+##' @rdname geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
 function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
          with.feature.map=FALSE, ..., .external=TRUE) {
   x <- updateObject(x)
+  stopifnot(isSingleCharacter(i), isSingleCharacter(j))
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
                      fetch.all=fetch.all, ...)
   info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
@@ -427,7 +465,7 @@ subset.GeneSetDb <- function(x, keep) {
   cc <- keep.table[, list(name='count', value=.N), by='collection']
   setkeyv(cc, key(keep.cm))
   ## Currently (data.table v1.9.4( there's nothing I can do to make i.value a
-  ## list element and this `set` mojog doesn't work either
+  ## list element and this `set` mojo doesn't work either
   suppressWarnings(keep.cm[cc, value := list(i.value)])
   ## update.idxs <- keep.cm[cc, which=TRUE]
   ## val.idx <- which(colnames(keep.cm) == 'value')
@@ -502,6 +540,10 @@ hasGeneSetCollection <- function(x, collection, as.error=FALSE) {
 ##' @param as.error If \code{TRUE}, a test for the existance of the geneset
 ##'   will throw an error if the geneset does not exist
 ##' @return logical indicating whether or not the geneset is defined.
+##'
+##' @examples
+##' gdb <- exampleGeneSetDb()
+##' hasGeneSet(gdb, c('c2', 'c7'), c('BIOCARTA_AGPCR_PATHWAY', 'something'))
 hasGeneSet <- function(x, collection, name, as.error=FALSE) {
   gs.exists <- !is.na(.gsd.row.index(x, collection, name))
   if (as.error && !all(gs.exists)) {
@@ -546,11 +588,7 @@ setMethod("collectionMetadata",
   })
 
 setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
-  ## hasGeneSet(x, i, j, as.error=TRUE)
-  ## fn <- geneSetCollectionURLfunction(x, i)
-  ## fn(i, j)
-  stopifnot(is.character(i) && is.character(j))
-  stopifnot(length(i) == length(j))
+  stopifnot(is.character(i), is.character(j), length(i) == length(j))
   collections <- unique(i)
   col.exists <- hasGeneSetCollection(x, collections)
   url.fns <- Map(collections, col.exists, f=function(col, exists) {
@@ -598,17 +636,17 @@ function(x, i, value) {
   addCollectionMetadata(x, i, 'url_function', value, valid)
 })
 
-setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
-  valid <- function(v) {
-    if (!isTRUE(is.function(v))) return(FALSE)
-    if (length(formalArgs(v)) != 2L) {
-      ## "URL function needs to take two arguments"
-      return(FALSE)
-    }
-    TRUE
-  }
-  addCollectionMetadata(x, i, 'url_function', value, valid)
-})
+# setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
+#   valid <- function(v) {
+#     if (!isTRUE(is.function(v))) return(FALSE)
+#     if (length(formalArgs(v)) != 2L) {
+#       ## "URL function needs to take two arguments"
+#       return(FALSE)
+#     }
+#     TRUE
+#   }
+#   addCollectionMetadata(x, i, 'url_function', value, valid)
+# })
 
 setReplaceMethod("featureIdType", "GeneSetDb", function(x, i, value) {
   valid <- function(v) is(v, 'GeneIdentifierType')
@@ -653,7 +691,9 @@ setMethod("org", "GeneSetDb", function(x, i, ...) {
   }
 })
 
-##' Adds metadata to a gene set collection of a GeneSetDb
+##' @section Adding arbitrary collectionMetadata:
+##'
+##' Adds arbitrary metadata to a gene set collection of a GeneSetDb
 ##'
 ##' Note that this is not a replacement method! You must catch the returned
 ##' object to keep the one with the updated `collectionMetadata`. Although this
@@ -661,7 +701,14 @@ setMethod("org", "GeneSetDb", function(x, i, ...) {
 ##' replace methods that use this as a utility function, such as the replacement
 ##' methods for \code{\link{org}}, and \code{\link{featureIdType}}.
 ##'
+##' \preformatted{
+##'   gdb <- getMSigGeneSetDb('h')
+##'   gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
+##' }
+##'
 ##' @export
+##' @rdname collectionMetadata
+##'
 ##' @param x \code{GeneSetDb}
 ##' @param xcoll The collection name
 ##' @param xname The name of the metadata variable

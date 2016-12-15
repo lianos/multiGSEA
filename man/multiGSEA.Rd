@@ -161,10 +161,11 @@ parameters are passed down to that funciton.
 
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- exampleGeneSetDb()
-mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'),
-                verbose=TRUE)
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+resultNames(mg)
 res.camera <- result(mg, 'camera')
 res.fry <- result(mg, 'fry')
+res.all <- results(mg)
 }
 \seealso{
 \code{\link[limma]{camera}},

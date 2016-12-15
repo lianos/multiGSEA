@@ -82,6 +82,18 @@
 ##' that was tested in the \code{\link{multiGSEA}} call that created the
 ##' \code{\link{MultiGSEAResult}}.
 ##'
+##' @section GeneSetDb manipulation:
+##'
+##' You can subset a GeneSetDb to include a subset of genesets defined in it.
+##' To do this, you need to provide an indexing vector that is as long as
+##' \code{length(gdb)}, ie. the number of gene sets defined in GeneSetDb. You
+##' can construct such a vector by performing your boolean logic over the
+##' \code{geneSets(gdb)} table.
+##'
+##' Look at the Examples section to see how this works, where we take the
+##' MSIgDB c7 collection (aka. "ImmuneSigDB") and only keep gene sets that
+##' were defined in experiments from mouse.
+##'
 ##' @rdname GeneSetDb-class
 ##' @aliases GeneSetDb
 ##' @export
@@ -128,6 +140,16 @@
 ##' (gsets <- geneSets(gdb.df))
 ##' (nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells'))
 ##' (fids <- featureIds(gdb.df))
+##'
+##' ## GeneSetDb Manipulation
+##' ## Subset ImmuneSigDB down to only gene sets defined from mouse
+##' idb <- getMSigGeneSetDb('c7', 'mouse')
+##' igs <- geneSets(idb)
+##' table(igs$organism)
+##' ## Homo sapiens Mus musculus
+##' ##         1888         2984
+##' idb.mm <- idb[igs$organism == 'Mus musculus']
+##' length(idb.mm) ## 2984
 GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb <- if (is(x, 'GeneSetCollection')) {
     GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
@@ -139,8 +161,13 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
     stop("No GeneSetDb constructor defined for: ", class(x)[1L])
   }
 
+  ## The keys on the internal data.tables should already be set, but doing it
+  ## again because paranoia doesn't necessarily have to destroy you.
   proto <- new("GeneSetDb")
   setkeyv(gdb@db, key(proto@db))
+  setkeyv(gdb@table, key(proto@table))
+  setkeyv(gdb@featureIdMap, key(proto@featureIdMap))
+  setkeyv(gdb@collectionMetadata, key(proto@collectionMetadata))
   gdb
 }
 
@@ -318,7 +345,7 @@ setMethod("show", "GeneSetDb", function(object) {
   msg <- paste("GeneSetDb with %d defined genesets across %d collections",
                "(%d gene sets are active)")
   msg <- sprintf(msg,
-                 nrow(unique(object@db, by=key(proto@db))),
+                 nrow(unique(object@db, by=c('collection', 'name'))),
                  length(unique(object@db$collection)),
                  sum(object@table$active))
   is.conf <- paste("  Conformed:", ifelse(is.conformed(object), 'yes', 'no'))

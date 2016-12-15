@@ -26,7 +26,10 @@ Imports:
     matrixStats,
     circlize,
     stringr,
-    magrittr
+    magrittr,
+    shiny,
+    miniUI,
+    DT
 Suggests:
     goseq,
     DESeq2,
@@ -40,8 +43,6 @@ Suggests:
     NMF,
     BiocStyle,
     airway,
-    shiny,
-    miniUI,
     shinydashboard,
     rprojroot,
     clusterProfiler

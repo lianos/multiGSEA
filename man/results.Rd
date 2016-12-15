@@ -5,7 +5,7 @@
 \alias{resultNames}
 \alias{results}
 \alias{tabulateResults}
-\title{Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}}
+\title{Interrogate the results of a multiGSEA analysis stored in a MultiGSEAResult}
 \usage{
 resultNames(x)
 
@@ -19,7 +19,7 @@ tabulateResults(x, names = resultNames(x), max.p = 0.3, p.col = c("padj",
   "padj.by.collection", "pval"))
 }
 \arguments{
-\item{x}{A MultiGSEAResult}
+\item{x}{A \code{MultiGSEAResult} object.}
 
 \item{name}{the names of the results desired}
 
@@ -30,59 +30,52 @@ adjusted pvalues, and rank are returned.}
 \item{rank.by}{the statistic to use to append a \code{rank} column for the
 geneset result. By default we rank by pvalue calculated by the GSEA
 method. You can rank the results based on the trimmed mean of the logFC's
-calculated for all of the features in the geneset (\code{"logFC"}), the
-trimmed t-statistics of the these features (\code{"t"}), or the "J-G"
-statistic of the geneset.}
+calculated for all of the features in the geneset (\code{"logFC"}), or the
+trimmed t-statistics of the these features (\code{"t"}).}
 
 \item{add.suffix}{If \code{TRUE}, adds \code{.name} as a suffix to the
 columns of the \code{method}-specific statistics returned, ie. the
 \code{pval} column from the \code{camera} result will be turned to
 \code{pval.camera}.}
 
-\item{names}{The results you want to cbind together for the output}
+\item{names}{The results you want to cbind together for the output, will
+default to all of them.}
 
 \item{max.p}{The maximum padj value to consider a result significant}
 
 \item{p.col}{use padj or padj.by.collection?}
 
 \item{x}{MultiGSEAResult}
-
-\item{x}{\code{MultiGSEAResult}}
-
-\item{stats.only}{logical, set to \code{FALSE} if you want to return all
-(column-wise) data for each result. By default only the pvalues,
-adjusted pvalues, and rank are returned.}
-
-\item{add.suffix}{If \code{TRUE}, adds \code{.name} as a suffix to the
-columns of the \code{method}-specific statistics returned. This is forced
-to \code{TRUE} if \code{length(names) > 1L}}
-
-\item{x}{\code{MultiGSEAResult}}
-
-\item{names}{The results you want to cbind together for the output}
 }
 \value{
 a data.table with the results from the requested method.
-
-a data.table with all of the results. The results will optionally
-  be suffixed with the method name that generated them when
-  \code{length(names) > 1L}
 
 a data.table that summarizes the significant results per method
   per collection for the GSEA that was run
 }
 \description{
-Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
+The \code{resultNames}, \code{result}, and \code{results} functions enable
+you to explore the results of the analysis run with \code{\link{multiGSEA}}.
 
-TODO: Enable a way for caller to get a subset of the genesets tested,
-perhaps this will happen at the "collectoin" level. In this case, it's
-not clear if the pval correction should be redone to only account for
-the genesets that are returned from.
+The results that are stored within a \code{MultiGSEAResult} object have a
+more or less 1:1 mapping with the values passed as \code{methods}, parameter
+of the \code{\link{multiGSEA}} call.
 
-If the result from more than one method is requested, the column names for
-these results will be suffixed with the method name.
+The product of an indivdual GSEA is consumed by the corresponding
+\code{do.<METHOD>} function and converted into a data.table of results that
+is internally stored.
 
-Create a summary table to indicate number of significant genesets per
-collection, per method
+Use the \code{resultNames} function to identify which results are available
+for interrogation. The \code{result} function returns the statistics of
+one individual result, and the \code{results} function combines the results
+from the specified methods into an arbitrarily wide data.table with
+\code{method}-suffixed column names.
+
+Use the \code{tabulateResults} function to create a summary table that
+tallies the number of significant genesets per collection, per method at
+the specified FDR thresholds.
+}
+\examples{
+## Refer to the examples in ?multiGSEA
 }
 

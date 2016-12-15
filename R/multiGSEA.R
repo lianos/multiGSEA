@@ -140,10 +140,11 @@
 ##'
 ##' vm <- exampleExpressionSet(do.voom=TRUE)
 ##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'),
-##'                 verbose=TRUE)
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+##' resultNames(mg)
 ##' res.camera <- result(mg, 'camera')
 ##' res.fry <- result(mg, 'fry')
+##' res.all <- results(mg)
 multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       methods=NULL, use.treat=FALSE,
                       feature.min.logFC=if (use.treat) log2(1.25) else 1,

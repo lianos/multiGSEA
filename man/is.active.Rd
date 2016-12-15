@@ -9,15 +9,18 @@ is.active(x, i, j)
 \arguments{
 \item{x}{\code{GeneSetDb}}
 
-\item{i}{collection of geneset}
+\item{i}{collection of geneset(s)}
 
-\item{j}{name of geneset}
+\item{j}{name of geneset(s) (must be same length as \code{i})}
 }
 \value{
-logical indicating if geneset is active. throws an error if geneset
-  does not exist in geneSets(x)
+logical indicating if geneset is active. throws an error if
+  any requested geneset does not exist in \code{x}.
 }
 \description{
-This method only works on one geneset at a time (ie. not vectorized)
+Returns the \code{active} status of genesets, which are specified by
+their collection,name compound keys. This function is vectorized and
+supports query of multiple gene sets at a time. If a requested
+collection,name gene set doesn't exist, this throws an error.
 }
 

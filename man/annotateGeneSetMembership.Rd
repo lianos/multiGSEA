@@ -21,6 +21,18 @@ Returns the original \code{x} with additional columns: each is a
   \code{gdb}.
 }
 \description{
-Annotates rows of a data.frame with geneset membership from a GeneSetDb
+This is helpful when you don't have a monsterly sized GeneSetDb. There will
+be as many new columns added to \code{x} as there are active genesets in
+\code{gdb}.
+}
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- getMSigGeneSetDb('h', 'human')
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+lfc <- logFC(mg)
+annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
+
+## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
+(angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`))
 }
 

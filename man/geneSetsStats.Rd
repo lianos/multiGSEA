@@ -22,8 +22,43 @@ expressed.}
 \code{logFC} statistics for each geneset.}
 }
 \value{
-A data.table with statistics on the effect size shift for the gene
-  set as well as numbers of members that shift up or down.
+A data.table with statistics at the gene set level across the
+  prescribed contrast run on \code{x}. These statistics are independent
+  of any particular GSEA method, but rather summarize aggregate shifts
+  of the gene sets individual features. The columns included in the output
+  are summarized below:
+
+  \describe{
+    \item{n.sig}{
+      The number of individual features whose abs(logFC) and padj thersholds
+      satisfy the criteria of the \code{feature.min.logFC} and
+      \code{feature.max.padj} parameters of the original
+      \code{\link{multiGSEA}} call
+    }
+    \item{n.neutral}{
+      The number of individual features whose abs(logFC) and padj thersholds
+      do not satisfy the \code{feature.*} criteria named above.
+    }
+    \item{n.up, n.down}{
+      The number of individual features with logFC > 0 or logFC < 0,
+      respectively, irrespective of the \code{feature.*} thresholds
+      referenced above.
+    }
+    \item{n.sig.up, n.sig.down}{
+      The number of individual features that pass the \code{feature.*}
+      thresholds and have logFC > 0 or logFC < 0, respectively.
+    }
+    \item{mean.logFC, mean.logFC.trim}{
+      The mean (or trimmed mean) of the individual logFC estimates for the
+      features in the gene set. The amount of trim is specified in the
+      \code{trim} parameter of the \code{\link{multiGSEA}} call.
+    }
+    \item{mean.t, mean.t.trim}{
+      The mean (or trimmed mean) of the individual t-statistics for the
+      features in the gene sets. These are \code{NA} if the input expression
+      object was a \code{DGEList}.
+    }
+  }
 }
 \description{
 This function calculates the number of genes that move up/down for the
@@ -33,10 +68,9 @@ purely a function of the statistics generated at the gene-level stage
 of the analysis.
 }
 \examples{
-
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- exampleGeneSetDb()
-mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
 head(geneSetsStats(mg))
 }
 

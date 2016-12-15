@@ -32,6 +32,7 @@ geneSetDb <- function(x) {
   updateObject(x@gsd)
 }
 
+##' @rdname geneSet
 setMethod("geneSet", c(x="MultiGSEAResult"),
 function(x, i, j, active.only=TRUE, fetch.all=FALSE,
          with.feature.map=FALSE, ..., .external=TRUE) {
@@ -68,27 +69,18 @@ function(x, i, ...) {
   geneSetCollectionURLfunction(geneSetDb(x), i, ...)
 })
 
+##' @rdname featureIds
 setMethod("featureIds", c(x="MultiGSEAResult"),
-function(x, i, j, value=c('x.id', 'featureId'), ...) {
+function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
+         fetch.all=FALSE, active.only=TRUE, ...) {
   value <- match.arg(value)
+  if (!isTRUE(active.only)) {
+    warning("The featureIds() accessor for a MultiGSEAResult enforces ",
+            "`active.only` to be set to TRUE")
+  }
   featureIds(geneSetDb(x), i, j, value=value, fetch.all=FALSE,
              active.only=TRUE)
 })
-
-##' Fetch the logFC statistics for a geneset
-##'
-##' @export
-##'
-##' @param x \code{MultiGSEAResult}
-##' @param i The collection name
-##' @param j The gene set name
-##' @return data.table with the stats for the features in the geneset
-geneSetFeatureStats <- function(x, i, j, .external=TRUE) {
-  stopifnot(is(x, 'MultiGSEAResult'))
-  fids <- featureIds(x@gsd, i, j)
-  ret.df(subset(logFC(x, .external=FALSE), featureId %in% fids),
-         .external=.external)
-}
 
 ##' Summarizes useful statistics per gene set from a MultiGSEAResult
 ##'
@@ -110,14 +102,48 @@ geneSetFeatureStats <- function(x, i, j, .external=TRUE) {
 ##' @param trim The amount to trim when calculated trimmed \code{t} and
 ##'   \code{logFC} statistics for each geneset.
 ##'
-##' @return A data.table with statistics on the effect size shift for the gene
-##'   set as well as numbers of members that shift up or down.
+##' @return A data.table with statistics at the gene set level across the
+##'   prescribed contrast run on \code{x}. These statistics are independent
+##'   of any particular GSEA method, but rather summarize aggregate shifts
+##'   of the gene sets individual features. The columns included in the output
+##'   are summarized below:
+##'
+##'   \describe{
+##'     \item{n.sig}{
+##'       The number of individual features whose abs(logFC) and padj thersholds
+##'       satisfy the criteria of the \code{feature.min.logFC} and
+##'       \code{feature.max.padj} parameters of the original
+##'       \code{\link{multiGSEA}} call
+##'     }
+##'     \item{n.neutral}{
+##'       The number of individual features whose abs(logFC) and padj thersholds
+##'       do not satisfy the \code{feature.*} criteria named above.
+##'     }
+##'     \item{n.up, n.down}{
+##'       The number of individual features with logFC > 0 or logFC < 0,
+##'       respectively, irrespective of the \code{feature.*} thresholds
+##'       referenced above.
+##'     }
+##'     \item{n.sig.up, n.sig.down}{
+##'       The number of individual features that pass the \code{feature.*}
+##'       thresholds and have logFC > 0 or logFC < 0, respectively.
+##'     }
+##'     \item{mean.logFC, mean.logFC.trim}{
+##'       The mean (or trimmed mean) of the individual logFC estimates for the
+##'       features in the gene set. The amount of trim is specified in the
+##'       \code{trim} parameter of the \code{\link{multiGSEA}} call.
+##'     }
+##'     \item{mean.t, mean.t.trim}{
+##'       The mean (or trimmed mean) of the individual t-statistics for the
+##'       features in the gene sets. These are \code{NA} if the input expression
+##'       object was a \code{DGEList}.
+##'     }
+##'   }
 ##'
 ##' @examples
-##'
 ##' vm <- exampleExpressionSet(do.voom=TRUE)
 ##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
 ##' head(geneSetsStats(mg))
 geneSetsStats <- function(x, feature.min.logFC=1,
                           feature.max.padj=0.10, trim=0.10, .external=TRUE) {
@@ -163,6 +189,7 @@ geneSetsStats <- function(x, feature.min.logFC=1,
 ##'
 ##' @export
 ##' @param x A \code{MultiGSEAResult}
+##' @template external-param
 ##' @return The log fold change \code{data.table}
 ##'
 ##' @examples
@@ -175,17 +202,7 @@ logFC <- function(x, .external=TRUE) {
   ret.df(x@logFC, .external=.external)
 }
 
-##' Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
-##'
-##' @export
-##' @rdname results
-##' @param x A MultiGSEAResult
-resultNames <- function(x) {
-  stopifnot(is(x, 'MultiGSEAResult'))
-  names(x@results)
-}
-
-##' Returns method names that were not run on a MultiGSEAResult
+## Helper function: returns method names that were not run on a MultiGSEAResult
 invalidMethods <- function(x, names, as.error=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   stopifnot(is.character(names))
@@ -199,14 +216,41 @@ invalidMethods <- function(x, names, as.error=FALSE) {
   bad.names
 }
 
+##' Interrogate the results of a multiGSEA analysis stored in a MultiGSEAResult
+##'
+##' @description
+##' The \code{resultNames}, \code{result}, and \code{results} functions enable
+##' you to explore the results of the analysis run with \code{\link{multiGSEA}}.
+##'
+##' The results that are stored within a \code{MultiGSEAResult} object have a
+##' more or less 1:1 mapping with the values passed as \code{methods}, parameter
+##' of the \code{\link{multiGSEA}} call.
+##'
+##' The product of an indivdual GSEA is consumed by the corresponding
+##' \code{do.<METHOD>} function and converted into a data.table of results that
+##' is internally stored.
+##'
+##' Use the \code{resultNames} function to identify which results are available
+##' for interrogation. The \code{result} function returns the statistics of
+##' one individual result, and the \code{results} function combines the results
+##' from the specified methods into an arbitrarily wide data.table with
+##' \code{method}-suffixed column names.
+##'
+##' Use the \code{tabulateResults} function to create a summary table that
+##' tallies the number of significant genesets per collection, per method at
+##' the specified FDR thresholds.
+##'
+##' @export
+##' @rdname results
+##' @param x A \code{MultiGSEAResult} object.
+##'
+##' @examples
+##' ## Refer to the examples in ?multiGSEA
+resultNames <- function(x) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  names(x@results)
+}
 
-##' Extract the result from a given enrichment test from a MultiGSEAResult
-##'
-##' TODO: Enable a way for caller to get a subset of the genesets tested,
-##' perhaps this will happen at the "collectoin" level. In this case, it's
-##' not clear if the pval correction should be redone to only account for
-##' the genesets that are returned from.
-##'
 ##' @export
 ##' @rdname results
 ##'
@@ -218,9 +262,8 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##' @param rank.by the statistic to use to append a \code{rank} column for the
 ##'   geneset result. By default we rank by pvalue calculated by the GSEA
 ##'   method. You can rank the results based on the trimmed mean of the logFC's
-##'   calculated for all of the features in the geneset (\code{"logFC"}), the
-##'   trimmed t-statistics of the these features (\code{"t"}), or the "J-G"
-##'   statistic of the geneset.
+##'   calculated for all of the features in the geneset (\code{"logFC"}), or the
+##'   trimmed t-statistics of the these features (\code{"t"}).
 ##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
 ##'   columns of the \code{method}-specific statistics returned, ie. the
 ##'   \code{pval} column from the \code{camera} result will be turned to
@@ -256,7 +299,7 @@ result <- function(x, name, stats.only=FALSE,
 
   res <- local({
     r <- x@results[[name]]
-    if (!isTRUE(all.equal(out[, key(out), with=FALSE], r[, key(out), with=FALSE])[1])) {
+    if (!isTRUE(all.equal(out[, key(out)], r[, key(out)])[1L])) {
       stop("Unexpected geneset ordering in `", name, "` result")
     }
     if (stats.only) {
@@ -297,26 +340,11 @@ result <- function(x, name, stats.only=FALSE,
   ret.df(out, .external=.external)
 }
 
-##' A summary of one/some/all of the results that were run.
-##'
-##' If the result from more than one method is requested, the column names for
-##' these results will be suffixed with the method name.
-##'
 ##' @export
 ##' @rdname results
 ##'
-##' @param x \code{MultiGSEAResult}
-##' @param names The results you want to cbind together for the output
-##' @param stats.only logical, set to \code{FALSE} if you want to return all
-##'   (column-wise) data for each result. By default only the pvalues,
-##'   adjusted pvalues, and rank are returned.
-##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
-##'   columns of the \code{method}-specific statistics returned. This is forced
-##'   to \code{TRUE} if \code{length(names) > 1L}
-##'
-##' @return a data.table with all of the results. The results will optionally
-##'   be suffixed with the method name that generated them when
-##'   \code{length(names) > 1L}
+##' @param names The results you want to cbind together for the output, will
+##'   default to all of them.
 results <- function(x, names=resultNames(x), stats.only=TRUE,
                     rank.by=c('pval', 'logFC', 't'),
                     add.suffix=length(names) > 1L, .external=TRUE) {
@@ -352,14 +380,9 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
   ret.df(out, .external=.external)
 }
 
-##' Create a summary table to indicate number of significant genesets per
-##' collection, per method
-##'
 ##' @export
 ##' @rdname results
 ##'
-##' @param x \code{MultiGSEAResult}
-##' @param names The results you want to cbind together for the output
 ##' @param max.p The maximum padj value to consider a result significant
 ##' @param p.col use padj or padj.by.collection?
 ##'
@@ -393,32 +416,32 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
   ret.df(rbindlist(res))
 }
 
-##' Subset MultiGSEAResult to include include results for specified genesets
-##'
-##' This isn't exported yet because I don't like its implementation
-##' @param x MultiGSEAResult
-##' @param keep logical vector as long as there are numbers of results
-##' @return a \code{MultiGSEAResult} that has only the results for the specified
-##'   genesets.
-subset.MultiGSEAResult <- function(x, keep) {
-  stopifnot(is(x, 'MultiGSEAResult'))
-  did.gsea <- length(x@results) > 0
-  ## length of x@results is 0 if no methods were run (only stats calc'd)
-  nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x, .external=FALSE))
-  if (!is.logical(keep) && lenght(keep) != nr) {
-    stop("The `keep` vector is FUBAR'd")
-  }
-  if (did.gsea) {
-    new.res <- lapply(x@results, function(x) subset(x, keep))
-    x@results <- new.res
-    gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
-    x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
-  } else {
-    x@gsd@table <- x@gsd@table[keep]
-  }
-
-  x
-}
+# ##' Subset MultiGSEAResult to include include results for specified genesets
+# ##'
+# ##' This isn't exported yet because I don't like its implementation
+# ##' @param x MultiGSEAResult
+# ##' @param keep logical vector as long as there are numbers of results
+# ##' @return a \code{MultiGSEAResult} that has only the results for the specified
+# ##'   genesets.
+# subset.MultiGSEAResult <- function(x, keep) {
+#   stopifnot(is(x, 'MultiGSEAResult'))
+#   did.gsea <- length(x@results) > 0
+#   ## length of x@results is 0 if no methods were run (only stats calc'd)
+#   nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x, .external=FALSE))
+#   if (!is.logical(keep) && lenght(keep) != nr) {
+#     stop("The `keep` vector is FUBAR'd")
+#   }
+#   if (did.gsea) {
+#     new.res <- lapply(x@results, function(x) subset(x, keep))
+#     x@results <- new.res
+#     gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
+#     x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
+#   } else {
+#     x@gsd@table <- x@gsd@table[keep]
+#   }
+#
+#   x
+# }
 
 setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
@@ -434,10 +457,21 @@ setMethod("show", "MultiGSEAResult", function(object) {
 
 ##' Assembles a matrix of nominal or adjusted pvalues from a multiGSEA result
 ##'
+##' You might want a matrix of pvalues (or FDRs) for the gene sets across all
+##' GSEA methods you tried. I think I did, once, so here it is.
+##'
 ##' @export
 ##' @param x The output from multiGSEA
+##' @param names the entries from \code{resultNames(x)} that you want to include
+##'   in the matrix. By default we take all of them.
 ##' @param pval Are we testing pvalues or adjusted pvalues?
 ##' @return A matrix of the desired pvalues for all genesets
+##'
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- exampleGeneSetDb()
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+##' pm <- p.matrix(mg)
 p.matrix <- function(x, names=resultNames(x),
                      pcol=c('padj', 'padj.by.collection', 'pval')) {
   stopifnot(is(x, 'MultiGSEAResult'))

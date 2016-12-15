@@ -4,7 +4,7 @@
 \alias{subsetByFeatures}
 \title{Subset a GeneSetDb to only include geneSets with specified features.}
 \usage{
-subsetByFeatures(x, features, ...)
+subsetByFeatures(x, features, value = c("featureId", "x.id", "x.idx"), ...)
 }
 \arguments{
 \item{x}{\code{GeneSetDb}}
@@ -17,5 +17,10 @@ A subset of \code{x} which contains only the geneSets that contain
 }
 \description{
 Subset a GeneSetDb to only include geneSets with specified features.
+}
+\examples{
+gdb <- exampleGeneSetDb()
+features <- c("55839", "8522", "29087")
+(gdb.sub <- subsetByFeatures(gdb, features))
 }
 

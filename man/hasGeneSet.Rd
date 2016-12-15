@@ -22,4 +22,8 @@ logical indicating whether or not the geneset is defined.
 \description{
 Check to see if the GeneSetDb has a collection,name GeneSet defined
 }
+\examples{
+gdb <- exampleGeneSetDb()
+hasGeneSet(gdb, c('c2', 'c7'), c('BIOCARTA_AGPCR_PATHWAY', 'something'))
+}
 

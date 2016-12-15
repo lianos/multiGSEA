@@ -4,23 +4,29 @@
 \name{conform}
 \alias{conform}
 \alias{conform,GeneSetDb-method}
-\title{Map featureId's in a GeneSetDb to a target expression object.}
+\alias{is.conformed}
+\alias{unconform}
+\title{(Re)-map geneset IDs to the rows in an expression object.}
 \usage{
 conform(x, ...)
 
+unconform(x, ...)
+
 \S4method{conform}{GeneSetDb}(x, target, unique.by = c("none", "mean", "var"),
   min.gs.size = 3L, max.gs.size = Inf, match.tolerance = 0.25, ...)
+
+is.conformed(x, to)
 }
 \arguments{
-\item{x}{\code{GeneSetDb}}
+\item{x}{The GeneSetDb}
 
 \item{...}{moar args}
 
 \item{target}{The expression object/matrix to conform to. This could also
 just be a character vector of IDs.}
 
-\item{unique.by}{If there are multiple rows that map to the identifiers
-used in the genesets, this is a means to pick the single row for that ID}
+\item{unique.by}{If there are multiple rows that map to the identifiers used
+in the genesets, this is a means to pick the single row for that ID}
 
 \item{min.gs.size}{Ensure that the genesets that make their way to the
 \code{GeneSetDb@table} are of a minimum size}
@@ -29,18 +35,47 @@ used in the genesets, this is a means to pick the single row for that ID}
 \code{GeneSetDb@table} are smaller than this size}
 
 \item{match.tolerance}{Numeric value between [0,1]. If the fraction of
-\code{featureId}s used in \code{x} that match \code{rownames(y)} is
-below this number, a warning will be fired.}
-
-\item{x}{The GeneSetDb}
+\code{featureId}s used in \code{x} that match \code{rownames(y)} is below
+this number, a warning will be fired.}
 }
 \value{
-A \code{GeneSetDb} that has been matched/conformed to an
-  expression object target (\code{y})
+A \code{GeneSetDb} that has been matched/conformed to an expression
+  object target (\code{y})
 }
 \description{
-Map featureId's in a GeneSetDb to a target expression object.
+\code{conform}-ing, a \code{GeneSetDb} to a target expression
+object is an important step required prior to perform any type of GSEA. This
+function maps the featureIds used in the GeneSetDb to the elements of a
+target expression object (ie. the rows of an expression matrix, or the
+elements of a vector of gene-level statistics).
 
-This uses the already-set featureIdMap for the GeneSetDb
+After \code{conform}-ation, each geneset in the \code{GeneSetDb} is flagged
+as active (or inactive) given the number of its features that are
+successfully mapped to \code{target} and the minimum and maximum number of
+genes per geneset required as specified by the \code{min.gs.size} and
+\code{max.gs.size} parameters, respectively.
+
+Only genesets that are marked with \code{active=TRUE} will be used in any
+downstream gene set operations.
+}
+\section{Related Functions}{
+
+\enumerate{
+  \item{\code{unconform}}{Resets the conformation mapping.}
+  \item{\code{is.conformed}}{
+    If \code{to} is missing, looks for evidence if \code{coform} has
+    been called (at all) on \code{x}. If \code{to} is provided, specifically
+    checks that \code{x} has been conformed to the target object \code{to}.
+  }
+}
+}
+\examples{
+es <- exampleExpressionSet()
+gdb <- exampleGeneSetDb()
+head(geneSets(gdb))
+gdb <- conform(gdb, es)
+## Note the updated values `active` flag, and n (the number of features
+## mapped per gene set)
+head(geneSets(gdb))
 }
 

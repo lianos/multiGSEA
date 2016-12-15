@@ -84,7 +84,7 @@ getPantherPathways <- function(p.db, org.db) {
   }
 
   gdb <- GeneSetDb(lol)
-  collectionUrlFunction(gdb, names(lol)) <- url.fn
+  geneSetCollectionURLfunction(gdb, names(lol)) <- url.fn
   featureIdType(gdb, names(lol)) <- EntrezIdentifier()
   gdb
 }
@@ -137,7 +137,7 @@ getPantherGOSLIM <- function(p.db, org.db) {
   xref <- match(gdb@table$name, GO$TERM)
   gdb@table$GOID <- GO$GOSLIM_ID[xref]
   gdb@table$ontology <- GO$GOSLIM_TERM[xref]
-  collectionUrlFunction(gdb, 'GOSLIM') <- url.fn
+  geneSetCollectionURLfunction(gdb, 'GOSLIM') <- url.fn
   featureIdType(gdb, 'GOSLIM') <- EntrezIdentifier()
   gdb
 }

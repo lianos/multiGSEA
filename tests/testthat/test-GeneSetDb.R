@@ -177,8 +177,9 @@ test_that("conform,GeneSetDb follows row permutation in expression object", {
 
   ## gsd.sub is super small, so we expect a warning due to not being able to
   ## match many featureIds to the expression object
-  expect_warning(gsd.sub <- conform(gsd, es.sub),
-                 "^fraction .* low:", ignore.case=TRUE)
+  expect_warning({
+    gsd.sub <- conform(gsd, es.sub)
+  }, "^fraction .* low:", ignore.case=TRUE)
 
   ## gsd.es and gsd.mixed should have the same features in them but different
   ## x.id

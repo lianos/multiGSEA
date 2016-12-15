@@ -138,6 +138,20 @@ statistics for the individual members of the geneSet across the contrast
 that was tested in the \code{\link{multiGSEA}} call that created the
 \code{\link{MultiGSEAResult}}.
 }
+
+\section{GeneSetDb manipulation}{
+
+
+You can subset a GeneSetDb to include a subset of genesets defined in it.
+To do this, you need to provide an indexing vector that is as long as
+\code{length(gdb)}, ie. the number of gene sets defined in GeneSetDb. You
+can construct such a vector by performing your boolean logic over the
+\code{geneSets(gdb)} table.
+
+Look at the Examples section to see how this works, where we take the
+MSIgDB c7 collection (aka. "ImmuneSigDB") and only keep gene sets that
+were defined in experiments from mouse.
+}
 \examples{
 ## exampleGeneSetDF provides gene set definitions in "long form". We show
 ## how this can easily turned into a GeneSetDb from this form, or convert
@@ -161,6 +175,16 @@ gs.lol <- as.list(gdb.df, nested=TRUE) ## examine this list-of lists
 (gsets <- geneSets(gdb.df))
 (nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells'))
 (fids <- featureIds(gdb.df))
+
+## GeneSetDb Manipulation
+## Subset ImmuneSigDB down to only gene sets defined from mouse
+idb <- getMSigGeneSetDb('c7', 'mouse')
+igs <- geneSets(idb)
+table(igs$organism)
+## Homo sapiens Mus musculus
+##         1888         2984
+idb.mm <- idb[igs$organism == 'Mus musculus']
+length(idb.mm) ## 2984
 }
 \seealso{
 \code{\link{conversion}}

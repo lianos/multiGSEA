@@ -9,7 +9,7 @@ incidenceMatrix(x, y, ...)
 \arguments{
 \item{x}{A \code{GeneSetDb}}
 
-\item{y}{(optiona) A target (expression) object \code{x} is (or can be)
+\item{y}{(optional) A target (expression) object \code{x} is (or can be)
 conformed to}
 }
 \value{
@@ -18,7 +18,14 @@ incidence matrix with nrows = number of genesets and columns are
   match the rows of \code{y}.
 }
 \description{
-rows are number of genesetes in \code{x}, columns are number of rows in
-\code{y}
+Generates an inidcator matrix to indicate membership of genes (columns)
+to gene sets (rows). If \code{y} is provided, then the incidence is mapped
+across the entire feature-space of \code{y}.
+}
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- getMSigGeneSetDb('h', 'human')
+im <- incidenceMatrix(gdb)
+imv <- incidenceMatrix(gdb, vm)
 }
 

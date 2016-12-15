@@ -4,6 +4,8 @@
 ##
 ## Although the code looks hairy, note that there are unit tests in
 ## test-geneSetSummaryByGenes.R
+
+##' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="GeneSetDb"),
 function(x, features, with.features=TRUE, feature.rename=NULL, ...,
          .external=TRUE) {
@@ -27,7 +29,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   } else {
     out <- x.gs[, c(gs.cols, 'N'), with=FALSE]
   }
-  
+
   ## Each geneset row will be annotated with the number of features it
   ## it has, even if caller doesn't ask for `with.features`. To do so we first
   ## create geneset <-> featureId contingency table.
@@ -37,7 +39,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   x.dt <- dcast.data.table(x.db[, present := TRUE],
                            collection + name ~ featureId,
                            value.var='present', fill=FALSE)
-  
+
   ## I was once given a strange GeneSetDb object with genesets in gdb@db that
   ## were not in gdb@table. Such an object would fail validObject(gdb), so this
   ## should never be. Let's dance around it, but also warn when it happens.
@@ -59,6 +61,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   ret.df(out, .external=.external)
 })
 
+##' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="MultiGSEAResult"),
 function(x, features, with.features=TRUE, feature.rename=NULL,
          method=NULL, max.p=0.3, p.col=c('padj', 'padj.by.collection', 'pval'),
@@ -84,12 +87,12 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
 
   res <- geneSetSummaryByGenes(gdb, features, with.features,
                                feature.rename=FALSE, .external=FALSE, ...)
-  
+
   if (with.features) {
     ## Account for impossible scenario that I "dance around" in the function
     ## upstairs
     features <- intersect(features, names(res))
-    
+
     fstart <- ncol(res) - length(features) + 1
     meta <- res[, 1:(fstart - 1), with=FALSE]
     fcols <- res[, fstart:ncol(res), with=FALSE]
@@ -167,12 +170,12 @@ rename.feature.columns <- function(x, gdb, feature.rename=NULL) {
   if (!is.null(feature.rename)) {
     feature.rename <- feature.rename[1L]
     if (is.null(gdb@db[[feature.rename]])) {
-      warning("Can't rename features by: ", feature.rename, 
+      warning("Can't rename features by: ", feature.rename,
               " (not found as a column in gdb@db")
       feature.rename <- NULL
     }
   }
-  
+
   default.names <- setNames(paste0('featureId_', rename.cols), rename.cols)
 
   if (is.null(feature.rename)) {
