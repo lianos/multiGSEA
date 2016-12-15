@@ -19,7 +19,7 @@ validate.x.camera <- validate.X
 ##        parameter isn't explicitly set to NULL, then it is used and the
 ##        Correlation column of camera's output is dropped
 do.camera <- function(gsd, x, design, contrast=ncol(design),
-                      gs.idxs=as.expression.indexes(gsd, value='x.idx'),
+                      gs.idxs=as.list(gsd, value='x.idx'),
                       ...) {
   stopifnot(is.conformed(gsd, x))
 

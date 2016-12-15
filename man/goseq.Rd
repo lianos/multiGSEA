@@ -7,7 +7,7 @@
 goseq(gsd, selected, universe, feature.bias, method = c("Wallenius",
   "Sampling", "Hypergeometric"), repcnt = 2000,
   use_genes_without_cat = TRUE, plot.fit = TRUE, do.conform = TRUE,
-  .external = TRUE)
+  .external = TRUE, .pipelined = FALSE)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}
@@ -42,6 +42,11 @@ the \code{gsd} to the \code{universe} vector. This should neber be set
 to \code{FALSE}, but this parameter is here so that when this function
 is called from the \code{\link{multiGSEA}} codepath, we do not have to
 reconform the \code{GeneSetDb} object, because it has already been done.}
+
+\item{.pipelined}{If this is being external to a multiGSEA pipeline, then
+some additional cleanup of columns name output will be done. Otherwise
+the column renaming and post processing is left to the do.goseq caller
+(Default: \code{FALSE}).}
 
 \item{active.only}{If \code{TRUE}, only "active" genesets are used}
 

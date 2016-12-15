@@ -1,21 +1,23 @@
 Package: multiGSEA
 Type: Package
 Title: One GSEA interface to rule them all
-Version: 0.6.15
+Version: 0.7.0
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
-Description: Provides a unified interface to several gene set enrichment
-    analysis methods, along with plotting and other general GSEA utilities.
+Description: Provides a unified interface to orchestrate a plethora of GSEA
+    analyses over a contrast of interest along with robust interactive tools to
+    explore the results.
 Imports:
     methods,
     BiocGenerics,
+    BiocParallel,
     Biobase (>= 2.24.0),
     GSEABase,
     limma,
     edgeR,
     GSVA,
     reshape2,
-    data.table (>= 1.9.6),
+    data.table (>= 1.10.0),
     dplyr,
     dtplyr,
     Matrix,
@@ -35,7 +37,6 @@ Suggests:
     reactome.db,
     GO.db,
     knitr,
-    parallel,
     NMF,
     BiocStyle,
     airway,
@@ -70,7 +71,6 @@ Collate:
     'geneSetSummaryByGenes.R'
     'gsea-helpers.R'
     'msigdb-broad.R'
-    'msigdb-wehi.R'
     'multiGSEA.R'
     'package.R'
     'panther.R'

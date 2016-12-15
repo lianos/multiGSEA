@@ -246,11 +246,6 @@ function(x, features, ...) {
 
 ##' Fetch the IDs for the a given gene set.
 ##'
-##' If the GeneSetDb \code{x} has been conformed to an expression object this
-##' will default to return the featureId's as they are used/matched to the
-##' expression object, otherwise it will return the featureIds used in the
-##' definition of the gene set database.
-##'
 ##' @rdname featureIds
 ##'
 ##' @param x The GeneSetDb
@@ -270,9 +265,6 @@ function(x, features, ...) {
 ##'   Set this to \code{TRUE} if you want to get all featureIds irrespective of
 ##'   this constraint.
 ##'
-##' @return A vector of identifiers (or indexes into an expression object) for
-##'   the features in the given geneset. NA is returned if the geneset is not
-##'   "active" (ie. listed in geneSets(x))
 setMethod("featureIds", c(x="GeneSetDb"),
 function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
   if (missing(value)) {
@@ -325,9 +317,9 @@ function(x, i, j, value, fetch.all=FALSE, active.only=is.conformed(x), ...) {
     }
   }
 
-  fid.map <- merge(db, featureIdMap(x, .external=FALSE), by='featureId')
+  fid.map <- featureIdMap(x, .external=FALSE)[db$featureId]
   if (is.conformed(x) && !fetch.all) {
-    fid.map <- subset(fid.map, !is.na(x.idx))
+    fid.map <- fid.map[!is.na(x.idx)]
   }
 
   fid.map[[value]]
@@ -370,13 +362,25 @@ function(x, active.only=is.conformed(x), ... , .external=TRUE) {
 
 ##' @exportMethod geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
-function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE, ...,
-         .external=TRUE) {
+function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
+         with.feature.map=FALSE, ..., .external=TRUE) {
+  x <- updateObject(x)
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
                      fetch.all=fetch.all, ...)
   info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
-  finfo <- featureIdMap(x, .external=FALSE)[J(fids)]
-  ret.df(cbind(info[rep(1, nrow(finfo))], finfo), .external=.external)
+  info <- info[, list(collection, name, active, N, n)]
+
+  ## Fetch information from x@db. Extra information per feature are stored here
+  dbx <- x@db[J(i,j,fids)]
+  out <- cbind(info[rep(1L, nrow(dbx))], dbx[, -(1:2), with=FALSE])
+
+  ## Add featureIdMap info
+  if (with.feature.map) {
+    fminfo <- featureIdMap(x, .external=FALSE)[J(fids)]
+    out <- cbind(out, fminfo[, -1L, with=FALSE])
+  }
+
+  ret.df(out, .external=.external)
 })
 
 ##' Subset GeneSetDb to only include specified genesets.
@@ -506,6 +510,7 @@ hasGeneSetCollection <- function(x, collections, as.error=FALSE) {
 ##' @return logical indicating whether or not the geneset is defined.
 hasGeneSet <- function(x, collection, name, as.error=FALSE) {
   stopifnot(isSingleCharacter(collection) && isSingleCharacter(name))
+  stopifnot(is(x, 'GeneSetDb'))
   gs.exists <- !is.na(.gsd.row.index(x, collection, name))
   return(gs.exists)
 
@@ -518,8 +523,9 @@ hasGeneSet <- function(x, collection, name, as.error=FALSE) {
 
 setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="missing", name="missing"),
-  function(x, collection, name, .external=TRUE)
-    ret.df(x@collectionMetadata, .external=.external))
+  function(x, collection, name, .external=TRUE) {
+    ret.df(x@collectionMetadata, .external=.external)
+  })
 
 setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="character", name="missing"),
@@ -676,6 +682,7 @@ setMethod("org", "GeneSetDb", function(x, i, ...) {
 ##' @return The updated \code{GeneSetDb}
 addCollectionMetadata <- function(x, xcoll, xname, value,
                                   validate.value.fn=NULL, allow.add=TRUE) {
+  stopifnot(is(x, 'GeneSetDb'))
   stopifnot(is.character(xcoll))
   if (!hasGeneSetCollection(x, xcoll)) {
     stop("GeneSetDb does not have collection: ", xcoll)
@@ -779,6 +786,9 @@ setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x)))
 ##' @param ... moar args.
 ##' @return \code{TRUE} if equal, or \code{character} vector of messages if not.
 all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
+  stopifnot(is(target, 'GeneSetDb'))
+  stopifnot(is(current, 'GeneSetDb'))
+
   msg <- TRUE
 
   dbt <- setkeyv(copy(target@db), c('collection', 'name', 'featureId'))
@@ -809,7 +819,13 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
             collectionMetadata(current, .external=FALSE))
 }
 
-##' Convert a GeneSetDb to a data.frame
+##' Convert a GeneSetDb to other formats.
+##'
+##' @section To a data.frame:
+##'
+##' This will return a data.frame representation of a \code{GeneSetDb} object.
+##' If there is an "active" featureIdMap, it will optionally use that to map
+##' the original featureIds to the new ones specified by the map.
 ##'
 ##' @export
 ##'
@@ -819,6 +835,11 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##'   return the features that match target and are "active"?
 ##' @param ... nothing
 ##' @return a \code{data.frame} of the GeneSetDb
+##'
+##' @examples
+##' gdb <- exampleGeneSetDb()
+##' gdf <- as.data.frame(gdb)
+##' head(gdf)
 as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
                                     value=c('featureId', 'x.id', 'x.idx'),
                                     active.only=is.conformed(x), ...) {
@@ -873,7 +894,9 @@ as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
 }
 
 
-##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set
+##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set.
+##'
+##' \code{as.expression.indexes} is intentionally not exported
 ##'
 ##' @aliases as.expression.indexes
 ##' @rdname GeneSetDb-conversion

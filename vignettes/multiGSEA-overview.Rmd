@@ -414,6 +414,7 @@ Eventually we will:
 # The GeneSetDb Class
 
 The GeneSetDb class is a new container to store genesets.
+
   * Why not `GSEABase::GeneSetCollection`?
   * Constructing custom `GeneSetDb`s:
       * From a `list` of `lists` 
@@ -433,6 +434,24 @@ sources and convert them into a GeneSetDb object. These sources include:
 * MSigDB
 * PANTHER (pathways and GOSLIM)
 * More ...
+
+## Active vs Inactive Gene Sets
+
+After a `GeneSeDb` is conformed to a target expression object `E`,
+individual gene sets become "active" or "inactive" depending on the number
+of features per gene set are found in `E`. For instance, if `E`
+does not have measurements for at least `conform(, min.gs.size)`
+features for a given gene set, that gene set will be flagged as inactive.
+
+## Mapping of gene set featureIds to target expression containers
+
+It may be that the IDs used in a gene set collection are different from the
+ones used as the rownames of your expression cotainer. For instance, the IDs
+used for a given gene set collection in the \code{GeneSetDb} might be
+Ensembl gene identifiers, but the rownames of the expression object migth
+be Entrez ID. This is where the \code{mapping} parameter becomes useful.
+
+TODO: document the GeneSetDb ID mapping more thoroughly.
 
 # Costumizing Analyses
 

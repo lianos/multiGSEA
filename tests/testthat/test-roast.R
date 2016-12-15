@@ -11,7 +11,7 @@ test_that('roast runs equivalently from do.roast vs direct call', {
   ## We have to ensure that the genesets are tested in the same order as they
   ## are tested from the GeneSetDb for the pvalues to be equivalent given
   ## the same random seed.
-  gsd.idxs <- multiGSEA:::as.expression.indexes(gsd, value='x.idx')
+  gsd.idxs <- as.list(gsd, value='x.idx')
   gsi <- gsi[names(gsd.idxs)]
   ## nrot <- 10000
   nrot <- 250

@@ -37,7 +37,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      use.treat=FALSE, treat.lfc=log2(1.25),
                                      confint=TRUE, with.fit=FALSE, ...,
                                      .external=TRUE) {
-  do.contrast <- !is.vector(x) && ncol(x) > 1 && !is.null(design) &&
+  do.contrast <- !is.vector(x) &&
+    ncol(x) > 1 &&
+    !is.null(design) &&
     length(contrast) > 1
   if (do.contrast) {
     if (length(contrast) != ncol(design)) {
@@ -71,7 +73,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
       }
     }
     tt <- as.data.frame(topTags(tt, Inf, sort.by='none'))
-    tt <- transform(as.data.table(tt), t=NA_real_, featureId=rownames(x))
+    tt <- transform(setDT(tt), t=NA_real_, featureId=rownames(x))
     setnames(tt, c('logCPM', 'PValue', 'FDR'), c('AveExpr', 'pval', 'padj'))
     out <- tt
   } else if (ncol(x) > 1) {
@@ -89,7 +91,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
       fit <- eBayes(fit, robust=robust.eBayes, trend=trend.eBayes)
       tt <- topTable(fit, contrast, number=Inf, sort.by='none', confint=confint)
     }
-    tt <- transform(as.data.table(tt), featureId=rownames(x))
+    tt <- transform(setDT(tt), featureId=rownames(x))
     setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
     out <- tt
   } else {
@@ -104,7 +106,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
   }
-
+  setkeyv(out, 'featureId')
   out <- ret.df(out, .external=.external)
   if (with.fit) list(result=out, fit=fit) else out
 }

@@ -107,7 +107,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
     res <- suppressWarnings({
       multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                       do.conform=FALSE, .external=FALSE)
+                       do.conform=FALSE, .external=FALSE, .pipelined=TRUE)
     })
     setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
              c('pval', 'pval.under'))
@@ -158,13 +158,18 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 ##'   reconform the \code{GeneSetDb} object, because it has already been done.
 ##' @param active.only If \code{TRUE}, only "active" genesets are used
 ##' @param value The featureId types to extract from \code{gsd}
+##' @param .pipelined If this is being external to a multiGSEA pipeline, then
+##'   some additional cleanup of columns name output will be done. Otherwise
+##'   the column renaming and post processing is left to the do.goseq caller
+##'   (Default: \code{FALSE}).
 ##' @return A \code{data.table} of results, similar to goseq output. The output
 ##'   from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
 ##'   an attribue named \code{"pwf"}.
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
-                  plot.fit=TRUE, do.conform=TRUE, .external=TRUE) {
+                  plot.fit=TRUE, do.conform=TRUE, .external=TRUE,
+                  .pipelined=FALSE) {
   gseq <- tryCatch(loadNamespace("goseq"), error=function(e) NULL)
   if (is.null(goseq)) {
     stop("You must install the goseq package to enable this functionality")
@@ -207,6 +212,14 @@ goseq <- function(gsd, selected, universe, feature.bias,
   rcols <- setdiff(names(res), c('category', 'numInCat', 'numDEInCat'))
   for (rcol in rcols) {
     out[, (rcol) := res[rcol]]
+  }
+
+  if (!.pipelined) {
+    setnames(out,
+             c('over_represented_pvalue', 'under_represented_pvalue'),
+             c('pval_over', 'pval_under'))
+    out[, padj_over := p.adjust(pval_over, 'BH')]
+    out[, padj_under := p.adjust(pval_under, 'BH')]
   }
   out <- ret.df(out, .external=.external)
   setattr(out, 'pwf', pwf)

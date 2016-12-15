@@ -31,6 +31,7 @@ geneSetSelect <- function(input, output, session, mgc, server=TRUE,
     mo <- if (is.infinite(maxOptions)) nrow(geneSets(mgc()$mg)) else maxOptions
     gs.render.select.ui(session$ns, mgc()$choices, server=server, maxOptions=mo)
   })
+  outputOptions(output, "geneset_picker", suspendWhenHidden=FALSE)
 
   if (server) {
     shiny::observeEvent(mgc(), {
@@ -46,14 +47,20 @@ geneSetSelect <- function(input, output, session, mgc, server=TRUE,
   }
 
   shiny::reactive({
-    shiny::req(input$geneset)
-    info <- input$geneset %>%
+    gs <- input$geneset
+    if (is.null(gs) || length(gs) == 0 || nchar(gs) == 0) {
+      ## HACK, just but something here if it's not selectd
+      gs <- mgc()$choices$value[1L]
+    }
+    info <- gs %>%
       strsplit(sep, fixed=TRUE) %>%
       unlist %>%
       sapply(as.character) %>%
       setNames(c('collection', 'name'))
+    coll <- info[1L]
+    name <- info[2L]
     stats <- arrange_(geneSet(mgc()$mg, info[1L], info[2L]), ~ -logFC)
-    list(collection=info[1L], name=info[2L], stats=stats,
+    list(collection=coll, name=name, stats=stats,
          select.id=session$ns('geneset'), sep=sep)
   })
 }

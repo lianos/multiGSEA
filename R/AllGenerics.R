@@ -1,8 +1,28 @@
-##' Returns the featureIds associated with a given GeneSetDb or one of the
-##' individual gene sets within it.
+##' Returns the relevant featureIds for a given geneset.
+##'
+##' @description
+##' Gene sets are defined by the unique compound key consisting of their
+##' \code{collection} and \code{name}. To fetch the featureIds associated with
+##' a specific geneset, you must provide values for \code{i} and \code{j}. If
+##' these are missing, then a character vector of all the unique feature ids
+##' within \code{x} are returned.
+##'
+##' If the GeneSetDb \code{x} has been conformed to an expression object this
+##' will default to return the featureId's as they are used/matched to the
+##' expression object, otherwise it will return the featureIds used in the
+##' definition of the gene set database.
+##'
+##' \code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If
+##' its the latter, then this call simply delegates to the internal
+##' \code{GeneSetDb}.
 ##'
 ##' @rdname featureIds
 ##' @exportMethod featureIds
+##'
+##' @return A vector of identifiers (or indexes into an expression object,
+##'   depending on the \code{value} argument) for the features in the specified
+##'   geneset. NA is returned if the geneset is not "active" (ie. listed in
+##'   geneSets(x))
 setGeneric("featureIds", function(x, ...) standardGeneric("featureIds"))
 
 ##' Fetch the featureIdMap for a \code{GeneSetDb}

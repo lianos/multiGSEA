@@ -2,25 +2,15 @@
 % Please edit documentation in R/plots-corplot.R
 \name{corplot}
 \alias{corplot}
-\alias{panel.cor}
-\alias{panel.hist}
-\alias{panel.spoints}
-\title{Plots the correlation of genes in signature.}
+\title{Plots the correlation among the columns of a numeric matrix.}
 \usage{
 corplot(E, title, cluster = FALSE, col.point = "#00000066",
   diag.distro = TRUE)
-
-panel.cor(x, y, digits = 2, prefix = "", cex.cor, ...)
-
-panel.hist(x, ...)
-
-panel.spoints(x, y, col = par("col"), bg = NA, pch = par("pch"),
-  cex = 1, col.smooth = "red", span = 2/3, iter = 3,
-  col.point = "#00000022", ...)
 }
 \arguments{
-\item{E}{sample-by-gene matrix from \code{\link{fetchExpression}} to plot.
-Note that this is transpose of "the usual" gene x sample matrix.}
+\item{E}{the matrix used to plot a pairs correlation plot. The vectors used
+to assess all pairwise correlation should be \emph{in the columns} of the
+matrixl.}
 
 \item{title}{The title of the plot}
 
@@ -35,13 +25,18 @@ around into some clustering.}
 nothing, just creates the plot
 }
 \description{
-Plots the correlation of genes in signature.
+We assume that this is a sample x gene expression matrix, but it can
+(of course) be any numeric matrix of your choosing. The column names appear
+in the main diagonal of the plot. Note that you might prefer the corrplot
+package for similar functionality, and this functionality is intentionally
+named different from that..
+}
+\examples{
 
-Plots the correlation stats with colored background for the lower triangle
-of pairs plot.
-
-Plots the expression distribution as histogrm (mai diagonal of pair plot)
-
-Scatter plot for upper triangle of pairs plot
+x <- matrix(rnorm(100), ncol=5)
+corplot(x)
+}
+\seealso{
+\url{http://cran.r-project.org/package=corrplot}
 }
 

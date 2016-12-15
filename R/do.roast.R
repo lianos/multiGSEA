@@ -5,7 +5,7 @@ validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
 do.roast <- function(gsd, x, design, contrast=ncol(design),
-                     gs.idxs=as.expression.indexes(gsd, value='x.idx'), ...) {
+                     gs.idxs=as.list(gsd, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))
   args <- list(...)
   call.args <- as.list(formals(limma::mroast.default))

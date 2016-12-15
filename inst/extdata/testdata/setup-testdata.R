@@ -34,7 +34,7 @@ saveRDS(es, 'TCGA-BRCA-some.es.rds')
 ## -----------------------------------------------------------------------------
 ## Setup the most base of genesets
 load_pkg('multiGSEA')
-.gsets <- getMSigDBset(c('c2', 'c6', 'c7'), as.list=TRUE)
+.gsets <- getMSigGeneSetDb(c('c2', 'c6', 'c7'))
 
 ## This list is of the type that GeneSetDb expects, ie: a list of lists,
 ## where the top level list has elements from different "gene set groups". Each

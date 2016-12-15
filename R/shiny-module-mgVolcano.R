@@ -37,6 +37,9 @@ mgVolcano <- function(input, output, session,
   stopifnot(requireNamespace('shinyjs'))
   shinyjs::onclick("settings",
                    shinyjs::toggle(id="widgets", anim=TRUE))
+  if (missing(idx)) {
+    if (stats == 'dge') idx <- 'featureId'
+  }
 
   if (FALSE) {
     x <- mg <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hKO_tWT-hWT_tWT.rds')

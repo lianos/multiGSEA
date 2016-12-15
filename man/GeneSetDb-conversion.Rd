@@ -32,6 +32,6 @@ have different default values for the \code{active.only} parameter.
 returns the integer index into the expression matrix that the
 \code{GeneSetDb} is conformed to.
 
-Unrolls the GeneSetDb into a list of index vectors per "active" gene set
+\code{as.expression.indexes} is intentionally not exported
 }
 

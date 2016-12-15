@@ -9,11 +9,9 @@ suppressPackageStartupMessages({
 })
 
 vm <- exampleExpressionSet()
-gdb <- getMSigDBset('h')
+gdb <- getMSigGeneSetDb('h')
 
 test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
   lol <- as.list(gdb)
 
   E <- vm$E
@@ -40,9 +38,6 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 })
 
 test_that("multiple 'melted' scores are returned in a long data.frame", {
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
-  # library(parallel)
   scores <- scoreSingleSamples(gdb, vm$E, methods=c('svd', 'ssgsea'))
   expect_is(scores, 'data.frame')
   expect_true(all(c('svd', 'ssgsea') %in% scores$method))
@@ -52,9 +47,6 @@ test_that("multiple 'melted' scores are returned in a long data.frame", {
 })
 
 test_that("ssGSEA.normalize returns same normalization as GSVA", {
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
-  # library(parallel)
   scores <- scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
                                verbose=FALSE)
   my.norm <- ssGSEA.normalize(scores$score)
@@ -64,9 +56,6 @@ test_that("ssGSEA.normalize returns same normalization as GSVA", {
 })
 
 test_that("ssGSEA (raw) scores are not affected by samples included in test", {
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
-  # library(parallel)
   some <- sample(ncol(vm), 10)
   scores.all <- scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
                                    verbose=FALSE)
@@ -78,35 +67,4 @@ test_that("ssGSEA (raw) scores are not affected by samples included in test", {
   expect_equal(scores$scores.all, scores$scores.some)
 })
 
-test_that("simple svd scoring method is same as (naive) GSDecon scores", {
-  ## TODO: Finish this test. For somre reason 'gsdecon' and 'svd' are not
-  ## producing the same results!
 
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
-  # suppressWarnings(library(GSDecon))
-
-  # gsd <- scoreSingleSamples(gdb, vm$E, 'gsdecon')
-  # ssvd <- scoreSingleSamples(gdb, vm$E, 'svd')
-  # plage <- scoreSingleSamples(gdb, vm$E, 'plage')
-  expect_true(TRUE)
-})
-
-test_that("GeneSetDb <-> incidence matrix properly setup for GSDecon methods", {
-  ## GSdecon wires up an incidence matrix with genes in the columns and genesets
-  ## in the rows.
-  # vm <- exampleExpressionSet()
-  # gdb <- getMSigDBset('h')
-  im <- incidenceMatrix(gdb, vm)
-  expect_true(TRUE)
-})
-
-if (FALSE) {
-  library(Biobase)
-  library(multiGSEA)
-  library(DESeq2)
-  counts <- exprs(exampleExpressionSet(do.voom=FALSE))
-  x <- CPM(counts, prior.count=.25, log=FALSE)
-  X <- round(t(t(x) * attr(x, 'lib.size')))
-  r <- rlog(X)
-}

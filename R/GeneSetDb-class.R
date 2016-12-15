@@ -1,21 +1,89 @@
-##' Create a GeneSetDb to match an input expression object.
+##' Creates a GeneSetDb from a variety of different types of inputs.
 ##'
-##' @section Easily mapping rownames(x) to IDs used in gene.sets:
+##' @description
+##' The GeneSetDb class serves the same purpose as the
+##' \code{GSEABase::GeneSetCollection} class does: it acts as a centralized
+##' object to hold collections of Gene Sets. The reason for its existence is
+##' because there are things that I wanted to know about my gene set
+##' collections that weren't easily inferred from what is essentially a
+##' "list of GeneSets" that is the \code{GeneSetCollection} class.
 ##'
-##' It may be that the IDs used in the provided \code{gene.sets} are different
-##' than the ones used in \code{rownames(x)}, for instance the IDs in
-##' \code{gene.sets} might (are likely to) be Entrez IDs, and the rownames of
-##' \code{x} might by affy probe set IDs, what then?
+##' Gene Sets are internally represented by a \code{data.table} in "a tidy"
+##' format, where we minimally require non \code{NA} values for the following
+##' three \code{character} columns:
 ##'
-##' This is where the \code{mapping} parameter becomes useful.
+##' \enumerate{
+##'   \item{collection}
+##'   \item{name}
+##'   \item{featureId}
+##' }
 ##'
-##' In all cases, the \code{featureIds} stored in the \code{GeneSetDb} are
-##' "in the space" of the expression object \code{x} the GeneSetDb has been
-##' "conformed" to. To recover the original IDs used, you could reference the
-##' \code{featureIdMap} table.
+##' The (\code{collection}, \code{name}) compound key is the primary key of
+##' a gene set. There will be as many entries with the same
+##' (\code{collection}, \code{name}) as there are genes/features in that set.
 ##'
-##' TODO: document the GeneSetDb ID mapping more thoroughly.
+##' The \code{GeneSetDb} tracks metadata about genesets at \emph{the collection}
+##' level. This means that we assume that all of the \code{featureId}'s used
+##' within a collection use the same type of feature identifier (such as
+##' a \code{GSEABase::EntrezIdentifier()}), were defined in the same organism,
+##' etc.
 ##'
+##' \strong{Please refer to the "GeneSetDb" section of the vignette for more
+##' details regarding the construction and querying of a \code{GeneSetDb}
+##' object.}
+##'
+##' @section GeneSetDb Construction:
+##'
+##' The \code{GeneSetDb} constructor is sufficiently flexible enough to create
+##' a \code{GeneSetDb} object from a variety of formats that are commonly used
+##' in the bioconductor echosystem, such as:
+##'
+##' \enumerate{
+##'   \item{GSEABase::GeneSetCollection}{
+##'     If you've already got a \code{GeneSetCollection} on your hands, you can
+##'     simply pass it to the \code{GeneSetDb} constructor.
+##'   }
+##'   \item{list of ids}{
+##'     This format is commonly used to define gene sets in the edgeR/limma
+##'     universe for testing with camera, roast, romer, etc. The names of
+##'     the list items are the gene set names, and their values are a character
+##'     vector of gene identifiers. When it's a single list of lists, you must
+##'     provide a value for \code{collectionName}. You can embed multiple
+##'     collections of gene sets by having a three-deep list-of-lists-of-ids.
+##'     The top level list define the different collections, the second level
+##'     are the genesets, and the third level are the feature identifiers for
+##'     each gene set. See the examples for clarification.
+##'   }
+##'   \item{data.frame-like object}{
+##'     To keep track of your own custom gene sets, you have probably realized
+##'     the importance of maintaing your own sanity, and likely have gene sets
+##'     organized in a table like object that has something like
+##'     the \code{collection}, \code{name}, and \code{featureId} required for
+##'     a \code{GeneSetDb}. Simply rename the appropriate columns to the ones
+##'     prescribed here, and pass that into the constructor. Any other
+##'     additional columns (symbol, perhaps(?)) in the table will be copied
+##'     into the \code{GeneSetDb}.
+##'   }
+##' }
+##'
+##' @section Interrogating a GeneSetDb:
+##'
+##' You might wonder what gene sets are defined in a \code{GeneSetDb}: see
+##' the \code{\link{geneSets}} function.
+##'
+##' Curious about what features are defined in your \code{GeneSetDb}? See
+##' the \code{\link{featureIds}} function.
+##'
+##' Want the details of a particular gene set? Try the \code{\link{geneSet}}
+##' function. This will return a \code{data.frame} of the gene set definition.
+##' Calling \code{\link{geneSet}} on a \code{\link{MultiGSEAResult}} will
+##' return the same \code{data.frame} along with the differential expression
+##' statistics for the individual members of the geneSet across the contrast
+##' that was tested in the \code{\link{multiGSEA}} call that created the
+##' \code{\link{MultiGSEAResult}}.
+##'
+##' @rdname GeneSetDb-class
+##' @aliases GeneSetDb
 ##' @export
 ##'
 ##' @param x A \code{GeneSetCollection}, a "two deep" list of either
@@ -36,6 +104,42 @@
 ##'   can't be defined from this, then collections will be named anonymously.
 ##'   If a value is passed here, it will overide any names stored in the list of
 ##'   \code{x}.
+##'
+##' @examples
+##' ## Some Gene Sets from Rooney et al. Note that the feature id vectors
+##' ## do not have to be named, they just are here to add clarity.
+##'
+##' ## list of ids
+##' gs.list <- list(
+##'   'cytolytic activity'=c("GZMA"="3001", "PRF1"="5551"),
+##'   'NK cells'=c("KLRC1"="3821", "KLRF1"="51348"),
+##'   'MHC Class I'=c("B2M"="567", "HLA-A"="3105", "TAP1"="6890"))
+##' gdb1 <- GeneSetDb(gs.list, collectionName='rooney_hacohen')
+##'
+##' ## list of lists of ids
+##' gs.lol <- list(
+##'   rooney_hacohen=gs.list,
+##'   angelova=list(
+##'     'Activated B Cells'=c('AKNA'='80709', 'ARHGAP25'='9938', 'CCL21'='6366'),
+##'     'DC'=c('C1QC'='714', 'CCDC88A'='55704', 'CCL13'='6357')))
+##' gdb2 <- GeneSetDb(gs.lol)
+##'
+##' ## Using a data.frame for input
+##' library('dplyr')
+##' gs.df <- lapply(names(gs.lol), function(coll.name) {
+##'   lapply(names(gs.lol[[coll.name]]), function(gs.name) {
+##'     tibble(collection=coll.name, name=gs.name,
+##'            featureId=gs.lol[[coll.name]][[gs.name]],
+##'            ## symbol is optional, but helpful
+##'            symbol=names(gs.lol[[coll.name]][[gs.name]]))
+##'   }) %>% bind_rows
+##' }) %>% bind_rows
+##' gdb3 <- GeneSetDb(gs.df)
+##'
+##' ## GeneSetDb Interrogation
+##' (gsets <- geneSets(gdb3))
+##' (nkcells <- geneSet(gdb3, 'rooney_hacohen', 'NK cells'))
+##' (fids <- featureIds(gdb3))
 GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb <- if (is(x, 'GeneSetCollection')) {
     GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
@@ -47,6 +151,8 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
     stop("No GeneSetDb constructor defined for: ", class(x)[1L])
   }
 
+  proto <- new("GeneSetDb")
+  setkeyv(gdb@db, key(proto@db))
   gdb
 }
 
@@ -83,7 +189,6 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
       warning("Something unexpected happened merging more feature metadata",
               immediate.=TRUE)
     }
-    gdb@db <- setkeyv(db, key(gdb@db))
   }
   gdb
 }
@@ -255,7 +360,7 @@ init.gsd.table.from.db <- function(db) {
 
 setMethod("show", "GeneSetDb", function(object) {
   proto <- .GeneSetDb()
-  msg <- paste("GeneSetDb with %d defined genesets across %d categories",
+  msg <- paste("GeneSetDb with %d defined genesets across %d collections",
                "(%d gene sets are active)")
   msg <- sprintf(msg,
                  nrow(unique(object@db, by=key(proto@db))),
@@ -438,3 +543,18 @@ validate.gene.sets.input <- function(gene.sets) {
   }
   gene.sets
 }
+
+setMethod("updateObject", "GeneSetDb",
+function(object, ..., verbose=FALSE) {
+  return(object)
+  ## Unfortunately we've internally generated GeneSetDb objects that weren't
+  ## entirely properly keyed.
+  proto <- new("GeneSetDb")
+  ekeys <- key(proto@db)
+  xkeys <- key(object@db)
+  if (!setequal(ekeys, xkeys) || !all.equal(ekeys, xkeys)) {
+
+    setkeyv(object@db, ekeys)
+  }
+  object
+})

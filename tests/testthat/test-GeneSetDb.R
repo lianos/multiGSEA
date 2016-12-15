@@ -53,8 +53,8 @@ test_that("GeneSetDb contructor converts GeneSetCollection properly", {
 })
 
 test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
-  gdb.h <- getMSigDBset(c('h'))
-  gdb.c6 <- getMSigDBset(c('c6'))
+  gdb.h <- getMSigGeneSetDb(c('h'))
+  gdb.c6 <- getMSigGeneSetDb(c('c6'))
   gdbo <- append(gdb.h, gdb.c6)
 
   gscl <- list(h=as(gdb.h, 'GeneSetCollection'),
@@ -244,7 +244,7 @@ test_that("append,GeneSetDb works", {
 })
 
 test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
-  m <- getMSigDBset('h')
+  m <- getMSigGeneSetDb('h')
   r <- getReactomeGeneSetDb()
 
   a <- append(r, m)
@@ -261,13 +261,13 @@ test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
 
 })
 
-test_that("GeneSetDb returns proper limma lists via as.expression.indexes", {
+test_that("GeneSetDb returns proper limma lists via as.list", {
   es <- exampleExpressionSet()
   gsi <- exampleGeneSets(es)
 
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), es)
-  indexes <- multiGSEA:::as.expression.indexes(gsd, 'x.idx')
+  indexes <- as.list(gsd, 'x.idx')
 
   for (xgrp in names(gsl)) {
     for (xid in names(gsl[[xgrp]])) {

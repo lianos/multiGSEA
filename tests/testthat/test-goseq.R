@@ -35,9 +35,8 @@ test_that("internal goseq mimics goseq package", {
 
   my.res <- suppressWarnings({
     multiGSEA::goseq(gsd, selected, universe, mylens, method='Wallenius',
-                     use_genes_without_cat=TRUE)
+                     use_genes_without_cat=TRUE, .pipelined=TRUE)
   })
-
   ## pwf <- attr(my.res, 'pwf')
 
   ## expected
@@ -128,5 +127,5 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
     abline(0,1,col='red')
   }
 
-  expect_equal(mygoh$over_represented_pvalue, myhyp$pval, tolerance=0.015)
+  expect_equal(mygoh$pval_over, myhyp$pval, tolerance=0.015)
 })

@@ -2,45 +2,42 @@
 % Please edit documentation in R/multiGSEA.R
 \name{multiGSEA}
 \alias{multiGSEA}
-\title{Performs several GSEA analysis over an experiment}
+\title{Performs a plethora of GSEA analyses over a contrast of interest.}
 \usage{
 multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
   use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else 1,
   feature.max.padj = 0.1, trim = 0.1, verbose = FALSE, ...,
-  do.parallel = FALSE)
+  .parallel = FALSE, BPPARAM = bpparam())
 }
 \arguments{
-\item{gsd}{The \code{\link{GeneSetDb}} to run enrichment over.}
+\item{gsd}{The \code{\link{GeneSetDb}} that defines the gene sets of
+interest.}
 
 \item{x}{An ExpressoinSet-like object}
 
 \item{design}{A design matrix for the study}
 
-\item{contrast}{The contrast of interest to analyze}
+\item{contrast}{The contrast of interest to analyze. This can be a column
+name of \code{design}, or a contrast vector which performs "coefficient
+arithmetic" over the columns of \code{design}. The \code{design} and
+\code{contrast} parameters are interpreted in \emph{exactly} the same
+way as the same parameters in limma's \code{\link[limma]{camera}} and
+\code{\link[limma]{roast}} methods.}
 
 \item{methods}{A character vector indicating the GSEA methods you want to
-run. This can be any combination of:
-\enumerate{
-  \item{camera} {A \code{\link[limma]{camera}} analysis}
-  \item{roast} {A \code{\link[limma]{roast}} analysis}
-  \item{gsd} {A \code{\link[limma]{geneSetTest} analysis}}
-  \item{hyperGeometricTest}{
-    Tests for enrichment of differentially expressed features in each
-    geneset. Thresholds of differential expression for the individual
-    features of a geneset are defind by the \code{feature.min.logFC} and
-    \code{feature.max.padj} parameters.
-  }
-}
-If no methods are specified, then only geneset level statistics, such as
-the JG score and the mean logFCs t-statistics, of the features in each
-geneset are calculated.}
+run. Refer to the GSEA Methods section for more details.
+If no methods are specified, only differential gene expressino and geneset
+level statistics for the contrast are computed.}
+
+\item{use.treat}{should we use limma/edgeR's "treat" functionality for the
+gene-level differential expression analysis?}
 
 \item{feature.min.logFC}{The minimum logFC required for an individual
 feature (not geneset) to be considered differentialy expressed. Used in
 conjunction with \code{feature.max.padj} primarily for summarization
 of genesets (by \code{\link{geneSetsStats}}), but can also be
 used by GSEA methods that require differential expression calls at the
-individual feature level, like \code{hyperGeometricTest}.}
+individual feature level, like \code{\link{goseq}}}
 
 \item{feature.max.padj}{The maximum adjusted pvalue used to consider an
 individual feature (not geneset) to be differentially expressed. Used in
@@ -50,29 +47,124 @@ conjunction with \code{feature.min.logFC}.}
 \code{logFC} statistics for each geneset. This is passed down to the
 \code{\link{geneSetsStats}} function.}
 
+\item{verbose}{make some noise during execution?}
+
 \item{...}{The arguments are passed down into the various geneset analysis
 functions.}
+
+\item{.parallel}{by default, \code{.parallel=FALSE} runs each GSEA in a
+serial manner. If \code{.parallel=TRUE}, the GSEA execution loop is
+parallelized using \code{BiocParallel}. Note that you might want to remove
+unnecessary large objects from your workspace when this is \code{TRUE}
+because R will likely want to copy them down into your worker threads.}
+
+\item{BPPARAM}{a \code{\link[BiocParallel]{BatchJobsParam}} passed down to
+\code{\link[BiocParallel]{bplapply}}. If not specified, the already
+registerd \code{\link[BiocParallel]{BatchJobsParam}} will be used.
+If \code{.parallel=FALSE}, this parameter is explicitly ignored and
+replaced with a \code{\link[BiocParallel]{SerialParam}} object.}
 }
 \value{
-A \code{MultiGSEAResult}
+A \code{\link{MultiGSEAResult}} which holds the results of all the
+  analyses specified in \code{methods}.
 }
 \description{
-multiGSEA is wrapper function which delegates GSEA analyses to different
-"workers" that implement each of the GSEA methods specified in the
-\code{methods} argument. By default, this only gathers geneset level
-statistics without running any of the GSEA methods in particular.
+multiGSEA is wrapper function that delegates GSEA analyses to different
+"workers", each of which implements the flavor of GSEA of your choosing.
+The particular analyses that are performed are specified by the
+\code{methods} argument, and these methods are fine tuned by passing their
+arguments down through the \code{...} of this wrapper function.
 }
 \details{
-Currently this primarily wraps the GSEA functions from limma, but others
-will be added over time. Refer to the \code{method} documentation to see
-which GSEA methods are supported.
+Currently this primarily wraps many of the GSEA methods available in
+edgeR/limma as well as goseq and hypergeometric testing functionality.
+Others will be added over time. Refer to the \emph{GSEA Methods} and
+\emph{GSEA Method Parameterization} sections for more details.
 
-logFC statistics are always calcualted via a limma pipeline, so if \code{x}
-is a \code{DGEList}, it is first "voom"ed, then processed.
+In addition to performing GSEA, this function also internally orchestrates
+a differential expression analysis, which can be tweaked by idnetifying
+the parameters in the \code{\link{calculateIndividualLogFC}} function, and
+passing them down through \code{...} here. The results of the differential
+expression analysis are accessible by calling the \code{logFC} function on
+the \code{\link{MultiGSEAResult}} object returned from this function call.
 
-This function will write several results to an output directory if
-  a valid value for \code{outdir} is provided. Furthermore, the results of
-  these analysis will be cached so that time is saved on subsequent calls.
+\emph{Please Note}: be sure to cite the original GSEA method when using
+results generated from it.
+}
+\section{GSEA Methods}{
+
+
+You can choose the methods you want to run over your contrast using the
+\code{methods}, parameter. The currently available methods are:
+
+\enumerate{
+  \item \code{\link[limma]{camera}(*)}
+  \item \code{\link[limma]{roast}(*)}
+  \item \code{\link[limma]{fry}(*)}
+  \item \code{\link[limma]{romer}(*)}
+  \item \code{\link[limma]{geneSetTest}}
+  \item \code{\link{goseq}}
+  \item \code{\link{hyperGeometricTest}}
+}
+
+Methods annotated with a \code{(*)} indicate that these methods require
+a complete expression object, a valid design matrix, and a contrast
+specification in order to run. These are all of the same things you need to
+provide when performing a vanilla differential gene expression analysis.
+
+Methods missing a \code{(*)} can be run on a feature-named input vector
+of gene level statistics which will be used for ranking (ie. a named vector
+of logFC's or t-statistics for genes).
+}
+
+\section{GSEA Method Parameterization}{
+
+
+Each GSEA method can be tweaked via a custom set of parameters. We leave the
+documentation of these parameters and how the affect their respective GSEA
+methods to the documentation available in the packages where they are
+defined. The caller simply has to pass these parameters down
+into the \code{...} parameters here. The \code{multiGSEA} function will then
+pass these along to their worker functions.
+
+\emph{What happens when two different GSEA methods have parameters with the same
+name?}
+
+Unfortunately you currently cannot provide different values for these
+parameters. An upcoming version version of multiGSEA will support this
+feature via slightly different calling semantics. This will also allow the
+caller to call the same GSEA method with different parameterizations so that
+even these can be compared against each other.
+}
+
+\section{Differential Gene Expression}{
+
+
+When the \code{multiGSEA} call is given an expression matrix, design, and
+contrast, it will also internally orchestrate a gene level differential
+expression analysis. Depending on the type of expression object passed in
+via \code{x}, this function will guess on the best method to use for this
+analysis.
+
+If \code{x} is a \code{DGEList}, then ensure that you have already called
+\code{\link[edgeR]{estimateDisp}} on \code{x} and edgeR's quasilikelihood
+framework will be used, otherwise we'll use limma (note that \code{x} can
+be a "voom"d \code{EList}).
+
+The parameters of this differential expression analysis can also be
+customized. Please refer to the \code{\link{calculateIndividualLogFC}}
+function for more information. The multiGSEA \code{use.treat},
+\code{feature.min.logFC}, \code{feature.max.padj}, as well as the \code{...}
+parameters are passed down to that funciton.
+}
+\examples{
+
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- exampleGeneSetDb()
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'),
+                verbose=TRUE)
+res.camera <- result(mg, 'camera')
+res.fry <- result(mg, 'fry')
 }
 \seealso{
 \code{\link[limma]{camera}},

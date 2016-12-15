@@ -5,8 +5,7 @@
 \title{Transforms gene x sample to geneset x sample and run differential expression}
 \usage{
 do.svdGeneSetTest(gsd, x, design, contrast = ncol(design),
-  gs.idxs = as.expression.indexes(gsd, value = "x.idx"),
-  trend.eBayes = FALSE, ...)
+  gs.idxs = as.list(gsd, value = "x.idx"), trend.eBayes = FALSE, ...)
 }
 \description{
 Transforms gene x sample to geneset x sample and run differential expression

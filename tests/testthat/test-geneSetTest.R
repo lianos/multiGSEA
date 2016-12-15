@@ -1,31 +1,25 @@
 context("geneSetTest")
 
 test_that("geneSetTest matches re-implememtation", {
+  nsim <- 250
+  seed <- 123
   vm <- exampleExpressionSet(do.voom=TRUE)
-  gsl <- exampleGeneSets()
-  gsi <- exampleGeneSets(vm)
-  gsd <- conform(GeneSetDb(gsl), vm)
-
-  ## We have to ensure that the genesets are tested in the same order as they
-  ## are tested from the GeneSetDb for the pvalues to be equivalent given
-  ## the same random seed.
-  gsd.idxs <- multiGSEA:::as.expression.indexes(gsd, value='x.idx')
-  gsi <- gsi[names(gsd.idxs)]
+  gdb <- conform(exampleGeneSetDb(), vm)
 
   stats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design),
                                     .external=FALSE)
-
-  nsim <- 250
-  seed <- 123
-  set.seed(seed)
-  expected <- sapply(gsi, limma::geneSetTest, stats$t, nsim=nsim)
+  tstats <- setNames(stats$t, stats$featureId)
+  gdb <- conform(gdb, names(tstats))
+  gsi <- as.list(gdb, value='x.idx')
 
   set.seed(seed)
-  my.gsd <- multiGSEA:::do.geneSetTest(gsd, vm, logFC=stats, nsim=nsim,
-                                        score.by='t')
-  comp <- with(my.gsd, {
-    out <- setNames(pval, paste(collection, name, sep=';;'))
-    out[names(expected)]
-  })
-  expect_equal(expected, comp)
+  expected <- sapply(gsi, limma::geneSetTest, tstats, nsim=nsim)
+
+  set.seed(seed)
+  mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), methods='geneSetTest',
+                  score.by='t')
+  res <- result(mg, 'geneSetTest')
+  my <- setNames(res$pval, paste(res$collection, res$name, sep=";;"))
+  my <- my[names(expected)]
+  expect_equal(my, expected)
 })

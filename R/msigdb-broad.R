@@ -1,7 +1,5 @@
 .msigdb.species <- c('human', 'mouse')
 .msigdb.collections <- list(
-  'v4.0'=paste0('c', 1:7),
-  'v5.0'=c(paste0('c', 1:7), 'h'),
   'v5.1'=c(paste0('c', 1:7), 'h'),
   'v5.2'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
@@ -14,8 +12,6 @@
 ##' versions are included in this package:
 ##'
 ##' \itemize{
-##'   \item v4.0
-##'   \item v5.0
 ##'   \item v5.1
 ##'   \item v5.2
 ##' }
@@ -52,15 +48,9 @@ getMSigGeneSetDb <- function(collection, species='human',
     }
   }
 
-  if (version == 'v4.0') {
-    warning("Retrieving MSigDB definitions from WEHI for v4.0", immediate.=TRUE)
-    spec <- c('Mus_musculus'='mouse', 'Homo_sapiens'='human')[species]
-    return(getMSigDBset.wehi(collection, spec, version=version))
-  }
-
   fn <- sprintf('MSigDB.%s.GeneSetDb.rds', species)
   fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
-  out <- readRDS(fn)
+  out <- updateObject(readRDS(fn))
 
   if (!setequal(collection, avail.cols)) {
     gs <- geneSets(out, .external=FALSE)
@@ -70,10 +60,6 @@ getMSigGeneSetDb <- function(collection, species='human',
 
   out
 }
-
-##' @rdname MSigDB
-##' @export getMSigDBset
-getMSigDBset <- getMSigGeneSetDb
 
 resolve.species <- function(x) {
   stopifnot(is.character(x) && length(character) == 1L)

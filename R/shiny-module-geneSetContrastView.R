@@ -98,6 +98,7 @@ geneSetContrastView <- function(input, output, session, mgc,
   output$gs_viz <- renderRbokeh({
     req(plt())
   })
+  # outputOptions(output, "gs_viz", suspendWhenHidden=FALSE)
 
   output$gs_members <- DT::renderDataTable({
     shiny::req(gs())

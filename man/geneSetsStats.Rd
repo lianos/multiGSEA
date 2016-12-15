@@ -2,7 +2,7 @@
 % Please edit documentation in R/MultiGSEAResult-methods.R
 \name{geneSetsStats}
 \alias{geneSetsStats}
-\title{Summarize useful feature-level statistics across gene sets.}
+\title{Summarizes useful statistics per gene set from a MultiGSEAResult}
 \usage{
 geneSetsStats(x, feature.min.logFC = 1, feature.max.padj = 0.1,
   trim = 0.1, .external = TRUE)
@@ -26,7 +26,17 @@ A data.table with statistics on the effect size shift for the gene
   set as well as numbers of members that shift up or down.
 }
 \description{
-This function calculates the mean and trimmed mean of the logFC and
-t-statistics, as well as the J-G statistic
+This function calculates the number of genes that move up/down for the
+given contrasts, as well as mean and trimmed mean of the logFC and
+t-statistics. Note that the statistics calculated and returned here are
+purely a function of the statistics generated at the gene-level stage
+of the analysis.
+}
+\examples{
+
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- exampleGeneSetDb()
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+head(geneSetsStats(mg))
 }
 

@@ -95,7 +95,7 @@ collections for mouse our human. Some collections of interest may be:
 So let's fetch them:
 
 ```{r genesetdb-init, results='asis', cache=TRUE}
-gsd.all <- getMSigDBset(c('h', 'c2', 'c7'), 'human')
+gsd.all <- getMSigGeneSetDb(c('h', 'c2', 'c7'), 'human')
 tally.all <- table(geneSets(gsd.all)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
@@ -111,7 +111,7 @@ save time on computation, we will use all of the hallmark genes, and a
 predefined subset of c2 and c7.
 
 ```{r genesetdb-ex, results='asis'}
-gsd <- append(getMSigDBset('h'), exampleGeneSetDb())
+gsd <- append(getMSigGeneSetDb('h'), exampleGeneSetDb())
 tally <- table(geneSets(gsd)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))

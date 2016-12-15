@@ -1,32 +1,54 @@
-##' Get the GeneSetDb from MultiGSEAResult
+setMethod("updateObject", "MultiGSEAResult",
+function(object, ..., verbose=FALSE) {
+  ## Unfortunately we've internally generated GeneSetDb objects that weren't
+  ## entirely properly keyed.
+  object@gsd <- updateObject(object@gsd)
+
+  proto <- new("MultiGSEAResult")
+  ekeys <- key(proto@logFC)
+  xkeys <- key(object@logFC)
+  if (!setequal(ekeys, xkeys) || !all.equal(ekeys, xkeys)) {
+    setkeyv(object@logFC, ekeys)
+  }
+  object
+})
+
+
+##' Fetches the GeneSetDb from MultiGSEAResult
 ##'
 ##' @export
-##' @rdname geneSetDb-accessor
 ##'
+##' @rdname MultiGSEAResult-utilities
 ##' @param x \code{MultiGSEAResult}
 ##' @return The \code{GeneSetDb}
+##'
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- exampleGeneSetDb()
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+##' geneSetDb(mg)
 geneSetDb <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  x@gsd
+  updateObject(x@gsd)
 }
 
 setMethod("geneSet", c(x="MultiGSEAResult"),
-function(x, i, j, active.only=TRUE, fetch.all=FALSE, ...,
-         .external=TRUE) {
+function(x, i, j, active.only=TRUE, fetch.all=FALSE,
+         with.feature.map=FALSE, ..., .external=TRUE) {
   if (!isTRUE(active.only)) {
     warning("active.only ignored on geneSet,MultiGSEAResult")
   }
   if (isTRUE(fetch.all)) {
     warning("fetch.all must be `FALSE` when called on MultiGSEAResult")
   }
-  fids <- featureIds(x, i, j, value='featureId', active.only=TRUE,
-                     fetch.all=FALSE, ...)
-  out <- subset(logFC(x, .external=FALSE), featureId %in% fids)
-  out[, collection := i]
-  out[, name := j]
-  fc <- c('collection', 'name')
-  setcolorder(out, c(fc, setdiff(names(out), fc)))
-  ret.df(out, .external=.external)
+  x <- updateObject(x)
+  gdb <- geneSetDb(x)
+  gs <- geneSet(gdb, i, j, active.only=active.only, fetch.all=fetch.all,
+                with.feature.map=with.feature.map, ..., .external=FALSE)
+  lfc <- logFC(x, .external=FALSE)[J(gs$featureId)]
+  keep <- setdiff(colnames(lfc), colnames(gs))
+  out <- cbind(gs, lfc)
+  out
 })
 
 setMethod("geneSets", c(x="MultiGSEAResult"),
@@ -68,12 +90,16 @@ geneSetFeatureStats <- function(x, i, j, .external=TRUE) {
          .external=.external)
 }
 
-##' Summarize useful feature-level statistics across gene sets.
+##' Summarizes useful statistics per gene set from a MultiGSEAResult
 ##'
-##' This function calculates the mean and trimmed mean of the logFC and
-##' t-statistics, as well as the J-G statistic
+##' This function calculates the number of genes that move up/down for the
+##' given contrasts, as well as mean and trimmed mean of the logFC and
+##' t-statistics. Note that the statistics calculated and returned here are
+##' purely a function of the statistics generated at the gene-level stage
+##' of the analysis.
 ##'
 ##' @export
+##'
 ##' @param x A \code{multiGSEAResult} object
 ##' @param feature.min.logFC used with \code{feature.max.padj} to identify
 ##'   the individual features that are to be considered differentially
@@ -86,6 +112,13 @@ geneSetFeatureStats <- function(x, i, j, .external=TRUE) {
 ##'
 ##' @return A data.table with statistics on the effect size shift for the gene
 ##'   set as well as numbers of members that shift up or down.
+##'
+##' @examples
+##'
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- exampleGeneSetDb()
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+##' head(geneSetsStats(mg))
 geneSetsStats <- function(x, feature.min.logFC=1,
                           feature.max.padj=0.10, trim=0.10, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
@@ -116,7 +149,6 @@ geneSetsStats <- function(x, feature.min.logFC=1,
     list(n.sig=sum(is.sig), n.neutral=sum(!is.sig),
          n.up=sum(up), n.down=sum(down),
          n.sig.up=sum(up & is.sig), n.sig.down=(sum(down & is.sig)),
-         JG=sum(t.nona) / sqrt(length(t.nona)),
          mean.logFC=mean(stats$logFC, na.rm=TRUE),
          mean.logFC.trim=mean(stats$logFC, na.rm=TRUE, trim=trim),
          mean.t=mean(stats$t, na.rm=TRUE),
@@ -132,6 +164,12 @@ geneSetsStats <- function(x, feature.min.logFC=1,
 ##' @export
 ##' @param x A \code{MultiGSEAResult}
 ##' @return The log fold change \code{data.table}
+##'
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- exampleGeneSetDb()
+##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+##' lfc <- logFC(mg)
 logFC <- function(x, .external=TRUE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   ret.df(x@logFC, .external=.external)
@@ -140,7 +178,7 @@ logFC <- function(x, .external=TRUE) {
 ##' Fetch names of GSEA methods that were run from a \code{MultiGSEAResult}
 ##'
 ##' @export
-##'
+##' @rdname results
 ##' @param x A MultiGSEAResult
 resultNames <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
@@ -170,6 +208,7 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##' the genesets that are returned from.
 ##'
 ##' @export
+##' @rdname results
 ##'
 ##' @param x MultiGSEAResult
 ##' @param name the names of the results desired
@@ -264,6 +303,8 @@ result <- function(x, name, stats.only=FALSE,
 ##' these results will be suffixed with the method name.
 ##'
 ##' @export
+##' @rdname results
+##'
 ##' @param x \code{MultiGSEAResult}
 ##' @param names The results you want to cbind together for the output
 ##' @param stats.only logical, set to \code{FALSE} if you want to return all
@@ -315,6 +356,7 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
 ##' collection, per method
 ##'
 ##' @export
+##' @rdname results
 ##'
 ##' @param x \code{MultiGSEAResult}
 ##' @param names The results you want to cbind together for the output
@@ -376,15 +418,6 @@ subset.MultiGSEAResult <- function(x, keep) {
   }
 
   x
-}
-
-if (FALSE) {
-  ## @export
-  ## @importFrom BiocGenerics subset
-  setMethod("subset", "MultiGSEAResult",
-            function(x, subject, select, drop=FALSE, ...) {
-
-            })
 }
 
 setMethod("show", "MultiGSEAResult", function(object) {

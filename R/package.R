@@ -15,4 +15,5 @@
 ##' @importFrom grDevices col2rgb rgb
 ##' @importFrom graphics abline axis legend lines rect segments hist pairs par
 ##' @importFrom graphics points strwidth
+##' @importFrom BiocGenerics updateObject
 NULL

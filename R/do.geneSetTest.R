@@ -7,7 +7,7 @@ validate.x.geneSetTest <- validate.X
 do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            robust.fit=FALSE, robust.eBayes=FALSE,
                            logFC=NULL, score.by=c('t', 'logFC'),
-                           gs.idxs=as.expression.indexes(gsd, value='x.idx'),
+                           gs.idxs=as.list(gsd, value='x.idx'),
                            ...) {
   score.by <- match.arg(score.by)
   stopifnot(is.conformed(gsd, x))

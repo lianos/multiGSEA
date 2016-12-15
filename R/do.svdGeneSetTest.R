@@ -7,7 +7,7 @@ validate.x.svdGeneSetTest <- validate.X
 ##' Transforms gene x sample to geneset x sample and run differential expression
 ##'
 do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
-                              gs.idxs=as.expression.indexes(gsd, value='x.idx'),
+                              gs.idxs=as.list(gsd, value='x.idx'),
                               trend.eBayes=FALSE, ...) {
   stopifnot(is.conformed(gsd, x))
   X <- scoreSingleSamples(gsd, x, 'svd', scale=TRUE, center=TRUE,

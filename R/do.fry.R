@@ -17,7 +17,7 @@ validate.x.fry <- function(x) {
 ##    TRUE/FALSE, but roast uses character ('directional'). You will have to
 ##    set this to 'none'.
 do.fry <- function(gsd, x, design, contrast=ncol(design),
-                   gs.idxs=as.expression.indexes(gsd, value='x.idx'), ...) {
+                   gs.idxs=as.list(gsd, value='x.idx'), ...) {
   ## This function was defined in limma v3.23.13 in April 2015
   ## ------------------------------------------------------------------------
   ## r102075 | smyth@wehi.edu.au | 2015-04-07 22:56:02 -0700 (Tue, 07 Apr 2015)
@@ -43,14 +43,14 @@ do.fry <- function(gsd, x, design, contrast=ncol(design),
   call.args[['contrast']] <- contrast
   call.args[['sort']] <- FALSE
   call.args[['...']] <- NULL
-  
+
   ## There is a bug in edgeR::fry.DGEList that double passes the standardize
   ## argument if it is passed in via `...`, so remove call.args$standardize
   ## here. The bug exists in v3.17.1, and was reported to Gordon on 11/3/2016
   if (is(x, 'DGEList')) {
     call.args[['standardize']] <- NULL
   }
-  
+
   res <- do.call(limma::fry, call.args)
 
   out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],

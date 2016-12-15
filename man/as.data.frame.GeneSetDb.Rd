@@ -2,7 +2,7 @@
 % Please edit documentation in R/GeneSetDb-methods.R
 \name{as.data.frame.GeneSetDb}
 \alias{as.data.frame.GeneSetDb}
-\title{Convert a GeneSetDb to a data.frame}
+\title{Convert a GeneSetDb to other formats.}
 \usage{
 \method{as.data.frame}{GeneSetDb}(x, row.names = NULL, optional = FALSE,
   value = c("featureId", "x.id", "x.idx"), active.only = is.conformed(x),
@@ -22,6 +22,18 @@ return the features that match target and are "active"?}
 a \code{data.frame} of the GeneSetDb
 }
 \description{
-Convert a GeneSetDb to a data.frame
+Convert a GeneSetDb to other formats.
+}
+\section{To a data.frame}{
+
+
+This will return a data.frame representation of a \code{GeneSetDb} object.
+If there is an "active" featureIdMap, it will optionally use that to map
+the original featureIds to the new ones specified by the map.
+}
+\examples{
+gdb <- exampleGeneSetDb()
+gdf <- as.data.frame(gdb)
+head(gdf)
 }
 

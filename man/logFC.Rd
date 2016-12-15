@@ -17,4 +17,10 @@ The log fold change \code{data.table}
 Extract the individual fold changes statistics for elements in the
 expression object.
 }
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- exampleGeneSetDb()
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+lfc <- logFC(mg)
+}
 

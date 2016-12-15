@@ -1,9 +1,15 @@
 context("calculateIndividualLogFC")
 
 tt2dt <- function(x) {
+  if (is(x, 'TopTags')) {
+    onames <- c('PValue', 'FDR')
+  } else {
+    onames <- c('P.Value', 'adj.P.Val')
+  }
+  x <- as.data.frame(x)
   x$featureId <- rownames(x)
-  data.table::setnames(x, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
-  rownames(x) <- NULL
+  data.table::setnames(x, onames, c('pval', 'padj'))
+  setkeyv(setDT(x), 'featureId')
   multiGSEA:::ret.df(x)
 }
 
@@ -69,22 +75,22 @@ test_that("treat pvalues are legit", {
   ## limma/voom ----------------------------------------------------------------
   fit <- limma::lmFit(vm, vm$design)
   e <- limma::treat(fit, lfc=lfc)
-  tt <- limma::topTreat(e, 'tumor', number=Inf, sort='none')
+  tt <- tt2dt(limma::topTreat(e, 'tumor', number=Inf, sort='none'))
 
   xx <- calculateIndividualLogFC(vm, d, 'tumor', use.treat=TRUE, treat.lfc=lfc)
 
-  expect_equal(rownames(tt), xx$featureId, info="voom")
+  expect_equal(tt$featureId, xx$featureId, info="voom")
   expect_equal(xx$logFC, tt$logFC, info="voom")
-  expect_equal(xx$pval, tt$P.Value, info="voom")
+  expect_equal(xx$pval, tt$pval, info="voom")
 
   ## edgeR
   yfit <- edgeR::glmQLFit(y, d, robust=TRUE)
   res <- edgeR::glmTreat(yfit, coef='tumor', lfc=lfc)
-  et <- as.data.frame(edgeR::topTags(res, Inf, sort.by='none'))
+  et <- tt2dt(edgeR::topTags(res, Inf, sort.by='none'))
 
   yy <- calculateIndividualLogFC(y, d, 'tumor', use.treat=TRUE, treat.lfc=lfc)
 
-  expect_equal(rownames(et), yy$featureId, info="edgeR")
+  expect_equal(et$featureId, yy$featureId, info="edgeR")
   expect_equal(yy$logFC, et$logFC, info="edgeR")
-  expect_equal(yy$pval, et$PValue, info="edgeR")
+  expect_equal(yy$pval, et$pval, info="edgeR")
 })

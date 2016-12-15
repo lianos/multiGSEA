@@ -4,8 +4,7 @@
 \name{featureIds}
 \alias{featureIds}
 \alias{featureIds,GeneSetDb-method}
-\title{Returns the featureIds associated with a given GeneSetDb or one of the
-individual gene sets within it.}
+\title{Returns the relevant featureIds for a given geneset.}
 \usage{
 featureIds(x, ...)
 
@@ -35,17 +34,27 @@ Set this to \code{TRUE} if you want to get all featureIds irrespective of
 this constraint.}
 }
 \value{
-A vector of identifiers (or indexes into an expression object) for
-  the features in the given geneset. NA is returned if the geneset is not
-  "active" (ie. listed in geneSets(x))
+A vector of identifiers (or indexes into an expression object,
+  depending on the \code{value} argument) for the features in the specified
+  geneset. NA is returned if the geneset is not "active" (ie. listed in
+  geneSets(x))
 }
 \description{
-Returns the featureIds associated with a given GeneSetDb or one of the
-individual gene sets within it.
+Gene sets are defined by the unique compound key consisting of their
+\code{collection} and \code{name}. To fetch the featureIds associated with
+a specific geneset, you must provide values for \code{i} and \code{j}. If
+these are missing, then a character vector of all the unique feature ids
+within \code{x} are returned.
 
 If the GeneSetDb \code{x} has been conformed to an expression object this
 will default to return the featureId's as they are used/matched to the
 expression object, otherwise it will return the featureIds used in the
 definition of the gene set database.
+
+\code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If
+its the latter, then this call simply delegates to the internal
+\code{GeneSetDb}.
+
+Fetch the IDs for the a given gene set.
 }
 

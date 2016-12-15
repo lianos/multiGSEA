@@ -4,8 +4,8 @@
 \alias{do.camera}
 \title{Runs camera on the given experiment.}
 \usage{
-do.camera(gsd, x, design, contrast = ncol(design),
-  gs.idxs = as.expression.indexes(gsd, value = "x.idx"), ...)
+do.camera(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
+  value = "x.idx"), ...)
 }
 \description{
 Runs camera on the given experiment.
