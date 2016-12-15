@@ -2,9 +2,8 @@ context("camera")
 
 test_that('camera runs equivalently from do.camera vs direct call', {
   vm <- exampleExpressionSet(do.voom=TRUE)
-  gsi <- exampleGeneSets(vm)
-  gsl <- exampleGeneSets()
-  gsd <- conform(GeneSetDb(gsl), vm)
+  gsd <- conform(exampleGeneSetDb(), vm)
+  gsi <- as.list(gsd, value='x.idx')
 
   photo <- limma::camera(vm, gsi, vm$design, ncol(vm$design))
   my <- multiGSEA:::do.camera(gsd, vm, vm$design, ncol(vm$design))

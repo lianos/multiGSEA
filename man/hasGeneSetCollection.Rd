@@ -4,12 +4,12 @@
 \alias{hasGeneSetCollection}
 \title{Check if a collection exists in the \code{GeneSetDb}}
 \usage{
-hasGeneSetCollection(x, collections, as.error = FALSE)
+hasGeneSetCollection(x, collection, as.error = FALSE)
 }
 \arguments{
 \item{x}{A \code{GeneSetDb}}
 
-\item{collections}{character vector of name(s) of the collections to query}
+\item{collection}{character vector of name(s) of the collections to query}
 
 \item{as.error}{logical if TRUE, this will error instead of returning FALSE}
 }

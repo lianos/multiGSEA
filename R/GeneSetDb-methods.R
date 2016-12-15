@@ -476,23 +476,17 @@ setMethod("subset", "GeneSetDb", function(x, subject, select, drop=FALSE, ...) {
 ##'
 ##' @export
 ##' @param x A \code{GeneSetDb}
-##' @param collections character vector of name(s) of the collections to query
+##' @param collection character vector of name(s) of the collections to query
 ##' @param as.error logical if TRUE, this will error instead of returning FALSE
 ##' @return logical indicating if this collection exists
-hasGeneSetCollection <- function(x, collections, as.error=FALSE) {
+hasGeneSetCollection <- function(x, collection, as.error=FALSE) {
   stopifnot(is(x, 'GeneSetDb'))
-  stopifnot(is.character(collections))
-
-  ## I'm being paranoid
-  ## if (!isTRUE(.validateCollectionMetadata(x))) {
-  ##   stop("This GeneSetDb is not valid")
-  ## }
-
-  meta.idxs <- match(collections,
+  stopifnot(is.character(collection))
+  meta.idxs <- match(collection,
                      collectionMetadata(x, .external=FALSE)$collection)
   gsc.exists <- !is.na(meta.idxs)
   if (!all(gsc.exists) && as.error) {
-    bad <- paste("    * ", collections[!gsc.exists], collapse='\n', sep='')
+    bad <- paste("    * ", collection[!gsc.exists], collapse='\n', sep='')
     stop("The following collections to not exist:\n", bad)
   }
 
@@ -509,14 +503,12 @@ hasGeneSetCollection <- function(x, collections, as.error=FALSE) {
 ##'   will throw an error if the geneset does not exist
 ##' @return logical indicating whether or not the geneset is defined.
 hasGeneSet <- function(x, collection, name, as.error=FALSE) {
-  stopifnot(isSingleCharacter(collection) && isSingleCharacter(name))
-  stopifnot(is(x, 'GeneSetDb'))
   gs.exists <- !is.na(.gsd.row.index(x, collection, name))
-  return(gs.exists)
-
-  has.gsc <- hasGeneSetCollection(x, collection, as.error=as.error)
-  if (!gs.exists && as.error) {
-    stop(sprintf("geneset ('%s', '%s') does not exist", collection, name))
+  if (as.error && !all(gs.exists)) {
+    msg <- "The follwing %d gene sets do not exist: \n%s"
+    not <- paste(collection[!gs.exists], name[!gs.exists],
+                 sep=":", collapse="\n")
+    stop(sprintf(msg, sum(!gs.exists), not))
   }
   gs.exists
 }
@@ -718,7 +710,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
 }
 
 ##' @importMethodsFrom BiocGenerics append
-##' @export
+##' @exportMethod append
 setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   if (!missing(after)) {
     warning("`after` argument is ignored in append,GeneSetDb")
@@ -821,27 +813,67 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 
 ##' Convert a GeneSetDb to other formats.
 ##'
-##' @section To a data.frame:
+##' @description
+##' As awesome as a GeneSetDb is, you might find a time when you'll need your
+##' gene set information in an other format. To do that, we provide the
+##' following functions:
 ##'
-##' This will return a data.frame representation of a \code{GeneSetDb} object.
-##' If there is an "active" featureIdMap, it will optionally use that to map
-##' the original featureIds to the new ones specified by the map.
+##' \enumerate{
+##'   \item{\code{as.data.frame}}{
+##'     Perhaps the most natural format to convert to in order to save locally
+##'     an examine outside of Bioconductor's GSEA universe, but not many other
+##'     tools accet gene set definitions in this way
+##'   }
+##'   \item{\code{as.list}}{
+##'     A named list of feature identifiers. This is the format that many of
+##'     the limma gene set testing methods use
+##'   }
+##'   \item{\code{as(gdb, 'GeneSetCollection')}}{
+##'     The \code{\link[GSEABase]{GeneSetCollection}} class.
+##'   }
+##' }
+##'
+##' The \code{as.*} functions accept a \code{value} parameter which indicates
+##' the type of IDs you want to export in the conversion. The following choices
+##' are available:
+##'
+##' \enumerate{
+##'   \item{\code{"featureId"}}{
+##'     The ID used as originally entered into the \code{GeneSetDb}
+##'   }
+##'   \item{\code{"x.idx"}}{
+##'     Only valid if the GeneSetDb \code{x} has been \code{conform}-ed to
+##'     an expession container. This option will export the features as the
+##'     integer rows of the expression container.
+##'   }
+##'   \item{\code{"x.id"}}{
+##'     Only valid if the GeneSetDb \code{x} has been \code{conform}-ed. The
+##'     target expression container might use feature identifiers that are
+##'     different than what is in the GeneSetDb. If an active featureMap is
+##'     set on the GeneSetDb, this will convert the original feature identifiers
+##'     into a different target space (entrez to ensembl, for instance). Using
+##'     this option, the features will be provided in the target space.
+##'   }
+##' }
 ##'
 ##' @export
+##' @rdname GeneSetDb-conversion
+##' @method as.data.frame GeneSetDb
 ##'
 ##' @param x A \code{GeneSetDb} object
-##' @param value The value to use for the individual feature id's per collection
+##' @param value The value type to export for the feature ids
 ##' @param active.only If the \code{GeneSetDb} is conformed, do you want to only
 ##'   return the features that match target and are "active"?
 ##' @param ... nothing
-##' @return a \code{data.frame} of the GeneSetDb
+##' @return a converted \code{GeneSetDb}
 ##'
 ##' @examples
-##' gdb <- exampleGeneSetDb()
+##' es <- exampleExpressionSet()
+##' gdb <- conform(exampleGeneSetDb(), es)
 ##' gdf <- as.data.frame(gdb)
-##' head(gdf)
-as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
-                                    value=c('featureId', 'x.id', 'x.idx'),
+##' gdfi <- as.data.frame(gdb, 'x.idx')
+##' gdl <- as.list(gdb)
+as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
                                     active.only=is.conformed(x), ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
@@ -851,16 +883,10 @@ as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
 
   fid.map <- featureIdMap(x, .external=FALSE)
   gs <- copy(geneSets(x, active.only=active.only, .external=FALSE))
-  gs[, category := paste(collection, name, sep=';;')]
 
   gene2cat <- merge(x@db, fid.map, by='featureId')
-  if (is.conformed(x)) {
-    gene2cat <- subset(gene2cat, !is.na(x.idx))
-  }
+  gene2cat <- gene2cat[!is.na(gene2cat[[value]]),]
   gene2cat$finalId <- gene2cat[[value]]
-
-  gs.key <- paste(gene2cat$collection, gene2cat$name, sep=';;')
-  gene2cat <- subset(gene2cat, (gs.key %in% gs$category) & !is.na(finalId))
 
   out <- gene2cat[, list(collection, name, featureId=finalId)]
 
@@ -875,62 +901,75 @@ as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
   setDF(setkeyv(out, c('collection', 'name', 'featureId')))
 }
 
+## Split and conserve ordering
+##
+## Using base::split will turn f into a factor and won't preserve the ordering
+## of the elements in f. This function preserves the split order in f
+csplit <- function(x, f) {
+  f <- as.character(f)
+  ff <- factor(f, levels=unique(f))
+  split(x, ff)
+}
 
-##' \code{as.list.GeneSetDb} and \code{as.expression.indexes} intentionally
-##' have different default values for the \code{active.only} parameter.
-##' \code{as.list} returns the ids of features, and \code{as.expression.indexes}
-##' returns the integer index into the expression matrix that the
-##' \code{GeneSetDb} is conformed to.
-##'
-##' @aliases as.list.GeneSetDb
 ##' @rdname GeneSetDb-conversion
 ##' @method as.list GeneSetDb
 ##' @export
-as.list.GeneSetDb <- function(x, nested=FALSE, value=c('x.id', 'x.idx'),
-                              active.only=is.conformed(x),
+as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
+                              active.only=is.conformed(x), nested=FALSE,
                               ...) {
+  stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
-  as.expression.indexes(x, value, active.only, nested)
-}
-
-
-##' Unrolls the GeneSetDb into a list of index vectors per "active" gene set.
-##'
-##' \code{as.expression.indexes} is intentionally not exported
-##'
-##' @aliases as.expression.indexes
-##' @rdname GeneSetDb-conversion
-##'
-##' @param x A \code{GeneSetDb}
-##' @param value \code{x.idx} returns indexes into the conformed expression
-##'   object as integers (ie. row index numbers) and \code{x.id} returns them
-##'   as their featureId's as used in the target expression object.
-##' @param active.only Only include "active" gene sets? Defaults to conformed
-##'   status of the \code{x}
-as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
-                                  active.only=is.conformed(x),
-                                  nested=FALSE) {
-  value <- match.arg(value)
-  if (!is(x, 'GeneSetDb')) {
-    stop('GeneSetDb required')
-  }
-  if (value == 'x.idx' && !is.conformed(x)) {
-    stop("GeneSetDb has not been conformed to an expression object")
-  }
-  gs <- geneSets(x, active.only=active.only, .external=FALSE)
-  cats <- gs$collection
-  nms <- gs$name
-  out <- lapply(seq(cats), function(idx) {
-    featureIds(x, cats[idx], nms[idx], value=value)
-  })
+  df <- as.data.frame(x, value, active.only)
   if (nested) {
-    names(out) <- nms
-    out <- split(out, cats)
+    colls <- unique(df$collection)
+    ## Using the "naive split" call converts xdf$name to a factor and doesn't
+    ## preserve ordering
+    out <- sapply(colls, function(coll) {
+      xdf <- subset(df, collection == coll)
+      csplit(xdf$featureId, xdf$name)
+    }, simplify=FALSE)
   } else {
-    names(out) <- paste(cats, nms, sep=';;')
+    df$key <- paste(df$collection, df$name, sep=";;")
+    out <- csplit(df$featureId, df$key)
   }
   out
 }
+
+##' @importFrom GSEABase GeneSetCollection GeneSet NullIdentifier
+setAs("GeneSetDb", "GeneSetCollection", function(from) {
+  gs <- geneSets(from, .external=FALSE)
+  n.coll <- length(unique(gs$collection))
+
+  ## We explicitly set the key type after subsetting here in the event that
+  ## a 0 row data.table is returned -- this isn't keyed in 1.9.4, which seems
+  ## like a bug
+  cmd <- collectionMetadata(from, .external=FALSE)
+  org <- subset(cmd, name == 'organism')
+  id.type <- subset(cmd, name == 'id_type')
+  setkeyv(id.type, 'collection')
+  setkeyv(org, 'collection')
+
+  gsl <- lapply(1:nrow(gs), function(i) {
+    name <- gs$name[i]
+    coll <- gs$collection[i]
+    idt <- id.type[coll]$value[[1]]
+    if (!is(idt, 'GeneIdentifierType')) {
+      idt <- NullIdentifier()
+    }
+    ids <- featureIds(from, coll, name, 'featureId')
+    xorg <- org[coll]$value[[1]]
+    if (is.null(xorg)) {
+      xorg <- ""
+    }
+    set.name <- name
+    if (n.coll > 1L) {
+      set.name <- paste0(coll, ';', set.name)
+    }
+    GeneSet(ids, setName=set.name, geneIdType=idt, organism=xorg)
+  })
+  gsc <- GeneSetCollection(gsl)
+  gsc
+})
 
 ## -----------------------------------------------------------------------------
 ## indexing
@@ -946,12 +985,6 @@ as.expression.indexes <- function(x, value=c('x.idx', 'x.id'),
 ##' @return The row index of the geneset under question. If i,j do not match
 ##' a given geneset, then NA is returned.
 .gsd.row.index <- function(x, i, j) {
-  stopifnot(is(x, 'GeneSetDb'))
-  if (!(isSingleCharacter(i) && isSingleCharacter(j))) {
-    stop("i (collection) and j (name) must both be length 1 character vectors")
-  }
-  ## if (!isTRUE(validObject(x))) {
-  ##   stop("Invalid GeneSetDb")
-  ## }
+  stopifnot(is(x, 'GeneSetDb'), is.character(i), is.character(j))
   geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j), which=TRUE]
 }

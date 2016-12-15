@@ -158,6 +158,7 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
 
 GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   stopifnot(is.data.frame(x) && nrow(x) > 0)
+  proto <- new("GeneSetDb")
   x <- setDT(as.data.frame(copy(x)))
   if (!'collection' %in% names(x)) {
     if (!is.character(collectionName) &&
@@ -167,7 +168,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
     }
     x[, collection := collectionName]
   }
-  req.cols <- c('collection', 'name', 'featureId')
+  req.cols <- key(proto@db)
   cols.missed <- setdiff(req.cols, names(x))
   if (length(cols.missed)) {
     stop("The following columns are missing from `x`:\n ",
@@ -189,6 +190,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
       warning("Something unexpected happened merging more feature metadata",
               immediate.=TRUE)
     }
+    gdb@db <- db
   }
   gdb
 }
@@ -287,41 +289,6 @@ GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
   gsc.list <- setNames(list(x), collectionName)
   GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, collectionName)
 }
-
-
-##' @importFrom GSEABase GeneSetCollection GeneSet
-setAs("GeneSetDb", "GeneSetCollection", function(from) {
-  gs <- geneSets(from, .external=FALSE)
-  n.coll <- length(unique(gs$collection))
-
-  ## We explicitly set the key type after subsetting here in the event that
-  ## a 0 row data.table is returned -- this isn't keyed in 1.9.4, which seems
-  ## like a bug
-  id.type <- subset(collectionMetadata(from, .external=FALSE),
-                    name == 'id_type')
-  setkeyv(id.type, 'collection')
-  org <- subset(collectionMetadata(from, .external=FALSE),
-                name == 'organism')
-  setkeyv(org, 'collection')
-
-  gsl <- lapply(1:nrow(gs), function(i) {
-    name <- gs$name[i]
-    coll <- gs$collection[i]
-    idt <- id.type[coll]$value[[1]]
-    ids <- featureIds(from, coll, name, 'featureId')
-    xorg <- org[coll]$value[[1]]
-    if (is.null(xorg)) {
-      xorg <- ""
-    }
-    set.name <- name
-    if (n.coll > 1L) {
-      set.name <- paste0(coll, ';', set.name)
-    }
-    GeneSet(ids, setName=set.name, geneIdType=idt, organism=xorg)
-  })
-  gsc <- GeneSetCollection(gsl)
-  gsc
-})
 
 setAs("GeneSetCollection", "GeneSetDb", function(from) {
   GeneSetDb(from)

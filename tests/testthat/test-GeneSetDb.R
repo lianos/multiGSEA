@@ -8,6 +8,9 @@ context("GeneSetDb")
 ##      - collectionMetadata(x, collection, name)
 ##  * test collectionMetadata<- ensures single collection,name pairs
 
+gdb.h <- getMSigGeneSetDb(c('h'))
+gdb.c6 <- getMSigGeneSetDb(c('c6'))
+
 test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   ## This test exercise both the single list and list-of-lists input for geneset
   ## membership info.
@@ -32,6 +35,8 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
 test_that("GeneSetDb constructor works with an input data.frame", {
   gdb0 <- GeneSetDb(exampleGeneSets())
   df <- as.data.frame(gdb0)
+
+  ## Adding a fake symbol here, just to see what is the what
   meta <- data.frame(featureId=unique(df$featureId), stringsAsFactors=FALSE)
   faux <- replicate(nrow(meta),
                     paste(sample(letters, 5, replace=TRUE), collapse=""))
@@ -41,20 +46,20 @@ test_that("GeneSetDb constructor works with an input data.frame", {
   ## A warning is fired if merging extra columns (symbol, here) hoses something
   ## in the GeneSetDb, so let's make sure there is no such warning here.
   gdb <- GeneSetDb(df.in[sample(nrow(df.in)),]) ## randomize rows for fun
-  expect_equal(geneSets(gdb), geneSets(gdb0))
+  expect_equal(gdb, gdb0, features.only=TRUE)
+
+  ## Check that the symbol column from df.in was added to gdb@db
+  expect_is(gdb@db$symbol, 'character')
 })
 
 
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
-  gdbo <- getMSigGeneSetDb('h')
-  gsc <- as(gdbo, 'GeneSetCollection')
+  gsc <- as(gdb.h, 'GeneSetCollection')
   gdbn <- GeneSetDb(gsc, collectionName='h')
-  expect_equal(gdbo, gdbn, features.only=TRUE)
+  expect_equal(gdb.h, gdbn, features.only=TRUE)
 })
 
 test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
-  gdb.h <- getMSigGeneSetDb(c('h'))
-  gdb.c6 <- getMSigGeneSetDb(c('c6'))
   gdbo <- append(gdb.h, gdb.c6)
 
   gscl <- list(h=as(gdb.h, 'GeneSetCollection'),
@@ -63,15 +68,10 @@ test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
 
   ## Ensure that collection names are preserved, since gscl is a named list
   ## of collections
-  expect_true(setequal(geneSets(gdbn)$collection, geneSets(gdbo)$collection),
-              info='Collection names preserved from named list of collections')
-  expect_equal(gdbn, gdbo, features.only=TRUE,
-               info="feature parity between GeneSetDb")
+  expect_equal(gdbn, gdbo, features.only=TRUE)
 })
 
 test_that("GeneSetDb constructor honors custom collectionName args", {
-  gdb.h <- getMSigGeneSetDb(c('h'))
-  gdb.c6 <- getMSigGeneSetDb(c('c6'))
   gdbo <- append(gdb.h, gdb.c6)
 
   lol <- as.list(gdbo, nested=TRUE)
@@ -261,19 +261,30 @@ test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
 
 })
 
-test_that("GeneSetDb returns proper limma lists via as.list", {
+test_that("as.list.GeneSetDb returns gene sets in same order as GeneSetDb", {
+  es <- exampleExpressionSet()
+  gsd <- conform(exampleGeneSetDb(), es)
+
+  gs.idxs <- as.list(gsd)
+  info <- strsplit(names(gs.idxs), ';;')
+  res <- data.table(collection=sapply(info,'[[',1L), name=sapply(info,'[[',2L))
+  expected <- geneSets(gsd, active.only=TRUE, .external=FALSE)
+  expect_equal(res, expected[, list(collection, name)], check.attributes=FALSE)
+})
+
+test_that("as.list.GeneSetDb returns proper indexes into conformed object", {
   es <- exampleExpressionSet()
   gsi <- exampleGeneSets(es)
 
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), es)
-  indexes <- as.list(gsd, 'x.idx')
+  indexes <- as.list(gsd, 'x.idx', nested=TRUE)
 
   for (xgrp in names(gsl)) {
     for (xid in names(gsl[[xgrp]])) {
       expected <- match(gsl[[xgrp]][[xid]], rownames(es))
       expected <- expected[!is.na(expected)]
-      gsd.idxs <- featureIds(gsd, xgrp, xid, value='x.idx')
+      gsd.idxs <- indexes[[xgrp]][[xid]]
       expect_true(setequal(expected, gsd.idxs),
                   info=sprintf("%s,%s", xgrp, xid))
     }
