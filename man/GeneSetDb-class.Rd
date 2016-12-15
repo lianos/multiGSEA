@@ -139,39 +139,30 @@ that was tested in the \code{\link{multiGSEA}} call that created the
 \code{\link{MultiGSEAResult}}.
 }
 \examples{
-## Some Gene Sets from Rooney et al. Note that the feature id vectors
-## do not have to be named, they just are here to add clarity.
+## exampleGeneSetDF provides gene set definitions in "long form". We show
+## how this can easily turned into a GeneSetDb from this form, or convert
+## it to other forms (list of features, or list of list of features) to
+## do the same.
+gs.df <- exampleGeneSetDF()
+(gdb.df <- GeneSetDb(gs.df))
 
 ## list of ids
-gs.list <- list(
-  'cytolytic activity'=c("GZMA"="3001", "PRF1"="5551"),
-  'NK cells'=c("KLRC1"="3821", "KLRF1"="51348"),
-  'MHC Class I'=c("B2M"="567", "HLA-A"="3105", "TAP1"="6890"))
-gdb1 <- GeneSetDb(gs.list, collectionName='rooney_hacohen')
+gs.df$key <- paste(gs.df$collection, gs.df$name, sep=';;')
+gs.list <- split(gs.df$featureId, gs.df$key)
+(gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'))
 
-## list of lists of ids
-gs.lol <- list(
-  rooney_hacohen=gs.list,
-  angelova=list(
-    'Activated B Cells'=c('AKNA'='80709', 'ARHGAP25'='9938', 'CCL21'='6366'),
-    'DC'=c('C1QC'='714', 'CCDC88A'='55704', 'CCL13'='6357')))
-gdb2 <- GeneSetDb(gs.lol)
-
-## Using a data.frame for input
-library('dplyr')
-gs.df <- lapply(names(gs.lol), function(coll.name) {
-  lapply(names(gs.lol[[coll.name]]), function(gs.name) {
-    tibble(collection=coll.name, name=gs.name,
-           featureId=gs.lol[[coll.name]][[gs.name]],
-           ## symbol is optional, but helpful
-           symbol=names(gs.lol[[coll.name]][[gs.name]]))
-  }) \%>\% bind_rows
-}) \%>\% bind_rows
-gdb3 <- GeneSetDb(gs.df)
+## A list of lists, where the top level list splits the collections.
+## The name of the collection in the GeneSetDb is taken from this top level
+## hierarchy
+gs.lol <- as.list(gdb.df, nested=TRUE) ## examine this list-of lists
+(gdb.lol <- GeneSetDb(gs.lol)) ## note that collection is set propperly
 
 ## GeneSetDb Interrogation
-(gsets <- geneSets(gdb3))
-(nkcells <- geneSet(gdb3, 'rooney_hacohen', 'NK cells'))
-(fids <- featureIds(gdb3))
+(gsets <- geneSets(gdb.df))
+(nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells'))
+(fids <- featureIds(gdb.df))
+}
+\seealso{
+\code{\link{conversion}}
 }
 

@@ -1,23 +1,29 @@
-##' Fetch a pre-canned expression dataset that can be used for testing and
-##' examples.
+## The datasets references in this file are generated in:
+##   tests/testdata/setup-testdata.R
+
+##' Functions that load data for use in examples and testing.
 ##'
-##' The samples in this dataset are a subset of samples from TCGA-BRCA. Note
-##' that this function will load either \code{limma} or \code{Biobase} into
-##' the calling environment so that the user can manipulate the object that is
-##' returned.
+##' @description
+##' We provide examplar expression data (counts or voomed) as well as exemplar
+##' gene sets in different forms.
 ##'
-##' Note that calling this functino currently loads/attaches Biobase. This
-##' shouldn't be, but I am tired of trying to debug this one, so am kicking
-##' the can down the road ...
+##' @section exampleExpressionSet:
+##' The expression data is a subset of the TCGA BRCA indication. Calling
+##' \code{exampleExpressionSet} will load either \code{limma} or \code{Biobase}
+##' into the calling environment so that the user can manipulate the object
+##' that is returned.
+##'
+##' @rdname examples
+##' @alias exampleExpressionSet
 ##'
 ##' @export
 ##' @import Biobase
 ##'
 ##' @param dataset Character vector indicating what samples wanted, either
-##' \code{"tumor-vs-normal"} for a tumor vs normal dataset from TCGA, or just the tumor samples
-##' from the same (there are different subtypes in there)
+##'   \code{"tumor-vs-normal"} for a tumor vs normal dataset from TCGA, or
+##'   just the tumor samples from the same annotated with subtype.
 ##' @param do.voom If TRUE, a voomed EList is returned, otherwise an
-##' ExpressionSet of counts.
+##'   ExpressionSet of counts.
 exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
                                  do.voom=TRUE) {
   suppressPackageStartupMessages({
@@ -56,7 +62,13 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   out
 }
 
-##' Get sample gene sets
+
+##' @section exampleGeneSets:
+##' Returns gene sets as either a list of feature identifiers or integers
+##' that index into a target expression object \code{x}.
+##'
+##' @rdname examples
+##' @alias exampleGeneSets
 ##'
 ##' @export
 ##'
@@ -86,6 +98,11 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
   gsl
 }
 
+##' @section exampleGeneSetDb:
+##' Returns gene sets as a \code{GeneSetDb} object
+##'
+##' @rdname examples
+##' @alias exampleGeneSetDb
 ##' @export
 exampleGeneSetDb <- function() {
   out <- GeneSetDb(exampleGeneSets())
@@ -98,7 +115,17 @@ exampleGeneSetDb <- function() {
   }
   out
 }
-## The datasets references in this file are generated in:
-##   tests/testdata/setup-testdata.R
-## Let's document them here
 
+##' @section exampleGeneSetDF:
+##' Returns a data.frame of gene set definitions. A data.frame of this form
+##' can be passed into the \code{GeneSetDb} contructor.
+##'
+##' @rdname examples
+##' @alias exampleGeneSetDF
+exampleGeneSetDF <- function() {
+  gs.df <- system.file('extdata', 'testdata', 'custom-sigs.csv',
+                       package='multiGSEA')
+  gs.df <- read.csv(gs.df, stringsAsFactors=FALSE)
+  gs.df$featureId <- as.character(gs.df$featureId)
+  gs.df
+}

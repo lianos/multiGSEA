@@ -857,7 +857,9 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' }
 ##'
 ##' @export
-##' @rdname GeneSetDb-conversion
+##' @rdname conversion
+##' @name conversion
+##' @aliases as.data.frame as.list
 ##' @method as.data.frame GeneSetDb
 ##'
 ##' @param x A \code{GeneSetDb} object
@@ -911,7 +913,7 @@ csplit <- function(x, f) {
   split(x, ff)
 }
 
-##' @rdname GeneSetDb-conversion
+##' @rdname conversion
 ##' @method as.list GeneSetDb
 ##' @export
 as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
