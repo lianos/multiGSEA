@@ -1,10 +1,19 @@
-
 shinyServer(function(input, output, session) {
-  ## Construct the active MultiGSEAResultContainer object. This is used to feed
-  ## different things that want to interact / visualze a MultiGSEAResult
+  ## If this application was invoked via explore(MultiGSEAResult), then
+  ## getOption(EXPLORE_MULTIGSEA_RESULT='path/to/result.rds') was set that
+  ## we can load, otherwise this will respond to a user upload.
   mgc <- reactive({
-    req(input$mgresult)
-    failWith(NULL, MultiGSEAResultContainer(input$mgresult$datapath))
+    ## Are we here because the user uploaded something, or did the user ask
+    ## to `explore(MultiGSEAResult)`?
+    # msg("wiring up mgc")
+    # browser()
+    if (is.null(input$mgresult)) {
+      mg <- getOption('EXPLORE_MULTIGSEA_RESULT', NULL)
+      res <- failWith(NULL, MultiGSEAResultContainer(mg), silent=TRUE)
+      return(res)
+    }
+    ## User uploaded a file
+    return(failWith(NULL, MultiGSEAResultContainer(input$mgresult$datapath)))
   })
 
   species <- reactive({
@@ -89,10 +98,8 @@ shinyServer(function(input, output, session) {
       filter(featureId %in% genes$featureId) %>%
       select(symbol, featureId, pval, padj)
     if (!is.null(species())) {
-      url <- sprintf('http://research.gene.com/genehub/#/summary/gene/%s/%s',
-                     res$featureId, species())
-      html <- sprintf('<a href="%s" target="_blank">%s</a>', url,
-                      res$symbol)
+      url <- sprintf('https://www.ncbi.nlm.nih.gov/gene/%s', res$featureId)
+      html <- sprintf('<a href="%s" target="_blank">%s</a>', url, res$symbol)
       res$symbol <- html
     }
     datatable(res, filter='top', escape=FALSE, rownames=FALSE) %>% roundDT

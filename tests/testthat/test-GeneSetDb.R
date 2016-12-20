@@ -377,9 +377,11 @@ test_that('subset.GeneSetDb ("[".GeneSetDb) creates valid result', {
   expect_equal(geneSets(sdb)$name, geneSets(gdb)$name[keep])
 
   ## check counts
-  sdb.coll.counts <- collectionMetadata(sdb)[name == 'count']
+  sdb.coll.counts <- collectionMetadata(sdb, .external=FALSE)[name == 'count']
   sdb.coll.counts[, value := unlist(value)]
-  exp.coll.counts <- geneSets(sdb)[, .(name='count', value=.N), by='collection']
+  exp.coll.counts <- geneSets(sdb, .external=FALSE)[, {
+    .(name='count', value=.N)
+  }, by='collection']
   setkeyv(exp.coll.counts, c('collection', 'name'))
   expect_equal(sdb.coll.counts, exp.coll.counts)
   expect_true(validObject(sdb))

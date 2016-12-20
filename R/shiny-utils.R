@@ -1,3 +1,15 @@
+##' Starts a shiny app to interactively explore a MultiGSEAResult
+##'
+##' I hope you're sitting down
+##'
+##' @export
+##' @param x A \code{MultiGSEAResult} object
+explore <- function(x) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  options(EXPLORE_MULTIGSEA_RESULT=x)
+  shiny::runApp(system.file('shiny', package='multiGSEA'))
+}
+
 ##' Builds the subset of the GSEA statistics to present to the user
 ##'
 ##' This function sets the collection to a factor and puts the MSigDB Hallmark

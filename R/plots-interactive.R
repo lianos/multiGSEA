@@ -23,17 +23,16 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   }
 
   dat <- local({
-    lfc <- logFC(x, .external=FALSE)
-    lfc[, group := 'bg']
+    lfc <- copy(logFC(x, .external=FALSE))[, group := 'bg']
     lfc[, val := lfc[[value]]]
-    gs.stats <- geneSet(x, y, j, .external=FALSE)
-    gs.stats[, group := 'geneset']
+    gs.stats <- geneSet(x, y, j, .external=FALSE)[, group := 'geneset']
     gs.stats[, val := gs.stats[[value]]]
-    gs.stats[, collection := NULL]
-    gs.stats[, name := NULL]
-    out <- rbindlist(list(lfc, gs.stats))
-    out[, significant := ifelse(significant, 'sig', 'notsig')]
-    out[, significant := ifelse(padj < 0.10 & significant == 'notsig', 'psig', significant)]
+    kcols <- intersect(names(gs.stats), names(lfc))
+    out <- bind_rows(select_(lfc, .dots=kcols), select_(gs.stats, .dots=kcols))
+    out[, significant := {
+      tmp <- ifelse(significant, 'sig', 'notsig')
+      ifelse(padj < 0.10 & tmp == 'notsig', 'psig', tmp)
+    }]
   })
 
   if (type == 'density') {

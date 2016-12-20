@@ -74,7 +74,6 @@ geneSetContrastView <- function(input, output, session, mgc,
   stopifnot(requireNamespace('shiny'))
   gs <- shiny::callModule(geneSetSelect, 'gs_select', mgc, server=server,
                           maxOptions=maxOptions, sep=sep)
-
   plt <- reactive({
     shiny::req(gs())
     ns <- session$ns
