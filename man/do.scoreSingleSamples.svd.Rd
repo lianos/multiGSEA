@@ -8,8 +8,6 @@ do.scoreSingleSamples.svd(gdb, y, as.matrix = FALSE, center = TRUE,
   scale = TRUE, uncenter = center, unscale = scale, ...)
 }
 \description{
-TODO: Need to debug this. For some reason the results aren't the same
-as what GSDecon methos provides, even though the codepath should be
-identical
+A no dependency call to GSDecon's eigengene scoring
 }
 

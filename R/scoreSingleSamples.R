@@ -1,19 +1,27 @@
-##' Score each genes over the columns of an expression matrix.
+##' Generates single sample gene set scores across a datasets by many methods
 ##'
-##' These functions provide gene set scores at the sample level. No need for
-##' designs and contrasts.
+##' @description
+##' It is common to assess the activity of a gene set in a given sample. There
+##' are many ways to do that, and among the most often used one these days
+##' is ssGSEA. This method orchestrates the scoring of each gene set across
+##' each sample using as many methods as you like, in the same way that
+##' the multiGSEA call runs a variate of GSEA analysis across a contrast.
 ##'
-##' Current scoring methods include:
+##' Current scoring methods that the user can invoke include:
 ##'
-##' \enumerate{
-##'   \item zscore: features in geneset rowwise z transformed, then normalized
-##'         by size of geneset (or sqrt(size))
-##'   \item gsva: GSVA package
-##'   \item plage: from GSVA package
-##'   \item ssgsea: from GSVA package
-##'   \item svd: Simple score that (should) mimic Jason's SVD/eigengene score.
-##'         This is included here mainly to facilitate use of this scoring
-##'         method for people who would have a hard time installing GSDecon2
+##' \describe{
+##'   \item{zscore}{
+##'     The features in the expression matrix are rowwise z transformed. The
+##'     gene set level score is then calculated by adding up the zscores for
+##'     the genes in the gene set, then dividing that number by either the
+##'     the size (or its sqaure root (default)) of the gene set.
+##'   \item{gsva}{The gsva method of GSVA package}
+##'   \item{plage}{Using "plage" as implemented in the GSVA package
+##'   \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
+##'   \item{svd,gsdecon}{
+##'     This method was first introduced by Jason Hackney in
+##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
+##'     see the help for \code{?svdScore} for more details.
 ##' }
 ##'
 ##' @export
@@ -41,10 +49,7 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
   }
   ## TODO: Enable dispatch on whatever `method`s user asks for
   stopifnot(is(gdb, 'GeneSetDb'))
-  if (is.vector(y)) {
-    y <- t(t(y)) ## column vectorization that sets names to rownames
-  }
-  stopifnot(is.matrix(y) && is.numeric(y))
+  y <- as_matrix(y)
 
   ## Removing genes that have almost-zero std.dev across the dataset.
   ## sds <- apply(y, 1, sd, na.rm=TRUE)
@@ -213,10 +218,6 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
 # }
 
 ##' A no dependency call to GSDecon's eigengene scoring
-##'
-##' TODO: Need to debug this. For some reason the results aren't the same
-##' as what GSDecon methos provides, even though the codepath should be
-##' identical
 do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, ...) {
@@ -240,5 +241,5 @@ gs.score.map <- list(
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
   ssgsea=do.scoreSingleSamples.gsva,
-  # gsdecon=do.scoreSingleSamples.gsdecon,
+  gsdecon=do.scoreSingleSamples.svd,
   svd=do.scoreSingleSamples.svd)

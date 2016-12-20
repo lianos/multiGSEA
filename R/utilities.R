@@ -1,3 +1,20 @@
+##' Converts an expression container like object to a matrix for analysis
+as_matrix <- function(y) {
+  if (is.vector(y)) {
+    y <- t(t(y)) ## column vectorization that sets names to rownames
+  } else if (is(y, 'EList')) {
+    y <- y$E
+  } else if (is(y, 'DGEList')) {
+    y <- cpm(x, prior.count=5, log=TRUE)
+  } else if (is(y, 'eSet')) {
+    y <- Biobase::exprs(y)
+  } else if (is(y, 'DESeqDataSet')) {
+    y <- assay(DESeq2::normTransform(y, pc=5))
+  }
+  stopifnot(is.matrix(y) && is.numeric(y))
+  y
+}
+
 ##' Reads in a semi-annotated genelist (one symbol per line)
 ##'
 ##' Often we are given a list of gene names, and the symbols provided are not

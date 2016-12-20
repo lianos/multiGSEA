@@ -10,12 +10,22 @@ p.matrix(x, names = resultNames(x), pcol = c("padj", "padj.by.collection",
 \arguments{
 \item{x}{The output from multiGSEA}
 
+\item{names}{the entries from \code{resultNames(x)} that you want to include
+in the matrix. By default we take all of them.}
+
 \item{pval}{Are we testing pvalues or adjusted pvalues?}
 }
 \value{
 A matrix of the desired pvalues for all genesets
 }
 \description{
-Assembles a matrix of nominal or adjusted pvalues from a multiGSEA result
+You might want a matrix of pvalues (or FDRs) for the gene sets across all
+GSEA methods you tried. I think I did, once, so here it is.
+}
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- exampleGeneSetDb()
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+pm <- p.matrix(mg)
 }
 

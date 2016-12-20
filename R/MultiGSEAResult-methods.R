@@ -1,19 +1,3 @@
-setMethod("updateObject", "MultiGSEAResult",
-function(object, ..., verbose=FALSE) {
-  ## Unfortunately we've internally generated GeneSetDb objects that weren't
-  ## entirely properly keyed.
-  object@gsd <- updateObject(object@gsd)
-
-  proto <- new("MultiGSEAResult")
-  ekeys <- key(proto@logFC)
-  xkeys <- key(object@logFC)
-  if (!setequal(ekeys, xkeys) || !all.equal(ekeys, xkeys)) {
-    setkeyv(object@logFC, ekeys)
-  }
-  object
-})
-
-
 ##' Fetches the GeneSetDb from MultiGSEAResult
 ##'
 ##' @export
@@ -29,7 +13,7 @@ function(object, ..., verbose=FALSE) {
 ##' geneSetDb(mg)
 geneSetDb <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  updateObject(x@gsd)
+  x@gsd
 }
 
 ##' @rdname geneSet
@@ -42,7 +26,6 @@ function(x, i, j, active.only=TRUE, fetch.all=FALSE,
   if (isTRUE(fetch.all)) {
     warning("fetch.all must be `FALSE` when called on MultiGSEAResult")
   }
-  x <- updateObject(x)
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=active.only, fetch.all=fetch.all,
                 with.feature.map=with.feature.map, ..., .external=FALSE)

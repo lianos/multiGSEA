@@ -45,17 +45,22 @@
 ##' of gene level statistics which will be used for ranking (ie. a named vector
 ##' of logFC's or t-statistics for genes).
 ##'
+##' The worker functions that execute these GSEA methods are functions named
+##' \code{do.METHOD}. These functions aren't executed, but you can find help
+##' on them via the console, via \code{?do.goseq}, or \code{?do.camera},
+##' for example.
+##'
 ##' @section GSEA Method Parameterization:
 ##'
 ##' Each GSEA method can be tweaked via a custom set of parameters. We leave the
-##' documentation of these parameters and how the affect their respective GSEA
+##' documentation of these parameters and how they affect their respective GSEA
 ##' methods to the documentation available in the packages where they are
 ##' defined. The caller simply has to pass these parameters down
 ##' into the \code{...} parameters here. The \code{multiGSEA} function will then
 ##' pass these along to their worker functions.
 ##'
-##' \emph{What happens when two different GSEA methods have parameters with the same
-##' name?}
+##' \emph{What happens when two different GSEA methods have parameters with the
+##' same name?}
 ##'
 ##' Unfortunately you currently cannot provide different values for these
 ##' parameters. An upcoming version version of multiGSEA will support this
@@ -160,7 +165,6 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     stop("GeneSetDb required. Please see `?GeneSetDb` for ways to turn your ",
          "gene sets into a GeneSetDb")
   }
-  gsd <- updateObject(gsd)
   if (missing(methods) || length(methods) == 0) {
     methods <- 'logFC'
   }

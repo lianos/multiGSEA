@@ -2,24 +2,27 @@
 % Please edit documentation in R/do.camera.R
 \name{do.camera}
 \alias{do.camera}
-\title{Runs camera on the given experiment.}
+\title{Worker function to run camera from within a multiGSEA pipeline}
 \usage{
 do.camera(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
   value = "x.idx"), ...)
 }
 \description{
-Runs camera on the given experiment.
-}
-\section{Gene Set Enrichment Methods}{
+camera as originally implemented tends to be very conservative, this is
+due to the intra-geneset correlation that it originally estimates from
+the data. It has been argued that this is hard to estimate and becomes
+very conservative for experiments with small N.
 
+As a result, an \code{inter.gene.cor} parameter was introduced to camera
+in limma v3.24.14, and as of Bioc3.3, its value is set to 0.01 by default
+instead of letting camera approximate it from the data.
 
-camera tends to be very conservative, especially when trying to estimate
-residual correlation of gene sets from experiments with small N. For this
-reason,  Gordon has added the ability provide a prespecified
-\code{inter.gene.correlation} value.
-\href{https://support.bioconductor.org/p/70005/#70195}{
-He suggests to try a small positive number (0.05)}
+For the original discussion around this topic, please refer to the following
+thread in the bioconductor support forum:
 
-NOTE: As of Bioc3.3 camera has a default inter.gene.cor of 0.01. If this
+\url{https://support.bioconductor.org/p/70005/#70195}
+
+\strong{This function is not meant to be called directly, it should only be
+called internally within \code{multiGSEA}}
 }
 

@@ -424,6 +424,13 @@ setValidity("GeneSetDb", function(object) {
   ## ---------------------------------------------------------------------------
   ## Check the collectionMetadata bits
   ## ---------------------------------------------------------------------------
+
+  ## Get geneSet information from GeneSetDb to ensure we have collectionMetadata
+  ## for all the genesets in our object
+  gs.info <- geneSets(object, active.only=FALSE, .external=FALSE)[, {
+    list(count=.N)
+  }, keyby='collection']
+
   ##
   ## 1. Ensure that all collection,name entries are unique
   dupd <- duplicated(object@collectionMetadata, by=c('collection', 'name'))
@@ -454,7 +461,17 @@ setValidity("GeneSetDb", function(object) {
     }
     list(count=count, url.fn.stauts=url.fn.status)
   }, keyby='collection']
-  ## 3. Ensure url functions are kosher
+
+  ## 3. Minimally ensure we have metadata for all genesets
+  if (!(nrow(gs.info) == nrow(cm.info) ||
+        all(gs.info$collection == cm.info$collection) ||
+        all(gs.info$name == cm.info$name))) {
+    msg <- paste('Number of defined collections in geneSets() does not match',
+                 'defined collections in collectionMetadata')
+    return(msg)
+  }
+
+  ## 4. Ensure url functions are kosher
   bad.fns <- cm.info$url.fn.status != 'ok'
   if (any(bad.fns)) {
     msg <- paste('bad url fns:\n',
@@ -463,18 +480,9 @@ setValidity("GeneSetDb", function(object) {
                        collapse='\n'))
     return(msg)
   }
-  ## 4. Ensure gene set counts match
-  gs.info <- geneSets(object, active.only=FALSE, .external=FALSE)[, {
-    list(count=.N)
-  }, by='collection']
-  setkeyv(gs.info, 'collection')
-  if (nrow(gs.info) != nrow(cm.info)) {
-    msg <- paste('Number of defined collections in geneSets() does not match',
-                 'defined collections in collectionMetadata')
-    return(msg)
-  }
-  if (!all.equal(gs.info[, list(collection, count)],
-                 cm.info[, list(collection, count)])) {
+
+  ## 5. Check that counts match per geneset
+  if (any(gs.info$count != cm.info$count)) {
     msg <- paste('gene set counts per collection do not match')
     return(msg)
   }
@@ -526,17 +534,3 @@ validate.gene.sets.input <- function(gene.sets) {
   gene.sets
 }
 
-setMethod("updateObject", "GeneSetDb",
-function(object, ..., verbose=FALSE) {
-  return(object)
-  ## Unfortunately we've internally generated GeneSetDb objects that weren't
-  ## entirely properly keyed.
-  proto <- new("GeneSetDb")
-  ekeys <- key(proto@db)
-  xkeys <- key(object@db)
-  if (!setequal(ekeys, xkeys) || !all.equal(ekeys, xkeys)) {
-
-    setkeyv(object@db, ekeys)
-  }
-  object
-})

@@ -4,6 +4,10 @@ NULL
 validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
+##' Worker function to run roast from within a multiGSEA pipeline
+##'
+##' \strong{This function is not meant to be called directly, it should only be
+##' called internally within \code{multiGSEA}}
 do.roast <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))

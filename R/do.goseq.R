@@ -74,9 +74,9 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      repcnt=2000, use_genes_without_cat=TRUE,
                      split.updown=TRUE,
                      direction=c('over', 'under'),
-                     plot.fit=FALSE, use.treat=TRUE,
-                     feature.min.logFC=log2(1.25), feature.max.padj=0.10,
-                     logFC=NULL, ...) {
+                     plot.fit=FALSE, use.treat=FALSE,
+                     feature.min.logFC=if (use.treat) log2(1.25) else 1,
+                     feature.max.padj=0.10, logFC=NULL, ...) {
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
 

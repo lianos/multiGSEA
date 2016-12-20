@@ -2,7 +2,7 @@
 % Please edit documentation in R/scoreSingleSamples.R
 \name{scoreSingleSamples}
 \alias{scoreSingleSamples}
-\title{Score each genes over the columns of an expression matrix.}
+\title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
 scoreSingleSamples(gdb, y, methods = "ssgsea", as.matrix = FALSE,
   drop.sd = 1e-04, verbose = FALSE, ...)
@@ -25,23 +25,5 @@ with a standard deviation less than this value will be dropped.}
 \value{
 \code{matrix} with as many rows as \code{geneSets(gdb)} and
   as many columns as \code{ncol(x)}
-}
-\description{
-These functions provide gene set scores at the sample level. No need for
-designs and contrasts.
-}
-\details{
-Current scoring methods include:
-
-\enumerate{
-  \item zscore: features in geneset rowwise z transformed, then normalized
-        by size of geneset (or sqrt(size))
-  \item gsva: GSVA package
-  \item plage: from GSVA package
-  \item ssgsea: from GSVA package
-  \item svd: Simple score that (should) mimic Jason's SVD/eigengene score.
-        This is included here mainly to facilitate use of this scoring
-        method for people who would have a hard time installing GSDecon2
-}
 }
 

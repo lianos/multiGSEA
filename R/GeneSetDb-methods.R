@@ -401,7 +401,6 @@ function(x, active.only=is.conformed(x), ... , .external=TRUE) {
 setMethod("geneSet", c(x="GeneSetDb"),
 function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
          with.feature.map=FALSE, ..., .external=TRUE) {
-  x <- updateObject(x)
   stopifnot(isSingleCharacter(i), isSingleCharacter(j))
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
                      fetch.all=fetch.all, ...)

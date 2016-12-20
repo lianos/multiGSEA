@@ -50,7 +50,7 @@ getMSigGeneSetDb <- function(collection, species='human',
 
   fn <- sprintf('MSigDB.%s.GeneSetDb.rds', species)
   fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
-  out <- updateObject(readRDS(fn))
+  out <- readRDS(fn)
 
   if (!setequal(collection, avail.cols)) {
     gs <- geneSets(out, .external=FALSE)

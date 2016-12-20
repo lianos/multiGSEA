@@ -5,8 +5,6 @@ validate.inputs.romer <- .validate.inputs.full.design
 
 ## validate.x.romer <- validate.DGEList
 
-## romer works on normal EList or DGEList. It has not been adapted
-## to work with a $weights matrix (that you get from voom)
 validate.x.romer <- function(x) {
   if (isTRUE(is(x, 'DGEList'))) {
     if (!is.numeric(x$common.dispersion)) {
@@ -24,6 +22,15 @@ validate.x.romer <- function(x) {
   return(TRUE)
 }
 
+##' Worker function to run romer from within a multiGSEA pipeline
+##'
+##' @description
+##' Note that romer works on a DGEList or a "normal" EList, ie. it has not
+##' been updated to work with an \code{EList} with a \code{$weights} matrix,
+##' and therefore doesn't work with a voom'd dataset.
+##'
+##' \strong{This function is not meant to be called directly, it should only be
+##' called internally within \code{multiGSEA}}
 do.romer <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))
