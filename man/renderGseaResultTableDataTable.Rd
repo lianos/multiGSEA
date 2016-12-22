@@ -2,12 +2,13 @@
 % Please edit documentation in R/shiny-utils.R
 \name{renderGseaResultTableDataTable}
 \alias{renderGseaResultTableDataTable}
-\title{Prepares the datatable arguments to use for the gsea.result.table display}
+\title{Prepares the datatable of GSEA result statistics for presentation}
 \usage{
 renderGseaResultTableDataTable(x, method, mg, digits = 3)
 }
 \arguments{
-\item{x}{The \code{gsea.result.table} \code{data.table} object}
+\item{x}{The set of GSEA statistics generated from from
+\code{\link{constructGseaResultTable}}}
 
 \item{mg}{The \code{MultiGSEAResult} object}
 }
@@ -15,6 +16,6 @@ renderGseaResultTableDataTable(x, method, mg, digits = 3)
 a DT::DataTable
 }
 \description{
-Prepares the datatable arguments to use for the gsea.result.table display
+Prepares the datatable of GSEA result statistics for presentation
 }
 

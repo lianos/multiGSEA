@@ -26,4 +26,9 @@ volcano for.}
 \description{
 Creates a volcano plot from a source input
 }
+\section{Module Return}{
+
+This module returns a data.frame with the information of the selected
+features. If no genes are selected in a volcano, it will return \code{NULL}.
+}
 

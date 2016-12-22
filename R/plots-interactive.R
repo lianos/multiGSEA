@@ -26,9 +26,9 @@
 ##'   will disable the title altogether.
 ##' @param with.legend Draws a legend to map point color to meaning. There are
 ##'   three levels a point (gene level statistic) can be color as, "notsig",
-##'   "psig", and "sig". "notsig" implies that the FDR > 10%, "psig" means that
-##'   the FDR <= 10%, but the logFC is "unremarkable" (< 1), and "sig" means
-##'   that both the FDR <= 10% and the logFC >= 1
+##'   "psig", and "sig". "notsig" implies that the FDR \gt 10%%, "psig" means that
+##'   FDR \lte 10%%, but the logFC is "unremarkable" (\lt < 1), and "sig" means
+##'   that both the FDR \lte 10% and the logFC \gte 1
 ##' @param with.data if \code{TRUE}, the data used for the plot is added to
 ##'   the outgoing rbokeh plot object (list) as \code{$data}. Default is
 ##'   \code{FALSE}.

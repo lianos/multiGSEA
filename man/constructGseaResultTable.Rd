@@ -2,24 +2,31 @@
 % Please edit documentation in R/shiny-utils.R
 \name{constructGseaResultTable}
 \alias{constructGseaResultTable}
-\title{Builds the subset of the GSEA statistics to present to the user}
+\title{Builds the table of GSEA statistics to present to the user}
 \usage{
-constructGseaResultTable(mg, method, fdr)
+constructGseaResultTable(mg, method, fdr, prioritize = c("h"))
 }
 \arguments{
 \item{mg}{\code{MultiGSEAResult} object}
 
 \item{method}{the method to show statistics for}
 
-\item{the}{FDR cut off to present statistics for}
+\item{fdr}{the FDR cut off to present statistics for}
+
+\item{prioritize}{the preffered collections to put at the top of the
+list. The collection column of the table is turned into a factor and for
+more usful display with datatable's filter. Specifcying collections
+here will put those collections at the front of the factor levels and
+therofre prioritize their display in the select dropdown for the filter}
 }
 \value{
 a data.table of the statistics that match the filtering criteria.
   A 0-row data.table is returned if nothing passes.
 }
 \description{
-This function sets the collection to a factor and puts the MSigDB Hallmark
-collection ("h") at the top of the totem pole, if it is included in
-\code{mg}.
+The application will present the set of gene sets that pass a given
+\code{fdr} for a given \code{method} as a central piece of the UI. This
+function accepts those to arguments and prepares the statistics generated
+from the analysis for display.
 }
 

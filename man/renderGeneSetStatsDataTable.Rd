@@ -2,14 +2,22 @@
 % Please edit documentation in R/shiny-utils.R
 \name{renderGeneSetStatsDataTable}
 \alias{renderGeneSetStatsDataTable}
-\title{Prepares the datatable to show the geneset members and their logFC stats}
+\title{Creates a datatable to display gene level statistics for a geneset.}
 \usage{
-renderGeneSetStatsDataTable(gstats, name, digits = 3)
+renderGeneSetStatsDataTable(gstats, name, digits = 3,
+  feature.link.fn = NULL)
 }
 \value{
-a list of arguments that you can \code{do.call, datatable}
+a datatable of gene level statistics
 }
 \description{
-Prepares the datatable to show the geneset members and their logFC stats
+Creates a datatable to display gene level statistics for a geneset.
+}
+\examples{
+vm <- exampleExpressionSet()
+gdb <- exampleGeneSetDb()
+mg <- multiGSEA(gdb, vm, vm$design)
+geneSet(mg, 'c2', 'BURTON_ADIPOGENESIS_PEAK_AT_2HR') \%>\%
+  renderGeneSetStatsDataTable('BURTON_ADIPOGENESIS_PEAK_AT_2HR')
 }
 

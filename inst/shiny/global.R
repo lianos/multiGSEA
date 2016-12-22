@@ -7,13 +7,12 @@
 #   switchTo("facile")
 # }
 
-## Loading Custom Libraries ----------------------------------------------------
-## Let's make sure to load custom-deployed packages first so that we don't
-## accidentally load older ones that live deeper-down our .libPaths()
+## Load multiGSEA? You shouldn't have to because this should be invoked by
+## `multiGSEA::explore()`, but who knows how the user got here
 # library(rprojroot)
 # root <- find_root(is_r_package)
 # devtools::load_all(root)
-library(multiGSEA)
+# library(multiGSEA)
 library(DT)
 
 ## Loading "standard" Libraries ------------------------------------------------

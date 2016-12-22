@@ -16,19 +16,10 @@ shinyServer(function(input, output, session) {
     return(failWith(NULL, MultiGSEAResultContainer(input$mgresult$datapath)))
   })
 
-  species <- reactive({
-    ## if symbols == touppser(symbol) this is human, else it's a mouse (GNE only)
-    req(mgc())
-    mg <- mgc()$mg
-    symbols <- logFC(mg)$symbol
-    if (is.character(symbols)) {
-      symbols <- symbols[!is.na(symbols)]
-      tests <- sample(symbols, min(20, length(symbols)))
-      ans <- if (mean(tests == toupper(tests)) > 0.7) 'human' else 'mouse'
-    } else {
-      ans <- NULL
-    }
-    ans
+  lfc <- reactive({
+    req(mgc()$mg) %>%
+      logFC %>%
+      arrange(desc(logFC))
   })
 
   gs_result_filter <- callModule(mgResultFilter, 'mg_result_filter', mgc)
@@ -60,6 +51,7 @@ shinyServer(function(input, output, session) {
                                  method=gs_result_filter()$method,
                                  fdr=gs_result_filter()$fdr,
                                  server=TRUE)
+  ## clicks on gsea result table update the contrast view
   observeEvent(gs_table_browser()$selected, {
     sval <- gs_table_browser()$selected
     if (!is.null(sval)) {
@@ -77,32 +69,24 @@ shinyServer(function(input, output, session) {
                                     mgc, features=gs_viewer()$selected,
                                     method=gs_result_filter()$method,
                                     fdr=gs_result_filter()$fdr)
-  # observeEvent(other_genesets_gsea()$selected, {
-  #   ## This sends us into a tailspin of updating the plot, then updating
-  #   ## the selected genes and repupdating plot, etc ... it shouldn't, but ...
-  #   sval <- other_genesets_gsea()$selected
-  #   if (!is.null(sval)) {
-  #     updateGeneSetContrastViewGeneSet(session, 'geneset_viewer',
-  #                                      choices=isolate(mgc()$choices),
-  #                                      selected=sval, server=TRUE)
-  #   }
-  # })
+  ## DEBUG: Can we add a DT row click listner to the `other_genesets_gsea` so
+  ## that it updates the `gs_viewer`? My first shot at doing sends the
+  ## application into a tailspin, my best guess is because the selection is
+  ## still active in the rbokeh boxp/density plot.
 
   ## Differential Gene Expression Tab ==========================================
   gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc)
 
   output$dge_volcano_genestats <- DT::renderDataTable({
-    genes <- setDF(req(gene.volcano()))
-    mg <- mgc()$mg
-    res <- logFC(mg) %>%
-      filter(featureId %in% genes$featureId) %>%
-      select(symbol, featureId, pval, padj)
-    if (!is.null(species())) {
-      url <- sprintf('https://www.ncbi.nlm.nih.gov/gene/%s', res$featureId)
-      html <- sprintf('<a href="%s" target="_blank">%s</a>', url, res$symbol)
-      res$symbol <- html
+    res <- req(lfc()) %>%
+      select(symbol, featureId, logFC, pval, padj)
+
+    selected <- gene.volcano()
+    if (!is.null(selected)) {
+      res <- filter(res, featureId %in% selected$featureId)
     }
-    datatable(res, filter='top', escape=FALSE, rownames=FALSE) %>% roundDT
+
+    renderFeatureStatsDataTable(res, filter='top', feature.link.fn=ncbi.entrez.link)
   })
 
   ## A table of other genesets that brushed genes in the contrast viewer
@@ -114,16 +98,3 @@ shinyServer(function(input, output, session) {
                                        method=gs_result_filter()$method,
                                        fdr=gs_result_filter()$fdr)
 })
-
-if (FALSE) {
-  genes <- tibble(
-    featureId=c("102633704", "12565", "242384", "19220", "72780",
-                "102636809", "319555"))
-  feature.rename <- 'symbol'
-  method <- 'camera'
-  max.p <- 0.20
-  mg <- readRDS("/Users/lianogls/tmp/schmidt/multiGSEA-EP-uber_hWT_tKO-hWT_tWT.rds")
-  out <- geneSetSummaryByGenes(mg, genes$featureId, feature.rename='symbol',
-                               method=method, max.p=max.p)
-
-}

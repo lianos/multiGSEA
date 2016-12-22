@@ -71,7 +71,8 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
 ##' @importFrom DT renderDataTable
 ##' @rdname geneSetContrastViewModule
 geneSetContrastView <- function(input, output, session, mgc,
-                                server=TRUE, maxOptions=Inf, sep="_::_") {
+                                server=TRUE, maxOptions=Inf, sep="_::_",
+                                feature.link.fn=ncbi.entrez.link) {
   gs <- callModule(geneSetSelect, 'gs_select', mgc, server=server,
                    maxOptions=maxOptions, sep=sep)
   plt <- reactive({
@@ -101,7 +102,8 @@ geneSetContrastView <- function(input, output, session, mgc,
 
   output$gs_members <- DT::renderDataTable({
     req(gs())
-    renderGeneSetStatsDataTable(gs()$stats, gs()$name, digits=3)
+    renderFeatureStatsDataTable(gs()$stats, feature.link.fn=feature.link.fn,
+                                filter='none')
   }, server=server)
 
   output$gs_gene_table <- downloadHandler(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny-utils.R
 \name{explore}
 \alias{explore}
-\title{Invokes a shiny app to interactively explore a MultiGSEAResult}
+\title{Interactively explore a MultiGSEAResult via a shiny app}
 \usage{
 explore(x)
 }

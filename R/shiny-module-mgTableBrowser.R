@@ -1,14 +1,11 @@
-##' A module to explore the GSEA statistics generated from a multiGESA Run.
+##' A module to explore the GSEA statistics generated from a multiGSEA Run.
 ##'
 ##' @rdname mgTableBrowserModule
 ##' @export
 ##' @importFrom shiny tagList uiOutput NS
 ##' @importFrom DT dataTableOutput
 ##' @param id the shiny id of the UI module
-##' @param mg The \code{MultiGSEAResultContainer} object
-##' @param server whether or not certain things (options, datatables) be
-##'   "server" side or not. This isn't thoroughly pushed throughout everything
-mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
+mgTableBrowserUI <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -25,8 +22,9 @@ mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
 ##' @param output shiny server output object
 ##' @param session shiny server session object
 ##' @param mgc the \code{MultiGSEAResultContainer} object
-##' @param a reactive that determines which method to explore from this result
-##' @param a reactive that gives the fdr threshold to filter results in the
+##' @param method a reactive that determines which method to explore from this
+##'   result
+##' @param fdr a reactive that gives the fdr threshold to filter results in the
 ##'   table by.
 mgTableBrowser <- function(input, output, session, mgc, method, fdr,
                            server=TRUE) {

@@ -55,13 +55,14 @@ ret.df <- function(x, .external=TRUE) {
     return(x)
   }
 
+  x <- copy(x)
   clazz <- class(x)[1L]
   switch(df.return,
-         data.table=if (is.data.table(x)) x else setDT(copy(x)),
+         data.table=if (is.data.table(x)) x else setDT(x),
          data.frame=if (clazz == 'data.frame') {
            x
          } else if (is.data.table(x)) {
-           setDF(copy(x))
+           setDF(x)
           } else {
             warning("Unknown object type, returning as is: ", clazz)
             x

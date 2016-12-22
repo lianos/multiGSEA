@@ -3,19 +3,14 @@
 \name{mgTableBrowserUI}
 \alias{mgTableBrowser}
 \alias{mgTableBrowserUI}
-\title{A module to explore the GSEA statistics generated from a multiGESA Run.}
+\title{A module to explore the GSEA statistics generated from a multiGSEA Run.}
 \usage{
-mgTableBrowserUI(id, mg = NULL, server = TRUE)
+mgTableBrowserUI(id)
 
 mgTableBrowser(input, output, session, mgc, method, fdr, server = TRUE)
 }
 \arguments{
 \item{id}{the shiny id of the UI module}
-
-\item{mg}{The \code{MultiGSEAResultContainer} object}
-
-\item{server}{whether or not certain things (options, datatables) be
-"server" side or not. This isn't thoroughly pushed throughout everything}
 
 \item{input}{shiny server input object}
 
@@ -25,12 +20,13 @@ mgTableBrowser(input, output, session, mgc, method, fdr, server = TRUE)
 
 \item{mgc}{the \code{MultiGSEAResultContainer} object}
 
-\item{a}{reactive that determines which method to explore from this result}
+\item{method}{a reactive that determines which method to explore from this
+result}
 
-\item{a}{reactive that gives the fdr threshold to filter results in the
+\item{fdr}{a reactive that gives the fdr threshold to filter results in the
 table by.}
 }
 \description{
-A module to explore the GSEA statistics generated from a multiGESA Run.
+A module to explore the GSEA statistics generated from a multiGSEA Run.
 }
 
