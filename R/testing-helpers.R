@@ -120,6 +120,7 @@ exampleGeneSetDb <- function() {
 ##' Returns a data.frame of gene set definitions. A data.frame of this form
 ##' can be passed into the \code{GeneSetDb} contructor.
 ##'
+##' @export
 ##' @rdname examples
 ##' @alias exampleGeneSetDF
 exampleGeneSetDF <- function() {
