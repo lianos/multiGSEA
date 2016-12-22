@@ -2,13 +2,62 @@
 % Please edit documentation in R/plots-interactive.R
 \name{iplot}
 \alias{iplot}
-\title{Create interactive GSEA plots}
+\alias{iplot.boxplot.rbokeh}
+\alias{iplot.density.rbokeh}
+\title{Visualize gene level behavior of genes within a geneset across a contrast.}
 \usage{
-iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot",
-  "volcano"), tools = c("wheel_zoom", "box_select", "reset", "save"),
-  main = NULL, with.legend = TRUE, with.data = FALSE, ...)
+iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
+  tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
+  with.legend = TRUE, with.data = FALSE, ...)
+
+iplot.boxplot.rbokeh(x, y, j, value, main, dat, with.legend = TRUE,
+  tools = c("wheel_zoom", "box_select", "reset", "save"), with.data = FALSE,
+  ...)
+
+iplot.density.rbokeh(x, y, j, value, main, dat, with.legend = TRUE,
+  tools = c("wheel_zoom", "box_select", "reset", "save"), with.data = FALSE,
+  ...)
+}
+\arguments{
+\item{x}{A \code{MultiGSEAResult} object}
+
+\item{y}{the name of the gene set collection}
+
+\item{j}{the name of the gene set name}
+
+\item{value}{plot individual log fold changes (default) or t-statistics
+(\code{"logFC"} or \code{"t"}, respectively)}
+
+\item{type}{plot the distributions as a \code{"density"} plot or
+\code{"boxplot"}}
+
+\item{tools}{the tools to display in the rbokeh plot}
+
+\item{main}{A title to display. If not specified, the gene set name
+will be used, otherwise you can pass in a custom title, or \code{NULL}
+will disable the title altogether.}
+
+\item{with.legend}{Draws a legend to map point color to meaning. There are
+three levels a point (gene level statistic) can be color as, "notsig",
+"psig", and "sig". "notsig" implies that the FDR > 10%, "psig" means that
+the FDR <= 10%, but the logFC is "unremarkable" (< 1), and "sig" means
+that both the FDR <= 10% and the logFC >= 1}
+
+\item{with.data}{if \code{TRUE}, the data used for the plot is added to
+the outgoing rbokeh plot object (list) as \code{$data}. Default is
+\code{FALSE}.}
+}
+\value{
+the rbokeh (list) plot object
 }
 \description{
-Create interactive GSEA plots
+It is informative to look at the individual log fold changes of the genes
+within a gene set to explore the degree to which they (1) are coherent with
+respect to each other; and (2) see how the compare to the background
+distribution of log fold changes of the entire transcriptome.
+
+You can visualize this behavior via a \code{type='density'} plot, or a
+\code{type='boxplot'}. It is also common to plot either the individual
+log fold changes (\code{value="logFC"}) or t-statistics (\code{value="t"}).
 }
 

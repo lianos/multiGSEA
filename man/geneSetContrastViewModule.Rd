@@ -32,10 +32,5 @@ top of the box. The main content consists of a a
 \code{\link[miniUI]{miniTabStripPanel}}, which provides a vizual view as
 well as a tabular view of the statistics for a particular geneset from a
 \code{MultiGSEAResultContainer}
-
-selected is null if mgTableBrowser hasn't been initialized yet
-}
-\details{
-importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
 }
 

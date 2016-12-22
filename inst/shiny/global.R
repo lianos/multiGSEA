@@ -10,9 +10,10 @@
 ## Loading Custom Libraries ----------------------------------------------------
 ## Let's make sure to load custom-deployed packages first so that we don't
 ## accidentally load older ones that live deeper-down our .libPaths()
-library(rprojroot)
-root <- find_root(is_r_package)
-devtools::load_all(root)
+# library(rprojroot)
+# root <- find_root(is_r_package)
+# devtools::load_all(root)
+library(multiGSEA)
 library(DT)
 
 ## Loading "standard" Libraries ------------------------------------------------

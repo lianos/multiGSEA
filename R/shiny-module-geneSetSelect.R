@@ -5,48 +5,43 @@
 ##' gist.
 ##'
 ##' @export
+##' @importFrom shiny NS uiOutput
 ##' @rdname geneSetSelectModule
 geneSetSelectUI <- function(id, label="Select Gene Set", mg=NULL,
                             server=TRUE) {
-  requireNamespace('shiny')
   if (!is.null(mg) && !is(mg, 'MultiGSEAResultContainer')) {
     stop("`mg` must either be NULL or a MultiGSEAResultContainer")
   }
-  ns <- shiny::NS(id)
-  shiny::uiOutput(ns("geneset_picker"))
+  ns <- NS(id)
+  uiOutput(ns("geneset_picker"))
 }
 
+##' @section Module Return:
 ##' Returns information about the geneSetSelect object
-##'
-##' collection, name, stats, sep
 ##'
 ##' @export
 ##' @rdname geneSetSelectModule
+##' @importFrom shiny renderUI req outputOptions observeEvent reactive
+##' @importFrom shiny updateSelectizeInput
+##'
 geneSetSelect <- function(input, output, session, mgc, server=TRUE,
                           maxOptions=Inf, sep='_::_') {
-  requireNamespace('shiny')
   ## Programmaticaslly create the UI from the MultiGSEAResults
-  output$geneset_picker <- shiny::renderUI({
-    shiny::req(mgc())
+  output$geneset_picker <- renderUI({
+    req(mgc())
     mo <- if (is.infinite(maxOptions)) nrow(geneSets(mgc()$mg)) else maxOptions
     gs.render.select.ui(session$ns, mgc()$choices, server=server, maxOptions=mo)
   })
   outputOptions(output, "geneset_picker", suspendWhenHidden=FALSE)
 
   if (server) {
-    shiny::observeEvent(mgc(), {
-      ## req(mgc()$choices)
-      # sel <- if (is.null(selected)) {
-      #   NULL
-      # } else {
-      #   paste(selected()$collection, selected()$name, sep=sep)
-      # }
+    observeEvent(mgc(), {
       updateSelectizeInput(session, "geneset", choices=mgc()$choices,
                            server=TRUE, selected=NULL)
     })
   }
 
-  shiny::reactive({
+  reactive({
     gs <- input$geneset
     if (is.null(gs) || length(gs) == 0 || nchar(gs) == 0) {
       ## HACK, just but something here if it's not selectd
@@ -67,16 +62,16 @@ geneSetSelect <- function(input, output, session, mgc, server=TRUE,
 
 ##' @export
 ##' @rdname geneSetSelectModule
+##' @importFrom shiny updateSelectizeInput
 updateGeneSetSelect <- function(session, id, label=NULL, choices=NULL,
                                 selected=NULL, options=list(), server=FALSE) {
-  stopifnot(requireNamespace('shiny'))
   childScope <- session$makeScope(id)
   shiny::withReactiveDomain(childScope, {
     mod.id <- childScope$ns('geneset')
-    shiny::updateSelectizeInput(session, mod.id, label=label,
-                                choices=choices, selected=selected,
-                                options=options,
-                                server=server)
+    updateSelectizeInput(session, mod.id, label=label,
+                         choices=choices, selected=selected,
+                         options=options,
+                         server=server)
   })
 }
 
@@ -86,6 +81,7 @@ updateGeneSetSelect <- function(session, id, label=NULL, choices=NULL,
 ##'
 ##' @rdname geneSetSelectModule
 ##'
+##' @importFrom shiny selectizeInput
 ##' @param ns the namespace function for this module
 ##' @param choices the output of gs.select.choices(MultiGSEAResult)
 ##' @param server \code{logical} to indicate whether options should be loaded
@@ -94,7 +90,6 @@ updateGeneSetSelect <- function(session, id, label=NULL, choices=NULL,
 ##' @return a properly wired \code{\link[shiny]{selectizeInput}}
 gs.render.select.ui <- function(ns, choices, server=TRUE,
                                 maxOptions=1000, sep='_::_') {
-  requireNamespace('shiny')
   # predefine all options groups
   optgroups = lapply(unique(choices$collection), function(col) {
     list(value=col, label=col)
@@ -113,13 +108,13 @@ gs.render.select.ui <- function(ns, choices, server=TRUE,
              }}"))
 
   if (server) {
-    ui <- shiny::selectizeInput(ns("geneset"), label=NULL, choices=NULL, options=si.opts)
+    ui <- selectizeInput(ns("geneset"), label=NULL, choices=NULL, options=si.opts)
   } else {
     choices <- sapply(unique(choices$collection), function(x) {
       out <- subset(choices, collection == x)
       setNames(out$value, out$label)
     }, simplify=FALSE)
-    ui <- shiny::selectizeInput(ns("geneset"), label=NULL, choices=choices)
+    ui <- selectizeInput(ns("geneset"), label=NULL, choices=choices)
   }
 
   ui

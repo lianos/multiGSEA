@@ -1,18 +1,24 @@
 
+##' Module that displays gene sets related to (by membership) a set of genes.
 ##' @export
+##' @importFrom shiny NS tagList checkboxInput uiOutput
+##' @importFrom DT dataTableOutput
+##' @rdname mgGeneSetSummaryByGene
 mgGeneSetSummaryByGeneUI <- function(id, mg=NULL) {
-  stopifnot(requireNamespace('shiny'))
-  ns <- shiny::NS(id)
+  ns <- NS(id)
 
-  shiny::tagList(
+  tagList(
     checkboxInput(ns('genesets_sigonly'),
                   'Show membership for significant gene sets only',
                   value=FALSE),
-    shiny::uiOutput(ns('selected_message')),
+    uiOutput(ns('selected_message')),
     DT::dataTableOutput(ns("other_genesets")))
 }
 
+##' @rdname mgGeneSetSummaryByGene
 ##' @export
+##' @importFrom shiny reactive req renderUI tags
+##' @importFrom DT renderDataTable datatable
 mgGeneSetSummaryByGene <- function(input, output, session, mgc,
                                    features, method, fdr) {
   genesets <- reactive({
@@ -23,16 +29,16 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
       method <- NULL
       max.p <- NULL
     }
-    shiny::req(mgc())
-    fids <- shiny::req(features())
+    req(mgc())
+    fids <- req(features())
     if (is(fids, 'data.frame')) {
       fids <- fids$featureId
     }
     geneSetSummaryByGenes(mgc()$mg, fids, feature.rename='symbol',
                           method=method, max.p=max.p, .external=FALSE)
   })
-  
-  output$selected_message <- shiny::renderUI({
+
+  output$selected_message <- renderUI({
     fids <- features()
     if (is.null(fids)) {
       n <- 0L
@@ -41,9 +47,9 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
       n <- if (is.vector(fids)) length(fids) else nrow(fids)
       ngs <- nrow(genesets())
     }
-    shiny::tags$p(sprintf('%d features selected across %d genesets', n, ngs))
+    tags$p(sprintf('%d features selected across %d genesets', n, ngs))
   })
-  
+
   output$other_genesets <- DT::renderDataTable({
     out <- copy(req(genesets()))
     mg <- req(mgc()$mg)
@@ -57,13 +63,13 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
     }]
 
     out <- round.dt(out)
-    datatable(out, filter='top', escape=FALSE,
-              selection=list(mode='single', selected=NA, target='row'),
-              rownames=FALSE)
+    DT::datatable(out, filter='top', escape=FALSE,
+                  selection=list(mode='single', selected=NA, target='row'),
+                  rownames=FALSE)
   })
 
   ## Return the selected geneset
-  shiny::reactive({
+  reactive({
     idx <- input$other_genesets_row_last_clicked
     if (!is.null(idx)) {
       others <- genesets()

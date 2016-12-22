@@ -7,10 +7,10 @@
 roundDT(x, digits = 3)
 }
 \arguments{
+\item{x}{a DT::datatable}
+
 \item{digits}{the number of digits to round. If \code{NA}, then no rounding
 is performed}
-
-\item{a}{DT::datatable}
 }
 \value{
 a rounded DT::datatable

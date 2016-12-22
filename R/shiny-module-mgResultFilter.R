@@ -1,43 +1,45 @@
 ##' Shiny module to pick GSEA method and fdr params used for display
-##' 
+##'
 ##' @export
 ##' @rdname mgResultFilter
+##' @importFrom shiny NS tagList fluidRow column selectInput sliderInput div
+##' @importFrom shiny downloadButton
 mgResultFilterUI <- function(id, mg=NULL) {
-  stopifnot(requireNamespace('shiny'))
-  ns <- shiny::NS(id)
+  ns <- NS(id)
 
-  shiny::tagList(
-    shiny::fluidRow(
-      shiny::column(
+  tagList(
+    fluidRow(
+      column(
         3,
-        shiny::selectInput(ns("gseaMethod"), "GSEA Methods", "")),
+        selectInput(ns("gseaMethod"), "GSEA Methods", "")),
       column(
         6,
-        shiny::sliderInput(ns("gseaReportFDR"), "FDR Cutoff", min=0,
-                           max=1, value=0.2, step=0.05)),
-      shiny::column(
+        sliderInput(ns("gseaReportFDR"), "FDR Cutoff", min=0,
+                    max=1, value=0.2, step=0.05)),
+      column(
         3,
-        shiny::tags$div(
+        tags$div(
           style="padding-top: 2em;",
-          shiny::downloadButton(ns("gseaDownloadStats"), 'Download'))))
+          downloadButton(ns("gseaDownloadStats"), 'Download'))))
   )
 }
 
 ##' @export
 ##' @rdname mgResultFilter
+##' @importFrom shiny observeEvent req updateSelectInput downloadHandler
+##' @importFrom shiny isolate reactive
 mgResultFilter <- function(input, output, session, mgc) {
-  stopifnot(requireNamespace('shiny'))
 
   ## When the MultiGSEAResult changes, we want to update different aspects of
   ## the application
-  shiny::observeEvent(mgc(), {
-    shiny::req(mgc())
-    shiny::updateSelectInput(session, "gseaMethod",
-                             choices=mgc()$methods,
-                             selected=mgc()$methods[1L])
+  observeEvent(mgc(), {
+    req(mgc())
+    updateSelectInput(session, "gseaMethod",
+                      choices=mgc()$methods,
+                      selected=mgc()$methods[1L])
   })
 
-  output$gseaDownloadStats <- shiny::downloadHandler(
+  output$gseaDownloadStats <- downloadHandler(
     filename=function() {
       sprintf('multiGSEA-gsea-statistics-%s.csv', isolate(input$gseaMethod))
     },
@@ -47,7 +49,7 @@ mgResultFilter <- function(input, output, session, mgc) {
     }
   )
 
-  shiny::reactive({
+  reactive({
     list(method=reactive(input$gseaMethod), fdr=reactive(input$gseaReportFDR))
   })
 }

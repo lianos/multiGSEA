@@ -1,23 +1,26 @@
 ##' A module to explore the GSEA statistics generated from a multiGESA Run.
 ##'
+##' @rdname mgTableBrowserModule
 ##' @export
+##' @importFrom shiny tagList uiOutput NS
+##' @importFrom DT dataTableOutput
 ##' @param id the shiny id of the UI module
 ##' @param mg The \code{MultiGSEAResultContainer} object
 ##' @param server whether or not certain things (options, datatables) be
 ##'   "server" side or not. This isn't thoroughly pushed throughout everything
-##' @rdname mgTableBrowserModule
 mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
-  stopifnot(requireNamespace('shiny'),
-            requireNamespace("DT"))
+  ns <- NS(id)
 
-  ns <- shiny::NS(id)
-
-  shiny::tagList(
-    shiny::uiOutput(ns("resultTableMessage")),
+  tagList(
+    uiOutput(ns("resultTableMessage")),
     DT::dataTableOutput(ns("gseaResultTable")))
 }
 
+##' @rdname mgTableBrowserModule
+##'
 ##' @export
+##' @importFrom shiny reactive req renderUI tags
+##' @importFrom DT renderDataTable
 ##' @param input shiny server input object
 ##' @param output shiny server output object
 ##' @param session shiny server session object
@@ -25,15 +28,13 @@ mgTableBrowserUI <- function(id, mg=NULL, server=TRUE) {
 ##' @param a reactive that determines which method to explore from this result
 ##' @param a reactive that gives the fdr threshold to filter results in the
 ##'   table by.
-##' @rdname mgTableBrowserModule
 mgTableBrowser <- function(input, output, session, mgc, method, fdr,
                            server=TRUE) {
-  stopifnot(requireNamespace('shiny'), requireNamespace('DT'))
 
   ## under the FDR threshold
-  gsea.result.table <- shiny::reactive({
+  gsea.result.table <- reactive({
     # browser()
-    mg <- shiny::req(mgc()$mg)
+    mg <- req(mgc()$mg)
     if (is.null(method()) || method() == "") {
       # msg("... gseaMethod not selected yet")
       return(NULL)
@@ -43,8 +44,8 @@ mgTableBrowser <- function(input, output, session, mgc, method, fdr,
     constructGseaResultTable(mg, method(), fdr())
   })
 
-  output$resultTableMessage <- shiny::renderUI({
-    gst <- shiny::req(gsea.result.table())
+  output$resultTableMessage <- renderUI({
+    gst <- req(gsea.result.table())
     if (!is(gst, 'data.frame')) {
       tmsg <- ''
     } else if (nrow(gst) == 0) {
@@ -53,16 +54,16 @@ mgTableBrowser <- function(input, output, session, mgc, method, fdr,
       tmsg <- sprintf('Showing %d genesets at FDR cutoff of %.2f',
                       nrow(gst), fdr())
     }
-    shiny::tags$h5(tmsg)
+    tags$h5(tmsg)
   })
 
   output$gseaResultTable <- DT::renderDataTable({
-    shiny::req(gsea.result.table(), mgc())
+    req(gsea.result.table(), mgc())
     renderGseaResultTableDataTable(gsea.result.table(), method(),
                                    mgc()$mg)
   }, server=server)
 
-  shiny::reactive({
+  reactive({
     if (!is.null(input$gseaResultTable_row_last_clicked)) {
       idx <- input$gseaResultTable_row_last_clicked
       xcol <- as.character(gsea.result.table()$collection[idx])

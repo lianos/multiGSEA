@@ -44,8 +44,6 @@ This code was inspired from the
 \href{https://gist.github.com/MarkEdmondson1234/7e56ee7ac5caa74224327489b0849e61}{dynamicSelectShinyModule.R}
 gist.
 
-collection, name, stats, sep
-
 Builds a selectizeInput widget that is specific to a MultiGSEAResult
 
 Note that when returning a data.frame for the choices of a selectizeInput,
@@ -58,5 +56,9 @@ we need a column called "value" and a column called "label".
     the text that appears in the selection after its triggered
   }
 }
+}
+\section{Module Return}{
+
+Returns information about the geneSetSelect object
 }
 

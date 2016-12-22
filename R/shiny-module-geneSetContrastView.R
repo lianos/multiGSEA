@@ -15,7 +15,10 @@
 ##' well as a tabular view of the statistics for a particular geneset from a
 ##' \code{MultiGSEAResultContainer}
 ##'
-##' importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
+##' @importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
+##' @importFrom shiny NS tagList tags fluidRow column selectInput downloadButton
+##' @importFrom shiny icon downloadHandler
+##' @importFrom DT dataTableOutput
 ##' @export
 ##'
 ##' @param id the shiny id of the module
@@ -25,57 +28,54 @@
 ##' @return a tagList of html stuff to dump into the UI
 ##' @rdname geneSetContrastViewModule
 geneSetContrastViewUI <- function(id, height="590px", width="400px") {
-  stopifnot(requireNamespace('shiny'),
-            requireNamespace('miniUI'),
-            requireNamespace("DT"))
-  ns <- shiny::NS(id)
+  ns <- NS(id)
 
-  shiny::tagList(
-    shiny::tags$div(
+  tagList(
+    tags$div(
       # class="gadget-container", style=paste("height:", height),
       class="gadget-container",
       style=sprintf("height: %s; width %s;", height, width),
-      shiny::tags$div(
+      tags$div(
         style="padding: 0 5px 0 5px",
         geneSetSelectUI(ns("gs_select"), "Select Gene Set")),
-      miniUI::miniTabstripPanel(
-        miniUI::miniTabPanel(
+      miniTabstripPanel(
+        miniTabPanel(
           "Visualize", icon = icon("area-chart"),
-          miniUI::miniContentPanel(
+          miniContentPanel(
             rbokehOutput(ns("gs_viz"), height="350px"),
-            shiny::fluidRow(
-              shiny::column(
+            fluidRow(
+              column(
                 8,
-                shiny::selectInput(ns("gs_viz_type"), NULL,
-                                   c('boxplot', 'density'), 'boxplot')),
-              shiny::column(
+                selectInput(ns("gs_viz_type"), NULL,
+                            c('boxplot', 'density'), 'boxplot')),
+              column(
                 4,
-                shiny::selectInput(ns("gs_viz_stat"), NULL,
+                selectInput(ns("gs_viz_stat"), NULL,
                             c('logFC'='logFC', 't-statistic'='t'), 'logFC'))
             )
           )
         ), ## Viz miniTabPanel
-        miniUI::miniTabPanel(
+        miniTabPanel(
           "Genes", icon = icon("table"),
-          miniUI::miniContentPanel(
+          miniContentPanel(
             DT::dataTableOutput(ns("gs_members")),
-            shiny::downloadButton(ns("gs_gene_table"), 'Download'))
+            downloadButton(ns("gs_gene_table"), 'Download'))
         ) ## Members Table miniTabPanel
       ) ## miniTabstripPanel
     ) ## div.gadget-container
   ) ## tagList
 }
 
-##' selected is null if mgTableBrowser hasn't been initialized yet
 ##' @export
+##' @importFrom shiny callModule reactive req downloadHandler outputOptions
+##' @importFrom DT renderDataTable
 ##' @rdname geneSetContrastViewModule
 geneSetContrastView <- function(input, output, session, mgc,
                                 server=TRUE, maxOptions=Inf, sep="_::_") {
-  stopifnot(requireNamespace('shiny'))
-  gs <- shiny::callModule(geneSetSelect, 'gs_select', mgc, server=server,
-                          maxOptions=maxOptions, sep=sep)
+  gs <- callModule(geneSetSelect, 'gs_select', mgc, server=server,
+                   maxOptions=maxOptions, sep=sep)
   plt <- reactive({
-    shiny::req(gs())
+    req(gs())
     ns <- session$ns
     iplot(mgc()$mg, gs()$collection, gs()$name,
           value=input$gs_viz_stat,
@@ -100,11 +100,11 @@ geneSetContrastView <- function(input, output, session, mgc,
   # outputOptions(output, "gs_viz", suspendWhenHidden=FALSE)
 
   output$gs_members <- DT::renderDataTable({
-    shiny::req(gs())
+    req(gs())
     renderGeneSetStatsDataTable(gs()$stats, gs()$name, digits=3)
   }, server=server)
 
-  output$gs_gene_table <- shiny::downloadHandler(
+  output$gs_gene_table <- downloadHandler(
     filename=function() {
       sprintf('multiGSEA-gene-statistics-%s_%s.csv', gs()$collection, gs()$name)
     },
@@ -113,10 +113,10 @@ geneSetContrastView <- function(input, output, session, mgc,
     }
   )
 
-  shiny::outputOptions(output, "gs_gene_table", suspendWhenHidden=FALSE)
+  outputOptions(output, "gs_gene_table", suspendWhenHidden=FALSE)
 
 
-  vals <- shiny::reactive({
+  vals <- reactive({
     list(gs=gs, selected=selected_features)
   })
 
@@ -128,7 +128,6 @@ geneSetContrastView <- function(input, output, session, mgc,
 updateGeneSetContrastViewGeneSet <- function(session, id, label=NULL,
                                              choices=NULL, selected=NULL,
                                              options=list(), server=FALSE) {
-  stopifnot(requireNamespace('shiny'))
   ns <- session$makeScope(id)$ns
   updateGeneSetSelect(session, ns('gs_select'), label=label, choices=choices,
                       selected=selected, options=options, server=server)

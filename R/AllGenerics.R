@@ -337,4 +337,5 @@ setGeneric("unconform", function(x, ...) standardGeneric("unconform"))
 setGeneric("summarized", function(x, ...) standardGeneric("summarized"))
 
 ##' @exportMethod plot
+##' @rdname plot
 setGeneric("plot")

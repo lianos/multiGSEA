@@ -1,5 +1,9 @@
 ##' Creates a volcano plot from a source input
+##'
 ##' @export
+##' @rdname mgVolcano
+##' @importFrom shiny NS tagList tags sliderInput
+##' @importFrom shinyjs useShinyjs hidden
 ##' @param id the shiny id of the output widget
 ##' @param x the object to build a volcano plot from
 ##' @param stats the stats to pull from \code{x} (if necessary) to build the
@@ -8,15 +12,13 @@
 ##' @param y the name of the column from the stats table to use on y axis
 mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
                         idx='idx', hexbin=TRUE) {
-  stopifnot(requireNamespace('shiny'))
-  stopifnot(requireNamespace('shinyjs'))
-  ns <- shiny::NS(id)
+  ns <- NS(id)
   if (hexbin) {
-    out <- shiny::tagList(
-      shinyjs::useShinyjs(),
+    out <- tagList(
+      useShinyjs(),
       tags$a(id=ns('settings'), icon("wrench")),
       rbokehOutput(ns("plot")),
-      shinyjs::hidden(
+      hidden(
         tags$div(
           id=ns('widgets'),
           sliderInput(
@@ -29,14 +31,15 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
   out
 }
 
+##' @rdname mgVolcano
 ##' @export
+##' @importFrom shiny reactive observeEvent updateSliderInput
+##' @importFrom shinyjs onclick toggle
+##' @rdname mgVolcano
 mgVolcano <- function(input, output, session,
                       x, stats='dge', xaxis='logFC', yaxis='pval', idx='idx',
                       tools=c('box_select', 'reset', 'save')) {
-  stopifnot(requireNamespace('shiny'))
-  stopifnot(requireNamespace('shinyjs'))
-  shinyjs::onclick("settings",
-                   shinyjs::toggle(id="widgets", anim=TRUE))
+  onclick("settings", toggle(id="widgets", anim=TRUE))
   if (missing(idx)) {
     if (stats == 'dge') idx <- 'featureId'
   }

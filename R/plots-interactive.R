@@ -1,8 +1,40 @@
-##' Create interactive GSEA plots
+##' Visualize gene level behavior of genes within a geneset across a contrast.
 ##'
+##' @description
+##' It is informative to look at the individual log fold changes of the genes
+##' within a gene set to explore the degree to which they (1) are coherent with
+##' respect to each other; and (2) see how the compare to the background
+##' distribution of log fold changes of the entire transcriptome.
+##'
+##' You can visualize this behavior via a \code{type='density'} plot, or a
+##' \code{type='boxplot'}. It is also common to plot either the individual
+##' log fold changes (\code{value="logFC"}) or t-statistics (\code{value="t"}).
+##'
+##' @rdname iplot
 ##' @export
+##'
+##' @param x A \code{MultiGSEAResult} object
+##' @param y the name of the gene set collection
+##' @param j the name of the gene set name
+##' @param value plot individual log fold changes (default) or t-statistics
+##'   (\code{"logFC"} or \code{"t"}, respectively)
+##' @param type plot the distributions as a \code{"density"} plot or
+##'   \code{"boxplot"}
+##' @param tools the tools to display in the rbokeh plot
+##' @param main A title to display. If not specified, the gene set name
+##'   will be used, otherwise you can pass in a custom title, or \code{NULL}
+##'   will disable the title altogether.
+##' @param with.legend Draws a legend to map point color to meaning. There are
+##'   three levels a point (gene level statistic) can be color as, "notsig",
+##'   "psig", and "sig". "notsig" implies that the FDR > 10%, "psig" means that
+##'   the FDR <= 10%, but the logFC is "unremarkable" (< 1), and "sig" means
+##'   that both the FDR <= 10% and the logFC >= 1
+##' @param with.data if \code{TRUE}, the data used for the plot is added to
+##'   the outgoing rbokeh plot object (list) as \code{$data}. Default is
+##'   \code{FALSE}.
+##' @return the rbokeh (list) plot object
 iplot <- function(x, y, j, value=c('logFC', 't'),
-                  type=c('density', 'boxplot', 'volcano'),
+                  type=c('density', 'boxplot'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                   main=NULL, with.legend=TRUE, with.data=FALSE, ...) {
   if (FALSE) {
@@ -13,10 +45,6 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   stopifnot(is(x, 'MultiGSEAResult'))
   type <- match.arg(type)
   value <- match.arg(value)
-
-  if (type == 'volcano') {
-    stop("volcano not yet implemented")
-  }
 
   if (missing(main)) {
     main <- sprintf("%s (%s)", j, y)
@@ -53,6 +81,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 }
 
 ## rbokeh ----------------------------------------------------------------------
+##' @rdname iplot
 iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                                  with.data=FALSE, ...) {
@@ -86,6 +115,7 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p
 }
 
+##' @rdname iplot
 iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                                  with.data=FALSE, ...) {

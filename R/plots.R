@@ -1,5 +1,17 @@
 ## TODO: Add DOSE::gseaplot
 
+##' Static versions of the iplot functionality
+##'
+##' @description
+##' You can create static versions of the iplot functionality (density only).
+##' This also provides a \code{type='barcode'} functionality that draws
+##' limma style barcode plots.
+##'
+##' Note that the limma barcode plot is a direct copy of limma's functionality
+##' into here, tweaked ever so slightly so that it's easy to pass GeneSetDb
+##' information down through to it.
+##'
+##' @rdname plot
 setMethod("plot", 'MultiGSEAResult',
 function(x, y, j, value=c('logFC', 't'), type=c('density', 'barcode', 'mini'),
          main=NULL, ...) {
