@@ -126,7 +126,8 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
                                         columns=NULL, feature.link.fn=NULL,
                                         order.by='logFC',
                                         order.dir=c('desc', 'asc'),
-                                        filter='none', length.opts=NULL) {
+                                        filter='none',
+                                        length.opts=c(10, 25, 50, 100, 250)) {
   if (is(x, 'MultiGSEAResult')) {
     x <- copy(logFC(x, .external=FALSE))
   }
@@ -149,14 +150,17 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
   if (is.character(order.by) && !is.null(x[[order.by]])) {
     x <- setorderv(x, order.by, order=if (order.dir == 'asc') 1L else -1L)
   }
-
-  if (!is.integer(length.opts)) {
-    if (nrow(x) <= 10) {
-      length.opts <- nrow(x)
-    } else {
-      length.opts <- c(7, 15, 50, 100)
+  
+  ## Tweak length.opts
+  if (nrow(x) <= 10) {
+    length.opts <- nrow(x)
+  } else {
+    length.opts <- length.opts[length.opts <= nrow(x)]
+    if (tail(length.opts, 1) > nrow(x)) {
+      length.opts <- c(head(length.opts, -1L), nrow(x))
     }
   }
+  
   dt.opts <- list(
     pageLength=length.opts[1L],
     lengthMenu=length.opts,
@@ -164,55 +168,6 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
   out <- DT::datatable(setDF(x), selection='none', escape=FALSE, rownames=FALSE,
                        options=dt.opts, filter=filter)
   roundDT(out)
-}
-
-##' Creates a datatable to display gene level statistics for a geneset.
-##'
-##' @export
-##' @importFrom DT datatable
-##' @return a datatable of gene level statistics
-##' @examples
-##' vm <- exampleExpressionSet()
-##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design)
-##' geneSet(mg, 'c2', 'BURTON_ADIPOGENESIS_PEAK_AT_2HR') %>%
-##'   renderGeneSetStatsDataTable('BURTON_ADIPOGENESIS_PEAK_AT_2HR')
-renderGeneSetStatsDataTable <- function(gstats, name, digits=3,
-                                        feature.link.fn=NULL) {
-  gcols <- c('symbol', 'featureId', 'logFC', 'pval', 'padj')
-  gcols <- intersect(gcols, names(gstats)) ## sometimes we don't have symbol
-  gs <- gstats[, gcols, with=FALSE]
-  setnames(gs, 'padj', 'FDR')
-  if (nrow(gs) < 10) {
-    length.opts <- nrow(gs)
-  } else {
-    length.opts <- c(6, 15, 50, 100)
-    length.opts <- length.opts[length.opts < nrow(gs)]
-    length.opts <- c(length.opts, nrow(gs))
-  }
-
-  gs.name <- gsub('[^A-Za-z0-9]', '_', name)
-  bfn <- sprintf('%s-multiGSEA-gene-statistics', gs.name)
-  btn.opts <- list(
-    # 'colvis',
-    list(
-      extend='collection',
-      buttons=list(
-        list(extend='copy'),
-        list(extend='csv', filename=bfn),
-        list(extend='excel', filename=bfn)),
-      text='Export'))
-
-  dt.opts <- list(
-    pageLength=length.opts[1L],
-    lengthMenu=length.opts,
-    # buttons=btn.opts,
-    # dom='lBtipr',
-    dom='ltipr')
-
-  dtargs <- list(data=gs, selection='none', extension='Buttons', escape=FALSE,
-                 rownames=FALSE, options=dt.opts)
-  do.call(DT::datatable, dtargs) %>% roundDT(digits=digits)
 }
 
 ##' @export

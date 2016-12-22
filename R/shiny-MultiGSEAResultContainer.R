@@ -10,7 +10,7 @@ MultiGSEAResultContainer <- function(x) {
     if (!file.exists(x)) {
       stop("file does not exist: ", x)
     }
-    x <- readRDS(x)
+    mg <- readRDS(x)
   } else if (is(x, 'MultiGSEAResult')) {
     mg <- x
   } else {

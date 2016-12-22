@@ -10,7 +10,7 @@ mgGeneSetSummaryByGeneUI <- function(id, mg=NULL) {
   tagList(
     checkboxInput(ns('genesets_sigonly'),
                   'Show membership for significant gene sets only',
-                  value=FALSE),
+                  value=TRUE, width="100%"),
     uiOutput(ns('selected_message')),
     DT::dataTableOutput(ns("other_genesets")))
 }
