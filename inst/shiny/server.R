@@ -86,6 +86,11 @@ shinyServer(function(input, output, session) {
     renderFeatureStatsDataTable(res, filter='top', feature.link.fn=ncbi.entrez.link)
   })
 
+  ## Respond to user click to download differential expression statistics
+  output$download_dge_stats <- downloadHandler(
+    filename=function() "multiGSEA-feature-level-statistics.csv",
+    content=function(file) write.csv(lfc(), file, row.names=FALSE))
+
   ## A table of other genesets that brushed genes in the contrast viewer
   ## belong to. This table is also wired to the contrast viewer, so that
   ## a click on a row of the table will update the contrast view, too.

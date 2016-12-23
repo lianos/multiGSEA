@@ -40,7 +40,11 @@ shinyUI(fluidPage(
       "Differential Gene Expression",
       fluidRow(
         column(5, mgVolcanoUI("dge_volcano")),
-        column(7, DT::dataTableOutput("dge_volcano_genestats"))),
+        column(7,
+               tags$div(
+                 style="float:right",
+                 downloadButton('download_dge_stats', 'Download Statistics')),
+               DT::dataTableOutput("dge_volcano_genestats"))),
       fluidRow(
         column(
           12,
