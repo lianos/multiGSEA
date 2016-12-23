@@ -1,5 +1,24 @@
 ##' A module to explore the GSEA statistics generated from a multiGSEA Run.
 ##'
+##' @description
+##' The UI is a DT::datatable of GSEA statistics for the selected method. The
+##' module returns a list with the following reactive elements:
+##'
+##' \describe{
+##'   \item{$stats}{
+##'     The table of gene sets and their statistics that pass the prescribed
+##'     \code{fdr} thershold
+##'   }
+##'   \item{$selected}{
+##'     The geneset that is currently "active"/selected by the user. This
+##'     is defined as \code{<collection>_::_<name>}
+##'   }
+##' }
+##'
+##' You probably want to \code{observeEvent(this$selected)} in your
+##' \code{server.R} (or similar) so you can react to user clicks on different
+##' gene sets
+##'
 ##' @rdname mgTableBrowserModule
 ##' @export
 ##' @importFrom shiny tagList uiOutput NS
@@ -42,6 +61,19 @@ mgTableBrowser <- function(input, output, session, mgc, method, fdr,
     constructGseaResultTable(mg, method(), fdr())
   })
 
+  selected <- reactive({
+    tbl <- req(gsea.result.table())
+    idx <- input$gseaResultTable_row_last_clicked
+    ## By defualt, if user doesn't click a row we will say that the first
+    ## row is selected
+    if (is.null(idx)) {
+      idx <- 1L
+    }
+    xcol <- as.character(gsea.result.table()$collection[idx])
+    xname <- as.character(gsea.result.table()$name[idx])
+    paste(xcol, xname, sep='_::_')
+  })
+
   output$resultTableMessage <- renderUI({
     gst <- req(gsea.result.table())
     if (!is(gst, 'data.frame')) {
@@ -61,16 +93,5 @@ mgTableBrowser <- function(input, output, session, mgc, method, fdr,
                                    mgc()$mg)
   }, server=server)
 
-  reactive({
-    if (!is.null(input$gseaResultTable_row_last_clicked)) {
-      idx <- input$gseaResultTable_row_last_clicked
-      xcol <- as.character(gsea.result.table()$collection[idx])
-      xname <- as.character(gsea.result.table()$name[idx])
-      selected <- paste(xcol, xname, sep='_::_')
-    } else {
-      selected <- NULL
-    }
-
-    list(stats=gsea.result.table, selected=selected)
-  })
+  list(stats=gsea.result.table, selected=selected)
 }

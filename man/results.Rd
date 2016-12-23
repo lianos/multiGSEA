@@ -46,6 +46,11 @@ default to all of them.}
 \item{p.col}{use padj or padj.by.collection?}
 
 \item{x}{MultiGSEAResult}
+
+\item{x}{A \code{\link{MultiGSEAResult}} object.}
+
+\item{names}{the names of the GSEA methods to be reported. By default,
+this function will display results for all methods.}
 }
 \value{
 a data.table with the results from the requested method.
@@ -74,6 +79,11 @@ from the specified methods into an arbitrarily wide data.table with
 Use the \code{tabulateResults} function to create a summary table that
 tallies the number of significant genesets per collection, per method at
 the specified FDR thresholds.
+
+Generates a table to indicate the number of genesets per collection that
+pass a given FDR. The table provides separate groups of rows for each of
+the \code{methods} run in the \code{\link{multiGSEA}} call that generated
+that generated \code{x}
 }
 \examples{
 ## Refer to the examples in ?multiGSEA

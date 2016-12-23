@@ -10,7 +10,12 @@ explore(x)
 \item{x}{A \code{MultiGSEAResult} object}
 }
 \description{
-I hope you're sitting down
+This will launch a shiny application that enables exploratory analysis of
+the results from the different GSEA methods run within a
+\code{MultiGSEAResult}.
+
+Reference the "shiny-multiGSEA" vignette for more detailed documentation of
+the functionality provided by this application.
 }
 \examples{
 \dontrun{

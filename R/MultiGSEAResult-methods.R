@@ -363,9 +363,19 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
   ret.df(out, .external=.external)
 }
 
+##' Summary of geneset level results at a specified FDR
+##'
+##' Generates a table to indicate the number of genesets per collection that
+##' pass a given FDR. The table provides separate groups of rows for each of
+##' the \code{methods} run in the \code{\link{multiGSEA}} call that generated
+##' that generated \code{x}
+##'
 ##' @export
 ##' @rdname results
 ##'
+##' @param x A \code{\link{MultiGSEAResult}} object.
+##' @param names the names of the GSEA methods to be reported. By default,
+##'   this function will display results for all methods.
 ##' @param max.p The maximum padj value to consider a result significant
 ##' @param p.col use padj or padj.by.collection?
 ##'

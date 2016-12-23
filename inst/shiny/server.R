@@ -52,13 +52,10 @@ shinyServer(function(input, output, session) {
                                  fdr=gs_result_filter()$fdr,
                                  server=TRUE)
   ## clicks on gsea result table update the contrast view
-  observeEvent(gs_table_browser()$selected, {
-    sval <- gs_table_browser()$selected
-    if (!is.null(sval)) {
-      updateGeneSetContrastViewGeneSet(session, 'geneset_viewer',
-                                       choices=isolate(mgc()$choices),
-                                       selected=sval, server=TRUE)
-    }
+  observeEvent(gs_table_browser$selected(), {
+    .mgc <- req(mgc())
+    geneset <- req(gs_table_browser$selected())
+    updateActiveGeneSetInContrastView(session, gs_viewer, geneset, .mgc)
   })
 
   ## A table of other genesets that brushed genes in the contrast viewer

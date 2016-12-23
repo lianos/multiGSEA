@@ -7,11 +7,7 @@
 ##' @export
 ##' @importFrom shiny NS uiOutput
 ##' @rdname geneSetSelectModule
-geneSetSelectUI <- function(id, label="Select Gene Set", mg=NULL,
-                            server=TRUE) {
-  if (!is.null(mg) && !is(mg, 'MultiGSEAResultContainer')) {
-    stop("`mg` must either be NULL or a MultiGSEAResultContainer")
-  }
+geneSetSelectUI <- function(id, label="Select Gene Set") {
   ns <- NS(id)
   uiOutput(ns("geneset_picker"))
 }
@@ -24,6 +20,15 @@ geneSetSelectUI <- function(id, label="Select Gene Set", mg=NULL,
 ##' @importFrom shiny renderUI req outputOptions observeEvent reactive
 ##' @importFrom shiny updateSelectizeInput
 ##'
+##' @param input,output,session the shiny-required bits for the module
+##' @param mgc A \code{\link{MultiGSEAResultContainer}} object
+##' @param server boolean to indicate whether the genesets in the geneSetSelect
+##'   widget should be rendered server side or not (Default: \code{TRUE})
+##' @param maxOptions a paremeter used to customize the
+##'   \code{GeneSetSelect::selectizeInput} UI element. I thought one might want
+##'   to tweak this, but I just leave it as is.
+##' @param sep the separater to put between the collection and name bits of a
+##'   geneset. These are the values used in the gene set \code{selectizeInput}.
 geneSetSelect <- function(input, output, session, mgc, server=TRUE,
                           maxOptions=Inf, sep='_::_') {
   ## Programmaticaslly create the UI from the MultiGSEAResults
@@ -41,23 +46,27 @@ geneSetSelect <- function(input, output, session, mgc, server=TRUE,
     })
   }
 
-  reactive({
+  vals <- reactive({
     gs <- input$geneset
     if (is.null(gs) || length(gs) == 0 || nchar(gs) == 0) {
       ## HACK, just but something here if it's not selectd
-      gs <- mgc()$choices$value[1L]
+      ## gs <- mgc()$choices$value[1L]
+      coll <- name <- stats <- NULL
+    } else {
+      info <- gs %>%
+        strsplit(sep, fixed=TRUE) %>%
+        unlist %>%
+        sapply(as.character) %>%
+        setNames(c('collection', 'name'))
+      coll <- info[1L]
+      name <- info[2L]
+      stats <- arrange_(geneSet(mgc()$mg, info[1L], info[2L]), ~ -logFC)
     }
-    info <- gs %>%
-      strsplit(sep, fixed=TRUE) %>%
-      unlist %>%
-      sapply(as.character) %>%
-      setNames(c('collection', 'name'))
-    coll <- info[1L]
-    name <- info[2L]
-    stats <- arrange_(geneSet(mgc()$mg, info[1L], info[2L]), ~ -logFC)
+
     list(collection=coll, name=name, stats=stats,
          select.id=session$ns('geneset'), sep=sep)
   })
+  return(vals)
 }
 
 ##' @export

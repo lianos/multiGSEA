@@ -9,24 +9,36 @@
 
 ##' A module to encapsulate browsing differential statistics of a geneset.
 ##'
-##' The module is meant to be displayed in "a box". A geneset picker is at the
-##' top of the box. The main content consists of a a
-##' \code{\link[miniUI]{miniTabStripPanel}}, which provides a vizual view as
-##' well as a tabular view of the statistics for a particular geneset from a
-##' \code{MultiGSEAResultContainer}
+##' @description
+##' The module is meant to be displayed in "a box" so that the user can examine
+##' the coherent (or not) behavior of the geneset across a contrast with respect
+##' to the background distribution of all genes in the contrast.
 ##'
+##' @details
+##' Embedded within this module is the \code{\link{geneSetSelect}} module, which
+##' provides the list of genesets the user can examine, as well as the title of
+##' the current geneset under scrutiny.
+##'
+##' Below the geneSet picker, we embed an \code{\link{iplot}} so that the
+##' user can observe the behavior of the geneset across the contrast. The user
+##' can pick the type of plot to show (density or boxplot) as well as which
+##' statistics to use for plotting (logFC or t-statistics).
+##'
+##' A \code{updateActiveGeneSetInContrastView} function is provided to enable
+##' interactions external to this module the ability to update the geneset
+##' selected in the \code{\link{geneSetSelect}} module.
+##'
+##' @rdname geneSetContrastViewModule
+##' @export
 ##' @importFrom miniUI miniTabstripPanel miniTabPanel miniContentPanel
 ##' @importFrom shiny NS tagList tags fluidRow column selectInput downloadButton
 ##' @importFrom shiny icon downloadHandler
 ##' @importFrom DT dataTableOutput
-##' @export
 ##'
 ##' @param id the shiny id of the module
-##' @param mg the \code{MultiGSEAResultContainer}
-##' @param server are the tabular bits rendered on teh server side
-##' @param height the height of the module
-##' @return a tagList of html stuff to dump into the UI
-##' @rdname geneSetContrastViewModule
+##' @param height,width the height and width of the module
+##' @return \code{geneSetContrastViewUI} returns tagList of html stuff to dump
+##'   into the UI.
 geneSetContrastViewUI <- function(id, height="590px", width="400px") {
   ns <- NS(id)
 
@@ -66,19 +78,24 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
   ) ## tagList
 }
 
+##' @rdname geneSetContrastViewModule
 ##' @export
 ##' @importFrom shiny callModule reactive req downloadHandler outputOptions
 ##' @importFrom DT renderDataTable
-##' @rdname geneSetContrastViewModule
+##'
+##' @inheritParams geneSetSelectModule
+
+##' @re
 geneSetContrastView <- function(input, output, session, mgc,
                                 server=TRUE, maxOptions=Inf, sep="_::_",
                                 feature.link.fn=ncbi.entrez.link) {
   gs <- callModule(geneSetSelect, 'gs_select', mgc, server=server,
                    maxOptions=maxOptions, sep=sep)
   plt <- reactive({
-    req(gs())
+    coll <- req(gs()$collection)
+    name <- req(gs()$name)
     ns <- session$ns
-    iplot(mgc()$mg, gs()$collection, gs()$name,
+    iplot(mgc()$mg, coll, name,
           value=input$gs_viz_stat,
           type=input$gs_viz_type,
           main=NULL, with.legend=FALSE, with.data=TRUE) %>%
@@ -117,7 +134,6 @@ geneSetContrastView <- function(input, output, session, mgc,
 
   outputOptions(output, "gs_gene_table", suspendWhenHidden=FALSE)
 
-
   vals <- reactive({
     list(gs=gs, selected=selected_features)
   })
@@ -125,12 +141,31 @@ geneSetContrastView <- function(input, output, session, mgc,
   return(vals)
 }
 
+##' @rdname geneSetContrastViewModule
+is.geneSetContrastViewer <- function(x) {
+  is(x, 'reactive') && is(x()$gs, 'reactive') && is(x()$selected, 'reactive')
+}
+
 ##' @export
 ##' @rdname geneSetContrastViewModule
-updateGeneSetContrastViewGeneSet <- function(session, id, label=NULL,
-                                             choices=NULL, selected=NULL,
-                                             options=list(), server=FALSE) {
-  ns <- session$makeScope(id)$ns
-  updateGeneSetSelect(session, ns('gs_select'), label=label, choices=choices,
-                      selected=selected, options=options, server=server)
+updateActiveGeneSetInContrastView <- function(session, viewer, geneset, mgc) {
+  stopifnot(is(mgc, 'MultiGSEAResultContainer'))
+  stopifnot(is.geneSetContrastViewer(viewer))
+  withReactiveDomain(session, {
+    # id <- req(viewer()$gs()$select.id)
+    # 2016-12-23
+    # Hack to enable this to work within arbitray module nesting levels.
+    # This might not be necessary, but it seems like it was because if this
+    # module is called from another module, then the `session` object is somehow
+    # dispatching its IDs with as many module prefixes as it is being called
+    # down from the stack. Since we are calling the geneSet-select module using
+    # its global ID, we need to strip out the prefixes that are already assumed
+    # to be working here. (also, I doubt this paragraph will make sense when I
+    # read it in a few months)
+    modname <- sub('-test$', '', session$ns('test'))
+    id <- req(viewer()$gs()$select.id)
+    id <- sub(paste0(modname, '-'), '', id)
+    updateSelectizeInput(session, id, choices=mgc$choices,
+                         selected=geneset, server=TRUE)
+  })
 }

@@ -3,7 +3,8 @@
 \name{geneSetContrastViewUI}
 \alias{geneSetContrastView}
 \alias{geneSetContrastViewUI}
-\alias{updateGeneSetContrastViewGeneSet}
+\alias{is.geneSetContrastViewer}
+\alias{updateActiveGeneSetInContrastView}
 \title{A module to encapsulate browsing differential statistics of a geneset.}
 \usage{
 geneSetContrastViewUI(id, height = "590px", width = "400px")
@@ -11,26 +12,36 @@ geneSetContrastViewUI(id, height = "590px", width = "400px")
 geneSetContrastView(input, output, session, mgc, server = TRUE,
   maxOptions = Inf, sep = "_::_", feature.link.fn = ncbi.entrez.link)
 
-updateGeneSetContrastViewGeneSet(session, id, label = NULL, choices = NULL,
-  selected = NULL, options = list(), server = FALSE)
+is.geneSetContrastViewer(x)
+
+updateActiveGeneSetInContrastView(session, viewer, geneset, mgc)
 }
 \arguments{
 \item{id}{the shiny id of the module}
 
-\item{height}{the height of the module}
-
-\item{server}{are the tabular bits rendered on teh server side}
-
-\item{mg}{the \code{MultiGSEAResultContainer}}
+\item{height, width}{the height and width of the module}
 }
 \value{
-a tagList of html stuff to dump into the UI
+\code{geneSetContrastViewUI} returns tagList of html stuff to dump
+  into the UI.
 }
 \description{
-The module is meant to be displayed in "a box". A geneset picker is at the
-top of the box. The main content consists of a a
-\code{\link[miniUI]{miniTabStripPanel}}, which provides a vizual view as
-well as a tabular view of the statistics for a particular geneset from a
-\code{MultiGSEAResultContainer}
+The module is meant to be displayed in "a box" so that the user can examine
+the coherent (or not) behavior of the geneset across a contrast with respect
+to the background distribution of all genes in the contrast.
+}
+\details{
+Embedded within this module is the \code{\link{geneSetSelect}} module, which
+provides the list of genesets the user can examine, as well as the title of
+the current geneset under scrutiny.
+
+Below the geneSet picker, we embed an \code{\link{iplot}} so that the
+user can observe the behavior of the geneset across the contrast. The user
+can pick the type of plot to show (density or boxplot) as well as which
+statistics to use for plotting (logFC or t-statistics).
+
+A \code{updateActiveGeneSetInContrastView} function is provided to enable
+interactions external to this module the ability to update the geneset
+selected in the \code{\link{geneSetSelect}} module.
 }
 

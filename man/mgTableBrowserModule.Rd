@@ -27,6 +27,22 @@ result}
 table by.}
 }
 \description{
-A module to explore the GSEA statistics generated from a multiGSEA Run.
+The UI is a DT::datatable of GSEA statistics for the selected method. The
+module returns a list with the following reactive elements:
+
+\describe{
+  \item{$stats}{
+    The table of gene sets and their statistics that pass the prescribed
+    \code{fdr} thershold
+  }
+  \item{$selected}{
+    The geneset that is currently "active"/selected by the user. This
+    is defined as \code{<collection>_::_<name>}
+  }
+}
+
+You probably want to \code{observeEvent(this$selected)} in your
+\code{server.R} (or similar) so you can react to user clicks on different
+gene sets
 }
 

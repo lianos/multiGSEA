@@ -1,6 +1,12 @@
 ##' Interactively explore a MultiGSEAResult via a shiny app
 ##'
-##' I hope you're sitting down
+##' @description
+##' This will launch a shiny application that enables exploratory analysis of
+##' the results from the different GSEA methods run within a
+##' \code{MultiGSEAResult}.
+##'
+##' Reference the "shiny-multiGSEA" vignette for more detailed documentation of
+##' the functionality provided by this application.
 ##'
 ##' @export
 ##' @importFrom shiny runApp
@@ -17,6 +23,8 @@ explore <- function(x) {
   options(EXPLORE_MULTIGSEA_RESULT=x)
   runApp(system.file('shiny', package='multiGSEA'))
 }
+
+## Gene Set Level Table Helpers ================================================
 
 ##' Builds the table of GSEA statistics to present to the user
 ##'
@@ -51,13 +59,15 @@ constructGseaResultTable <- function(mg, method, fdr, prioritize=c('h')) {
   out
 }
 
-##' Prepares the datatable of GSEA result statistics for presentation
+##' Creates a DT::datatalbe of geneset level GSEA results for use in shiny bits
 ##'
 ##' @export
 ##' @importFrom DT datatable
 ##' @param x The set of GSEA statistics generated from from
 ##'   \code{\link{constructGseaResultTable}}
-##' @param mg The \code{MultiGSEAResult} object
+##' @param method the GSEA method being used fo rdisplay
+##' @param mg The \code{MultiGSEAResult} object. This is used swap in the
+##' URL links for genesets using \code{\link{geneSetURL}}.
 ##' @return a DT::DataTable
 renderGseaResultTableDataTable <- function(x, method, mg, digits=3) {
   stopifnot(is(x, 'data.table'))
@@ -102,8 +112,22 @@ renderGseaResultTableDataTable <- function(x, method, mg, digits=3) {
   do.call(DT::datatable, dtargs) %>% roundDT(digits=digits)
 }
 
-##' Transforms a feature table to have the symbols link to NCBI webpage
+## Gene evel Table Helpers =====================================================
+
+##' Transforms a column in feature table to an external link for that feature.
 ##'
+##' @description
+##' When listing features in an interactive table, it's often useful to link
+##' the feature to an external webpage that has more information about that
+##' feature. Functions to genes to their NCBI or GeneCards webpage via their
+##' \code{featureId} are provided via \code{ncbi.entrez.link} and
+##' \code{genecards.entrez.link}. The column used to transform into a link
+##' is specified by \code{link.col}.
+##'
+##' If \code{link.col} is not found in the data.frame \code{x} then the provided
+##' functions are NO-OPS, ie. the same data.frame is simply returned.
+##'
+##' @rdname feature-link-functions
 ##' @export
 ##' @param x a data.frame from \code{logFC(MultiGSEAResult)}
 ##' @param link.col the column in \code{x} that should be transformed to a link
@@ -117,11 +141,41 @@ ncbi.entrez.link <- function(x, link.col='symbol') {
   x
 }
 
+
+##' @rdname feature-link-functions
+##' @export
 genecards.entrez.link <- function(x, link.col='symbol') {
-  stop("TODO: create genecards link")
+  if (is.character(link.col) && is.character(x[[link.col]])) {
+    url <- sprintf('http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s',
+                   x$featureId)
+    html <- sprintf('<a href="%s" target="_blank">%s</a>', url, x$symbol)
+    x[[link.col]] <- html
+  }
+  x
 }
 
+##' Creates a DT::datatable of feature level statistics for use in shiny bits
+##'
+##' We often want to display an interactive table of feature level statistics
+##' for all features. This function is a convenience wrapper to do that.
+##'
 ##' @export
+##' @param x A \code{MultiGSEAResult} or \code{data.frame} of feature level
+##'   statistics. When \code{x} is a \code{\link{MultiGSEAResult}}, the
+##'   \code{\link{logFC}} feature level statistics will be extracted for
+##'   display.
+##' @param features A character vector that specifies the subset of
+##'   \code{featureId}'s to display from \code{x}. If \code{NULL} (default),
+##'   all of \code{x} will be used.
+##' @param digits number of digits to round the numeric columns to
+##' @param columns the columns from \code{x} to use. If \code{missing}, then
+##'   only \code{c('symbol', 'featureId', 'logFC', 'pval', 'padj', order.by)}
+##'   will be used. If explicitly set to \code{NULL} all columns will be used.
+##'
+##' @param feature.link.fn A funcion that receives the data.frame of statistics
+##'   to be rendered and transforms one of its columns into a hyperlink for
+##'   further reference. Refer to the \code{\link{ncbi.entrez.link}} function
+##'   as an example
 renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
                                         columns=NULL, feature.link.fn=NULL,
                                         order.by='logFC',
@@ -138,8 +192,21 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
     x <- filter(x, featureId %in% features)
   }
 
-  if (is.null(columns)) {
-    columns <- union(c('symbol', 'featureId', 'logFC', 'pval', 'padj'), order.by)
+  ## Figure out what columns to keep in the outgoing datatable
+  if (missing(columns)) {
+    columns <- c('symbol', 'featureId', 'logFC', 'pval', 'padj')
+  } else if (is.null(columns)) {
+    columns <- colnames(x)
+  }
+  if (!is.null(order.by)) {
+    stopifnot(is.character(order.by),
+              length(order.by) == 1L,
+              !is.null(x[[order.by]]))
+    columns <- c(columns, order.by)
+  }
+  bad.cols <- setdiff(columns, colnames(x))
+  if (length(bad.cols)) {
+    warning("The following columns not found: ", paste(bad.cols, collapse=','))
   }
   columns <- intersect(columns, colnames(x))
   x <- x[, columns, with=FALSE]
@@ -147,10 +214,10 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
   if (is.function(feature.link.fn)) {
     x <- feature.link.fn(x)
   }
-  if (is.character(order.by) && !is.null(x[[order.by]])) {
+  if (!is.null(order.by)) {
     x <- setorderv(x, order.by, order=if (order.dir == 'asc') 1L else -1L)
   }
-  
+
   ## Tweak length.opts
   if (nrow(x) <= 10) {
     length.opts <- nrow(x)
@@ -160,7 +227,7 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
       length.opts <- c(head(length.opts, -1L), nrow(x))
     }
   }
-  
+
   dt.opts <- list(
     pageLength=length.opts[1L],
     lengthMenu=length.opts,
@@ -170,10 +237,18 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
   roundDT(out)
 }
 
+##' Creates an HTML-ized version of \code{tabuleResults}
+##'
+##' The table produced here is broken into two sections (left and right). The
+##' left provides meta information about the geneset collections tested, ie.
+##' their names and number of genesets the contain. The right contains columns
+##' of results
+##'
 ##' @export
 ##' @importFrom shiny tags
-summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x),
-                                       max.p, p.col) {
+##' @inheritParams tabulateResults
+##' @return a \code{tagList} version of an HTML table for use in a shiny app
+summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x), max.p, p.col) {
   stopifnot(is(x, 'MultiGSEAResult'))
   s <- tabulateResults(x, names, max.p, p.col)
 

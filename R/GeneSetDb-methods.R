@@ -1026,6 +1026,7 @@ setAs("GeneSetDb", "GeneSetCollection", function(from) {
 ##'
 ##' The method only allows querying by single length character vectors
 ##'
+##' @rdname gsd.row.index
 ##' @param x A GeneSetDb
 ##' @param i the collection of the geneset
 ##' @param j the name of the geneset

@@ -417,6 +417,7 @@ setValidity("GeneSetDb", function(object) {
 ##'   }
 ##' }
 ##'
+##' @rdname validateCollectionMetadata
 ##' @param object A \code{GeneSetDb}
 ##' @return TRUE if the collectionMetadata is kosher, otherwise a character
 ##'   vector of errors.

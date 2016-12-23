@@ -28,6 +28,7 @@ Imports:
     stringr,
     magrittr,
     shiny,
+    shinyjs,
     miniUI,
     DT
 Suggests:
