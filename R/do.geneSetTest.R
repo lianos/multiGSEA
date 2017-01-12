@@ -12,7 +12,7 @@ validate.x.geneSetTest <- validate.X
 ##' called internally within \code{multiGSEA}}
 do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
                            robust.fit=FALSE, robust.eBayes=FALSE,
-                           logFC=NULL, score.by=c('t', 'logFC'),
+                           logFC=NULL, score.by=c('t', 'logFC', 'pval'),
                            gs.idxs=as.list(gsd, value='x.idx'),
                            ...) {
   score.by <- match.arg(score.by)

@@ -7,14 +7,14 @@ Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
     analyses over a contrast of interest along with robust interactive tools to
     explore the results.
+Depends:
+    edgeR
 Imports:
     methods,
     BiocGenerics,
     BiocParallel,
     Biobase (>= 2.24.0),
     GSEABase,
-    limma,
-    edgeR,
     GSVA,
     reshape2,
     data.table (>= 1.10.0),
@@ -46,7 +46,7 @@ Suggests:
     airway,
     shinydashboard,
     rprojroot,
-    clusterProfiler
+    statmod
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:
@@ -59,8 +59,8 @@ Collate:
     'cache-utils.R'
     'calculateIndividualLogFC.R'
     'validateInputs.R'
-    'do.GSEA-P.R'
     'do.camera.R'
+    'do.fgsea.R'
     'do.fry.R'
     'do.geneSetTest.R'
     'do.goseq.R'

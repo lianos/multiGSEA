@@ -5,7 +5,7 @@
 \title{Worker function to run geneSetTest from within a multiGSEA pipeline}
 \usage{
 do.geneSetTest(gsd, x, design, contrast, outdir = NULL, robust.fit = FALSE,
-  robust.eBayes = FALSE, logFC = NULL, score.by = c("t", "logFC"),
+  robust.eBayes = FALSE, logFC = NULL, score.by = c("t", "logFC", "pval"),
   gs.idxs = as.list(gsd, value = "x.idx"), ...)
 }
 \description{

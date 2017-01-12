@@ -52,4 +52,7 @@ Note that differential expression analysis is always run through limma,
 so if \code{x} is a \code{DGEList}, it will be voomd first and then
 processed "as usual".
 }
+\details{
+importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
+}
 

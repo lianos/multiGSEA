@@ -4,7 +4,7 @@
 ##' so if \code{x} is a \code{DGEList}, it will be voomd first and then
 ##' processed "as usual".
 ##'
-##' @importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
+##' importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
 ##' @export
 ##'
 ##' @param x The expression object. This can be 1 column matrix if you are not

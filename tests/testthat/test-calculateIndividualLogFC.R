@@ -9,7 +9,7 @@ tt2dt <- function(x) {
   x <- as.data.frame(x)
   x$featureId <- rownames(x)
   data.table::setnames(x, onames, c('pval', 'padj'))
-  setkeyv(setDT(x), 'featureId')
+  data.table::setkeyv(data.table::setDT(x), 'featureId')
   multiGSEA:::ret.df(x)
 }
 
@@ -86,6 +86,16 @@ test_that("treat pvalues are legit", {
   ## edgeR
   yfit <- edgeR::glmQLFit(y, d, robust=TRUE)
   res <- edgeR::glmTreat(yfit, coef='tumor', lfc=lfc)
+  ## TODO: Fix testing error in line above:
+  ## calling library(edgeR) fixes this here as well as the embedded call to
+  ## this within multiGSEA::calculateIndividualLogFC
+  ## Error:
+  ##   1: edgeR::glmTreat(yfit, coef = "tumor", lfc = lfc)
+  ##   (subscript) logical subscript too long
+  ##   2: glmfit[i, ]
+  ##   3: `[.DGEGLM`(glmfit, i, )
+  ##   4: subsetListOfArrays(object, i, j, IJ = IJ, IX = IX, I = I, JX = JX)
+
   et <- tt2dt(edgeR::topTags(res, Inf, sort.by='none'))
 
   yy <- calculateIndividualLogFC(y, d, 'tumor', use.treat=TRUE, treat.lfc=lfc)

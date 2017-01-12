@@ -127,6 +127,38 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
        svd=s, pca=pca, factor.contrib=ctrb)
 }
 
+##' @export
+##' @rdname svdScore
+gsdScore <- svdScore
+
+##' Scores each sample by a weighted average of the gene in a signature.
+##'
+##' @description
+##' Weights for the genes in \code{x} are calculated by the percent of which
+##' they contribute to the principal component indicated by \code{eigengene}.
+##'
+##' You will generally want the rows of the gene x sample matrix \code{x} to
+##' be z-transformed. If it is not already, ensure that \code{center} and
+##' \code{scale} are set to \code{TRUE}.
+##'
+##' @export
+##' @inheritParams svdScore
+##' @param eigengene the PC used to extract the gene weights from
+##' @return A list of useful transformation information. The caller is likely
+##'   most interested in the \code{$score} vector, but other bits related to
+##'   the SVD/PCA decomposition are included for the ride.
+eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
+                              uncenter=center, unscale=scale, retx=FALSE) {
+  x <- as_matrix(x)
+  pc <- paste0('PC', eigengene)
+
+  res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
+                  unscale=unscale, retx=FALSE)
+  weights <- res$factor.contrib[[pc]]
+  res[['score']] <- apply(x, 2, weighted.mean, weights)
+  res
+}
+
 ##' Calculate geneset score by average z-score method
 ##'
 ##' @export
