@@ -24,10 +24,10 @@ col.pairs <- circlize::colorRamp2(c(-1, 0, 1), c('blue', 'white', 'red'), 0.5)
 ##'
 ##' @examples
 ##'
-##' x <- matrix(rnorm(100), ncol=5)
+##' x <- matrix(rnorm(1000), ncol=5)
 ##' corplot(x)
 corplot <- function(E, title, cluster=FALSE, col.point='#00000066',
-                    diag.distro=TRUE) {
+                    diag.distro=TRUE, smooth.scatter=nrow(E) > 400, ...) {
   if (missing(title)) {
     title <- 'Pairs Plot'
   }
@@ -51,7 +51,7 @@ corplot <- function(E, title, cluster=FALSE, col.point='#00000066',
           upper.panel=panel.spoints,
           diag.panel=if (diag.distro) panel.hist else NULL,
           gap=0.2, pch=16,
-          main=title)
+          main=title, smooth.scatter=smooth.scatter, ...)
   })
 
   invisible(NULL)
@@ -102,9 +102,14 @@ panel.hist <- function(x, ...) {
 ## right diagonal of the corplot.
 panel.spoints <- function(x, y, col=par("col"), bg=NA, pch=par("pch"), cex=1,
                           col.smooth="red", span=2/3, iter=3,
-                          col.point="#00000022", ...) {
+                          col.point="#00000022", smooth.scatter=FALSE, ...) {
   ## points(x, y, pch = pch, col = col, bg = bg, cex = cex)
-  points(x, y, pch=16, col=col.point, bg=bg, cex=cex)
+  if (smooth.scatter) {
+    smoothScatter(x, y, nrpoints = 0, add=TRUE)
+  } else {
+    points(x, y, pch=16, col=col.point, bg=bg, cex=cex)
+  }
+
   ok <- is.finite(x) & is.finite(y)
   if (any(ok)) {
     suppressWarnings({
