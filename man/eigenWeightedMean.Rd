@@ -40,5 +40,8 @@ they contribute to the principal component indicated by \code{eigengene}.
 You will generally want the rows of the gene x sample matrix \code{x} to
 be z-transformed. If it is not already, ensure that \code{center} and
 \code{scale} are set to \code{TRUE}.
+
+When uncenter and/or unscale are FALSE, it means that the scores should
+be applied on the centered or scaled values, respectively.
 }
 

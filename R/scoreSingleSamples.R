@@ -21,7 +21,13 @@
 ##'   \item{svd,gsdecon}{
 ##'     This method was first introduced by Jason Hackney in
 ##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
-##'     see the help for \code{?svdScore} for more details.
+##'     see the help for \code{?svdScore} for more details.}
+##'   \item{ewm}{
+##'     The "eigenWeightedMean". It is similar in principle to the svd,gsdecon
+##'     score, but does exactly what it says on the tin as opposed to the
+##'     LHS matrix multiplication and colSums().
+##'   }
+##'
 ##' }
 ##'
 ##' @export
@@ -56,7 +62,7 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
   sds <- rowSds(y)
   sd0 <- sds < drop.sd
   y.all <- y
-  y <- y.all[!sd0,]
+  y <- y.all[!sd0,,drop=FALSE]
   if (any(sd0)) {
     warning(sum(sd0), " row(s) removed from expression object (y) due to 0sd")
   }
@@ -92,6 +98,19 @@ scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
   scores
 }
 
+##' The \code{singleSampleScores} function is the same as
+##' \code{scoreSingleSamples}, but switches the order of the first two arguments
+##' for easier piping.
+##'
+##' @rdname scoreSingleSamples
+##' @export
+##' @inheritParams scoreSingleSamples
+singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
+                               drop.sd=1e-4, verbose=FALSE, ...) {
+  scoreSingleSamples(gdb, y, methods=methods, as.matrix=as.matrix,
+                     drop.sd=drop.sd, verbose=verbose, ...)
+}
+
 ##' Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
 ##'
 ##' @param gdb \code{GeneSetDb} used for scoring
@@ -114,7 +133,7 @@ melt.gs.scores <- function(gdb, scores) {
 ## classification. PLoS Comput. Biol. 4, e1000217 (2008).
 ##
 ##
-do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('sqrt', 'mean'),
+do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
                                          trim=0.10, as.matrix=FALSE, ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
@@ -236,10 +255,31 @@ do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   out
 }
 
+do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
+                                                    center=TRUE, scale=TRUE,
+                                                    uncenter=center,
+                                                    unscale=scale,
+                                                    as.matrix=FALSE, ...) {
+  stopifnot(is.matrix(y))
+  stopifnot(is.conformed(gdb, y))
+
+  gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
+  scores <- sapply(gs.idxs, function(idxs) {
+    eigenWeightedMean(y[idxs,], center=center, scale=scale,
+                      uncenter=uncenter, unscale=unscale)$score
+  })
+
+  out <- t(scores)
+  rownames(out) <- names(gs.idxs)
+  colnames(out) <- colnames(y)
+  out
+}
+
 gs.score.map <- list(
   zscore=do.scoreSingleSamples.zscore,
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
   ssgsea=do.scoreSingleSamples.gsva,
   gsdecon=do.scoreSingleSamples.svd,
-  svd=do.scoreSingleSamples.svd)
+  svd=do.scoreSingleSamples.svd,
+  ewm=do.scoreSingleSamples.eigenWeightedMean)

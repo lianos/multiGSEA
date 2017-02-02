@@ -2,9 +2,13 @@
 % Please edit documentation in R/scoreSingleSamples.R
 \name{scoreSingleSamples}
 \alias{scoreSingleSamples}
+\alias{singleSampleScores}
 \title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
 scoreSingleSamples(gdb, y, methods = "ssgsea", as.matrix = FALSE,
+  drop.sd = 1e-04, verbose = FALSE, ...)
+
+singleSampleScores(y, gdb, methods = "ssgsea", as.matrix = FALSE,
   drop.sd = 1e-04, verbose = FALSE, ...)
 }
 \arguments{
@@ -25,5 +29,10 @@ with a standard deviation less than this value will be dropped.}
 \value{
 \code{matrix} with as many rows as \code{geneSets(gdb)} and
   as many columns as \code{ncol(x)}
+}
+\description{
+The \code{singleSampleScores} function is the same as
+\code{scoreSingleSamples}, but switches the order of the first two arguments
+for easier piping.
 }
 

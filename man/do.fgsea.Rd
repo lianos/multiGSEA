@@ -36,4 +36,8 @@ A data.table of fgsea results. The "pval" column here refers to
 Techinically this doesn't require a full design to run, but it proves
 expedient for a quick turnaround.
 }
+\details{
+Note that fgsea isn't added to import or suggests because rescomp's
+compiler can't handle this yet.
+}
 

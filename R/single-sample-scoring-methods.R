@@ -141,6 +141,9 @@ gsdScore <- svdScore
 ##' be z-transformed. If it is not already, ensure that \code{center} and
 ##' \code{scale} are set to \code{TRUE}.
 ##'
+##' When uncenter and/or unscale are FALSE, it means that the scores should
+##' be applied on the centered or scaled values, respectively.
+##'
 ##' @export
 ##' @inheritParams svdScore
 ##' @param eigengene the PC used to extract the gene weights from
@@ -155,7 +158,12 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
   res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
                   unscale=unscale, retx=FALSE)
   weights <- res$factor.contrib[[pc]]
-  res[['score']] <- apply(x, 2, weighted.mean, weights)
+  if (!uncenter || !unscale) {
+    xx <- t(scale(t(x), center=!uncenter, scale=!unscale))
+  } else {
+    xx <- x
+  }
+  res[['score']] <- apply(xx, 2, weighted.mean, weights)
   res
 }
 
@@ -165,7 +173,7 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 ##' @param x gene x sample matrix
 ##' @param summary sqrt or mean
 ##' @param trim calculate trimmed mean?
-zScore <- function(x, summary=c('sqrt', 'mean'), trim=0) {
+zScore <- function(x, summary=c('mean', 'sqrt'), trim=0) {
   summary <- match.arg(summary)
   score.fn <- if (summary == 'mean') {
     function(vals) mean(vals, trim=trim, na.rm=TRUE)
@@ -180,7 +188,7 @@ zScore <- function(x, summary=c('sqrt', 'mean'), trim=0) {
   scores <- apply(xs, 2L, score.fn)
 
   out <- list(
-    scores=as.vector(scores),
+    score=as.vector(scores),
     center=attributes(xs)$"scaled:center",
     scale=attributes(xs)$"scaled:scale")
   out
