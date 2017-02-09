@@ -9,6 +9,7 @@ context("GeneSetDb")
 ##  * test collectionMetadata<- ensures single collection,name pairs
 
 gdb.h <- getMSigGeneSetDb(c('h'))
+# gdb.c2 <- getMSigGeneSetDb(c('c2'))
 gdb.c6 <- getMSigGeneSetDb(c('c6'))
 
 test_that("GeneSetDb constructor preserves featureIDs per geneset", {
@@ -260,6 +261,24 @@ test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
   expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
                        names(geneSets(a2))))
 
+})
+
+test_that("as.*.GeneSetDb conversions honor `active.only` requests", {
+  vm <- exampleExpressionSet()
+  gdb <- getMSigGeneSetDb(c('c2'))
+  gdbc <- conform(gdb, vm)
+
+  gs.all <- gdb@table$name
+  gs.active <- subset(gdbc@table, active)$name
+  inactive <- setdiff(gs.all, gs.active)
+  expect_true(length(inactive) > 0)
+
+  gdb.df <- as.data.frame(gdb)
+  gdbc.df <- as.data.frame(gdbc)
+  expect_true(nrow(gdbc.df) < nrow(gdb.df))
+
+  expect_true(setequal(gs.all, gdb.df$name))
+  expect_true(setequal(gs.active, gdbc.df$name))
 })
 
 test_that("as.list.GeneSetDb returns gene sets in same order as GeneSetDb", {

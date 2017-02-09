@@ -19,4 +19,3 @@ the symbol provided by the official one, and leave the submitted symbol
 there after a comment character ("#"). This just strips the stuff after
 the comment character to provide only the offiical symbols.
 }
-

@@ -16,4 +16,3 @@ zScore(x, summary = c("mean", "sqrt"), trim = 0)
 \description{
 Calculate geneset score by average z-score method
 }
-

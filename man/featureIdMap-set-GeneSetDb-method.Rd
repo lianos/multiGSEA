@@ -12,4 +12,3 @@ This method ensures that there is only one featureId <-> x.id mapping value.
 Note that this does not mean that this enforces a 1:1 mapping, it's just
 that the same mapping is not listed more than once.
 }
-

@@ -21,4 +21,3 @@ gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 geneSetDb(mg)
 }
-

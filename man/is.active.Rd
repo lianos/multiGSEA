@@ -23,4 +23,3 @@ their collection,name compound keys. This function is vectorized and
 supports query of multiple gene sets at a time. If a requested
 collection,name gene set doesn't exist, this throws an error.
 }
-

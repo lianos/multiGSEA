@@ -22,8 +22,9 @@ validate.x.svdGeneSetTest <- validate.X
 ##' \strong{This function is not meant to be called directly, it should only be
 ##' called internally within \code{multiGSEA}}
 do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
-                              gs.idxs=as.list(gsd, value='x.idx'),
+                              gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                               trend.eBayes=FALSE, ...) {
+  stop("TODO: Implement svdGeneSetTest")
   stopifnot(is.conformed(gsd, x))
   X <- scoreSingleSamples(gsd, x, 'svd', scale=TRUE, center=TRUE,
                           unscale=TRUE, uncenter=TRUE,

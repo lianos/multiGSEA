@@ -12,4 +12,3 @@ plot.barcode(statistics, index = NULL, index2 = NULL, gene.weights = NULL,
 This was imported from the barcode plot in limma_3.22.1 (the function was
 annotated with a last update date of 20 October 2008)
 }
-

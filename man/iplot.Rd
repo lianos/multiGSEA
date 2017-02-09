@@ -60,4 +60,3 @@ You can visualize this behavior via a \code{type='density'} plot, or a
 \code{type='boxplot'}. It is also common to plot either the individual
 log fold changes (\code{value="logFC"}) or t-statistics (\code{value="t"}).
 }
-

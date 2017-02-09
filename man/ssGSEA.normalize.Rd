@@ -21,4 +21,3 @@ individual scores based on ALL scores calculated across samples AND
 genesets. It does NOTE normalize the scores within each geneset
 independantly of the others.
 }
-

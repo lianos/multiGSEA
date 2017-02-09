@@ -17,4 +17,3 @@
 \description{
 Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
 }
-

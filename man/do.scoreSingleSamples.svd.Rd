@@ -10,4 +10,3 @@ do.scoreSingleSamples.svd(gdb, y, as.matrix = FALSE, center = TRUE,
 \description{
 A no dependency call to GSDecon's eigengene scoring
 }
-

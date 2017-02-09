@@ -3,9 +3,9 @@
 \docType{methods}
 \name{conform}
 \alias{conform}
+\alias{unconform}
 \alias{conform,GeneSetDb-method}
 \alias{is.conformed}
-\alias{unconform}
 \title{(Re)-map geneset IDs to the rows in an expression object.}
 \usage{
 conform(x, ...)
@@ -69,6 +69,7 @@ downstream gene set operations.
   }
 }
 }
+
 \examples{
 es <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
@@ -78,4 +79,3 @@ gdb <- conform(gdb, es)
 ## mapped per gene set)
 head(geneSets(gdb))
 }
-

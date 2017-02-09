@@ -2,9 +2,9 @@
 % Please edit documentation in R/testing-helpers.R
 \name{exampleExpressionSet}
 \alias{exampleExpressionSet}
-\alias{exampleGeneSetDF}
-\alias{exampleGeneSetDb}
 \alias{exampleGeneSets}
+\alias{exampleGeneSetDb}
+\alias{exampleGeneSetDF}
 \title{Functions that load data for use in examples and testing.}
 \usage{
 exampleExpressionSet(dataset = c("tumor-vs-normal", "tumor-subtype"),

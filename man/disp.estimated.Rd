@@ -15,4 +15,3 @@ TRUE if yes, FALSE if no or if x is not a DGEList.
 \description{
 Checks a DGEList to see if estimateDisp() was run on it
 }
-

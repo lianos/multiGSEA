@@ -25,4 +25,3 @@ mg <- multiGSEA(gdb, vm, vm$design, methods=c('camera', 'fry'))
 explore(mg)
 }
 }
-

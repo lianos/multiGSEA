@@ -30,4 +30,3 @@ idiosyncracies of indexing into a data.table won't trip them up.
 Does this extra monkey business make the internal code of multiGSEA a bit
 more painful to write? Yes. So ... you're welcome.
 }
-

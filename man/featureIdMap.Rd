@@ -9,4 +9,3 @@ featureIdMap(x, ...)
 \description{
 Fetch the featureIdMap for a \code{GeneSetDb}
 }
-

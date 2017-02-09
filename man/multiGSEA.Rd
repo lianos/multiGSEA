@@ -162,6 +162,7 @@ function for more information. The multiGSEA \code{use.treat},
 \code{feature.min.logFC}, \code{feature.max.padj}, as well as the \code{...}
 parameters are passed down to that funciton.
 }
+
 \examples{
 
 vm <- exampleExpressionSet(do.voom=TRUE)
@@ -177,4 +178,3 @@ res.all <- results(mg)
   \code{\link[limma]{roast}},
   \code{\link[limma]{geneSetTest}}
 }
-

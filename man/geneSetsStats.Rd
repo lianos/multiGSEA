@@ -73,4 +73,3 @@ gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
 head(geneSetsStats(mg))
 }
-

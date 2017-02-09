@@ -5,7 +5,7 @@
 \title{Worker function to run camera from within a multiGSEA pipeline}
 \usage{
 do.camera(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
-  value = "x.idx"), ...)
+  active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 camera as originally implemented tends to be very conservative, this is
@@ -25,4 +25,3 @@ thread in the bioconductor support forum:
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

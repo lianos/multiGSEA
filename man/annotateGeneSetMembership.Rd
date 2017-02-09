@@ -35,4 +35,3 @@ annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
 ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
 (angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`))
 }
-

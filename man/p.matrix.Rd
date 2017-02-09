@@ -28,4 +28,3 @@ gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
 pm <- p.matrix(mg)
 }
-

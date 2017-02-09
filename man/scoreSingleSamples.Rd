@@ -5,7 +5,7 @@
 \alias{singleSampleScores}
 \title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
-scoreSingleSamples(gdb, y, methods = "ssgsea", as.matrix = FALSE,
+scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
   drop.sd = 1e-04, verbose = FALSE, ...)
 
 singleSampleScores(y, gdb, methods = "ssgsea", as.matrix = FALSE,
@@ -27,12 +27,51 @@ with a standard deviation less than this value will be dropped.}
 \item{verbose}{make some noise? Defaults to \code{FALSE}.}
 }
 \value{
-\code{matrix} with as many rows as \code{geneSets(gdb)} and
-  as many columns as \code{ncol(x)}
+A long data.frame with sample,method,score values per row. If
+  \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
+  and as many columns as \code{ncol(x)}
 }
 \description{
+It is common to assess the activity of a gene set in a given sample. There
+are many ways to do that, and among the most often used one these days
+is ssGSEA. This method orchestrates the scoring of each gene set across
+each sample using as many methods as you like, in the same way that
+the multiGSEA call runs a variate of GSEA analysis across a contrast.
+
+Current scoring methods that the user can invoke include:
+
+\describe{
+  \item{ewm}{
+    The "eigenWeightedMean" calculates the fraction each gene contributes
+    to a pre-specified principal component. These contributions acts as
+    weights over each gene, which are then used in a simple weighted mean
+    calculation over all the genes in the geneset per sample.}
+  \item{svd,gsdecon}{
+    This method was first introduced by Jason Hackney in
+    \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
+    see the help for \code{?svdScore} for more details. It is, in principal,
+    something close to the \code{eigenWeightedMean}, but there's a bit more
+    voodoo invovled in its calculation.}
+  \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
+  \item{zscore}{
+    The features in the expression matrix are rowwise z transformed. The
+    gene set level score is then calculated by adding up the zscores for
+    the genes in the gene set, then dividing that number by either the
+    the size (or its sqaure root (default)) of the gene set.}
+  \item{gsva}{The gsva method of GSVA package}
+  \item{plage}{Using "plage" as implemented in the GSVA package}
+}
+
 The \code{singleSampleScores} function is the same as
 \code{scoreSingleSamples}, but switches the order of the first two arguments
 for easier piping.
 }
-
+\examples{
+gdb <- exampleGeneSetDb()
+vm <- exampleExpressionSet()
+scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'gsdecon', 'zscore'),
+                             uncenter=FALSE, unscale=FALSE)
+sw <- dcast(scores, name + sample ~ method, value.var='score')
+corplot(sw[, c('ewm', 'gsdecon', 'zscore')],
+        title='Single Sample Score Comparison')
+}

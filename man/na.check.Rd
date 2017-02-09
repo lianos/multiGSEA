@@ -9,4 +9,3 @@ na.check(x)
 \description{
 Checkes that there are no NAs in x
 }
-

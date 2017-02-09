@@ -23,4 +23,3 @@ gdb <- exampleGeneSetDb()
 features <- c("55839", "8522", "29087")
 (gdb.sub <- subsetByFeatures(gdb, features))
 }
-

@@ -35,4 +35,3 @@ information about the genesets (in \code{geneSets(gdb)}) for "subcategory"
 "organism" which defines the organism in which the geneset was derived
 from ("Homo sapiens" or "Mus musculus").
 }
-

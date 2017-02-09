@@ -16,4 +16,3 @@ a \code{MultiGSEAResultContainer} object
 \description{
 A wrapper for a MultiGSEAResult that makes explicity some shiny bits
 }
-

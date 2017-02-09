@@ -24,4 +24,3 @@ want to ignore for the purposes of the equality test.}
 \description{
 Checks equality (feature parity) between GeneSetDb objects
 }
-

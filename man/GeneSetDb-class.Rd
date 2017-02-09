@@ -2,9 +2,9 @@
 % Please edit documentation in R/AllClasses.R, R/GeneSetDb-class.R
 \docType{class}
 \name{GeneSetDb-class}
+\alias{GeneSetDb-class}
 \alias{.GeneSetDb}
 \alias{GeneSetDb}
-\alias{GeneSetDb-class}
 \title{A class that defines the gene to geneset mapping.}
 \usage{
 GeneSetDb(x, featureIdMap = NULL, collectionName = NULL)
@@ -85,6 +85,7 @@ where the geneset definitions come from. Perhaps a function that parses
 the collection,name combination to generate an URL that points the user
 to more information about that geneset, etc.}
 }}
+
 \section{GeneSetDb Construction}{
 
 
@@ -152,6 +153,7 @@ Look at the Examples section to see how this works, where we take the
 MSIgDB c7 collection (aka. "ImmuneSigDB") and only keep gene sets that
 were defined in experiments from mouse.
 }
+
 \examples{
 ## exampleGeneSetDF provides gene set definitions in "long form". We show
 ## how this can easily turned into a GeneSetDb from this form, or convert
@@ -189,4 +191,3 @@ length(idb.mm) ## 2984
 \seealso{
 \code{\link{conversion}}
 }
-

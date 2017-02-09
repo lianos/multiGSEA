@@ -21,4 +21,3 @@ a DT::DataTable
 \description{
 Creates a DT::datatalbe of geneset level GSEA results for use in shiny bits
 }
-

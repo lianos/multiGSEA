@@ -31,4 +31,3 @@ gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 lfc <- logFC(mg)
 }
-

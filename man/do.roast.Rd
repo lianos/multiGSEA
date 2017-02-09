@@ -5,10 +5,9 @@
 \title{Worker function to run roast from within a multiGSEA pipeline}
 \usage{
 do.roast(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
-  value = "x.idx"), ...)
+  active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

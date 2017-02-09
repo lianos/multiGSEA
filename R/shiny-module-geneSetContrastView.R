@@ -83,9 +83,11 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
 ##' @importFrom shiny callModule reactive req downloadHandler outputOptions
 ##' @importFrom DT renderDataTable
 ##'
-##' @inheritParams geneSetSelectModule
-
-##' @re
+##' @inheritParams geneSetSelect
+##' @return the \code{geneSetContrastView} module returns a reactive list,
+##'   with a \code{$gs} element that indicates the currently active geneset in
+##'   the `geneSetSelect` module, and a \code{$selected} element, a character
+##'   vector of feature_ids currently brushed in a contrast view.
 geneSetContrastView <- function(input, output, session, mgc,
                                 server=TRUE, maxOptions=Inf, sep="_::_",
                                 feature.link.fn=ncbi.entrez.link) {

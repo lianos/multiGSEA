@@ -7,6 +7,7 @@
 ##' @export
 ##' @importFrom shiny NS uiOutput
 ##' @rdname geneSetSelectModule
+##' @aliases geneSetSelectUI
 geneSetSelectUI <- function(id, label="Select Gene Set") {
   ns <- NS(id)
   uiOutput(ns("geneset_picker"))
@@ -17,6 +18,7 @@ geneSetSelectUI <- function(id, label="Select Gene Set") {
 ##'
 ##' @export
 ##' @rdname geneSetSelectModule
+##' @aliases geneSetSelect
 ##' @importFrom shiny renderUI req outputOptions observeEvent reactive
 ##' @importFrom shiny updateSelectizeInput
 ##'

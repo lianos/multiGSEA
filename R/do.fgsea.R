@@ -24,7 +24,9 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      minSize=15, maxSize=15, nperm=10000, gseaParam=1,
                      score.by=c('t', 'logFC', 'pval'), use.treat=FALSE,
                      feature.min.logFC=if (use.treat) log2(1.25) else 1,
-                     feature.max.padj=0.10, gs.idxs=NULL, logFC=NULL,
+                     feature.max.padj=0.10,
+                     gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
+                     logFC=NULL,
                      ...) {
   if (!requireNamespace('fgsea')) {
     stop("The Bioconductor fgsea is required for this functionality")
@@ -34,7 +36,7 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
     gs.idxs <- NULL
   }
   if (is.null(gsd.idxs) || is.numeric(gsd.idxs[[1]])) {
-    gs.idxs <- as.list(gsd, value='x.id')
+    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
   }
 
   if (is.null(logFC)) {

@@ -6,7 +6,8 @@
 contrast}
 \usage{
 do.svdGeneSetTest(gsd, x, design, contrast = ncol(design),
-  gs.idxs = as.list(gsd, value = "x.idx"), trend.eBayes = FALSE, ...)
+  gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"),
+  trend.eBayes = FALSE, ...)
 }
 \description{
 The idea is to summarize gene set level activity per sample by their
@@ -22,4 +23,3 @@ if you like (or, please contact me to tell me why it's a bad idea!)
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

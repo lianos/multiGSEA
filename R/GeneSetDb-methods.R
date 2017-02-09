@@ -946,7 +946,9 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
     }
   }
 
-  setDF(setkeyv(out, c('collection', 'name', 'featureId')))
+  setkeyv(out, key(x@db))
+  trimmed <- out[gs[, .(collection, name)]]
+  setDF(trimmed)
 }
 
 ## Split and conserve ordering

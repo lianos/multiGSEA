@@ -27,4 +27,3 @@ The following assertions are tested:
   }
 }
 }
-

@@ -20,4 +20,3 @@ This function ensures that a \code{data.table} \code{x} has a superset of
 columns of a reference table \code{ref}, and that both tables are keyed by
 the same columns.
 }
-

@@ -6,10 +6,9 @@
 \usage{
 do.geneSetTest(gsd, x, design, contrast, outdir = NULL, robust.fit = FALSE,
   robust.eBayes = FALSE, logFC = NULL, score.by = c("t", "logFC", "pval"),
-  gs.idxs = as.list(gsd, value = "x.idx"), ...)
+  gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

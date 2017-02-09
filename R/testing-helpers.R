@@ -14,7 +14,7 @@
 ##' that is returned.
 ##'
 ##' @rdname examples
-##' @alias exampleExpressionSet
+##' @aliases exampleExpressionSet
 ##'
 ##' @export
 ##' @import Biobase
@@ -68,7 +68,7 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
 ##' that index into a target expression object \code{x}.
 ##'
 ##' @rdname examples
-##' @alias exampleGeneSets
+##' @aliases exampleGeneSets
 ##'
 ##' @export
 ##'
@@ -102,7 +102,7 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
 ##' Returns gene sets as a \code{GeneSetDb} object
 ##'
 ##' @rdname examples
-##' @alias exampleGeneSetDb
+##' @aliases exampleGeneSetDb
 ##' @export
 exampleGeneSetDb <- function() {
   out <- GeneSetDb(exampleGeneSets())
@@ -122,7 +122,7 @@ exampleGeneSetDb <- function() {
 ##'
 ##' @export
 ##' @rdname examples
-##' @alias exampleGeneSetDF
+##' @aliases exampleGeneSetDF
 exampleGeneSetDF <- function() {
   gs.df <- system.file('extdata', 'testdata', 'custom-sigs.csv',
                        package='multiGSEA')

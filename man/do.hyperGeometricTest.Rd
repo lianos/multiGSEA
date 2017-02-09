@@ -33,4 +33,3 @@ Note that we are intentionally adding a hyperG.selected column by reference
 so that this information is kicked back to the caller multiGSEA function
 and included in downstream reporting.
 }
-

@@ -25,4 +25,3 @@ numeric answer, or NA if can't find nominal pvalue within given
 Get the approximate nominal pvalue for a target qvalue given the
 distribution of adjusted pvalues from the nominal ones.
 }
-

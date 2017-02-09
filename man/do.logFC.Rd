@@ -16,4 +16,3 @@ geneSets, ie. mean.logFC, mean.t for each geneset.
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

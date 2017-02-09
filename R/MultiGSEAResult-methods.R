@@ -470,7 +470,7 @@ p.matrix <- function(x, names=resultNames(x),
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)
   pcol <- match.arg(pcol)
-  res <- results(x, names, add.suffix=TRUE)
+  res <- results(x, names, add.suffix=TRUE, .external=FALSE)
   regex <- sprintf('^%s\\.', pcol)
   col.idx <- grep(regex, names(res))
   if (pcol != 'padj.by.collection') {

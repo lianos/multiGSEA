@@ -9,4 +9,3 @@ validate.DGEList(x)
 \description{
 importFrom edgeR DGEList
 }
-

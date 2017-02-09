@@ -28,4 +28,3 @@ gdb <- getMSigGeneSetDb('h', 'human')
 im <- incidenceMatrix(gdb)
 imv <- incidenceMatrix(gdb, vm)
 }
-

@@ -36,4 +36,3 @@ A \code{data.table} of results
 \description{
 Perform Hypergeometric Enrichment tests across a GeneSetDb.
 }
-

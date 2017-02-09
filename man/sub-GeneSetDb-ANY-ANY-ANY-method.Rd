@@ -10,4 +10,3 @@
 \description{
 Subset whole genesets from a GeneSetDb
 }
-

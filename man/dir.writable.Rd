@@ -17,4 +17,3 @@ current user, otherise \code{FALSE}
 This works by testing to put a temporary file into an already existing
 directory
 }
-

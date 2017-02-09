@@ -17,4 +17,3 @@ that we can extract the featureIds from for this purpose.}
 \description{
 Create an interactive volcano plot
 }
-

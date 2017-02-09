@@ -16,4 +16,3 @@ is.logFC.like(logFC, x, as.error = FALSE)
 Checks that a provided table is "similar enough" the the result generated
 from calculateIndividualLogFC
 }
-

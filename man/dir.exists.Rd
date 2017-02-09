@@ -17,4 +17,3 @@ exist.
 \description{
 Utility function to determine if paths listed are real directories
 }
-

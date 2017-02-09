@@ -14,4 +14,3 @@ msg(..., file = stderr())
 \description{
 Utility function to cat a message to stderr (by default)
 }
-

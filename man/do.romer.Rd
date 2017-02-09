@@ -5,7 +5,7 @@
 \title{Worker function to run romer from within a multiGSEA pipeline}
 \usage{
 do.romer(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
-  value = "x.idx"), ...)
+  active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 Note that romer works on a DGEList or a "normal" EList, ie. it has not
@@ -15,4 +15,3 @@ and therefore doesn't work with a voom'd dataset.
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

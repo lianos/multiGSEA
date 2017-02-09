@@ -22,4 +22,3 @@ PANTHER provides their own set of
 \href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
 it's not clear how often these get updated.
 }
-

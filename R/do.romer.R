@@ -32,7 +32,8 @@ validate.x.romer <- function(x) {
 ##' \strong{This function is not meant to be called directly, it should only be
 ##' called internally within \code{multiGSEA}}
 do.romer <- function(gsd, x, design, contrast=ncol(design),
-                     gs.idxs=as.list(gsd, value='x.idx'), ...) {
+                     gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
+                     ...) {
   stopifnot(is.conformed(gsd, x))
   args <- list(...)
   call.args <- as.list(formals(limma::romer.default))

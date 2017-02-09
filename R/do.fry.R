@@ -16,7 +16,7 @@ validate.x.fry <- function(x) {
 ##' \strong{This function is not meant to be called directly, it should only be
 ##' called internally within \code{multiGSEA}}
 do.fry <- function(gsd, x, design, contrast=ncol(design),
-                   gs.idxs=as.list(gsd, value='x.idx'), ...) {
+                   gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'), ...) {
   ## This function was defined in limma v3.23.13 in April 2015
   ## ------------------------------------------------------------------------
   ## r102075 | smyth@wehi.edu.au | 2015-04-07 22:56:02 -0700 (Tue, 07 Apr 2015)

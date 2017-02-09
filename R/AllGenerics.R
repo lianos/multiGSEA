@@ -113,7 +113,7 @@ setGeneric("featureIdMap<-", function(x, value) {
 ##'
 ##' ## Arbitrary metadata
 ##' gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
-##' (cmh <- collectionMetadata(gdb, 'h'))
+##' cmh <- collectionMetadata(gdb, 'h') ## print this to see
 setGeneric("collectionMetadata", signature=c("x", "collection", "name"),
 function(x, collection, name, ...) {
   standardGeneric("collectionMetadata")

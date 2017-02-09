@@ -17,4 +17,3 @@ the rounded \code{x}
 \description{
 Rounds every numeric column of a data.table to given precision
 }
-

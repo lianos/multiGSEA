@@ -9,4 +9,3 @@ as_matrix(y)
 \description{
 Converts an expression container like object to a matrix for analysis
 }
-

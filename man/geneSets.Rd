@@ -37,4 +37,3 @@ Fetch the active (or all) gene sets from a GeneSetDb or MultiGSEAResult
 gdb <- exampleGeneSetDb()
 (gs <- geneSets(gdb))
 }
-

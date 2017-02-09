@@ -52,4 +52,3 @@ features <- c("55839", "8522", "29087")
 (gsm.fid <- geneSetSummaryByGenes(mg, features, feature.rename=NULL))
 (gsm.sym <- geneSetSummaryByGenes(mg, features, feature.rename='symbol'))##'
 }
-

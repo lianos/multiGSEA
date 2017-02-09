@@ -94,7 +94,7 @@ Collate:
     'utilities.R'
     'volcano_plot.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 SwitchrLibrary: facile
 FullSandbox: FALSE
 DeploySubPath: GSEAx

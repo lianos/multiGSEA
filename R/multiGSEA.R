@@ -218,7 +218,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   ## Many methods create a geneset to rowname/index vector. Let's run it once
   ## here and pass it along
-  gs.idxs <- as.list(gsd, value='x.idx')
+  gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
 
   ## Let's do this!
   if (length(methods) > 0L) {

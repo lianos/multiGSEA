@@ -22,4 +22,3 @@ geneset, as it is merely transformed to its \code{sign}}
 These values are useful for heatmap plotting.
 TODO: Implement ztransformPvalues
 }
-

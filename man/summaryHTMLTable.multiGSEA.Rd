@@ -25,4 +25,3 @@ left provides meta information about the geneset collections tested, ie.
 their names and number of genesets the contain. The right contains columns
 of results
 }
-

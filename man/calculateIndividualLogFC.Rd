@@ -55,4 +55,3 @@ processed "as usual".
 \details{
 importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
 }
-

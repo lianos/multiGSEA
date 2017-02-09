@@ -4,11 +4,10 @@
 \alias{do.fry}
 \title{Worker function to run fry from within a multiGSEA pipeline}
 \usage{
-do.fry(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd, value
-  = "x.idx"), ...)
+do.fry(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
+  active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 \strong{This function is not meant to be called directly, it should only be
 called internally within \code{multiGSEA}}
 }
-

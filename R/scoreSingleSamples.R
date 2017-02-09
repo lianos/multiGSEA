@@ -10,24 +10,25 @@
 ##' Current scoring methods that the user can invoke include:
 ##'
 ##' \describe{
+##'   \item{ewm}{
+##'     The "eigenWeightedMean" calculates the fraction each gene contributes
+##'     to a pre-specified principal component. These contributions acts as
+##'     weights over each gene, which are then used in a simple weighted mean
+##'     calculation over all the genes in the geneset per sample.}
+##'   \item{svd,gsdecon}{
+##'     This method was first introduced by Jason Hackney in
+##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
+##'     see the help for \code{?svdScore} for more details. It is, in principal,
+##'     something close to the \code{eigenWeightedMean}, but there's a bit more
+##'     voodoo invovled in its calculation.}
+##'   \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
 ##'   \item{zscore}{
 ##'     The features in the expression matrix are rowwise z transformed. The
 ##'     gene set level score is then calculated by adding up the zscores for
 ##'     the genes in the gene set, then dividing that number by either the
-##'     the size (or its sqaure root (default)) of the gene set.
+##'     the size (or its sqaure root (default)) of the gene set.}
 ##'   \item{gsva}{The gsva method of GSVA package}
-##'   \item{plage}{Using "plage" as implemented in the GSVA package
-##'   \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
-##'   \item{svd,gsdecon}{
-##'     This method was first introduced by Jason Hackney in
-##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
-##'     see the help for \code{?svdScore} for more details.}
-##'   \item{ewm}{
-##'     The "eigenWeightedMean". It is similar in principle to the svd,gsdecon
-##'     score, but does exactly what it says on the tin as opposed to the
-##'     LHS matrix multiplication and colSums().
-##'   }
-##'
+##'   \item{plage}{Using "plage" as implemented in the GSVA package}
 ##' }
 ##'
 ##' @export
@@ -41,9 +42,19 @@
 ##' @param drop.sd Genes with a standard deviation across columns in \code{y}
 ##'   with a standard deviation less than this value will be dropped.
 ##' @param verbose make some noise? Defaults to \code{FALSE}.
-##' @return \code{matrix} with as many rows as \code{geneSets(gdb)} and
-##'   as many columns as \code{ncol(x)}
-scoreSingleSamples <- function(gdb, y, methods='ssgsea', as.matrix=FALSE,
+##' @return A long data.frame with sample,method,score values per row. If
+##'   \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
+##'   and as many columns as \code{ncol(x)}
+##'
+##' @examples
+##' gdb <- exampleGeneSetDb()
+##' vm <- exampleExpressionSet()
+##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'gsdecon', 'zscore'),
+##'                              uncenter=FALSE, unscale=FALSE)
+##' sw <- dcast(scores, name + sample ~ method, value.var='score')
+##' corplot(sw[, c('ewm', 'gsdecon', 'zscore')],
+##'         title='Single Sample Score Comparison')
+scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
                                drop.sd=1e-4, verbose=FALSE, ...) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))

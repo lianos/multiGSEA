@@ -20,4 +20,3 @@ Note that the limma barcode plot is a direct copy of limma's functionality
 into here, tweaked ever so slightly so that it's easy to pass GeneSetDb
 information down through to it.
 }
-

@@ -20,4 +20,3 @@ a given geneset, then NA is returned.
 \description{
 The method only allows querying by single length character vectors
 }
-

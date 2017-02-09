@@ -65,4 +65,3 @@ dependencies, which take a long time -- and I don't want loading multiGSEA
 to take a long time. So, the goseq package has moved to Suggests and then
 is loaded within this function when necessary.
 }
-

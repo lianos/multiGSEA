@@ -2,8 +2,8 @@
 % Please edit documentation in R/AllClasses.R
 \docType{class}
 \name{MultiGSEAResult-class}
-\alias{.MultiGSEAResult}
 \alias{MultiGSEAResult-class}
+\alias{.MultiGSEAResult}
 \title{A MultiGSEAResult object holds the results from a multiGSEA call.}
 \description{
 A call to \code{\link{multiGSEA}} will produce analyses for an

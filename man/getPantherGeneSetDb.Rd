@@ -18,4 +18,3 @@ A wired up GeneSetDb
 \description{
 Get pathways/GOslim information from PANTHER.db Biocondcutor package.
 }
-

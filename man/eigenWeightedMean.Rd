@@ -44,4 +44,3 @@ be z-transformed. If it is not already, ensure that \code{center} and
 When uncenter and/or unscale are FALSE, it means that the scores should
 be applied on the centered or scaled values, respectively.
 }
-

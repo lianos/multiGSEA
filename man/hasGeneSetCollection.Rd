@@ -19,4 +19,3 @@ logical indicating if this collection exists
 \description{
 Check if a collection exists in the \code{GeneSetDb}
 }
-

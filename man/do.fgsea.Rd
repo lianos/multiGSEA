@@ -7,7 +7,8 @@
 do.fgsea(gsd, x, design, contrast = ncol(design), minSize = 15,
   maxSize = 15, nperm = 10000, gseaParam = 1, score.by = c("t", "logFC",
   "pval"), use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25)
-  else 1, feature.max.padj = 0.1, gs.idxs = NULL, logFC = NULL, ...)
+  else 1, feature.max.padj = 0.1, gs.idxs = as.list(gsd, active.only = TRUE,
+  value = "x.idx"), logFC = NULL, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}
@@ -40,4 +41,3 @@ expedient for a quick turnaround.
 Note that fgsea isn't added to import or suggests because rescomp's
 compiler can't handle this yet.
 }
-

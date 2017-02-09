@@ -5,7 +5,7 @@
 \title{Plots the correlation among the columns of a numeric matrix.}
 \usage{
 corplot(E, title, cluster = FALSE, col.point = "#00000066",
-  diag.distro = TRUE)
+  diag.distro = TRUE, smooth.scatter = nrow(E) > 400, ...)
 }
 \arguments{
 \item{E}{the matrix used to plot a pairs correlation plot. The vectors used
@@ -33,10 +33,9 @@ named different from that..
 }
 \examples{
 
-x <- matrix(rnorm(100), ncol=5)
+x <- matrix(rnorm(1000), ncol=5)
 corplot(x)
 }
 \seealso{
 \url{http://cran.r-project.org/package=corrplot}
 }
-

@@ -27,4 +27,3 @@ the result of \code{expr} if successful, otherwis \code{default}
 \description{
 Utility function to try and fail with grace.
 }
-

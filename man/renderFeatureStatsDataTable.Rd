@@ -34,4 +34,3 @@ as an example}
 We often want to display an interactive table of feature level statistics
 for all features. This function is a convenience wrapper to do that.
 }
-

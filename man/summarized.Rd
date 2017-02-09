@@ -9,4 +9,3 @@ summarized(x, ...)
 \description{
 Summarizes different results into tabular form
 }
-
