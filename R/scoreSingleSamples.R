@@ -47,6 +47,7 @@
 ##'   and as many columns as \code{ncol(x)}
 ##'
 ##' @examples
+##' library(reshape2)
 ##' gdb <- exampleGeneSetDb()
 ##' vm <- exampleExpressionSet()
 ##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'gsdecon', 'zscore'),

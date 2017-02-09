@@ -19,6 +19,8 @@ a rounded DT::datatable
 Round the numeric columns of a DT
 }
 \examples{
-dt <- tibble(a=rnorm(10), b=sample(letters, 10), c=rnorm(10))
-datatable(dt) \%>\% roundDT(digits=2)
+\dontrun{
+df <- data.frame(a=rnorm(10), b=sample(letters, 10), c=rnorm(10))
+roundDT(datatable(df),  digits=2)
+}
 }

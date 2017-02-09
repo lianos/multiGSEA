@@ -46,7 +46,9 @@ Suggests:
     airway,
     shinydashboard,
     rprojroot,
-    statmod
+    statmod,
+    org.Hs.eg.db,
+    KernSmooth
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate:

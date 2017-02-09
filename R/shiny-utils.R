@@ -299,14 +299,16 @@ summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x), max.p, p.col) {
 ##' Round the numeric columns of a DT
 ##'
 ##' @export
-##' @importFrom DT formatRound
+##' @importFrom DT formatRound datatable
 ##' @param x a DT::datatable
 ##' @param digits the number of digits to round. If \code{NA}, then no rounding
 ##'   is performed
 ##' @return a rounded DT::datatable
 ##' @examples
-##' dt <- tibble(a=rnorm(10), b=sample(letters, 10), c=rnorm(10))
-##' datatable(dt) %>% roundDT(digits=2)
+##' \dontrun{
+##' df <- data.frame(a=rnorm(10), b=sample(letters, 10), c=rnorm(10))
+##' roundDT(datatable(df),  digits=2)
+##' }
 roundDT <- function(x, digits=3) {
   stopifnot(is(x, "datatables"))
   if (is.na(digits)) {

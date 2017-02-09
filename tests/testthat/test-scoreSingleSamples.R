@@ -19,7 +19,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 
   gsva.ex <- gsva(E, lol, method='gsva', parallel.sz=4, verbose=FALSE)$es.obs
   gsva.mg <- scoreSingleSamples(gdb, E, methods='gsva', as.matrix=TRUE)
-  expect_equal(gsva.mg, gsva.ex,info='GSVA,gsva')
+  expect_equal(gsva.mg, gsva.ex, info='GSVA,gsva')
 
   # gsva.mg.melt <- scoreSingleSamples(gdb, E, methods='gsva',
   #                               verbose=FALSE, melted=TRUE)
@@ -40,7 +40,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 test_that("multiple 'melted' scores are returned in a long data.frame", {
   scores <- scoreSingleSamples(gdb, vm$E, methods=c('svd', 'ssgsea'))
   expect_is(scores, 'data.frame')
-  expect_true(all(c('svd', 'ssgsea') %in% scores$method))
+  expect_true(setequal(c('svd', 'ssgsea'), scores$method))
   n.samples <- ncol(vm)
   n.gs <- nrow(geneSets(gdb))
   expect_true(nrow(scores) == n.samples * n.gs * 2)

@@ -43,8 +43,10 @@ test_that("internal goseq mimics goseq package", {
   g2c <- transform(as.data.frame(gsd), category=name)
   g2c <- g2c[, c('category', 'featureId')]
   pwf <- suppressWarnings(goseq::nullp(degenes, bias.data=mylens))
-  goseq.res <- goseq::goseq(pwf, gene2cat=g2c, method='Wallenius',
-                            use_genes_without_cat=TRUE)
+  goseq.res <- suppressWarnings({
+    goseq::goseq(pwf, gene2cat=g2c, method='Wallenius',
+                 use_genes_without_cat=TRUE)
+  })
 
   ## Match up and compare
   goseq.res <- goseq.res[match(my.res$name, goseq.res$category),]

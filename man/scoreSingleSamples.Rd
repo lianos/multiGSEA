@@ -67,6 +67,7 @@ The \code{singleSampleScores} function is the same as
 for easier piping.
 }
 \examples{
+library(reshape2)
 gdb <- exampleGeneSetDb()
 vm <- exampleExpressionSet()
 scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'gsdecon', 'zscore'),

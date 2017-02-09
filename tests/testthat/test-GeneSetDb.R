@@ -266,7 +266,7 @@ test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
 test_that("as.*.GeneSetDb conversions honor `active.only` requests", {
   vm <- exampleExpressionSet()
   gdb <- getMSigGeneSetDb(c('c2'))
-  gdbc <- conform(gdb, vm)
+  expect_warning(gdbc <- conform(gdb, vm)) ## fires off warning when genesets are dropped
 
   gs.all <- gdb@table$name
   gs.active <- subset(gdbc@table, active)$name
