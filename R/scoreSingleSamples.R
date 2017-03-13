@@ -27,6 +27,11 @@
 ##'     gene set level score is then calculated by adding up the zscores for
 ##'     the genes in the gene set, then dividing that number by either the
 ##'     the size (or its sqaure root (default)) of the gene set.}
+##'   \item{mean}{
+##'     Simply take the mean of the values from the expression matrix that are
+##'     in teh gene set. Right or wrong, sometimes you just want the mean
+##'     without transforming the data.
+##'   }
 ##'   \item{gsva}{The gsva method of GSVA package}
 ##'   \item{plage}{Using "plage" as implemented in the GSVA package}
 ##' }
@@ -88,9 +93,12 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     paste(collection, name, sep=';;')
   })
 
+  gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx')
+
   scores <- sapply(methods, function(method) {
     fn <- gs.score.map[[method]]
-    out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose, ...)
+    out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose,
+              gs.idxs=gs.idxs, ...)
     rownames(out) <- gs.names
     if (!as.matrix) {
       out <- ret.df(melt.gs.scores(gdb, out))
@@ -146,9 +154,11 @@ melt.gs.scores <- function(gdb, scores) {
 ##
 ##
 do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
-                                         trim=0.10, as.matrix=FALSE, ...) {
+                                         trim=0.10, gs.idxs=NULL, do.scale=TRUE,
+                                         ...) {
   stopifnot(is.conformed(gdb, y))
   zsummary <- match.arg(zsummary)
+
   score.fn <- if (zsummary == 'mean') {
     function(vals) mean(vals, trim=trim, na.rm=TRUE)
   } else {
@@ -158,11 +168,9 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
     }
   }
 
-  gs <- geneSets(gdb, .external=FALSE)
-  gs.idxs <- lapply(1:nrow(gs), function(i) {
-    featureIds(gdb, gs$collection[i], gs$name[i], 'x.idx')
-  })
-  y <- t(scale(t(y)))
+  if (is.null(gs.idxs)) gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+  if (do.scale) y <- t(scale(t(y)))
+
   scores <- sapply(1:ncol(y), function(y.col) {
     col.vals <- y[, y.col]
     sapply(seq(gs.idxs), function(gs.idx) {
@@ -173,6 +181,14 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
   colnames(scores) <- colnames(y)
 
   scores
+}
+
+## Just take the average of the raw scores from the expression matrix
+##
+## Right or wrong, sometimes you want this (most often you want mean Z, though)
+do.scoreSingleSamples.mean <- function(gdb, y, gs.idxs=NULL, ...) {
+  do.scoreSingleSamples.zscore(gdb, y, zsummary='mean',
+                               trim=0, gs.idxs=gs.idxs, do.scale=FALSE)
 }
 
 .xformGdbForGSVA <- function(gdb, y) {
@@ -186,8 +202,13 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
 
 ##' @importFrom GSVA gsva
 do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
-                                       parallel.sz=4, ssgsea.norm=FALSE, ...) {
-  idxs <- .xformGdbForGSVA(gdb, y)
+                                       parallel.sz=4, ssgsea.norm=FALSE,
+                                       gs.idxs=NULL, ...) {
+  # idxs <- .xformGdbForGSVA(gdb, y)
+  if (is.null(gs.idxs)) {
+    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+  }
+  idxs <- lapply(gs.idxs, function(i) rownames(y)[i])
   f <- formals(GSVA:::.gsva)
   args <- list(...)
   ## I want to explicity show that we are setting parallel.sz to 4 here, since
@@ -248,14 +269,17 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
 #   out
 # }
 
-##' A no dependency call to GSDecon's eigengene scoring
+## A no dependency call to GSDecon's eigengene scoring
 do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
-                                      unscale=scale, ...) {
+                                      unscale=scale, gs.idxs=NULL, ...) {
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
-  gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
+  if (is.null(gs.idxs)) {
+    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+  }
+
   scores <- lapply(gs.idxs, function(idxs) {
     svdScore(y[idxs,], center=center, scale=scale, uncenter=uncenter,
              unscale=unscale)
@@ -271,11 +295,15 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
                                                     center=TRUE, scale=TRUE,
                                                     uncenter=center,
                                                     unscale=scale,
-                                                    as.matrix=FALSE, ...) {
+                                                    as.matrix=FALSE,
+                                                    gs.idxs=NULL, ...) {
   stopifnot(is.matrix(y))
   stopifnot(is.conformed(gdb, y))
 
-  gs.idxs <- as.list(gdb, nested=FALSE, value='x.idx')
+  if (is.null(gs.idxs)) {
+    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+  }
+
   scores <- sapply(gs.idxs, function(idxs) {
     eigenWeightedMean(y[idxs,], center=center, scale=scale,
                       uncenter=uncenter, unscale=unscale)$score
@@ -294,4 +322,5 @@ gs.score.map <- list(
   ssgsea=do.scoreSingleSamples.gsva,
   gsdecon=do.scoreSingleSamples.svd,
   svd=do.scoreSingleSamples.svd,
-  ewm=do.scoreSingleSamples.eigenWeightedMean)
+  ewm=do.scoreSingleSamples.eigenWeightedMean,
+  mean=do.scoreSingleSamples.mean)

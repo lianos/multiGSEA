@@ -58,6 +58,11 @@ Current scoring methods that the user can invoke include:
     gene set level score is then calculated by adding up the zscores for
     the genes in the gene set, then dividing that number by either the
     the size (or its sqaure root (default)) of the gene set.}
+  \item{mean}{
+    Simply take the mean of the values from the expression matrix that are
+    in teh gene set. Right or wrong, sometimes you just want the mean
+    without transforming the data.
+  }
   \item{gsva}{The gsva method of GSVA package}
   \item{plage}{Using "plage" as implemented in the GSVA package}
 }
