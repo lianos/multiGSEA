@@ -24,12 +24,16 @@ MultiGSEAResultContainer <- function(x) {
   methods <- local({
     tmp <- resultNames(mg)
     if (length(tmp) == 0L) {
-      stop("No GSEA methods found in MultiGSEAResult")
+      warning("No GSEA methods found in MultiGSEAResult, ",
+              "you can only make a geneSetSelectUI")
+      out <- character()
+    } else {
+      ## I am biased and prefer to show these methods first, if available
+      pref <- c('camera', 'goseq', 'goseq.up', 'goseq.down')
+      pref <- pref[pref %in% tmp]
+      out <- c(pref, setdiff(tmp, pref))
     }
-    ## I am biased and prefer to show these methods first, if available
-    pref <- c('camera', 'goseq', 'goseq.up', 'goseq.down')
-    pref <- pref[pref %in% tmp]
-    c(pref, setdiff(tmp, pref))
+    out
   })
 
   gs.choices <- gs.select.choices(mg)

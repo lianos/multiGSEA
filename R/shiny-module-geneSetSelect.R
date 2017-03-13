@@ -119,13 +119,15 @@ gs.render.select.ui <- function(ns, choices, server=TRUE,
              }}"))
 
   if (server) {
-    ui <- selectizeInput(ns("geneset"), label=NULL, choices=NULL, options=si.opts)
+    ui <- selectizeInput(ns("geneset"), label=NULL, choices=NULL,
+                         options=si.opts, width="100%")
   } else {
     choices <- sapply(unique(choices$collection), function(x) {
       out <- subset(choices, collection == x)
       setNames(out$value, out$label)
     }, simplify=FALSE)
-    ui <- selectizeInput(ns("geneset"), label=NULL, choices=choices)
+    ui <- selectizeInput(ns("geneset"), label=NULL, choices=choices,
+                         width="100%")
   }
 
   ui
