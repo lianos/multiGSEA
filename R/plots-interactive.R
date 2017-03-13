@@ -87,6 +87,7 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.data=FALSE, ...) {
   gs <- subset(dat, group == 'geneset') %>%
    transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
+  gs[['__index']] <- gs[['featureId']]
   bg <- subset(dat, group != 'geneset')
   n.gs <- sum(dat$group == 'geneset')
   if (value == 't') {
@@ -121,6 +122,7 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.data=FALSE, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
 
+  dat[['__index']] <- dat[['featureId']]
   gs.dat <- subset(dat, group == 'geneset')
   cols <- c('bg'='black', 'geneset'='red',
             'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')

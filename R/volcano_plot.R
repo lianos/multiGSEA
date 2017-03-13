@@ -18,17 +18,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                          xhex=NULL, yhex=NULL,
                          point.size=5,
                          tools=c('box_select', 'reset', 'save')) {
-  if (FALSE) {
-    x <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hWT_tKO-hWT_tWT.rds')
-    stats='dge'; xaxis='logFC'; yaxis='pval'; idx='idx';
-    xtfrm=identity; ytfrm=function(vals) -log10(vals)
-    xhex=NULL; yhex=NULL;
-    # xhex=1.5; yhex=0.05;
-    horiz_lines=c('padj'=0.10);
-    highlight_genes=x;
-  }
   ## NOTE: I should use S3 or S4 here, but I'm lazy right now.
-  # browser()
   dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 
   yvals <- dat[['yaxis']]
@@ -65,7 +55,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
       fids <- extract.genes(highlight_genes)
       col[pts$featureId %in% fids] <-"#EE4000"
     }
-    
+
     if ('symbol' %in% names(pts)) {
       p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
                      size=point.size, color=col, legend=FALSE,
@@ -82,7 +72,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                                 qval=sprintf('%.3f', padj)))
     }
   }
-  
+
   if (nrow(hex) > 0) {
     p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30, hover=FALSE)
   }
@@ -203,5 +193,6 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
   x[['xaxis']] <- xtfrm(x[[xaxis]])
   x[['yaxis']] <- ytfrm(x[[yaxis]])
   x[['idx']] <- x[[idx]]
+  x[['__index']] <- x[[idx]] ## updated way to index into rbokeh callbacks
   x
 }

@@ -105,9 +105,11 @@ geneSetContrastView <- function(input, output, session, mgc,
   })
 
   selected_features <- reactive({
+    dat <- req(plt())$data
     brushed <- input$selected
     if (!is.null(brushed)) {
-      brushed <- plt()$data$featureId[brushed + 1L]
+      # brushed <- dat[dat[['__index']] %in% brushed,,drop=FALSE]
+      brushed <- input$selected
     } else {
       brushed <- character()
     }

@@ -48,12 +48,6 @@ mgVolcano <- function(input, output, session,
     if (stats == 'dge') idx <- 'featureId'
   }
 
-  if (FALSE) {
-    x <- mg <- readRDS('~/tmp/schmidt/multiGSEA-EP-uber_hKO_tWT-hWT_tWT.rds')
-    stats='dge'; xaxis='logFC'; yaxis='padj'; idx='idx';
-    xgran=NULL; ygran=NULL
-  }
-
   ## Extract the data used in the volcano to keep it handy
   dat <- reactive({
     req(x())
@@ -91,12 +85,14 @@ mgVolcano <- function(input, output, session,
   ## This module returns a data.frame containing info genes that are brushed
   ## by the user
   vals <- reactive({
-    pdat <- plt()$data
+    pdat <- req(plt()$data$data)
     out <- NULL
     brushed <- input$selected
     if (!is.null(brushed)) {
-      g.info <- pdat$data[!pdat$hex.me,,drop=FALSE]
-      out <- g.info[brushed + 1L,,drop=FALSE]
+      # g.info <- pdat$data[!pdat$hex.me,,drop=FALSE]
+      # out <- g.info[brushed + 1L,,drop=FALSE]
+      keep <- pdat[['__index']] %in% brushed
+      out <- pdat[keep,,drop=FALSE]
     }
     out
   })
