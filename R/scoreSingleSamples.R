@@ -93,7 +93,7 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     paste(collection, name, sep=';;')
   })
 
-  gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx')
+  gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
 
   scores <- sapply(methods, function(method) {
     fn <- gs.score.map[[method]]
@@ -168,7 +168,7 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
     }
   }
 
-  if (is.null(gs.idxs)) gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+  if (is.null(gs.idxs)) gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
   if (do.scale) y <- t(scale(t(y)))
 
   scores <- sapply(1:ncol(y), function(y.col) {
@@ -206,7 +206,7 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
                                        gs.idxs=NULL, ...) {
   # idxs <- .xformGdbForGSVA(gdb, y)
   if (is.null(gs.idxs)) {
-    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+    gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
   }
   idxs <- lapply(gs.idxs, function(i) rownames(y)[i])
   f <- formals(GSVA:::.gsva)
@@ -277,7 +277,7 @@ do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   stopifnot(is.conformed(gdb, y))
 
   if (is.null(gs.idxs)) {
-    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+    gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
   }
 
   scores <- lapply(gs.idxs, function(idxs) {
@@ -301,7 +301,7 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
   stopifnot(is.conformed(gdb, y))
 
   if (is.null(gs.idxs)) {
-    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+    gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
   }
 
   scores <- sapply(gs.idxs, function(idxs) {
