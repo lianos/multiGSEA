@@ -425,6 +425,9 @@ function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
 ##' This is a utility function that is called by \code{[.GeneSetDb} and is not
 ##' exported because it is not meant for external use.
 ##'
+##' DEBUG: If `keep` is all FALSE, this will explode. What does an empty
+##' GeneSetDb look like, anyway? Something ...
+##'
 ##' @param x \code{GeneSetDb}
 ##' @param keep logical vector as long as
 ##'   \code{nrow(geneSets(x, active.only=FALSE))}
@@ -432,6 +435,9 @@ function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
 ##'   genesets.
 subset.GeneSetDb <- function(x, keep) {
   stopifnot(is(x, 'GeneSetDb'))
+  if (all(keep == FALSE)) {
+    stop("Cannot subset GeneSetDb down to empty (`keep` is all FALSE)")
+  }
   nr <- nrow(geneSets(x, active.only=FALSE, .external=FALSE))
 
   if (!is.logical(keep) && length(keep) != nr) {
