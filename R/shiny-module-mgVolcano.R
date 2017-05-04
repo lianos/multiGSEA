@@ -73,7 +73,8 @@ mgVolcano <- function(input, output, session,
     ns <- session$ns
     xhex <- input$xhex
     yhex <- input$yhex
-    p <- volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex)
+    p <- volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex,
+                      tools=tools)
     p <- tool_box_select(p, callback=shiny_callback(ns('selected')), 'points')
     p
   })

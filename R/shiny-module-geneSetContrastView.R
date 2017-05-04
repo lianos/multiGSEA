@@ -90,7 +90,8 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
 ##'   vector of feature_ids currently brushed in a contrast view.
 geneSetContrastView <- function(input, output, session, mgc,
                                 server=TRUE, maxOptions=Inf, sep="_::_",
-                                feature.link.fn=ncbi.entrez.link) {
+                                feature.link.fn=ncbi.entrez.link,
+                                itools=c('wheel_zoom', 'box_select', 'reset', 'save')) {
   gs <- callModule(geneSetSelect, 'gs_select', mgc, server=server,
                    maxOptions=maxOptions, sep=sep)
   plt <- reactive({
@@ -99,7 +100,7 @@ geneSetContrastView <- function(input, output, session, mgc,
     ns <- session$ns
     iplot(mgc()$mg, coll, name,
           value=input$gs_viz_stat,
-          type=input$gs_viz_type,
+          type=input$gs_viz_type, tools=itools,
           main=NULL, with.legend=FALSE, with.data=TRUE) %>%
       tool_box_select(callback=shiny_callback(ns('selected')), 'points')
   })
