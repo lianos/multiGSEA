@@ -165,7 +165,7 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
     pc <- paste0('PC', eigengene)
     res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
                     unscale=unscale, retx=FALSE)
-    res[['weights']] <- res$factor.contrib[[pc]]
+    res[['weights']] <- setNames(res$factor.contrib[[pc]], rownames(x))
   }
   if (!uncenter || !unscale) {
     xx <- t(scale(t(x), center=!uncenter, scale=!unscale))
