@@ -9,6 +9,9 @@ col.pairs <- circlize::colorRamp2(c(-1, 0, 1), c('blue', 'white', 'red'), 0.5)
 ##' package for similar functionality, and this functionality is intentionally
 ##' named different from that..
 ##'
+##' TODO: Add with.signature parameter to allow a box to plot the signature
+##'   score of all genes in E.
+##'
 ##' @export
 ##' @seealso \url{http://cran.r-project.org/package=corrplot}
 ##'
