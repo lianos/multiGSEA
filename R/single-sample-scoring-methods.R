@@ -147,23 +147,32 @@ gsdScore <- svdScore
 ##' @export
 ##' @inheritParams svdScore
 ##' @param eigengene the PC used to extract the gene weights from
+##' @param weights a user can pass in a prespecified set of waits using a named
+##'   numeric vector. The names must be a superset of \code{rownames(x)}. If
+##'   this is \code{NULL}, we calculate the "eigenweights".
 ##' @return A list of useful transformation information. The caller is likely
 ##'   most interested in the \code{$score} vector, but other bits related to
 ##'   the SVD/PCA decomposition are included for the ride.
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
-                              uncenter=center, unscale=scale, retx=FALSE) {
+                              uncenter=center, unscale=scale, retx=FALSE,
+                              weights=NULL) {
   x <- as_matrix(x)
-  pc <- paste0('PC', eigengene)
 
-  res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
-                  unscale=unscale, retx=FALSE)
-  weights <- res$factor.contrib[[pc]]
+  if (is.numeric(weights)) {
+    stopifnot(all(rownames(x) %in% names(weights)))
+    res[['weights']] <- weights[rownames(x)]
+  } else {
+    pc <- paste0('PC', eigengene)
+    res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
+                    unscale=unscale, retx=FALSE)
+    res[['weights']] <- res$factor.contrib[[pc]]
+  }
   if (!uncenter || !unscale) {
     xx <- t(scale(t(x), center=!uncenter, scale=!unscale))
   } else {
     xx <- x
   }
-  res[['score']] <- apply(xx, 2, weighted.mean, weights)
+  res[['score']] <- apply(xx, 2, weighted.mean, res[['weights']])
   res
 }
 
