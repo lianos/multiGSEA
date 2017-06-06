@@ -10,7 +10,8 @@
 geneSetContrastViewUI(id, height = "590px", width = "400px")
 
 geneSetContrastView(input, output, session, mgc, server = TRUE,
-  maxOptions = Inf, sep = "_::_", feature.link.fn = ncbi.entrez.link)
+  maxOptions = Inf, sep = "_::_", feature.link.fn = ncbi.entrez.link,
+  itools = c("wheel_zoom", "box_select", "reset", "save"))
 
 is.geneSetContrastViewer(x)
 

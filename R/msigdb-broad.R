@@ -28,9 +28,14 @@
 ##' @param collection character vector specifying the collections you want
 ##'   (c1, c2, ..., c7, h)
 ##' @param species human or mouse?
+##' @param with.kegg The Broad distributes the latest versions of the KEGG
+##'   genesets as part of the c2 collection. These genesets come with a
+##'   restricted license, so by default we do not return them as part of the
+##'   GeneSetDb. To include the KEGG gene sets when asking for the c2
+##'   collection, set this flag to \code{TRUE}.
 ##' @param version the version of the MSigDB database to use.
 ##' @return a \code{GeneSetDb} object
-getMSigGeneSetDb <- function(collection, species='human',
+getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
                              version=.msigdb.version.current) {
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
@@ -52,10 +57,18 @@ getMSigGeneSetDb <- function(collection, species='human',
   fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
   out <- readRDS(fn)
 
+  gs <- geneSets(out, .external=FALSE)
+
   if (!setequal(collection, avail.cols)) {
-    gs <- geneSets(out, .external=FALSE)
     keep <- gs$collection %in% collection
     out <- subset.GeneSetDb(out, gs$collection %in% collection)
+    gs <- geneSets(out, .external=FALSE)
+  }
+
+  if ('c2' %in% gs$collection && !with.kegg) {
+    is.c2 <- gs$collection == 'c2'
+    keep <- !is.c2 | (is.c2 & !grepl('^KEGG_', gs$name))
+    out <- subset.GeneSetDb(out, keep)
   }
 
   out

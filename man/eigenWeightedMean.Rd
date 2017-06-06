@@ -5,7 +5,7 @@
 \title{Scores each sample by a weighted average of the gene in a signature.}
 \usage{
 eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE)
+  uncenter = center, unscale = scale, retx = FALSE, weights = NULL)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score
@@ -27,6 +27,10 @@ Defaults to the respective values of \code{center} and \code{scale}}
 \item{retx}{Works the same as `retx` from \code{\link[stats]{prcomp}}. If
 \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
 variables.}
+
+\item{weights}{a user can pass in a prespecified set of waits using a named
+numeric vector. The names must be a superset of \code{rownames(x)}. If
+this is \code{NULL}, we calculate the "eigenweights".}
 }
 \value{
 A list of useful transformation information. The caller is likely

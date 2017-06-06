@@ -20,3 +20,7 @@ a \code{GeneSetDb} that has only the results for the specified
 This is a utility function that is called by \code{[.GeneSetDb} and is not
 exported because it is not meant for external use.
 }
+\details{
+DEBUG: If `keep` is all FALSE, this will explode. What does an empty
+GeneSetDb look like, anyway? Something ...
+}

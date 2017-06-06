@@ -31,6 +31,10 @@ in the main diagonal of the plot. Note that you might prefer the corrplot
 package for similar functionality, and this functionality is intentionally
 named different from that..
 }
+\details{
+TODO: Add with.signature parameter to allow a box to plot the signature
+  score of all genes in E.
+}
 \examples{
 
 x <- matrix(rnorm(1000), ncol=5)

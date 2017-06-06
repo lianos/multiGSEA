@@ -4,7 +4,7 @@
 \alias{getMSigGeneSetDb}
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
-getMSigGeneSetDb(collection, species = "human",
+getMSigGeneSetDb(collection, species = "human", with.kegg = FALSE,
   version = .msigdb.version.current)
 }
 \arguments{
@@ -12,6 +12,12 @@ getMSigGeneSetDb(collection, species = "human",
 (c1, c2, ..., c7, h)}
 
 \item{species}{human or mouse?}
+
+\item{with.kegg}{The Broad distributes the latest versions of the KEGG
+genesets as part of the c2 collection. These genesets come with a
+restricted license, so by default we do not return them as part of the
+GeneSetDb. To include the KEGG gene sets when asking for the c2
+collection, set this flag to \code{TRUE}.}
 
 \item{version}{the version of the MSigDB database to use.}
 }
