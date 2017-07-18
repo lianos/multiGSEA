@@ -4,8 +4,8 @@
 \alias{do.camera}
 \title{Worker function to run camera from within a multiGSEA pipeline}
 \usage{
-do.camera(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
-  active.only = TRUE, value = "x.idx"), ...)
+\method{do}{camera}(gsd, x, design, contrast = ncol(design),
+  gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 camera as originally implemented tends to be very conservative, this is

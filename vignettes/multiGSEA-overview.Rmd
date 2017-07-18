@@ -30,13 +30,15 @@ knitr::opts_chunk$set(
 
 # Overview
 
-The `multiGSEA` package was built to facilitate the comparison of multiple
-GSEA methods over given experimental contrast. The outputs of the various
-methods are interanlly saved in their original form and can be retrieved
-for individual scrutiny, or they can be combined to facilitate comparison.
+The `multiGSEA` package was built to facilitate the execution and comparison of
+multiple GSEA methods over a given experimental contrast. The outputs of the
+various GSEA methods are interanlly saved in their original form and can be
+retrieved for individual scrutiny, or they can be combined to facilitate
+comparison.
 
 The package also provides a shiny application that allows the user to
-interactively explore the gene set membership and enrichment.
+interactively explore the restuls of these gene set enrichment analyses as well
+as examine gene set memberhip and gene set similarity.
 
 ## Background
 

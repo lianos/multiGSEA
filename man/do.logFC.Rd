@@ -4,7 +4,7 @@
 \alias{do.logFC}
 \title{Worker function that is never really called within a multiGSEA pipeline}
 \usage{
-do.logFC(gsd, x, design, contrast = ncol(design), outdir = NULL,
+\method{do}{logFC}(gsd, x, design, contrast = ncol(design), outdir = NULL,
   use.cache = TRUE, logFC = NULL, robust.fit = FALSE,
   robust.eBayes = FALSE, ...)
 }

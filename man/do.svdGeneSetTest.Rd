@@ -5,7 +5,7 @@
 \title{Worker function summarizes gene set activity by SVD score and t-test across
 contrast}
 \usage{
-do.svdGeneSetTest(gsd, x, design, contrast = ncol(design),
+\method{do}{svdGeneSetTest}(gsd, x, design, contrast = ncol(design),
   gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"),
   trend.eBayes = FALSE, ...)
 }

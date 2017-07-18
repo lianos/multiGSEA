@@ -4,7 +4,7 @@
 \alias{do.goseq}
 \title{Performs goseq analysis significance of gene set membership.}
 \usage{
-do.goseq(gsd, x, design, contrast = ncol(design), feature.bias,
+\method{do}{goseq}(gsd, x, design, contrast = ncol(design), feature.bias,
   method = "Wallenius", repcnt = 2000, use_genes_without_cat = TRUE,
   split.updown = TRUE, direction = c("over", "under"), plot.fit = FALSE,
   use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else 1,

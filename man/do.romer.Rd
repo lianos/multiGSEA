@@ -4,8 +4,8 @@
 \alias{do.romer}
 \title{Worker function to run romer from within a multiGSEA pipeline}
 \usage{
-do.romer(gsd, x, design, contrast = ncol(design), gs.idxs = as.list(gsd,
-  active.only = TRUE, value = "x.idx"), ...)
+\method{do}{romer}(gsd, x, design, contrast = ncol(design),
+  gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 Note that romer works on a DGEList or a "normal" EList, ie. it has not

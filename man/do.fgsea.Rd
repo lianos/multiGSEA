@@ -4,7 +4,7 @@
 \alias{do.fgsea}
 \title{Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea}
 \usage{
-do.fgsea(gsd, x, design, contrast = ncol(design), minSize = 15,
+\method{do}{fgsea}(gsd, x, design, contrast = ncol(design), minSize = 15,
   maxSize = 15, nperm = 10000, gseaParam = 1, score.by = c("t", "logFC",
   "pval"), use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25)
   else 1, feature.max.padj = 0.1, gs.idxs = as.list(gsd, active.only = TRUE,
