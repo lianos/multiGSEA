@@ -2,6 +2,7 @@
 % Please edit documentation in R/plots-interactive.R
 \name{iplot}
 \alias{iplot}
+\alias{iplot.density.plotly}
 \alias{iplot.boxplot.rbokeh}
 \alias{iplot.density.rbokeh}
 \title{Visualize gene level behavior of genes within a geneset across a contrast.}
@@ -9,6 +10,9 @@
 iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
   with.legend = TRUE, with.data = FALSE, ...)
+
+iplot.density.plotly(x, y, j, value, main, dat, with.legend = TRUE,
+  with.data = FALSE, shiny_source = "mggenes", ...)
 
 iplot.boxplot.rbokeh(x, y, j, value, main, dat, with.legend = TRUE,
   tools = c("wheel_zoom", "box_select", "reset", "save"), with.data = FALSE,

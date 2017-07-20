@@ -130,3 +130,13 @@ exampleGeneSetDF <- function() {
   gs.df$featureId <- as.character(gs.df$featureId)
   gs.df
 }
+
+
+##' @export
+##' @rdname examples
+##' @aliases exampleGeneSetDF
+exampleMultiGSEAResult <- function() {
+  fn <- system.file('extdata', 'testdata', 'test-MultiGSEAResult.rds',
+                    package='multiGSEA')
+  readRDS(fn)
+}

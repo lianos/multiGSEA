@@ -36,7 +36,8 @@
 iplot <- function(x, y, j, value=c('logFC', 't'),
                   type=c('density', 'boxplot'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
-                  main=NULL, with.legend=TRUE, with.data=FALSE, ...) {
+                  main=NULL, with.legend=TRUE, with.data=FALSE,
+                  shiny_source='mggenes', width=NULL, height=NULL, ...) {
   if (FALSE) {
     x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
     main <- NULL; type <- 'boxplot'; with.legend <- TRUE
@@ -56,7 +57,8 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     gs.stats <- geneSet(x, y, j, .external=FALSE)[, group := 'geneset']
     gs.stats[, val := gs.stats[[value]]]
     kcols <- intersect(names(gs.stats), names(lfc))
-    out <- bind_rows(select_(lfc, .dots=kcols), select_(gs.stats, .dots=kcols))
+
+    out <- rbind(lfc[, kcols, with=FALSE], gs.stats[, kcols, with=FALSE])
     out[, significant := {
       tmp <- ifelse(significant, 'sig', 'notsig')
       ifelse(padj < 0.10 & tmp == 'notsig', 'psig', tmp)
@@ -64,20 +66,131 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   })
 
   if (type == 'density') {
-    out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat,
+    # out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat,
+    #                             with.legend=with.legend, tools=tools,
+    #                             with.data=with.data, ...)
+    out <- iplot.density.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
-                                with.data=with.data, ...)
+                                with.data=with.data, shiny_source=shiny_source,
+                                ...)
   } else if (type == 'boxplot') {
-    out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
+    # out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
+    #                             with.legend=with.legend, tools=tools,
+    #                             with.data=with.data, ...)
+    out <- iplot.boxplot.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
-                                with.data=with.data, ...)
+                                with.data=with.data, shiny_source=shiny_source,
+                                width=width, height=height, ...)
   } else if (type == 'volcano') {
-    out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
+    # out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
+    #                             with.legend=with.legend, tools=tools,
+    #                             with.data=with.data, ...)
+    out <- iplot.volcano.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
-                                with.data=with.data, ...)
+                                with.data=with.data, width=width, height=height,
+                                shiny_source=shiny_source, ...)
   }
 
   out
+}
+
+## plotly ======================================================================
+
+##' @rdname iplot
+iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
+                                 with.data=FALSE, shiny_source='mggenes',
+                                 height=NULL, width=NULL, ...) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+
+  # dat[['__index']] <- dat[['featureId']]
+  gs.dat <- subset(dat, group == 'geneset')
+  cols <- c('bg'='black', 'geneset'='red',
+            'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
+
+  if (value == 't') {
+    value <- 't-statistic'
+    # gs.dat$y <- 0.005
+    gs.dat$y <- 0.0015 + runif(nrow(gs.dat), 0, 0.004)
+    jitter <- 0.005
+  } else {
+    ## gs.dat$y <- c('notsig'=0.1, 'psig'=0.2, 'sig'=0.3)[gs.dat$significant]
+    gs.dat$y <- 0.005 + runif(nrow(gs.dat), 0, 0.040)
+    jitter <- 0.05
+  }
+
+  bg <- subset(dat, group == 'bg')
+
+  bgd <- density(bg$val)
+  gsd <- density(gs.dat$val)
+  lmeta <- list(width=3)
+  p <- plot_ly(source=shiny_source, width=width, height=height) %>%
+    add_lines(x=bgd$x, y=bgd$y, name='All Genes', hoverinfo='none', line=lmeta) %>%
+    add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
+    layout(xaxis=list(title="logFC"), yaxis=list(title="Density"),
+           dragmode="select")
+  if ('symbol' %in% names(gs.dat)) {
+    p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
+                     hoverinfo='text',
+                     text=~paste0('Symbol: ', symbol, '<br>',
+                                  'logFC: ', sprintf('%.3f', logFC), '<br>',
+                                  'FDR: ', sprintf('%.3f', padj)))
+  } else {
+    p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
+                     text=~paste0('featureId: ', featureId, '<br>',
+                                  'logFC: ', logFC, '<br>',
+                                  'FDR: ', padj))
+  }
+  p
+}
+
+iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
+                                 with.data=FALSE, shiny_source='mggenes',
+                                 height=NULL, width=NULL, ...) {
+  # dat[['__index']] <- dat[['featureId']]
+  gs <- subset(dat, group == 'geneset') %>%
+    transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
+  # gs[['__index']] <- gs[['featureId']]
+  bg <- subset(dat, group != 'geneset')
+  n.gs <- sum(dat$group == 'geneset')
+  if (value == 't') {
+    value <- 't-statistic'
+  }
+
+  all.dat <- bind_rows(transform(bg, group='background'), gs)
+  gg <- ggplot(all.dat, aes(group, val)) +
+    geom_boxplot(data=subset(all.dat, group == 'background')) +
+    geom_boxplot(outlier.shape=NA, data=gs)
+  if ('symbol' %in% names(all.dat)) {
+    gg <- gg +
+      suppressWarnings({
+        geom_jitter(aes(key=featureId,
+                        text=paste0('Symbol: ', symbol, '<br>',
+                                    'logFC: ', sprintf('%.3f', logFC), '<br>',
+                                    'FDR: ', sprintf('%.3f', padj))),
+                    data=gs, width=0.2)
+      })
+
+  } else {
+    gg <- gg +
+      suppressWarnings({
+        geom_jitter(aes(key=featureId,
+                        text=paste(paste0('featureId: ', featureId, '<br>',
+                                          'logFC: ', logFC, '<br>',
+                                          'FDR: ', padj))),
+                    data=gs, width=0.2)
+      })
+  }
+
+  ## ggplotly keeps suggesting to use the github/ggplot2
+  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
+    layout(yaxis=list(title=value), dragmode="select") %>%
+    plotly_build
+
+  ## Hacks to hide hover events on boxplots
+  p$x$source <- shiny_source
+  p$x$data[[1]]$hoverinfo <- 'none'
+  p$x$data[[2]]$hoverinfo <- 'none'
+  p
 }
 
 ## rbokeh ----------------------------------------------------------------------
@@ -160,6 +273,9 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
 
   p
 }
+
+
+
 
 if (FALSE) {
 ## ggplotly --------------------------------------------------------------------

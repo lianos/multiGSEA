@@ -54,7 +54,7 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
         miniTabPanel(
           "Visualize", icon = icon("area-chart"),
           miniContentPanel(
-            rbokehOutput(ns("gs_viz"), height="350px"),
+            plotlyOutput(ns("gs_viz"), height="350px"),
             fluidRow(
               column(
                 8,
@@ -101,25 +101,28 @@ geneSetContrastView <- function(input, output, session, mgc,
     iplot(mgc()$mg, coll, name,
           value=input$gs_viz_stat,
           type=input$gs_viz_type, tools=itools,
-          main=NULL, with.legend=FALSE, with.data=TRUE) %>%
-      tool_box_select(callback=shiny_callback(ns('selected')), 'points')
+          main=NULL, with.legend=FALSE, with.data=TRUE,
+          shiny_source='gsviz', width=350, height=350)
+
   })
 
   selected_features <- reactive({
-    dat <- req(plt())$data
-    brushed <- input$selected
-    if (!is.null(brushed)) {
-      # brushed <- dat[dat[['__index']] %in% brushed,,drop=FALSE]
-      brushed <- input$selected
+    event <- event_data('plotly_selected', source='gsviz')
+    if (!is.null(event)) {
+      # dat <- isolate(plt()) %>% plotly_data
+      # selected <- subset(dat, featureId %in% event$key)
+      out <- event$key
     } else {
-      brushed <- character()
+      out <- character()
     }
-    brushed
+    out
   })
 
-  output$gs_viz <- renderRbokeh({
+
+  output$gs_viz <- renderPlotly({
     req(plt())
   })
+
   # outputOptions(output, "gs_viz", suspendWhenHidden=FALSE)
 
   output$gs_members <- DT::renderDataTable({
