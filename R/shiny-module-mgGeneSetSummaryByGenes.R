@@ -22,6 +22,9 @@ mgGeneSetSummaryByGeneUI <- function(id, mg=NULL) {
 mgGeneSetSummaryByGene <- function(input, output, session, mgc,
                                    features, method, fdr) {
   genesets <- reactive({
+    fids <- req(features())
+    mg <- req(mgc()$mg)
+
     if (input$genesets_sigonly) {
       method <- method()
       max.p <- fdr()
@@ -29,13 +32,18 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
       method <- NULL
       max.p <- NULL
     }
-    req(mgc())
-    fids <- req(features())
+
     if (is(fids, 'data.frame')) {
       fids <- fids$featureId
     }
-    geneSetSummaryByGenes(mgc()$mg, fids, feature.rename='symbol',
-                          method=method, max.p=max.p, .external=FALSE)
+
+    mg.fids <- intersect(fids, featureIds(mg))
+    if (length(mg.fids)) {
+      geneSetSummaryByGenes(mg, mg.fids, feature.rename='symbol',
+                            method=method, max.p=max.p, .external=FALSE)
+    } else {
+      NULL
+    }
   })
 
   output$selected_message <- renderUI({
@@ -45,7 +53,12 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
       ngs <- 0L
     } else {
       n <- if (is.vector(fids)) length(fids) else nrow(fids)
-      ngs <- nrow(genesets())
+      gs <- genesets()
+      if (is.null(gs)) {
+        ngs <- 0L
+      } else {
+        ngs <- nrow(genesets())
+      }
     }
     tags$p(sprintf('%d features selected across %d genesets', n, ngs))
   })

@@ -17,16 +17,18 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                          horiz_lines=c('padj'=0.10),
                          xhex=NULL, yhex=NULL,
                          point.size=5,
-                         tools=c('box_select', 'reset', 'save')) {
+                         tools=c('box_select', 'reset', 'save'),
+                         width=NULL, height=NULL,
+                         shiny_source='mgvolcano', ...) {
   ## NOTE: I should use S3 or S4 here, but I'm lazy right now.
   dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 
-  yvals <- dat[['yaxis']]
+  yvals <- dat[['.yvt']]
   yrange <- range(yvals)
   ypad <- 0.05 * diff(yrange)
   ylim <- c(yrange[1] - ypad, yrange[2] + ypad)
 
-  xvals <- dat[['xaxis']]
+  xvals <- dat[['.xvt']]
   xrange <- range(xvals)
   xpad <- 0.05 * diff(xrange)
   xlim <- c(xrange[1] - xpad, xrange[2] + xpad)
@@ -36,45 +38,34 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   ## should be hexbinized
   do.hex <- is.numeric(xhex) && is.numeric(yhex)
   if (do.hex) {
-    xthresh <- xtfrm(xhex)
-    ythresh <- ytfrm(yhex)
-    hex.me <- abs(dat[['xaxis']]) <= xthresh | dat[['yaxis']] <= ythresh
+    hex.me <- abs(dat[['.xv']]) <= xhex | dat[['.yvt']] <= yhex
   } else {
     hex.me <- rep(FALSE, nrow(dat))
   }
   hex <- dat[hex.me,,drop=FALSE]
   pts <- dat[!hex.me,,drop=FALSE]
 
-  ## Build the figure
-  ## Setup the initial figure
-  p <- figure(xlab=xlab, ylab=ylab, xlim=xlim, ylim=ylim,
-              webgl=TRUE, tools=tools)
-  if (nrow(pts) > 0) {
-    col <- rep("#404040", nrow(pts))
-    if (!is.null(highlight_genes)) {
-      fids <- extract.genes(highlight_genes)
-      col[pts$featureId %in% fids] <-"#EE4000"
-    }
-
-    if ('symbol' %in% names(pts)) {
-      p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
-                     size=point.size, color=col, legend=FALSE,
-                     hover=list(symbol,
-                                logFC=sprintf('%.3f', xaxis),
-                                pval=sprintf('%.3f', pval),
-                                qval=sprintf('%.3f', padj)))
+  gg <- ggplot(dat, aes(.xvt, .yvt))
+  if (nrow(pts)) {
+    if ('symbol' %in% names(dat)) {
+      gg <- gg + suppressWarnings({
+        geom_point(aes(key=featureId,
+                       text=paste0('Symbol: ', symbol, '<br>',
+                                   xaxis, ': ', sprintf('%.3f', .xv), '<br>',
+                                   yaxis, ': ', sprintf('%.3f', .yv))),
+                   data=pts)
+      })
     } else {
-      p <- ly_points(p, 'xaxis', 'yaxis', data=pts, lname='points',
-                     size=point.size, color=col, legend=FALSE,
-                     hover=list(featureId,
-                                logFC=sprintf('%.3f', xaxis),
-                                pval=sprintf('%.3f', pval),
-                                qval=sprintf('%.3f', padj)))
+      gg <- gg +
+        geom_point(aes(key=featureId,
+                       text=paste0('featureId: ', featureId, '<br>',
+                                   xaxis, ': ', sprintf('%.3f', .xv), '<br>',
+                                   yaxis, ': ', sprintf('%.3f', .yv))),
+                   data=pts)
     }
   }
-
-  if (nrow(hex) > 0) {
-    p <- ly_hexbin(p, 'xaxis', 'yaxis', data=hex, xbins=30, hover=FALSE)
+  if (nrow(hex)) {
+    gg <- gg + geom_hex(data=hex, bins=50)
   }
 
   ## Add horizontal lines to indicate where padj of 0.10 lands
@@ -96,16 +87,40 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     names(ypos) <- NULL
     ypos <- ypos[!is.na(ypos)]
     if (length(ypos) > 0) {
-      ypos <- ytfrm(ypos)
+      lpos <- ytfrm(ypos)
       ablabel <- if (horiz.unit == 'padj') 'q-value' else horiz.unit
-      p <- ly_abline(p, h=ypos, color='red', type=2)
-      p <- ly_text(p, xrange[1], ypos[1],
-                   sprintf('%s: %.2f', ablabel, horiz_lines[1L]),
-                   color='red', font_size='9pt')
+      lbl <- sprintf('%s: %.2f', ablabel, horiz_lines[1L])
+      # txtdat <- data.frame(x=xrange[1], y=lpos[1], lbl=lbl)
+      # gg <- gg +
+      #   geom_hline(yintercept=lpos, color='red', linetype='dashed') +
+      #   geom_text(aes(x, y, label=lbl), data=txtdat, vjust=1.5, hjust=0.2, color='red')
+      #
+      # gg <- gg +
+      #   geom_hline(aes(text=lbl), yintercept=lpos, color='red', linetype='dashed')
     }
   }
 
-  p$data <- list(data=dat, hex.me=hex.me)
+  ## ggplotly messages to use github: hadley/ggplot2
+  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
+    add_lines(x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
+              y=rep(lpos, 100),
+              inherit=FALSE,
+              text=lbl, color=I("red"),
+              line=list(dash='dash', width=2),
+              hoverinfo='text') %>%
+    layout(dragmode="select", xaxis=list(title=xlab),
+           yaxis=list(title=ylab)) %>%
+    plotly_build
+  p$x$source <- shiny_source
+  if (nrow(hex)) {
+    hexidx <- 2:(length(p$x$data) -1L)
+    for (idx in hexidx) {
+      p$x$data[[idx]]$hoverinfo <- 'none'
+      # len <- length(p$x$data[[idx]]$x)
+      # p$x$data[[idx]]$text <- sprintf('count: %d', rep(len))
+    }
+  }
+
   p
 }
 
@@ -190,9 +205,9 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
     }
     x[['featureId']] <- ids
   }
-  x[['xaxis']] <- xtfrm(x[[xaxis]])
-  x[['yaxis']] <- ytfrm(x[[yaxis]])
-  x[['idx']] <- x[[idx]]
-  x[['__index']] <- x[[idx]] ## updated way to index into rbokeh callbacks
+  x[['.xv']] <- x[[xaxis]]
+  x[['.yv']] <- x[[yaxis]]
+  x[['.xvt']] <- xtfrm(x[[xaxis]])
+  x[['.yvt']] <- ytfrm(x[[yaxis]])
   x
 }

@@ -17,7 +17,8 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
     out <- tagList(
       useShinyjs(),
       tags$a(id=ns('settings'), icon("wrench")),
-      rbokehOutput(ns("plot")),
+      # rbokehOutput(ns("plot")),
+      plotlyOutput(ns("plot")),
       hidden(
         tags$div(
           id=ns('widgets'),
@@ -60,40 +61,39 @@ mgVolcano <- function(input, output, session,
     if (!is.null(input$xhex)) {
       updateSliderInput(session, 'yhex', sprintf('%s filter', yaxis),
                         min=0, max=1, step=0.025, value=0.10)
-      max.x <- ceiling(max(abs(dat()[['xaxis']]))) - 0.5
+      # max.x <- ceiling(max(abs(dat()[['xaxis']]))) - 0.5
+      max.x <- ceiling(max(abs(dat()[['.xvt']]))) - 0.5
       updateSliderInput(session, 'xhex', sprintf('%s filter', xaxis),
                         min=0, max=max.x, step=0.25, value=1)
     }
   })
 
-  ## I'm making this a reactive because I want to pass along the hexing info
-  ## outside of the module
   plt <- reactive({
     req(x())
     ns <- session$ns
     xhex <- input$xhex
     yhex <- input$yhex
     p <- volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex,
-                      tools=tools)
-    p <- tool_box_select(p, callback=shiny_callback(ns('selected')), 'points')
+                      tools=tools, shiny_source='mgvolcano',
+                      width=400, heigh=350)
     p
   })
 
-  output$plot <- renderRbokeh({
+  output$plot <- renderPlotly({
     req(plt())
   })
 
   ## This module returns a data.frame containing info genes that are brushed
   ## by the user
   vals <- reactive({
-    pdat <- req(plt()$data$data)
-    out <- NULL
-    brushed <- input$selected
-    if (!is.null(brushed)) {
-      # g.info <- pdat$data[!pdat$hex.me,,drop=FALSE]
-      # out <- g.info[brushed + 1L,,drop=FALSE]
-      keep <- pdat[['__index']] %in% brushed
-      out <- pdat[keep,,drop=FALSE]
+    dat <- req(plt()) %>% plotly_data
+    event <- event_data('plotly_selected', source='mgvolcano')
+    if (!is.null(event)) {
+      # dat <- isolate(plt()) %>% plotly_data
+      # selected <- subset(dat, featureId %in% event$key)
+      out <- subset(dat, featureId %in% event$key)
+    } else {
+      out <- NULL
     }
     out
   })
