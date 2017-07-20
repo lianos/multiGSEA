@@ -9,10 +9,12 @@
 \usage{
 iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
-  with.legend = TRUE, with.data = FALSE, ...)
+  with.legend = TRUE, with.data = FALSE, shiny_source = "mggenes",
+  width = NULL, height = NULL, ggtheme = theme_bw(), ...)
 
 iplot.density.plotly(x, y, j, value, main, dat, with.legend = TRUE,
-  with.data = FALSE, shiny_source = "mggenes", ...)
+  with.data = FALSE, shiny_source = "mggenes", height = NULL,
+  width = NULL, ...)
 
 iplot.boxplot.rbokeh(x, y, j, value, main, dat, with.legend = TRUE,
   tools = c("wheel_zoom", "box_select", "reset", "save"), with.data = FALSE,

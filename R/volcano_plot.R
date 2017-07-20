@@ -19,7 +19,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                          point.size=5,
                          tools=c('box_select', 'reset', 'save'),
                          width=NULL, height=NULL,
-                         shiny_source='mgvolcano', ...) {
+                         shiny_source='mgvolcano', ggtheme=theme_bw(), ...) {
   ## NOTE: I should use S3 or S4 here, but I'm lazy right now.
   dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 
@@ -100,6 +100,10 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     }
   }
 
+  if (is(ggtheme, 'theme')) {
+    gg <- gg + ggtheme
+  }
+
   ## ggplotly messages to use github: hadley/ggplot2
   p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
     add_lines(x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
@@ -111,6 +115,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     layout(dragmode="select", xaxis=list(title=xlab),
            yaxis=list(title=ylab)) %>%
     plotly_build
+
   p$x$source <- shiny_source
   if (nrow(hex)) {
     hexidx <- 2:(length(p$x$data) -1L)
@@ -121,7 +126,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     }
   }
 
-  p
+  p %>% config(collaborate=FALSE, displaylogo=FALSE)
 }
 
 ##' Get the approximate nominal pvalue for a target qvalue given the

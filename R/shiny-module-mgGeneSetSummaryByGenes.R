@@ -47,7 +47,7 @@ mgGeneSetSummaryByGene <- function(input, output, session, mgc,
   })
 
   output$selected_message <- renderUI({
-    fids <- features()
+    fids <- req(features())
     if (is.null(fids)) {
       n <- 0L
       ngs <- 0L

@@ -69,10 +69,11 @@ shinyServer(function(input, output, session) {
   ## DEBUG: Can we add a DT row click listner to the `other_genesets_gsea` so
   ## that it updates the `gs_viewer`? My first shot at doing sends the
   ## application into a tailspin, my best guess is because the selection is
-  ## still active in the rbokeh boxp/density plot.
+  ## still active in the interactive boxp/density plot.
 
   ## Differential Gene Expression Tab ==========================================
-  gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc)
+  gene.volcano <- callModule(mgVolcano, 'dge_volcano', mgc,
+                             width=400, height=350)
 
   output$dge_volcano_genestats <- DT::renderDataTable({
     res <- req(lfc()) %>%

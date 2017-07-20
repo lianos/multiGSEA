@@ -37,7 +37,8 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
                   type=c('density', 'boxplot'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                   main=NULL, with.legend=TRUE, with.data=FALSE,
-                  shiny_source='mggenes', width=NULL, height=NULL, ...) {
+                  shiny_source='mggenes', width=NULL, height=NULL,
+                  ggtheme=theme_bw(), ...) {
   if (FALSE) {
     x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
     main <- NULL; type <- 'boxplot'; with.legend <- TRUE
@@ -72,7 +73,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     out <- iplot.density.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
-                                ...)
+                                ggtheme=ggtheme, ...)
   } else if (type == 'boxplot') {
     # out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
     #                             with.legend=with.legend, tools=tools,
@@ -80,7 +81,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     out <- iplot.boxplot.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
-                                width=width, height=height, ...)
+                                width=width, height=height, ggtheme=ggtheme,...)
   } else if (type == 'volcano') {
     # out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
     #                             with.legend=with.legend, tools=tools,
@@ -88,7 +89,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     out <- iplot.volcano.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, width=width, height=height,
-                                shiny_source=shiny_source, ...)
+                                shiny_source=shiny_source, ggtheme=ggtheme, ...)
   }
 
   out
@@ -140,23 +141,22 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                   'logFC: ', logFC, '<br>',
                                   'FDR: ', padj))
   }
-  p
+  p %>% config(collaborate=FALSE, displaylogo=FALSE)
 }
 
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.data=FALSE, shiny_source='mggenes',
-                                 height=NULL, width=NULL, ...) {
-  # dat[['__index']] <- dat[['featureId']]
-  gs <- subset(dat, group == 'geneset') %>%
-    transform(jgrp=catjitter(group, 0.5), stringsAsFactors=FALSE)
-  # gs[['__index']] <- gs[['featureId']]
-  bg <- subset(dat, group != 'geneset')
-  n.gs <- sum(dat$group == 'geneset')
+                                 height=NULL, width=NULL, ggtheme=theme_bw(),
+                                 ...) {
+  is.gs <- dat[['group']] == 'geneset'
+  gs <- subset(dat, is.gs)
+  bg <- subset(dat, !is.gs)
+  n.gs <- sum(is.gs)
   if (value == 't') {
     value <- 't-statistic'
   }
 
-  all.dat <- bind_rows(transform(bg, group='background'), gs)
+  all.dat <- bind_rows(transform(dat, group='background'), gs)
   gg <- ggplot(all.dat, aes(group, val)) +
     geom_boxplot(data=subset(all.dat, group == 'background')) +
     geom_boxplot(outlier.shape=NA, data=gs)
@@ -181,6 +181,10 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
       })
   }
 
+  if (is(ggtheme, 'theme')) {
+    gg <- gg + ggtheme
+  }
+
   ## ggplotly keeps suggesting to use the github/ggplot2
   p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
     layout(yaxis=list(title=value), dragmode="select") %>%
@@ -190,7 +194,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p$x$source <- shiny_source
   p$x$data[[1]]$hoverinfo <- 'none'
   p$x$data[[2]]$hoverinfo <- 'none'
-  p
+  p %>% config(collaborate=FALSE, displaylogo=FALSE)
 }
 
 ## rbokeh ----------------------------------------------------------------------
@@ -272,65 +276,4 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   }
 
   p
-}
-
-
-
-
-if (FALSE) {
-## ggplotly --------------------------------------------------------------------
-iplot.boxplot.gg <- function(x, y, j, value, main, dat, ...) {
-  cols <- c('notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
-  bg <- subset(dat, group == 'bg')
-  gs <- subset(dat, group == 'geneset')
-  plabel <- 'symbol: %s<br>logFC: %.2f<br>FDR: %.2f'
-  value <- if (value == 't') 't-statistic' else value
-  gg <- ggplot(dat, aes(group, val)) +
-    geom_boxplot(data=bg) +
-    geom_boxplot(data=gs, outlier.shape=NA) +
-    geom_point(aes(color=significant,
-                   text=sprintf(plabel, symbol, logFC, padj)),
-               data=gs,
-               position=position_jitter(width=0.25)) +
-    ylab(value) +
-    xlab(sprintf("Gene Set Group<br>(%d genes)", sum(dat$group == 'geneset'))) +
-    scale_color_manual(values=cols)
-  if (!is.null(main)) {
-    gg <- gg + ggtitle(main)
-  }
-  ggplotly(gg)
-}
-
-iplot.density.gg <- function(x, y, j, value, main, dat, with.legend=TRUE, ...) {
-  stopifnot(is(x, 'MultiGSEAResult'))
-
-  gs.dat <- subset(dat, group == 'geneset')
-  cols <- c('bg'='black', 'geneset'='red',
-            'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
-
-  if (value == 't') {
-    value <- 't-statistic'
-    gs.dat$y <- 0.005
-    jitter <- 0.005
-  } else {
-    ## gs.dat$y <- c('notsig'=0.1, 'psig'=0.2, 'sig'=0.3)[gs.dat$significant]
-    gs.dat$y <- 0.1
-    jitter <- 0.05
-  }
-
-  plabel <- "symbol: %s<br>logFC: %.2f<br>FDR: %.2f"
-  gg <- ggplot(dat, aes(val, color=group)) +
-    stat_density(lwd=1, geom='line') +
-    geom_point(aes(val, y, color=significant,
-                   text=sprintf(plabel, symbol, logFC, padj)),
-               data=gs.dat,
-               position=position_jitter(width=0, height=jitter)) +
-    xlab(sprintf("%s (%d genes)", value, sum(dat$group == 'geneset'))) +
-    scale_color_manual(values=cols)
-  if (!is.null(main)) {
-    gg <- gg + ggtitle(main)
-  }
-  ggplotly(gg)
-}
-
 }

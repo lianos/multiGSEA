@@ -12,8 +12,8 @@
 # library(rprojroot)
 # root <- find_root(is_r_package)
 # devtools::load_all(root)
-# library(multiGSEA)
-devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
+# devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA')
+library(multiGSEA)
 library(DT)
 
 ## Loading "standard" Libraries ------------------------------------------------
@@ -23,13 +23,11 @@ library(DT)
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
-# library(rbokeh)
-library(plotly)
 library(data.table)
 library(dplyr)
 library(dtplyr)
 
-theme_set(theme_bw())
+# theme_set(theme_bw())
 
 ## By default shiny limits upload size to 5 MB, let's change this to 30MB
 ## (which is kind of big, no?)

@@ -43,7 +43,8 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
 ##' @rdname mgVolcano
 mgVolcano <- function(input, output, session,
                       x, stats='dge', xaxis='logFC', yaxis='pval', idx='idx',
-                      tools=c('box_select', 'reset', 'save')) {
+                      tools=c('box_select', 'reset', 'save'),
+                      width=NULL, height=NULL) {
   onclick("settings", toggle(id="widgets", anim=TRUE))
   if (missing(idx)) {
     if (stats == 'dge') idx <- 'featureId'
@@ -75,7 +76,7 @@ mgVolcano <- function(input, output, session,
     yhex <- input$yhex
     p <- volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex,
                       tools=tools, shiny_source='mgvolcano',
-                      width=400, heigh=350)
+                      width=width, heigh=height)
     p
   })
 

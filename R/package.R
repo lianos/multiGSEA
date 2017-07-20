@@ -6,7 +6,7 @@
 ##' @import Biobase
 ##' @import methods
 ##' @import ggplot2
-##' @import rbokeh
+##' @import plotly
 ##' @import magrittr
 ##' @import dtplyr
 ##' @import dplyr

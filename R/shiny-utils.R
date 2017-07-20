@@ -21,6 +21,7 @@
 explore <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
   options(EXPLORE_MULTIGSEA_RESULT=x)
+  on.exit(options(EXPLORE_MULTIGSEA_RESULT=NULL))
   runApp(system.file('shiny', package='multiGSEA'))
 }
 
