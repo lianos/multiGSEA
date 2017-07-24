@@ -190,10 +190,13 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     layout(yaxis=list(title=value), dragmode="select") %>%
     plotly_build
 
-  ## Hacks to hide hover events on boxplots
   p$x$source <- shiny_source
+  ## Hacks to hide hover events on boxplots and remove outliers
+  ## https://plot.ly/ggplot2/box-plots/#outliers
   p$x$data[[1]]$hoverinfo <- 'none'
+  p$x$data[[1]]$marker <- list(opacity=0)
   p$x$data[[2]]$hoverinfo <- 'none'
+  p$x$data[[2]]$marker <- list(opacity=0)
   p %>% config(collaborate=FALSE, displaylogo=FALSE)
 }
 

@@ -69,6 +69,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   }
 
   ## Add horizontal lines to indicate where padj of 0.10 lands
+  lpos <- NULL
   if (is.numeric(horiz_lines) && !any(is.na(horiz_lines))) {
     # q.thresh <- c(0.05, 0.10, 0.20)
     q.thresh <- c(horiz_lines)
@@ -105,17 +106,20 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   }
 
   ## ggplotly messages to use github: hadley/ggplot2
-  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
-    add_lines(x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
-              y=rep(lpos, 100),
-              inherit=FALSE,
-              text=lbl, color=I("red"),
-              line=list(dash='dash', width=2),
-              hoverinfo='text') %>%
-    layout(dragmode="select", xaxis=list(title=xlab),
-           yaxis=list(title=ylab)) %>%
-    plotly_build
+  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text'))
+  if (is.numeric(lpos)) {
+    p <- add_lines(p, x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
+                   y=rep(lpos, 100),
+                   inherit=FALSE,
+                   text=lbl, color=I("red"),
+                   line=list(dash='dash', width=2),
+                   hoverinfo='text')
+  }
+  p <- layout(p, dragmode="select", autosize=FALSE, xaxis=list(title=xlab),
+              yaxis=list(title=ylab))
+  p <- plotly_build(p)
 
+  ## Disable hovering on hexbin
   p$x$source <- shiny_source
   if (nrow(hex)) {
     hexidx <- 2:(length(p$x$data) -1L)
@@ -126,7 +130,7 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
     }
   }
 
-  p %>% config(collaborate=FALSE, displaylogo=FALSE)
+  config(p, collaborate=FALSE, displaylogo=FALSE)
 }
 
 ##' Get the approximate nominal pvalue for a target qvalue given the
