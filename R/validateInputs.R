@@ -105,7 +105,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     }
   }
 
-  list(x=x, design=design, contrast=contrast)
+  list(x=x, design=design, contrast=contrast, is.full.design=is.matrix(design))
 }
 
 ##' Checkes that there are no NAs in x
@@ -216,6 +216,9 @@ disp.estimated <- function(x) {
       errs <- c(errs, "The expression object does not have rownames ...")
     }
   }
+  if (ncol(x) == 1L) {
+    errs <- c(errs, 'expression matrix needs more than one column')
+  }
   if (!is.matrix(design)) {
     errs$design.matrix.required <- TRUE
   } else {
@@ -232,13 +235,27 @@ disp.estimated <- function(x) {
 .validate.inputs.logFC.only <- function(x, design, contrast, ...) {
   errs <- list()
   if (ncol(x) > 1) {
-    errs <- .validate.inputs.full.design(x, design, contrast)
+    errs <- .validate.inputs.full.design(x, design, contrast, ...)
   } else {
     if (is(x, 'DGEList')) {
       errs$DGEList.not.supported.for.gsd <- TRUE
     }
   }
   errs
+}
+
+## Some GSEA functions can work on a simple (named) pre-ranked vector of
+## logFC's or t-statistcs, like limma::geneSetTest or fgsea, for example.
+## The usre shoudl be able to simply provide such a pre-ranked vector, or can
+## provide a "full.design" set of inputs from which logFC's or t-statistics
+## could be computed using multiGSEA's internal calculateIndividualLogFC
+## function.
+.validate.inputs.preranked <- function(x, design, contrast, ...) {
+  if (is.vector(x) || is.matrix(x) && ncol(x) == 1L) {
+    .validate.inputs.logFC.only(x, design, contrast, ...)
+  } else {
+    .validate.inputs.full.design(x, design, contrast, ...)
+  }
 }
 
 ## Validation Methods for Expression Objects -----------------------------------

@@ -6,7 +6,6 @@ shinyServer(function(input, output, session) {
     ## Are we here because the user uploaded something, or did the user ask
     ## to `explore(MultiGSEAResult)`?
     # msg("wiring up mgc")
-    # browser()
     if (is.null(input$mgresult)) {
       mg <- getOption('EXPLORE_MULTIGSEA_RESULT', NULL)
       res <- failWith(NULL, MultiGSEAResultContainer(mg), silent=TRUE)

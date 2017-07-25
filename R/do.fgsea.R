@@ -1,7 +1,7 @@
 ##' @include validateInputs.R
 NULL
 
-validate.inputs.fgsea <- .validate.inputs.full.design
+validate.inputs.fgsea <- .validate.inputs.preranked
 validate.x.fgsea <- validate.X
 
 ##' Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea
@@ -12,14 +12,14 @@ validate.x.fgsea <- validate.X
 ##' Note that fgsea isn't added to import or suggests because rescomp's
 ##' compiler can't handle this yet.
 ##'
+##' fgsea expects the pathways to be describes as a list of character vectors
+##' where the vectors are gene ids, and the names of the pre-ranked vector
+##' correspond to those IDs
+##'
 ##' @param gsd The \code{\link{GeneSetDb}} for analysis
 ##' @inheritParams calculateIndividualLogFC
 ##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
-##' @return A data.table of fgsea results. The "pval" column here refers to
-##'   pval.over, for simplicity in other places. If \code{split.updown=TRUE},
-##'   a list of data.table's are returned named 'goseq', 'goseq.up', and
-##'   'goseq.down' which are the results of running goseq three independent
-##'   times.
+##' @return A data.table of fgsea results.
 do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      minSize=15, maxSize=15, nperm=10000, gseaParam=1,
                      score.by=c('t', 'logFC', 'pval'), use.treat=FALSE,
@@ -28,41 +28,40 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                      logFC=NULL,
                      ...) {
+  score.by <- match.arg(score.by)
   if (!requireNamespace('fgsea')) {
     stop("The Bioconductor fgsea is required for this functionality")
   }
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x, min.gs.size=minSize, max.gs.size=maxSize)
-    gs.idxs <- NULL
-  }
-  if (is.null(gsd.idxs) || is.numeric(gsd.idxs[[1]])) {
     gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
   }
 
-  if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                      treat.lfc=feature.min.logFC, ...,
-                                      .external=FALSE)
-    if (use.treat) {
-      logFC[, significant := padj <= feature.max.padj]
-    }
-  } else {
-    is.logFC.like(logFC, x, as.error=TRUE)
-  }
-
-  ranks <- logFC[[score.by]]
-  if (is.null(ranks) || any(is.na(ranks))) {
-    ranks <- logFC[['logFC']]
-  }
-  names(ranks) <- logFC$featureId
-
+  ## The call to calculateIndividualLogFC in multiGSEA puts "the right stuff"
+  ## in the logFC data.table, so we just need that.
+  ranks <- setNames(logFC[[score.by]], logFC[['featureId']])
   gs <- subset(geneSets(gsd), active)
-  minSize <- min(gs$n, na.rm=TRUE)
-  maxSize <- max(gs$n, na.rm=TRUE)
+  gs.range <- range(gs$n, na.rm=TRUE)
 
-  ## wants stats to be a named vector of values whose names are found in
-  ## pathwas (gs.idxs). The code suggest that pathways can be numeric and
-  ## this would be kosher, let's see.
-  res <- fgsea(gs.idxs, ranks, nperm, minSize, maxSize, gseaParam=gseaParam)
-  ## TODO: transform fgsea result to legit multiGSEA result
+  ## fgsea function wans a list of gene identifiers for pathway definition
+  pathways <- lapply(gs.idxs, function(idxs) names(ranks)[idxs])
+
+  res <- fgsea::fgsea(pathways, ranks, nperm, minSize=gs.range[1L],
+                      maxSize=gs.range[2L], gseaParam=gseaParam)
+
+  # fgsea will sometimes return 0 hits for a pathway. Need to reconstruct a fix!
+  # missed <- setdiff(names(gs.idxs), res$pathway)
+  # if (length(missed)) {
+  #   warning(length(missed), " pathways missed in fgsea!")
+  #   lists <- replicate(length(missed), list())
+  #   addme <- data.table(pathway=missed, leadingEdge=lists)
+  #   res <- rbindlist(list(res, addme), fill=TRUE, use.names=TRUE)
+  # }
+  # xref <- match(names(gs.idxs), res$pathway)
+  # res <- res[xref]
+  gs <- geneSets(gsd, .external=FALSE)[, list(collection, name)]
+  stopifnot(all.equal(res$pathway, paste(gs$collection, gs$name, sep=';;')))
+  out <- cbind(gs, res[, -1, with=FALSE])
+  out
 }
+

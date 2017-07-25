@@ -918,6 +918,11 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' @param value The value type to export for the feature ids
 ##' @param active.only If the \code{GeneSetDb} is conformed, do you want to only
 ##'   return the features that match target and are "active"?
+##' @param fetch.all if \code{x} is conformed and the target expression object
+##'   does not have a featureId for a given geneSet, then those featureIds
+##'   will not be returned by default. Set this to \code{TRUE} to return all
+##'   featureIds over a conformed GeneSetDb regardless of membership in target
+##'   expression object.
 ##' @param ... nothing
 ##' @return a converted \code{GeneSetDb}
 ##'
@@ -928,7 +933,8 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' gdfi <- as.data.frame(gdb, 'x.idx')
 ##' gdl <- as.list(gdb)
 as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
-                                    active.only=is.conformed(x), ...) {
+                                    active.only=is.conformed(x),
+                                    fetch.all=FALSE, ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
   if (!is.conformed(x) && value %in% c('x.id', 'x.idx')) {
@@ -936,6 +942,10 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   }
 
   fid.map <- featureIdMap(x, .external=FALSE)
+  if (is.conformed(x) && !fetch.all) {
+    fid.map <- subset(fid.map, !is.na(x.idx))
+  }
+
   gs <- copy(geneSets(x, active.only=active.only, .external=FALSE))
 
   gene2cat <- merge(x@db, fid.map, by='featureId')

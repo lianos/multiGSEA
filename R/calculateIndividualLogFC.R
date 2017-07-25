@@ -1,10 +1,14 @@
-##' Runs a vanilla limma differential expression analysis
+##' Utility function to run limma differential expression analysis
 ##'
-##' Note that differential expression analysis is always run through limma,
-##' so if \code{x} is a \code{DGEList}, it will be voomd first and then
-##' processed "as usual".
+##' @details
+##' If \code{x} is a \code{DGEList} we require that \code{estimateDisp} has
+##' already been called and this will run a quasi-likelihood based differential
+##' expression analysis, otherwise a "vanilla" limma run will be run.
 ##'
-##' importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
+##' Lastly, if \code{x} is simply a single column matrix, we assume that we are
+##' just "passing through" a single pre-ranked vector of statistics a dummy
+##' logFC-like data.frame is returned as a result.
+##'
 ##' @export
 ##'
 ##' @param x The expression object. This can be 1 column matrix if you are not
@@ -38,9 +42,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      confint=TRUE, with.fit=FALSE, ...,
                                      .external=TRUE) {
   do.contrast <- !is.vector(x) &&
-    ncol(x) > 1 &&
+    ncol(x) > 1L &&
     !is.null(design) &&
-    length(contrast) > 1
+    length(contrast) > 1L
   if (do.contrast) {
     if (length(contrast) != ncol(design)) {
       stop("Invalid contrast vector, must be as long as columns in design")
@@ -76,7 +80,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     tt <- transform(setDT(tt), t=NA_real_, featureId=rownames(x))
     setnames(tt, c('logCPM', 'PValue', 'FDR'), c('AveExpr', 'pval', 'padj'))
     out <- tt
-  } else if (ncol(x) > 1) {
+  } else if (ncol(x) > 1L) {
     ## If x is matrix-like but not a DGEList, we assume you are OK to run the
     ## limma pipeline.
     fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
@@ -106,7 +110,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
   }
-  setkeyv(out, 'featureId')
+  # setkeyv(out, 'featureId')
   out <- ret.df(out, .external=.external)
   if (with.fit) list(result=out, fit=fit) else out
 }

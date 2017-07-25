@@ -9,7 +9,7 @@ tt2dt <- function(x) {
   x <- as.data.frame(x)
   x$featureId <- rownames(x)
   data.table::setnames(x, onames, c('pval', 'padj'))
-  data.table::setkeyv(data.table::setDT(x), 'featureId')
+  # data.table::setkeyv(data.table::setDT(x), 'featureId')
   multiGSEA:::ret.df(x)
 }
 
@@ -50,16 +50,16 @@ test_that("logFC's calculated from contrast vectors are correct", {
                                          use.treat=FALSE)
   my.tt.her2 <- calculateIndividualLogFC(vmi, vmi$design, 'Her2',
                                          use.treat=FALSE)
-  expect_equal(tt.lumA, my.tt.lumA[, names(tt.lumA)])
-  expect_equal(tt.her2, my.tt.her2[, names(tt.her2)])
+  expect_equal(tt.lumA, my.tt.lumA[, names(tt.lumA)], check.attributes=FALSE)
+  expect_equal(tt.her2, my.tt.her2[, names(tt.her2)], check.attributes=FALSE)
 
   ## 2. Using a contrast vector
   my.tt0.lumA <- calculateIndividualLogFC(vm0, d0, cm[, 'lumA.vs.basal'],
                                           use.treat=FALSE)
   my.tt0.her2 <- calculateIndividualLogFC(vm0, d0, cm[, 'her2.vs.basal'],
                                           use.treat=FALSE)
-  expect_equal(tt.lumA, my.tt0.lumA[, names(tt.lumA)])
-  expect_equal(tt.her2, my.tt0.her2[, names(tt.her2)])
+  expect_equal(tt.lumA, my.tt0.lumA[, names(tt.lumA)], check.attributes=FALSE)
+  expect_equal(tt.her2, my.tt0.her2[, names(tt.her2)], check.attributes=FALSE)
 })
 
 test_that("treat pvalues are legit", {

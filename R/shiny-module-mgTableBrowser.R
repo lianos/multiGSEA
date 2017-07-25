@@ -50,7 +50,6 @@ mgTableBrowser <- function(input, output, session, mgc, method, fdr,
 
   ## under the FDR threshold
   gsea.result.table <- reactive({
-    # browser()
     mg <- req(mgc()$mg)
     if (is.null(method()) || method() == "") {
       # msg("... gseaMethod not selected yet")

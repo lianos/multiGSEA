@@ -2,10 +2,13 @@
 % Please edit documentation in R/panther.R
 \name{getPantherGeneSetDb}
 \alias{getPantherGeneSetDb}
+\alias{getGOslimGeneSetDb}
 \title{Get pathways/GOslim information from PANTHER.db Biocondcutor package.}
 \usage{
 getPantherGeneSetDb(type = c("pathway", "goslim"), species = c("human",
   "mouse"))
+
+getGOslimGeneSetDb(species = c("human", "mouse"))
 }
 \arguments{
 \item{type}{"pathway" or, "goslim"}
@@ -16,5 +19,18 @@ getPantherGeneSetDb(type = c("pathway", "goslim"), species = c("human",
 A wired up GeneSetDb
 }
 \description{
-Get pathways/GOslim information from PANTHER.db Biocondcutor package.
+This is a convience function that orchestrates the PANTHER.db package to
+return GeneSetDb objects for either pathway or GOslim information for
+human or mouse.
 }
+\section{GOSLIM}{
+
+\href{http://geneontology.org/page/go-slim-and-subset-guide}{GO Slims} are
+"cut down" versions of the GO ontology that contain a subset of the terms in
+the whole GO.
+
+PANTHER provides their own set of
+\href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
+it's not clear how often these get updated.
+}
+

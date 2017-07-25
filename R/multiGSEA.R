@@ -212,6 +212,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     }
   })
 
+
   ## the 'logFC' method is just a pass through -- we don't call it if it was
   ## provided
   methods <- setdiff(methods, 'logFC')
@@ -244,8 +245,6 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   } else {
     results <- list()
   }
-
-  setkeyv(logFC, 'featureId')
 
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,

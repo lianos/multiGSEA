@@ -32,6 +32,7 @@ Imports:
     miniUI,
     DT
 Suggests:
+    fgsea,
     goseq,
     DESeq2,
     testthat,

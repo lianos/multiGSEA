@@ -1,5 +1,19 @@
 ##' Get pathways/GOslim information from PANTHER.db Biocondcutor package.
 ##'
+##' This is a convience function that orchestrates the PANTHER.db package to
+##' return GeneSetDb objects for either pathway or GOslim information for
+##' human or mouse.
+##'
+##' @section GOSLIM:
+##' \href{http://geneontology.org/page/go-slim-and-subset-guide}{GO Slims} are
+##' "cut down" versions of the GO ontology that contain a subset of the terms in
+##' the whole GO.
+##'
+##' PANTHER provides their own set of
+##' \href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
+##' it's not clear how often these get updated.
+##'
+##' @rdname getPantherGeneSetDb
 ##' @export
 ##' @importFrom GSEABase EntrezIdentifier
 ##' @param type "pathway" or, "goslim"
@@ -42,19 +56,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
   out
 }
 
-##' Return the GO slim annotations
-##'
-##' \href{http://geneontology.org/page/go-slim-and-subset-guide}{GO Slims} are
-##' "cut down" versions of the GO ontology that contain a subset of the terms in
-##' the whole GO.
-##'
-##' PANTHER provides their own set of
-##' \href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
-##' it's not clear how often these get updated.
-##'
-##' @export
-##' @param species "human" or "mouse"
-##' @return \code{GeneSetDb} of the GO slim mappings
+##' @rdname getPantherGeneSetDb
 getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
   getPantherGeneSetDb('goslim', species)
 }

@@ -1,3 +1,23 @@
+## Helper function to extract a vector of "pre-ranked" stats for a GSEA. This
+## can come from: (1) a user provided vector; (2) the logFCs or t-stats of
+## an internal call to calculalateIndividualLogFCs from a "full design"ed
+## matrix
+generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
+                                     score.by=c('t', 'logFC', 'pval')) {
+  if (!is.null(logFC)) {
+    is.logFC.like(logFC, x, as.error=TRUE)
+    score.by <- match.arg(score.by)
+    out <- setNames(logFC[[score.by]], logFC[['featureId']])
+  } else {
+    ## If multiGSEA was called with a preranked vector, the validateInputs function
+    ## would have converted it into a column matrix with rownames, but most
+    ## preranked functions want a named vector
+    out <- setNames(as.vector(x), rownames(m))
+  }
+  out
+}
+
+
 ##' Converts an expression container like object to a matrix for analysis
 as_matrix <- function(y) {
   if (is.vector(y)) {

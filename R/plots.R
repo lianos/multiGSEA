@@ -38,7 +38,7 @@ plot.gsea.density <- function(x, y, j, value, main, bg.density=NULL,
     bg.density <- density(lfc[[value]], na.rm=TRUE)
   }
   gs.fids <- featureIds(x@gsd, y, j, 'x.id')
-  gs.lfc <- lfc[gs.fids]
+  gs.lfc <- lfc[gs.fids, on='featureId']
   gs.lfc  <- gs.lfc[!is.na(featureId)]
   gs.n <- nrow(gs.lfc)
   gs.lfc$xval <- gs.lfc[[value]] ##jitter(gs.lfc[[value]])
@@ -92,7 +92,7 @@ plot.gsea.barcode <- function(x, y, j, value, main, ...) {
   lfc <- logFC(x, .external=FALSE)
 
   gs.fids <- featureIds(x@gsd, y, j, 'x.id')
-  idx <- lfc[gs.fids, which=TRUE]
+  idx <- lfc[gs.fids, which=TRUE, on='featureId']
   idx <- idx[!is.na(idx)]
   gs.n <- length(idx)
 

@@ -150,7 +150,7 @@ geneSetsStats <- function(x, feature.min.logFC=1,
 
   out <- gs[, {
     fids <- featureIds(x, .BY[[1L]], .BY[[2L]])
-    stats <- lfc[fids]
+    stats <- lfc[fids, on='featureId']
     up <- stats$direction == 'up'
     down <- !up
     is.sig <- stats$significant

@@ -2,16 +2,17 @@
 ## devtools
 .datatable.aware <- TRUE
 
-## .multi.gsea.methods <- c('camera', 'roast', 'gsd', 'npGSEA')
-.multi.gsea.methods <- c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
-                         'gseap', 'goseq', 'hyperGeometricTest',
-                         'svdGeneSetTest', 'logFC')
-
 ## valid types of objects that can be used for "Expression" (x)'s
 .valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
 
+##' Lists the supported GSEA methods by multiGSEA
+multiGSEA.methods <- function() {
+  c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
+    'goseq', 'hyperGeometricTest', 'fgsea',
+    'svdGeneSetTest', 'logFC')
+}
 .unsupportedGSEAmethods <- function(x, throw.error=TRUE) {
-  bad.methods <- setdiff(x, .multi.gsea.methods)
+  bad.methods <- setdiff(x, multiGSEA.methods())
   if (length(bad.methods)) {
     stop("unknown GSEA methods: ", paste(bad.methods, collapse=', '))
   }
