@@ -6,6 +6,8 @@
 .valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
 
 ##' Lists the supported GSEA methods by multiGSEA
+##'
+##' @export
 multiGSEA.methods <- function() {
   c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
     'goseq', 'hyperGeometricTest', 'fgsea',
@@ -64,8 +66,8 @@ ret.df <- function(x, .external=TRUE) {
            x
          } else if (is.data.table(x)) {
            setDF(x)
-          } else {
-            warning("Unknown object type, returning as is: ", clazz)
-            x
-          })
+         } else {
+           warning("Unknown object type, returning as is: ", clazz)
+           x
+         })
 }

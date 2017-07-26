@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculateIndividualLogFC.R
 \name{calculateIndividualLogFC}
 \alias{calculateIndividualLogFC}
-\title{Runs a vanilla limma differential expression analysis}
+\title{Utility function to run limma differential expression analysis}
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
@@ -48,10 +48,14 @@ If \code{with.fit == FALSE} (the default) a \code{data.table} of
   \code{$fit} has the limma fit for the data/design/contrast under test.
 }
 \description{
-Note that differential expression analysis is always run through limma,
-so if \code{x} is a \code{DGEList}, it will be voomd first and then
-processed "as usual".
+Utility function to run limma differential expression analysis
 }
 \details{
-importFrom edgeR glmQLFit glmTreat glmQLFTest topTags
+If \code{x} is a \code{DGEList} we require that \code{estimateDisp} has
+already been called and this will run a quasi-likelihood based differential
+expression analysis, otherwise a "vanilla" limma run will be run.
+
+Lastly, if \code{x} is simply a single column matrix, we assume that we are
+just "passing through" a single pre-ranked vector of statistics a dummy
+logFC-like data.frame is returned as a result.
 }

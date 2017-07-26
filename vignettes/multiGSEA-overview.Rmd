@@ -1,18 +1,17 @@
 ---
 title: "An Introduction to the multiGSEA Package"
 author: "Steve Lianoglou"
-date: "`r Sys.Date()`"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('multiGSEA')`"
 abstract: >
-  The *multiGSEA* package facilitates the running and comparison of many GSEA
-  approaches for a single experimental contrast. This vignette covers the
-  features found in *multiGSEA (>= 0.5.5)*, which is currently available in
-  `apps/R/current`, and soon to `be apps/R/stable` (ie. Bioc 3.3).
+  The multiGSEA package facilitates the execution and comparison of several
+  GSEA approaches for a single experimental contrast and provides tools
+  to explore these results from within the user's workspace or via a shiny
+  application.
 vignette: >
   %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-# date: "r doc_date()"
-# package: "r pkg_ver('multiGSEA')"
+  %\VignetteEncoding[utf8]{inputenc}
 output:
   html_document:
     toc: true
@@ -23,41 +22,58 @@ output:
     css: mystyles.css
 ---
 
-```{r init, include=FALSE}
+```{r init, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+library(BiocStyle)
+library(multiGSEA)
 knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, dpi=150)
 ```
 
 # Overview
 
-The `multiGSEA` package was built to facilitate the execution and comparison of
-multiple GSEA methods over a given experimental contrast. The outputs of the
-various GSEA methods are interanlly saved in their original form and can be
-retrieved for individual scrutiny, or they can be combined to facilitate
-comparison.
+The `multiGSEA` package was built to facilitate the use of gene sets in the
+analysis of high throughput genomics data (primarily RNA-seq). It does so
+by providing these top-line functionalities:
 
-The package also provides a shiny application that allows the user to
-interactively explore the restuls of these gene set enrichment analyses as well
-as examine gene set memberhip and gene set similarity.
-
-## Background
+* The `multiGESA` function is a wrapper that orchestrates the execution of any
+  number of user-specified gene set enrichment analyses (GSEA) over a particular
+  experimental contrast of interest. This will create a `MultiGSEAResult`
+  object which stores the resutls of each GSEA method internally, allowing
+  for easy query and retrieval.
+* The `explore` function launches a shiny application that facilitates the
+  interactive exploration of these GSEA results. This application lives in
+  `inst/shiny` and can also be deployed to a shiny server and can be initialized
+  by uploading a serialized MultiGSEAResult *.rds file.
+* The `scoreSingeSamples` function is a wrapper that enables the user to
+  generate single sample gene set scores using a variety of different
+  single sample gene set scoring methods.
+* The `GeneSetDb` class: a new class to store collections of gene sets. This
+  provides a bit more functionality than the base `GeneSetCollection` class
+  defined in the [GSEABase][http://bioconductor.org/packages/GSEABase].
 
 The initial GSEA methods that multiGSEA wrapped were the ones provided by limma
-and edgeR. As such, most analyses using multiGSEA expect you to re-use the same
+and edgeR. As such, many analyses using multiGSEA expect you to re-use the same
 data objects used for differential expression analysis, namely:
 
 * Expression data (an `EList`, `DGEList`, or expression matrix)
 * A design matrix
 * A contrast vector/matrix (if your design and comparison require it)
 
+Other methods only require the user to provide a vector of statistics that
+represent some differential expression statistic per gene, and the GSEA is
+performed by analyzing the ranks of genes within this vector.
+
+All GSEA methods require the use of a `GeneSetDb`.
+
 Currenty supported gene set enrichment methods include:
 
-  * camera
-  * (m)roast / fry
-  * romer
-  * geneSetTest
-  * goseq
-  * hypergeometric test
+```{r multiGSEA-methods, results='asis', echo=FALSE}
+cat(sprintf('* %s\n', multiGSEA.methods()))
+```
+
+When using these methods in analyses that lead to publication, please cite
+the original papers that developed these methods and cite multiGSEA when its
+functionality assisted in your interpretation and analysis.
 
 # Standard Workflow
 
@@ -73,6 +89,24 @@ glucocorticoids suppress inflammation in ASM.
 workflow tutorial published by Love et al. on
 [f1000research](http://f1000research.com/articles/4-1070/v1)
 
+Let's setup our work environment for analysis with multiGSEA.
+
+```{r init-env}
+library(multiGSEA)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+options(multiGSEA.df.return='data.frame')
+```
+
+Internally, mulitGSEA leverages the
+[`data.table`][https://CRAN.R-project.org/package=data.table] package for fast
+indexing and manipulation over data.frames. There are many functions that return
+data.tables back to the end user, but some users may not want to work with those.
+The `multiGSEA.df.return` option can be set to `data.frame` (as above) so that
+all data.frame-like objects returned by this package are actually `data.frames`,
+and not `data.tables`.
 
 ## Data Setup
 
@@ -81,32 +115,12 @@ performed with either the edgeR or voom/limma pipelines. In order to facilitate
 our analyses, we first convert the `airway` `SummarizedExperiment` to a
 `DGEList` and add simple gene annotations to the data.
 
-```{r data-setup, eval=!exists('y.all')}
-library(org.Hs.eg.db) ## To annotate ENSGIDs
-library(edgeR)
-library(airway)
-library(magrittr)
-library(dplyr)
-library(dtplyr)
-library(ggplot2)
-theme_set(theme_bw())
+We provide a `createAirwayDGEList` function that encapsulates the logic
+described above and returns a DGEList from the airway dataset with Entrez
+identifiers as its gene-level identifiers.
 
-data("airway")
-se <- airway
-se$dex <- relevel(se$dex, 'untrt')
-y.all <- DGEList(
-  assay(se),
-  group=se$dex,
-  samples=as.data.frame(colData(se))[, c('cell', 'dex')])
-y.all <- calcNormFactors(y.all)
-
-## Annotate genes
-y.all$genes <- data.frame(
-  ensg_id=rownames(y.all),
-  entrez_id=mapIds(org.Hs.eg.db, rownames(y.all), 'ENTREZID', 'ENSEMBL'),
-  symbol=mapIds(org.Hs.eg.db, rownames(y.all), 'SYMBOL', 'ENSEMBL'),
-  length=sum(width(rowRanges(se))),
-  stringsAsFactors=FALSE)
+```{r data-setup, eval=!exists('y.all'), results='hide'}
+y.all <- createAirwayDGEList()
 ```
 
 Here is an overview of the data we are working with
@@ -119,20 +133,17 @@ We want to identify the genes (and genesets) regulated under `dex` treatment.
 
 We'll use the following design:
 
-```{r design-setup, results='hide'}
+```{r design-setup}
 des <- model.matrix(~ 0 + group + cell, y.all$samples)
 colnames(des) <- sub('group', '', colnames(des))
-des
+knitr::kable(as.data.frame(des))
 ```
-
-`r knitr::kable(as.data.frame(des))`
 
 To test for the general affect of dexamethasone treatment independant of
 cell-type, we would test the following contrast:
 
 ```{r contrast-setup}
-cm <- makeContrasts(dex=trt - untrt, levels=des)
-cm
+(cm <- makeContrasts(dex=trt - untrt, levels=des))
 ```
 
 <div class="note">
@@ -151,6 +162,10 @@ corfit <- duplicateCorrelation(vm.re, vm.re$design, block=y$samples$cell)
 vm.re <- voom(y, des.re, plot=TRUE, block=y$samples$cell,
               correlation=corfit$consensus)
 ```
+
+It is worth keeping in mind that that you can leverage these same moves in
+limma's gene set enrichment methods as well (ie. camera, fry/(m)roast, and
+romer).
 </div>
 
 ### Differential Gene Expression
@@ -158,23 +173,17 @@ vm.re <- voom(y, des.re, plot=TRUE, block=y$samples$cell,
 In this section, we first show you the straightforward analysis you would do
 if you were only testing for differential gene expression.
 
-We first filter out genes from the dataset that are either poorly annotated
-(ie. no entrez ID) or are lowly expressed. We consider a gene to be lowly
+As with any voom-based analysis, our first job is to remove lowly expressed
+genes across our dataset. Here we consider a gene to be lowly
 expressed if it's not expressed above 1 cpm in at least 4 experiments (because
 this dataset has n=4 replication between dex treatments).
 
-Note that the rowname/gene identifiers are currently Ensemble Gene Identifiers 
-(eg. `ENSG00000119203`), and we convert these to EntrezIDs for easier downstream
-analysis.
-
 ```{r gene-filter, fig.width=5, fig.height=4.5}
-keep <- !is.na(y.all$genes$entrez_id) &
-  !duplicated(y.all$genes$entrez_id) &
-  rowSums(cpm(y.all) >= 1) >= 4
+keep <- rowSums(cpm(y.all) >= 1) >= 4
 y <- y.all[keep,,keep.lib.sizes=FALSE] %>%
-  calcNormFactors() %>%
+  calcNormFactors %>%
   set_rownames(., .$genes$entrez_id) ## using entrez identifiers
-vm <- voom(y, des, plot=FALSE)
+vm <- voom(y, des, plot=TRUE)
 ```
 
 Now that we have our expression (`vm`), design (`vm$design`) and contrast (`cm`)
@@ -216,7 +225,7 @@ We'll use the `getMSigGeneSetDb` convenience function provided by the
 
 ```{r build-gdb, eval=!exists('gdb')}
 library(multiGSEA)
-gdb <- getMSigGeneSetDb('h',  'human')
+gdb <- getMSigGeneSetDb(c('h', 'c2'),  'human')
 ```
 
 You can view a table of the gene sets defined inside a `GeneSetDb` (`gdb`)object
@@ -225,7 +234,7 @@ via its `geneSets(gdb)` accessor:
 ```{r geneSets-accessor}
 geneSets(gdb) %>%
   head %>%
-  select(1:4) %>%
+  dplyr::select(1:4) %>%
   knitr::kable()
 ```
 
@@ -241,14 +250,16 @@ enumeration of the methods you want to use in your analysis.
 The call to `multiGSEA` will perform these analyses and return a
 `MultiGSEAResult` object which you can then use for downstream analysis.
 
-```{r run-multi-GSEA, eval=!exists('mg.dex'), cache=TRUE}
+```{r run-multi-GSEA, eval=!exists('mg.dex'), cache=TRUE, results='hide'}
 mg.dex <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
                     methods=c('camera', 'fry', 'goseq'),
                     ## GSEA specific parameters
-                    feature.max.padj=0.01, feature.min.logFC=1,
+                    feature.max.padj=0.05, feature.min.logFC=1,
                     feature.bias=setNames(vm$genes$length, rownames(vm)),
                     inter.gene.cor=0.01)
 ```
+
+We will unpack the details of the `multiGSEA` call shortly ...
 
 #### Implicit Differential Expression
 
@@ -265,8 +276,8 @@ is accessible via a call to `logFC` function on the `MultiGSEAResult` object:
 ```{r logFC-results, results='asis'}
 lfc <- logFC(mg.dex)
 lfc %>%
-  select(symbol, entrez_id, logFC, CI.L, CI.R, t, pval, padj) %>%
-  head() %>%
+  dplyr::select(symbol, entrez_id, logFC, CI.L, CI.R, t, pval, padj) %>%
+  dplyr::slice(1:5) %>%
   knitr::kable(digits=3)
 ```
 
@@ -275,18 +286,19 @@ explicit analysis above by verifying that the t-statistics generated by both
 approaches are identical.
 
 ```{r compare-dge-t-stats}
-comp <- select(tt.dex, entrez_id, symbol, logFC, t) %>%
+comp <- tt.dex %>% 
+  dplyr::select(entrez_id, symbol, logFC, t) %>%
   inner_join(lfc, by=c('entrez_id'), suffix=c('.tt', '.mg'))
 all.equal(comp$t.tt, comp$t.mg)
 ```
 
-```{r plot-dge-t-stats, fig.width=4.5, fig.height=4, eval=FALSE, include=FALSE}
+```{r plot-dge-t-stats, fig.width=4.5, fig.height=4}
 ggplot(comp, aes(t.tt, t.mg)) +
   geom_point(alpha=0.7) +
   geom_abline(slope=1, intercept=0, color='red') +
-  xlab("t-statistics (topTable)") +
-  ylab("t-statistics (multiGSEA)") +
-  ggtitle("t-statistic comparison")  
+  xlab("t-statistics (external voom piepline)") +
+  ylab("t-statistics (internal multiGSEA)") +
+  ggtitle("t-statistics comparison")  
 ```
 
 The internally performed differential expression analysis within the `mulitGSEA`
@@ -302,39 +314,48 @@ for more information.
 
 #### Explicit GSEA
 
-We also have the results of all the GSEA analyses specified in our `methods`
-parameter.
+We also have the results of all the GSEA analyses that we specified to our
+multiGSEA call via the `methods` parameter.
 
 ```{r mg-res}
 mg.dex
 ```
 
+The table above enumerates the different GSEA methods run over each geneset
+collection in the rows. The columns enumerate the number of genesets that the
+collection has in total (`geneset_count`), and how many were found significant
+at a given FDR (here it's FDR <= 30%).
+
 ### Exploring Results
 
 GSEA results can be examined interactively via the command line, or via a shiny
-app. You can use the `resultNames` function to find out what results exist
-within the `MultiGSEAResult` object:
+app. You can use the `resultNames` function to find out what GSEA methods were
+run, and therefore available to you, within the the `MultiGSEAResult` object:
 
 ```{r resultnames}
 resultNames(mg.dex)
 ```
 
+Note that when running a "goseq" analysis, multiGSEA will (by default) run
+it three different ways. By running an enrichment analysis on all differentially
+expressed genes, then separately for only genes that go up in your contrast,
+and a third time for only the genes that go down.
+
 The individual gene set statistics generated by each method are available via
-the `result` function (or several can be returned with `results`:
+the `result` function (or several can be returned with `results`):
 
 ```{r goseq-res}
-go.res <- result(mg.dex, 'goseq')
-go.up <- result(mg.dex, 'goseq.up')
-go <- results(mg.dex, c('goseq', 'goseq.up'))
+cam.res <- result(mg.dex, 'camera')
+cam.go.res <- results(mg.dex, c('camera', 'goseq.up'))
 ```
 
 You can also list the members of a geneset and their individual differential
 expression statistics for the contrast under test using the `geneSet` function.
 
 ```{r geneset-result}
-tnfa <- geneSet(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB')
-tnfa %>%
-  select(symbol, entrez_id, logFC, pval, padj) %>%
+gs <- geneSet(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP')
+gs %>%
+  dplyr::select(symbol, entrez_id, logFC, pval, padj) %>%
   head %>%
   knitr::kable(digits=3)
 ```
@@ -347,77 +368,46 @@ independant of GSEA method.
 #### Plotting
 
 *multiGSEA* provides a number of interactive plotting facilities to explore the
-enrichment of a single geneset under the given contrast.
+enrichment of a single geneset under the given contrast. In the boxplots and
+density plots shown below, the log fold changes (logFCs) (or t-statistics) for
+all genes under the contrast are visualized in the "background" set, and these
+same values are shown for the desired geneset under the "geneset" group.
 
 **Boxplot**
 
 ```{r iplot-tnfa-box, fig.width=4, fig.height=3}
-iplot(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB',
-      type='boxplot', value='t')
+iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='boxplot', value='logFC')
 ```
 
 **Density**
 
 ```{r iplot-tnfa-density, fig.width=4, fig.height=3}
-iplot(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB',
-      type='density', value='t')
-```
-
-**Barcode Plot**
-
-You might also like limma's barcode plot (which hasn't been made interactive
-yet):
-
-```{r plot-barcode, fig.width=5, fig.height=3.5}
-plot(mg.dex, 'h', 'HALLMARK_TNFA_SIGNALING_VIA_NFKB',
-     type='barcode', value='t')
+iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='density', value='logFC')
 ```
 
 #### Interactive Exploration
 
-For now, the interactivity is provided by the sister *multiGSEA.shiny* package,
-which is accessible via http://go.gene.com/multiGSEA and in
-[subversion here][mgssvn].
-
-<div class="important">
-Please only advertise the http://go.gene.com/multiGSEA URL for
-this webapp. The exact application URL this redirects to may change over time.
-</div>
-
-You need to first save the `MultiGSEAResult` object to your filesystem, like so:
-
-```{r save-rds, eval=FALSE}
-saveRDS(mg.dex, 'mgdex.rds')
-```
-
-Then upload the file to [the shiny application][mgsweb].
-
-You can [download a serialized version of `mg.dex` here][mgdex] to play with the
-app now, but you'll probably have more fun poking around the application using
-results from a dataset more important to you.
-
-<div class="note">
-For now this is the mechanism you need to use to allow your collaborators to
-explore the results. It is unfortunately too manual.
-
-Eventually we will:
-
-  * Have this more easily automated within ExpressionPlot; and
-  * Allow the analyst to simply explore these results within an active R session
-    without having to save the object and manually launch the shiny application.
-    A simple call to `explore(mg.dex)` will launch the app with the results
-    preloaded for exploration.
-</div>
-
-[mgsweb]: http://go.gene.com/multiGSEA
-[mgssvn]: http://resscm.gene.com/bioinfo/projects/R/trunk/multiGSEA.shiny/
-[mgdex]: http://resdev.gene.com/people/lianogls/Rpkgs/multiGSEA/Rpkg/vignettes/johnnycache/mg-dex.rds
+A shiny application is included in the `inst/shiny` folder of this package.
+This shiny application can be launched via tha `explore` function so that
+the analyst can explore the results stored in a MultiGSEAResult "in real time."
+The application can also be deployed to a shiny server, and users can upload
+`MultiGSEAResult` objects in an rds object (via `saveRDS`).
 
 # The GeneSetDb Class
 
-The GeneSetDb class is a new container to store genesets.
+The GeneSetDb class is a new container to store collections of genesets which
+provides different types of functionality than is found in
+GSEABase::GeneSetCollection objects.
 
-  * Why not `GSEABase::GeneSetCollection`?
+We can, for instance, identify all genesets that have a specific gene(s) like
+so:
+
+```{r subset-gdb}
+gdb <- geneSetDb(mg.dex)
+gdb.sub <- subsetByFeatures(gdb, c('2040', '10062'))
+```
+
+<!--
   * Constructing custom `GeneSetDb`s:
       * From a `list` of `lists` 
       * From a `data.frame`
@@ -427,15 +417,29 @@ The GeneSetDb class is a new container to store genesets.
       * It's "non-destructive", you can reconform the same `GeneSetDb` to
         another dataset without loss of information (geneset membership)
       * Use of `featureIdMap`
+-->
 
 ## Building a GeneSetDb
 
 The multiGSEA package provides conveneince funcitons to fetch genesets from many
-sources and convert them into a GeneSetDb object. These sources include:
+sources and convert them into a GeneSetDb object. The two most useful sources
+may be:
 
-* MSigDB
-* PANTHER (pathways and GOSLIM)
-* More ...
+* [MSigDB][msigdb] via `getMSigGeneSetDb(...)`
+* [PANTHER][pantherdb] (pathways and GOSLIM) via `getPantherGeneSetDb()`
+
+The `GeneSetDb` constructor also can take a number of different inputs and
+convert them into a GeneSetDb, such as:
+
+1. A data.frame of geneset membership. This requires `collection`, `name`, and
+  `featureId` columns.
+2. A named list of gene identifer vectors that represent genesets for a
+   single collection
+3. A named list of (2)-like lists. The top level names are the names of the
+   different collecitons, and each sublist represents the genesets in that
+   collection.
+  
+See the help and examples in ?GeneSeDb for more information.
 
 ## Active vs Inactive Gene Sets
 
@@ -453,7 +457,9 @@ used for a given gene set collection in the \code{GeneSetDb} might be
 Ensembl gene identifiers, but the rownames of the expression object migth
 be Entrez ID. This is where the \code{mapping} parameter becomes useful.
 
-TODO: document the GeneSetDb ID mapping more thoroughly.
+NOTE: this functionality is under construction. It is not fully complete
+and the documentation therefore can not be written. I do want to leave a
+section here for future expansion, though.
 
 # Costumizing Analyses
 
@@ -461,9 +467,17 @@ The `...` in `multiGSEA(gdb, x, design, coef, methods, ...)` are you friend.
 
 ## Custom Differential Expression
 
-Works on `EList` and `DGEList` (using edgeR's quasilikihood framework)
-    * `robust.fit`
-    * `robust.eBayes`
+The internal differential expression pipeline, exported via the
+`calculateIndividualLogFC` function allows the end user to configure an
+"arbirarily comples" differential expression analysis using either edgeR's
+quasilikelihood framwork (if the input is a DGEList) or a direct limma
+analysis (with a pre-voomed EList, expression matrix, or whatever).
+
+User's should refer to the `?calculateIndividualLogFC` help page to see 
+which parameters are exposed for a differential expression analysis and
+configure them accordingly. When calling `multiGSEA` these parameters
+can also be specified and will be passed down to the internal
+`calculateIndividualLogFC` call.
 
 ## Custom GSEA
 

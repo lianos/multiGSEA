@@ -8,20 +8,23 @@
 ##'
 ##' @description
 ##' This provides versioned genesets from gene set collections defined in
-##' \href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. The following
-##' versions are included in this package:
+##' \href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive
+##' to keep the latest version of MSigDB included in this package. The current
+##' version provided is v5.2.
 ##'
-##' \itemize{
-##'   \item v5.1
-##'   \item v5.2
-##' }
+##' Although the primariy identifiers used in MSigDB are human entrez IDs, we
+##' also include gene symbols, and mouse versions of each gene set (except c1)
+##' that were created from simple orthology mapping via biomaRt.
 ##'
-##' Starting from version 5.1, the \code{GeneSetDb} includes the symbols for
-##' the features in the genesets (in \code{gdb@db}) as well as additional meta
-##' information about the genesets (in \code{geneSets(gdb)}) for "subcategory"
-##' (which may be most useful for GO gene sets, eg. CC vs BP vs MF) and
-##' "organism" which defines the organism in which the geneset was derived
-##' from ("Homo sapiens" or "Mus musculus").
+##' We also include metadata at the geneset level by adding extra columns
+##' to the \code{geneSets(gdb)} data.frame. "subcategory" may be most useful
+##' for GO gene sets, eg. CC vs BP vs MF, and "organism" defines the organism in
+##' which the geneset was derived from ("Homo sapiens" or "Mus musculus").
+##'
+##' Note that this function by default will exclude the KEGG genesets from the
+##' MSigDB c2 collection. Set \code{with.kegg=TRUE} to include them. It is the
+##' end user's responsibility to ensure that they are appropriately adhering
+##' to the licensing restricions of the genesets provided herein.
 ##'
 ##' @export
 ##' @rdname MSigDB

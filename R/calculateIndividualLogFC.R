@@ -6,8 +6,9 @@
 ##' expression analysis, otherwise a "vanilla" limma run will be run.
 ##'
 ##' Lastly, if \code{x} is simply a single column matrix, we assume that we are
-##' just "passing through" a single pre-ranked vector of statistics a dummy
-##' logFC-like data.frame is returned as a result.
+##' just passing a single pre-ranked vector of statistics through multiGSEA's
+##' analysis pipelines, and a logFC-like data.frame is constructed with these
+##' statistics in the \code{logFC} and \code{t} columns.
 ##'
 ##' @export
 ##'

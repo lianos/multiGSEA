@@ -9,7 +9,7 @@
 \title{Convert a GeneSetDb to other formats.}
 \usage{
 \method{as.data.frame}{GeneSetDb}(x, value = c("featureId", "x.id", "x.idx"),
-  active.only = is.conformed(x), ...)
+  active.only = is.conformed(x), fetch.all = FALSE, ...)
 
 \method{as.list}{GeneSetDb}(x, value = c("featureId", "x.id", "x.idx"),
   active.only = is.conformed(x), nested = FALSE, ...)
@@ -21,6 +21,12 @@
 
 \item{active.only}{If the \code{GeneSetDb} is conformed, do you want to only
 return the features that match target and are "active"?}
+
+\item{fetch.all}{if \code{x} is conformed and the target expression object
+does not have a featureId for a given geneSet, then those featureIds
+will not be returned by default. Set this to \code{TRUE} to return all
+featureIds over a conformed GeneSetDb regardless of membership in target
+expression object.}
 
 \item{...}{nothing}
 }

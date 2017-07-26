@@ -45,6 +45,7 @@ Suggests:
     NMF,
     BiocStyle,
     airway,
+    SummarizedExperiment,
     shinydashboard,
     rprojroot,
     statmod,
@@ -52,7 +53,7 @@ Suggests:
     KernSmooth
 VignetteBuilder: knitr
 License: GPL (>=2)
-Collate:
+Collate: 
     'AllClasses.R'
     'AllGenerics.R'
     'GeneSetDb-class.R'
@@ -81,7 +82,6 @@ Collate:
     'panther.R'
     'plots-corplot.R'
     'plots-interactive.R'
-    'plots.R'
     'reactome.R'
     'scoreSingleSamples.R'
     'shiny-MultiGSEAResultContainer.R'
@@ -95,6 +95,7 @@ Collate:
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
+    'vignette-helpers.R'
     'volcano_plot.R'
     'zzz.R'
 RoxygenNote: 6.0.1

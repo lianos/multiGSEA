@@ -29,10 +29,12 @@ function(x, i, j, active.only=TRUE, fetch.all=FALSE,
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=active.only, fetch.all=fetch.all,
                 with.feature.map=with.feature.map, ..., .external=FALSE)
-  lfc <- logFC(x, .external=FALSE)[J(gs$featureId)]
-  keep <- setdiff(colnames(lfc), colnames(gs))
+  lfc <- logFC(x, .external=FALSE)[J(gs$featureId), on='featureId']
   out <- cbind(gs, lfc)
-  out
+  ## remove duplicate columns if they exist after cbind
+  keep.cols <- !duplicated(colnames(out))
+  out <- out[, keep.cols, with=FALSE]
+  ret.df(out, .external=.external)
 })
 
 setMethod("geneSets", c(x="MultiGSEAResult"),

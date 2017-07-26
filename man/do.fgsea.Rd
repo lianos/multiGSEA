@@ -27,11 +27,7 @@ functionality to calculate pvalues based on minimum logFC
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
 }
 \value{
-A data.table of fgsea results. The "pval" column here refers to
-  pval.over, for simplicity in other places. If \code{split.updown=TRUE},
-  a list of data.table's are returned named 'goseq', 'goseq.up', and
-  'goseq.down' which are the results of running goseq three independent
-  times.
+A data.table of fgsea results.
 }
 \description{
 Techinically this doesn't require a full design to run, but it proves
@@ -40,4 +36,8 @@ expedient for a quick turnaround.
 \details{
 Note that fgsea isn't added to import or suggests because rescomp's
 compiler can't handle this yet.
+
+fgsea expects the pathways to be describes as a list of character vectors
+where the vectors are gene ids, and the names of the pre-ranked vector
+correspond to those IDs
 }

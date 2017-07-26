@@ -99,11 +99,11 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 
 ##' @rdname iplot
 iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
-                                 with.data=FALSE, shiny_source='mggenes',
-                                 height=NULL, width=NULL, ...) {
+                                 with.points=TRUE,  with.data=FALSE,
+                                 shiny_source='mggenes', height=NULL,
+                                 width=NULL, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
 
-  # dat[['__index']] <- dat[['featureId']]
   gs.dat <- subset(dat, group == 'geneset')
   cols <- c('bg'='black', 'geneset'='red',
             'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
@@ -129,13 +129,13 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
     layout(xaxis=list(title="logFC"), yaxis=list(title="Density"),
            dragmode="select")
-  if ('symbol' %in% names(gs.dat)) {
+  if ('symbol' %in% names(gs.dat) && with.points) {
     p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
                      hoverinfo='text',
                      text=~paste0('Symbol: ', symbol, '<br>',
                                   'logFC: ', sprintf('%.3f', logFC), '<br>',
                                   'FDR: ', sprintf('%.3f', padj)))
-  } else {
+  } else if (with.points) {
     p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
                      text=~paste0('featureId: ', featureId, '<br>',
                                   'logFC: ', logFC, '<br>',
@@ -145,9 +145,9 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 }
 
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
-                                 with.data=FALSE, shiny_source='mggenes',
-                                 height=NULL, width=NULL, ggtheme=theme_bw(),
-                                 ...) {
+                                 with.points=TRUE, with.data=FALSE,
+                                 shiny_source='mggenes', height=NULL,
+                                 width=NULL, ggtheme=theme_bw(), ...) {
   is.gs <- dat[['group']] == 'geneset'
   gs <- subset(dat, is.gs)
   bg <- subset(dat, !is.gs)
@@ -160,7 +160,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   gg <- ggplot(all.dat, aes(group, val)) +
     geom_boxplot(data=subset(all.dat, group == 'background')) +
     geom_boxplot(outlier.shape=NA, data=gs)
-  if ('symbol' %in% names(all.dat)) {
+  if ('symbol' %in% names(all.dat) && with.points) {
     gg <- gg +
       suppressWarnings({
         geom_jitter(aes(key=featureId,
@@ -170,7 +170,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                     data=gs, width=0.2)
       })
 
-  } else {
+  } else if (with.points) {
     gg <- gg +
       suppressWarnings({
         geom_jitter(aes(key=featureId,
@@ -197,7 +197,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p$x$data[[1]]$marker <- list(opacity=0)
   p$x$data[[2]]$hoverinfo <- 'none'
   p$x$data[[2]]$marker <- list(opacity=0)
-  p %>% config(collaborate=FALSE, displaylogo=FALSE)
+  config(p, collaborate=FALSE, displaylogo=FALSE)
 }
 
 ## rbokeh ----------------------------------------------------------------------
