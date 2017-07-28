@@ -48,8 +48,11 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
-  ## NAs aren't allowed in x
-  na.check(x)
+  ## Check that x is generally OK
+  x.kosher <- validate.X(x)
+  if (!isTRUE(x.kosher)) {
+    stop("Bad expression object x provided: ", paste(x.errs, collapse=','))
+  }
 
   ## Validate the input expression object separately (not sure why now)
   if (!is.null(methods)) {
@@ -289,12 +292,20 @@ validate.XwithWeights <- function(x) {
   TRUE
 }
 
+## We expect x to be matrix like now
 validate.X <- function(x) {
   if (!inherits(x, .valid.x)) {
     return("Invalid expression object (x) type: ", class(x)[1L])
   }
+  na.check(x)
   if (!is.character(rownames(x))) {
     return("The expression object does not have rownames ...")
+  }
+  if (any(is.na(rownames(x)))) {
+    return("NAs in rownames of x")
+  }
+  if (any(duplicted(rownames(x)))) {
+    return("Duplicated rownames in x")
   }
   if (is(x, 'DGEList')) {
     return(validate.DGEList(x))

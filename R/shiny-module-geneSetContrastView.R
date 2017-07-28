@@ -127,7 +127,11 @@ geneSetContrastView <- function(input, output, session, mgc,
 
   output$gs_members <- DT::renderDataTable({
     req(gs())
-    renderFeatureStatsDataTable(gs()$stats, feature.link.fn=feature.link.fn,
+    gs.stats <- req(gs()$stats)
+    if (!is(gs.stats, 'data.frame')) {
+      browser()
+    }
+    renderFeatureStatsDataTable(gs.stats, feature.link.fn=feature.link.fn,
                                 filter='none')
   }, server=server)
 

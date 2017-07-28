@@ -17,9 +17,6 @@ library(multiGSEA)
 library(DT)
 
 ## Loading "standard" Libraries ------------------------------------------------
-# devtools::load_all('~/workspace/Rpkgs/GNE/multiGSEA.shiny')
-# library(multiGSEA.shiny)
-
 library(shiny)
 library(shinydashboard)
 library(shinyjs)

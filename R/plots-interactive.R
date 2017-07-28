@@ -100,10 +100,11 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 ##' @rdname iplot
 iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.points=TRUE,  with.data=FALSE,
-                                 shiny_source='mggenes', height=NULL,
-                                 width=NULL, ...) {
+                                 shiny_source='mggenes',
+                                 legend.pos=c('inside', 'outside'),
+                                 height=NULL, width=NULL, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
-
+  legend.pos <- match.arg(legend.pos)
   gs.dat <- subset(dat, group == 'geneset')
   cols <- c('bg'='black', 'geneset'='red',
             'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
@@ -141,7 +142,11 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                   'logFC: ', logFC, '<br>',
                                   'FDR: ', padj))
   }
-  p %>% config(collaborate=FALSE, displaylogo=FALSE)
+  if (legend.pos == 'inside') {
+    p <- layout(p, legend=list(x=0.75, y=1))
+  }
+
+  config(p, collaborate=FALSE, displaylogo=FALSE)
 }
 
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
