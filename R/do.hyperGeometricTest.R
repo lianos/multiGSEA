@@ -30,21 +30,16 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   direction <- match.arg(direction)
 
   if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                      treat.lfc=feature.min.logFC, ...,
-                                      .external=FALSE)
-    if (use.treat) {
-      logFC[, significant := padj <= feature.max.padj]
-    }
-  } else {
-    is.logFC.like(logFC, x, as.error=TRUE)
+    treat.lfc <- if (use.treat) feature.min.logFC else NULL
+    logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
+                                      ..., .external=FALSE)
   }
-
+  is.logFC.like(logFC, x, as.error=TRUE)
+  logFC <- setDT(copy(logFC))
   if (is.null(logFC$significant)) {
-    is.sig <- with(logFC, {
+    logFC[, significant := {
       padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
-    })
-    logFC[, significant := is.sig]
+    }]
   }
 
   drawn <- logFC[significant == TRUE]$featureId

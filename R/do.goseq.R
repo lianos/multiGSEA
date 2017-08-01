@@ -81,19 +81,18 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
   direction <- match.arg(direction)
 
   if (is.null(logFC)) {
-    logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                      treat.lfc=feature.min.logFC, ...,
-                                      .external=FALSE)
+    treat.lfc <- if (use.treat) feature.min.logFC else NULL
+    logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
+                                      ..., .external=FALSE)
     if (use.treat) {
       logFC[, significant := padj <= feature.max.padj]
     }
-  } else {
-    is.logFC.like(logFC, x, as.error=TRUE)
   }
-
+  is.logFC.like(logFC, x, as.error=TRUE)
+  logFC <- setDT(copy(logFC))
   if (is.null(logFC$significant)) {
     logFC[, significant := {
-      logFC$padj <= feature.max.padj & abs(logFC$logFC) >= feature.min.logFC
+      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
     }]
   }
 

@@ -18,7 +18,6 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 
-  methods <-c('camera', 'hyperGeometricTest', 'roast', 'geneSetTest')
   methods <- c('camera', 'hyperGeometricTest')
   min.logFC <- log2(1.25)
   max.padj <- 0.10
