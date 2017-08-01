@@ -4,8 +4,7 @@ shinyServer(function(input, output, session) {
   ## we can load, otherwise this will respond to a user upload.
   mgc <- reactive({
     ## Are we here because the user uploaded something, or did the user ask
-    ## to `explore(MultiGSEAResult)`?
-    # msg("wiring up mgc")
+    ## to `explore(MultiGSEAResult)`? This implementation feels wrong, but ...
     if (is.null(input$mgresult)) {
       mg <- getOption('EXPLORE_MULTIGSEA_RESULT', NULL)
       res <- failWith(NULL, MultiGSEAResultContainer(mg), silent=TRUE)
@@ -16,9 +15,8 @@ shinyServer(function(input, output, session) {
   })
 
   lfc <- reactive({
-    req(mgc()$mg) %>%
-      logFC %>%
-      arrange(desc(logFC))
+    lfc <- req(mgc()$mg) %>% logFC(.external=FALSE)
+    lfc[order(logFC, decreasing=TRUE)]
   })
 
   gs_result_filter <- callModule(mgResultFilter, 'mg_result_filter', mgc)
@@ -75,12 +73,12 @@ shinyServer(function(input, output, session) {
                              width=400, height=350)
 
   output$dge_volcano_genestats <- DT::renderDataTable({
-    res <- req(lfc()) %>%
-      select(symbol, featureId, logFC, pval, padj)
+    res.all <- req(lfc())
+    res <- res.all[, list(symbol, featureId, logFC, pval, padj)]
 
     selected <- gene.volcano()
     if (!is.null(selected)) {
-      res <- filter(res, featureId %in% selected$featureId)
+      res <- subset(res, featureId %in% selected$featureId)
     }
 
     renderFeatureStatsDataTable(res, filter='top', feature.link.fn=ncbi.entrez.link)

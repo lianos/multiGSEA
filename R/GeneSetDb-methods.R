@@ -302,7 +302,7 @@ function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
 ##' @rdname featureIds
 setMethod("featureIds", c(x="GeneSetDb"),
 function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
-         fetch.all=FALSE, active.only=is.conformed(x), ...) {
+         active.only=is.conformed(x), ...) {
   if (missing(value)) {
     value <- if (is.conformed(x)) 'x.id' else 'featureId'
   }
@@ -312,7 +312,7 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
     ## User isn't asking about any particular collection, but just wants all
     ## features in the GeneSetDb as a whole ... OK(?)
     fmap <- x@featureIdMap
-    if (is.conformed(x) && !fetch.all) {
+    if (is.conformed(x) && active.only) {
       fmap <- fmap[!is.na(x.idx)]
     }
     out <- unique(fmap, by=value)[[value]]
@@ -354,7 +354,7 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
   }
 
   fid.map <- featureIdMap(x, .external=FALSE)[db$featureId]
-  if (is.conformed(x) && !fetch.all) {
+  if (is.conformed(x) && active.only) {
     fid.map <- fid.map[!is.na(x.idx)]
   }
 
@@ -399,11 +399,10 @@ function(x, active.only=is.conformed(x), ... , .external=TRUE) {
 
 ##' @rdname geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
-function(x, i, j, active.only=is.conformed(x), fetch.all=FALSE,
-         with.feature.map=FALSE, ..., .external=TRUE) {
+function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
+         .external=TRUE) {
   stopifnot(isSingleCharacter(i), isSingleCharacter(j))
-  fids <- featureIds(x, i, j, value='featureId', active.only=active.only,
-                     fetch.all=fetch.all, ...)
+  fids <- featureIds(x, i, j, value='featureId', active.only=active.only, ...)
   info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
   info <- info[, list(collection, name, active, N, n)]
 
@@ -917,12 +916,7 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' @param x A \code{GeneSetDb} object
 ##' @param value The value type to export for the feature ids
 ##' @param active.only If the \code{GeneSetDb} is conformed, do you want to only
-##'   return the features that match target and are "active"?
-##' @param fetch.all if \code{x} is conformed and the target expression object
-##'   does not have a featureId for a given geneSet, then those featureIds
-##'   will not be returned by default. Set this to \code{TRUE} to return all
-##'   featureIds over a conformed GeneSetDb regardless of membership in target
-##'   expression object.
+##'   return the features and genests that match target and are "active"?
 ##' @param ... nothing
 ##' @return a converted \code{GeneSetDb}
 ##'
@@ -933,8 +927,7 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' gdfi <- as.data.frame(gdb, 'x.idx')
 ##' gdl <- as.list(gdb)
 as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
-                                    active.only=is.conformed(x),
-                                    fetch.all=FALSE, ...) {
+                                    active.only=is.conformed(x), ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
   if (!is.conformed(x) && value %in% c('x.id', 'x.idx')) {
@@ -942,7 +935,7 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   }
 
   fid.map <- featureIdMap(x, .external=FALSE)
-  if (is.conformed(x) && !fetch.all) {
+  if (is.conformed(x) && active.only) {
     fid.map <- subset(fid.map, !is.na(x.idx))
   }
 

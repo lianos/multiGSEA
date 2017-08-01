@@ -6,5 +6,4 @@ test_that("rbokeh boxplot with outliers is slow(?)", {
   j <- 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'
   iplot(x, y, j, type='boxplot')
   iplot(x, y, j, type='boxplot', width=350, height=350)
-
 })

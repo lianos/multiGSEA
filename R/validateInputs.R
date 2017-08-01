@@ -304,7 +304,7 @@ validate.X <- function(x) {
   if (any(is.na(rownames(x)))) {
     return("NAs in rownames of x")
   }
-  if (any(duplicted(rownames(x)))) {
+  if (any(duplicated(rownames(x)))) {
     return("Duplicated rownames in x")
   }
   if (is(x, 'DGEList')) {

@@ -13,18 +13,13 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
 output:
-  html_vignette:
+  rmarkdown::html_document:
+    highlight: pygments
     toc: true
-    toc_depth: 4
-    toc_float: 
-      collapsed: false
-      smooth_scroll: yes
-    css: mystyles.css
-    self_contained: yes
+    fig_width: 5
 ---
 
 ```{r init, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-library(BiocStyle)
 library(multiGSEA)
 knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE) #, dpi=150)
@@ -69,7 +64,8 @@ All GSEA methods require the use of a `GeneSetDb`.
 Currenty supported gene set enrichment methods include:
 
 ```{r multiGSEA-methods, results='asis', echo=FALSE}
-cat(sprintf('* %s\n', multiGSEA.methods()))
+meths <- setdiff(multiGSEA.methods(), c('logFC', 'svdGeneSetTest'))
+cat(sprintf('* %s\n', meths))
 ```
 
 When using these methods in analyses that lead to publication, please cite
@@ -78,7 +74,7 @@ functionality assisted in your interpretation and analysis.
 
 # Standard Workflow
 
-We'll use the `"r Biocpkg("airway")"` data package from [Himes et al.][himes] as
+We'll use the `r"Biocpkg("airway")"` data package from [Himes et al.][himes] as
 the basis for our analysis here[^rnaseqworkflow]. This dataset contains
 treatment (with the glucocorticoid dexamethasone) and control samples from four
 airway smooth muscle (ASM) cell lines in order to study the mechanism by which
@@ -101,13 +97,15 @@ theme_set(theme_bw())
 options(multiGSEA.df.return='data.frame')
 ```
 
+<div class="note">
 Internally, mulitGSEA leverages the
-[`data.table`][https://CRAN.R-project.org/package=data.table] package for fast
+[`data.table`](https://CRAN.R-project.org/package=data.table) package for fast
 indexing and manipulation over data.frames. There are many functions that return
 data.tables back to the end user, but some users may not want to work with those.
 The `multiGSEA.df.return` option can be set to `data.frame` (as above) so that
 all data.frame-like objects returned by this package are actually `data.frames`,
 and not `data.tables`.
+</div>
 
 ## Data Setup
 
@@ -124,7 +122,8 @@ identifiers as its gene-level identifiers.
 y.all <- createAirwayDGEList()
 ```
 
-Here is an overview of the data we are working with
+Below you'll find the `$samples` data.frame of the DGEList to give you an idea
+of what the samples are that we are working with.
 
 `r knitr::kable(y.all$samples)`
 
@@ -184,7 +183,9 @@ keep <- rowSums(cpm(y.all) >= 1) >= 4
 y <- y.all[keep,,keep.lib.sizes=FALSE] %>%
   calcNormFactors %>%
   set_rownames(., .$genes$entrez_id) ## using entrez identifiers
-vm <- voom(y, des, plot=TRUE)
+vm <- voom(y, des, plot=FALSE)
+# vm <-  exampleExpressionSet('tumor-subtype')
+# cm <- makeContrasts(BvH=Her2 - Basal, levels=vm$design)
 ```
 
 Now that we have our expression (`vm`), design (`vm$design`) and contrast (`cm`)
@@ -206,18 +207,20 @@ test against, and (2) the GSEA methods we want to explore.
 
 #### Gene Sets to Test
 
-The *multiGSEA* package provides a `GeneSetDb` class, which is a new container
-(insted of `GSEABase::GeneSetCollection`) to house collections of genesets. You
+The *multiGSEA* package provides a `GeneSetDb` class, which is used instead of
+a `GSEABase::GeneSetCollection` to house collections of genesets. You
 can easily create a `GeneSetDb` object from a custom set of gene sets you have
 on hand, but the package also provides convenience wrappers to generate 
 `GeneSetDb` objects from popular gene annotation resources such as
 [MSigDB][msigdb], [PANTHER][pantherdb], etc.
 
 We'll use the `getMSigGeneSetDb` convenience function provided by the
-*multiGSEA* package to simply get the hallmark geneset collection.
+*multiGSEA* package to load the [hallmark][hallmark] (`"h"`) and
+[ImmuneSigDb][isigdb] (`"c7"`) gene set collections.
 
 [msigdb]: http://software.broadinstitute.org/gsea/msigdb/
-[hallmark]: http://software.broadinstitute.org/gsea/msigdb/collections.jsp#H
+[hallmark]: http://www.cell.com/cell-systems/abstract/S2405-4712(15)00218-5
+[isigdb]: http://www.cell.com/immunity/abstract/S1074-7613(15)00532-4
 [c2]: http://software.broadinstitute.org/gsea/msigdb/collections.jsp#C2
 [c5]: http://software.broadinstitute.org/gsea/msigdb/collections.jsp#C5
 [c7]: http://software.broadinstitute.org/gsea/msigdb/collections.jsp#C7
@@ -226,7 +229,8 @@ We'll use the `getMSigGeneSetDb` convenience function provided by the
 
 ```{r build-gdb, eval=!exists('gdb')}
 library(multiGSEA)
-gdb <- getMSigGeneSetDb(c('h', 'c2'),  'human')
+gdb <- getMSigGeneSetDb(c('h', 'c7'),  'human')
+# getMSigGeneSetDb(c('h', 'c2'), 'human')
 ```
 
 You can view a table of the gene sets defined inside a `GeneSetDb` (`gdb`)object
@@ -235,7 +239,7 @@ via its `geneSets(gdb)` accessor:
 ```{r geneSets-accessor}
 geneSets(gdb) %>%
   head %>%
-  dplyr::select(1:4) %>%
+  select(1:4) %>%
   knitr::kable()
 ```
 
@@ -249,15 +253,22 @@ simply requires you to provide a `GeneSetDb` object along with your data and an
 enumeration of the methods you want to use in your analysis.
 
 The call to `multiGSEA` will perform these analyses and return a
-`MultiGSEAResult` object which you can then use for downstream analysis.
+`MultiGSEAResult` object which you can then use for downstream analysis.mg.d
 
 ```{r run-multi-GSEA, eval=!exists('mg.dex'), cache=TRUE, results='hide'}
-mg.dex <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
-                    methods=c('camera', 'fry', 'goseq'),
-                    ## GSEA specific parameters
-                    feature.max.padj=0.05, feature.min.logFC=1,
-                    feature.bias=setNames(vm$genes$length, rownames(vm)),
-                    inter.gene.cor=0.01)
+mg.dex <- multiGSEA(
+  gdb, vm, vm$design, cm[, 'dex'],
+  methods=c('camera', 'fry', 'goseq'),
+  ## these parameters define which genes are differentially expressed
+  feature.max.padj=0.05, feature.min.logFC=1,
+  ## for camera:
+  inter.gene.cor=0.01,
+  ## for goseq (the *.max.padj and *.min.logFC parameters also affect goseq)
+  feature.bias=setNames(vm$genes$length, rownames(vm)))
+
+# mg = multiGSEA(gdb, vm, vm$design, cm[,1], 
+#                methods=c('camera', 'goseq'),
+#                feature.bias=setNames(vm$genes$size, rownames(vm)))
 ```
 
 We will unpack the details of the `multiGSEA` call shortly ...
@@ -277,8 +288,8 @@ is accessible via a call to `logFC` function on the `MultiGSEAResult` object:
 ```{r logFC-results, results='asis'}
 lfc <- logFC(mg.dex)
 lfc %>%
-  dplyr::select(symbol, entrez_id, logFC, CI.L, CI.R, t, pval, padj) %>%
-  dplyr::slice(1:5) %>%
+  select(symbol, entrez_id, logFC, CI.L, CI.R, t, pval, padj) %>%
+  head(5) %>%
   knitr::kable(digits=3)
 ```
 
@@ -291,15 +302,6 @@ comp <- tt.dex %>%
   dplyr::select(entrez_id, symbol, logFC, t) %>%
   inner_join(lfc, by=c('entrez_id'), suffix=c('.tt', '.mg'))
 all.equal(comp$t.tt, comp$t.mg)
-```
-
-```{r plot-dge-t-stats, fig.width=4.5, fig.height=4}
-ggplot(comp, aes(t.tt, t.mg)) +
-  geom_point(alpha=0.7) +
-  geom_abline(slope=1, intercept=0, color='red') +
-  xlab("t-statistics (external voom piepline)") +
-  ylab("t-statistics (internal multiGSEA)") +
-  ggtitle("t-statistics comparison")  
 ```
 
 The internally performed differential expression analysis within the `mulitGSEA`
@@ -325,13 +327,17 @@ mg.dex
 The table above enumerates the different GSEA methods run over each geneset
 collection in the rows. The columns enumerate the number of genesets that the
 collection has in total (`geneset_count`), and how many were found significant
-at a given FDR (here it's FDR <= 30%).
+at a given FDR, which is set to 30% by default. The `show` command for the
+`MultiGSEAResult` object simply calls the `tabulateResults` function, which
+you can call directrly with the value of `max.p` that you might find more
+appropriate.
 
 ### Exploring Results
 
 GSEA results can be examined interactively via the command line, or via a shiny
-app. You can use the `resultNames` function to find out what GSEA methods were
-run, and therefore available to you, within the the `MultiGSEAResult` object:
+application. You can use the `resultNames` function to find out what GSEA
+methods were run, and therefore available to you, within the the
+`MultiGSEAResult` object:
 
 ```{r resultnames}
 resultNames(mg.dex)
@@ -356,7 +362,7 @@ expression statistics for the contrast under test using the `geneSet` function.
 ```{r geneset-result}
 gs <- geneSet(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP')
 gs %>%
-  dplyr::select(symbol, entrez_id, logFC, pval, padj) %>%
+  select(symbol, entrez_id, logFC, pval, padj) %>%
   head %>%
   knitr::kable(digits=3)
 ```
@@ -376,13 +382,13 @@ same values are shown for the desired geneset under the "geneset" group.
 
 **Boxplot**
 
-```{r iplot-tnfa-box, fig.width=4, fig.height=3}
+```{r iplot-tnfa-box}
 iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='boxplot', value='logFC')
 ```
 
 **Density**
 
-```{r iplot-tnfa-density, fig.width=4, fig.height=3}
+```{r iplot-tnfa-density}
 iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='density', value='logFC')
 ```
 
@@ -402,25 +408,38 @@ The GeneSetDb class is a new container to store collections of genesets which
 provides different types of functionality than is found in
 GSEABase::GeneSetCollection objects.
 
-We can, for instance, identify all genesets that have a specific gene(s) like
-so:
+We can, for instance, identify all 117 gene sets that have genes "2040" and
+"10062" (entrez ids) as members.
 
 ```{r subset-gdb}
 gdb <- geneSetDb(mg.dex)
 gdb.sub <- subsetByFeatures(gdb, c('2040', '10062'))
+nrow(gdb); nrow(gdb.sub)
 ```
 
-<!--
-  * Constructing custom `GeneSetDb`s:
-      * From a `list` of `lists` 
-      * From a `data.frame`
-  * `gdb <- conform(gdb, vm)`
-      * Identifies the features you've measured in the experiment `vm`
-      * Appropriately sets the `universe` of tests that require it
-      * It's "non-destructive", you can reconform the same `GeneSetDb` to
-        another dataset without loss of information (geneset membership)
-      * Use of `featureIdMap`
--->
+The GeneSetDb object uses the `data.table` package internally for fast lookup.
+The code will be optimized in the future to be even more performant. Internally
+the collection of gene set information is minimally stored as a three column
+`data.table` in "long form", which has the following columns:
+
+* collection
+* name
+* featureId
+
+More columns can be added to the internal `data.table` (a "symbol" column, for
+instance), but those are the only three you need. To see what we are talking
+about, exactly, you can call the `as.data.frame` function on a `GeneSetDb`
+object:
+
+```{r}
+as.data.frame(gdb)[c(1:5, 201:205),]
+```
+
+
+The `(collection,name)` tuple is the primary key of a gene set. The `featureId`
+column stores gene identifiers. For the time being, it might be most natural
+for these featureIds to simply be entrez ids, as many of the annotation
+databases use entrez gene identifiers themselves. 
 
 ## Building a GeneSetDb
 
@@ -431,118 +450,155 @@ may be:
 * [MSigDB][msigdb] via `getMSigGeneSetDb(...)`
 * [PANTHER][pantherdb] (pathways and GOSLIM) via `getPantherGeneSetDb()`
 
-The `GeneSetDb` constructor also can take a number of different inputs and
-convert them into a GeneSetDb, such as:
+You can create a custom `GeneSetDb` via the `GeneSetDb` constructor, which
+accpets the following inputs:
 
 1. A data.frame of geneset membership. This requires `collection`, `name`, and
-  `featureId` columns.
+   `featureId` columns. Reference the output of `as.data.frame(gdb)` shown
+   above.
 2. A named list of gene identifer vectors that represent genesets for a
    single collection
 3. A named list of (2)-like lists. The top level names are the names of the
    different collecitons, and each sublist represents the genesets in that
    collection.
   
-See the help and examples in ?GeneSeDb for more information.
+See the help and examples in `?GeneSeDb` for more information.
 
 ## Active vs Inactive Gene Sets
 
-After a `GeneSeDb` is conformed to a target expression object `E`,
-individual gene sets become "active" or "inactive" depending on the number
-of features per gene set are found in `E`. For instance, if `E`
-does not have measurements for at least `conform(, min.gs.size)`
-features for a given gene set, that gene set will be flagged as inactive.
+A `GeneSetDb` is used to hold "the universe" of genes that belong to different
+gene sets across different collections. Depending on the assay performed to 
+measure these genes, the set of genes you observe in your study will likely
+be a subset of the genes in the `GeneSetDb`. As such, prior to using a
+`GeneSetDb` for GSEA, it must be "conformed" to a target object that will be
+used for the input to the GESA (either a matrix of expression, or a pre ranked
+vector of statistics). This step will index into the target expressino object
+and identify which rows of the object correspond to which genes in the
+`GeneSetDb`.
+
+"Conformation" happens automatically within the `multiGSEA` call, but we call it
+explicitly below to outline its functionality. The command below conforms
+the `GeneSetDb` to our target "voomed" `EList`, and deactivates gene sets
+(ie. removes them from downstream GSEA) that have less than 10 or more than 100
+genes that were found in `vm`:
+
+```{r}
+gdbc <- conform(gdb, vm, min.gs.size=10, max.gs.size=100)
+head(geneSets(gdbc, active.only=FALSE))
+```
+
+We can see that, only 14 of the 16 genes in the
+`(c2,ABDELMOHSEN_ELAVL4_TARGETS)` were found in the rows of `vm`, and the `(c2,ABBUD_LIF_SIGNALING_2_DN)` was "deactivated." Deactivated
+(`active == FALSE`) gene setrs will be ignored during downstream analyses. This
+gene set was deactivated  because it only has five "conformed" genes, but the
+minimum geneset size we wanted to consider (`min.gs.size`) was set to ten in
+our call to `conform`.
+
+## Accessing members of a gene set
+
+The `geneSet` and `featureIds` functions allow the user to identify the genes
+found in a gene set. Both of these functions take an `active.only` argument
+which, is `TRUE` by default. This specifies that only the genes that have been
+successfully conformed to a gene set should be the ones that are returned.
+
+For instance, we can identify which genes belong to the
+`(c2,ABDELMOHSEN_ELAVL4_TARGETS)`, and which two were not found in `vm` like so:
+
+```{r}
+setdiff(
+  featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=FALSE),
+  featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=TRUE))
+```
+
+or we can use the `geneSet` function to return a `data.frame` of these results:
+
+```{r}
+geneSet(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=FALSE) %>%
+  subset(!featureId %in% featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS'))
+```
 
 ## Mapping of gene set featureIds to target expression containers
 
 It may be that the IDs used in a gene set collection are different from the
-ones used as the rownames of your expression cotainer. For instance, the IDs
+ones used as the rownames of your expression container. For instance, the IDs
 used for a given gene set collection in the \code{GeneSetDb} might be
 Ensembl gene identifiers, but the rownames of the expression object migth
 be Entrez ID. This is where the \code{mapping} parameter becomes useful.
 
-NOTE: this functionality is under construction. It is not fully complete
-and the documentation therefore can not be written. I do want to leave a
-section here for future expansion, though.
+The `GeneSetDb` class has a concept of an internal `featureIdMap` to accomodate
+these scenarios, which will be further developed in future versions. For the
+time being, the user is required to manually map the feautre IDs in their
+expresion matrix to be concordant with the ones found in the `GeneSetDb`.
 
 # Costumizing Analyses
 
-The `...` in `multiGSEA(gdb, x, design, coef, methods, ...)` are you friend.
+The internal differential expression analysis as well the gene set enrichment
+analyses can be customized by passing parameters through the `...` in the
+`multiGSEA` function.
 
 ## Custom Differential Expression
 
 The internal differential expression pipeline, exported via the
 `calculateIndividualLogFC` function allows the end user to configure an
-"arbirarily comples" differential expression analysis using either edgeR's
+"arbirarily complex" differential expression analysis using either edgeR's
 quasilikelihood framwork (if the input is a DGEList) or a direct limma
 analysis (with a pre-voomed EList, expression matrix, or whatever).
 
 User's should refer to the `?calculateIndividualLogFC` help page to see 
 which parameters are exposed for a differential expression analysis and
-configure them accordingly. When calling `multiGSEA` these parameters
-can also be specified and will be passed down to the internal
-`calculateIndividualLogFC` call.
+configure them accordingly. When calling `multiGSEA` use these same parameters
+in the call and they will be provided to `calculateIndividualLogFC`.
+
+For instance, if you wanted to use limma's "treat" functinoality to specify
+a minimal log fold change thershold for gene significanc test, you would do
+so as follows:
+
+```{r, eval=FALSE}
+mg <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
+                methods=c('goseq'),
+                treat.lfc=log2(1.5))
+```
 
 ## Custom GSEA
 
+The GSEA methods that are wrapped by `multiGSEA` all take the same parameters
+that are defined by their implementation. Simply pass these parameters down
+via the `...` in the `multiGSEA` call.
 
-# Extending multiGSEA
+For instance, you can read `?camera` to find that the `camera` method accepts an `inter.gene.cor` parameter, and `?roast` will tell you that you can specify
+the number of rotations used via the `nrot` parameter.
 
-## Adding new GSEA methods
+```{r}
+mg <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
+                methods=c('camera', 'roast'),
+                inter.gene.cor=0.04, nrot=500)
+```
 
-There are three funtions you need to provide in order to add a new method `XXX`
-to the multi `multiGSEA` package:
+# Single Sample Gene Set Scoring
 
-  * `validate.inputs.XXX`
-  * `do.XXX`
-  * `summarize.XXX`
+Gene sets can also be used outside of these "formal testing frameworks" in the
+"singe sample scoring" scenario. The `scoreSingleSamples` method is a wrapper
+function to these types of methods the same way that the `multiGSEA` function
+wraps formal gene set enrichment analysis methods.
 
-### Validate Inputs
+The `scoreSingleSamples` function will return a long data.frame that has scores
+on a per sample, per gene set, per method basis. For instance, we can get ssGSEA
+(from the GSVA package) and mean Z scores for the genesets per sample like so:
 
-In general, it seems that GSEA methods require "just" a vector of statistics
-that enrichment can be run over, or a full representation of an experiment and
-a specific contrast to test.
+```{r}
+h <- getMSigGeneSetDb('h', 'human')
+scores <- scoreSingleSamples(h, vm, methods=c('ssgsea', 'zscore'),
+                             ssgsea.norm=TRUE)
+```
 
-If your method simply requires a vector of statistics, like
-\code{limma::geneSetTest}, then alias your `validate.inputs.XXX` function to
-`multiGSEA::.validate.inputs.logFC.only`. If the method is of the latter
-variety, like \code{limma::camera} then alias your `validate.inputs.XXX` method
-to `multiGSEA:::..validate.inputs.full.design`, ie:
+And we can compare the results of ssgsea vs zscores by manipulating the result
+into a wide data.frame and plotting these scores against each other:
 
-    validate.inputs.my_new_method <- multiGSEA:::..validate.inputs.full.design
+```{r, message=FALSE}
+suppressPackageStartupMessages(library(tidyr))
+sw <- spread(scores, method, score)
+sw.some <- filter(sw, name %in% c('HALLMARK_ADIPOGENESIS', 'HALLMARK_APOPTOSIS'))
+ggplot(sw.some, aes(zscore, ssgsea)) +
+  geom_point(aes(color=name))
+```
 
-### Do the analysis
-
-The `do.XXX` method just support the following signature:
-
-    do.my_new_method(gsd, x, design, contrast, ...)
-
-If your method only requires a vector of statistics, `design` and `contrast`
-your method can simply ignored `design` and `contrast` (or, you can let your
-`...` consume them).
-
-### Summary of results
-
-The `sumamrize.XXX` method should return a data.table that (minimally) had
-a `collection` and `id` column followd by relevant information/statistics
-produced by your method for each geneset that was tested.
-
-# Scratch
-
-## Background reading for Gene Set Enrichment Analyses
-
-
-Overview of The Broad's GSEA:
-http://baderlab.org/CancerStemCellProject/VeroniqueVoisin/AdditionalResources/GSEA
-
-
-## Himes airway paper
-
-Quotes from the Himes et al. paper:
-
-* Differential Gene Expression:
-
-    > Overall, 316 genes were significantly differentially expressed after correcting for false discovery rate by the Benjamini-Hochberg [23] approach [Figure 1A, Table S3]. Table 1 contains the genes with Q-value <1E-10
-
-* GSEA:
-
-    > Gene set enrichment analysis using the NIH DAVID tool [28] identified various Gene Ontology and other annotation categories that were overrepresented by the 316 genes. The top six gene functional annotation clusters (enrichment scores >3) had terms related to: glycoprotein/extracellular matrix, vasculature development, circulatory system process, response to nutrients, thrombospondin type-1, and response to hormone stimulus terms [Table S4]. Other clusters among the 19 with enrichment scores >1.5 that may be relevant to lung disease included lung development, regulation of cell migration, and extracellular matrix organization.

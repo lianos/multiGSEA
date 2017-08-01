@@ -16,9 +16,11 @@ createAirwayDGEList <- function() {
     # 'Error: C stack usage 7970760 is too close to the limit' errors
     data("airway", package="airway")
   }
-  stopifnot(require('org.Hs.eg.db'))
-
+  stopifnot(requireNamespace('org.Hs.eg.db'))
+  annos <- loadNamespace('org.Hs.eg.db')
+  adbi <- loadNamespace('AnnotationDbi')
   airway$dex <- relevel(airway$dex, 'untrt')
+
   y.all <- DGEList(
     assay(airway),
     group=airway$dex,
@@ -28,8 +30,8 @@ createAirwayDGEList <- function() {
   ## Annotate genes
   y.all$genes <- data.frame(
     ensg_id=rownames(y.all),
-    entrez_id=mapIds(org.Hs.eg.db, rownames(y.all), 'ENTREZID', 'ENSEMBL'),
-    symbol=mapIds(org.Hs.eg.db, rownames(y.all), 'SYMBOL', 'ENSEMBL'),
+    entrez_id=adbi$mapIds(annos$org.Hs.eg.db, rownames(y.all), 'ENTREZID', 'ENSEMBL'),
+    symbol=adbi$mapIds(annos$org.Hs.eg.db, rownames(y.all), 'SYMBOL', 'ENSEMBL'),
     length=sum(width(rowRanges(airway))),
     stringsAsFactors=FALSE)
 

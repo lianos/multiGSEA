@@ -62,7 +62,8 @@ geneSetSelect <- function(input, output, session, mgc, server=TRUE,
         setNames(c('collection', 'name'))
       coll <- info[1L]
       name <- info[2L]
-      stats <- arrange_(geneSet(mgc()$mg, info[1L], info[2L]), ~ -logFC)
+      stats <- geneSet(mgc()$mg, info[1L], info[2L])
+      stats <- stats[order(logFC, decreasing=TRUE)]
     }
 
     list(collection=coll, name=name, stats=stats,
@@ -152,8 +153,12 @@ gs.render.select.ui <- function(ns, choices, server=TRUE,
 ##' @return \code{data.frame} to populate \code{choices} of
 ##'   \code{selectizeInput}
 gs.select.choices <- function(mg, sep='_::_') {
-  geneSets(mg) %>%
-    select(collection, label=name) %>%
-    mutate(value=paste(collection, label, sep=sep)) %>%
-    as.data.frame(stringsAsFactors=FALSE)
+  out <- geneSets(mg)[, {
+    list(collection, label=name, value=paste(collection, name, sep=sep))
+  }]
+  setDF(out)
+  # geneSets(mg) %>%
+  #   select(collection, label=name) %>%
+  #   mutate(value=paste(collection, label, sep=sep)) %>%
+  #   as.data.frame(stringsAsFactors=FALSE)
 }

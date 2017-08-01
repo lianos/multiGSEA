@@ -47,15 +47,14 @@ explore <- function(x) {
 ##' @return a data.table of the statistics that match the filtering criteria.
 ##'   A 0-row data.table is returned if nothing passes.
 constructGseaResultTable <- function(mg, method, fdr, prioritize=c('h')) {
-  out <- result(mg, method) %>%
-    dplyr::filter(padj.by.collection <= fdr)
+  out <- result(mg, method, .external=FALSE)
+  out <- out[padj.by.collection <= fdr]
   if (nrow(out)) {
     colls <- sort(unique(out$collection))
     priority <- intersect(prioritize, colls)
     lvls <- c(priority, setdiff(colls, priority))
-    out <- out %>%
-      mutate(collection=factor(collection, lvls, ordered=TRUE)) %>%
-      arrange_(~ - mean.logFC.trim)
+    out[, collection := factor(collection, lvls, ordered=TRUE)]
+    out <- out[order(mean.logFC.trim, decreasing=TRUE)]
   }
   out
 }
@@ -190,7 +189,7 @@ renderFeatureStatsDataTable <- function(x, features=NULL, digits=3,
   setDT(x)
   order.dir <- match.arg(order.dir)
   if (is.character(features)) {
-    x <- filter(x, featureId %in% features)
+    x <- subset(x, featureId %in% features)
   }
 
   ## Figure out what columns to keep in the outgoing datatable

@@ -105,7 +105,7 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  height=NULL, width=NULL, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
   legend.pos <- match.arg(legend.pos)
-  gs.dat <- subset(dat, group == 'geneset')
+  gs.dat <- subset(dat, group == 'geneset') %>% setDF
   cols <- c('bg'='black', 'geneset'='red',
             'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
 
@@ -161,7 +161,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     value <- 't-statistic'
   }
 
-  all.dat <- bind_rows(transform(dat, group='background'), gs)
+  all.dat <- rbind(transform(dat, group='background'), gs) %>% setDF
   gg <- ggplot(all.dat, aes(group, val)) +
     geom_boxplot(data=subset(all.dat, group == 'background')) +
     geom_boxplot(outlier.shape=NA, data=gs)

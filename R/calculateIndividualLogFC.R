@@ -20,10 +20,9 @@
 ##'   \code{lmFit} call. Defaults to \code{FALSE}
 ##' @param robust.eBayes The value of the \code{robust} parameter in the
 ##'   \code{eBayes} call.
-##' @param use.treat logical indicating whether or not to use the "treat"
-##'   functionality to calculate pvalues based on minimum logFC
-##'   (\code{treat.lfc})
-##' @param treat.lfc The logFC to test the dge on.
+##' @param treat.lfc If this is numeric, this activates limma's "treat"
+##'   functionality and tests for differential expression against this
+##'   specified log fold change threshold. This defaults to \code{NULL}.
 ##' @param confint add confidence intervals to \code{topTable} output (default
 ##'   \code{TRUE})? Ignored if \code{x} is a \code{DGEList}.
 ##' @param with.fit If \code{TRUE}, this function returns the fit in addition
@@ -38,8 +37,7 @@
 ##'   \code{$fit} has the limma fit for the data/design/contrast under test.
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
-                                     trend.eBayes=FALSE,
-                                     use.treat=FALSE, treat.lfc=log2(1.25),
+                                     trend.eBayes=FALSE, treat.lfc=NULL,
                                      confint=TRUE, with.fit=FALSE, ...,
                                      .external=TRUE) {
   do.contrast <- !is.vector(x) &&
@@ -54,6 +52,11 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
              length(contrast) != 1 &&
              contrast > 0 && contrast <= ncol(design)) {
     stop("Illegal coefficient to test in design")
+  }
+
+  if (is.numeric(treat.lfc)) {
+    stopifnot(length(treat.lfc) == 1L, treat.lfc > 0)
+    use.treat <- TRUE
   }
 
   if (is(x, 'DGEList')) {

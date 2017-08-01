@@ -8,9 +8,10 @@
 ##' within \code{x} are returned.
 ##'
 ##' If the GeneSetDb \code{x} has been conformed to an expression object this
-##' will default to return the featureId's as they are used/matched to the
-##' expression object, otherwise it will return the featureIds used in the
-##' definition of the gene set database.
+##' will default to return only the featureId's that are matched to the target
+##' expression object, and they will be returned using the same identifiers that
+##' the target expression object uses. To change this behavior, tweak the values
+##' for the \code{activee.only} and \code{value} parameters, respectively.
 ##'
 ##' \code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If
 ##' its the latter, then this call simply delegates to the internal
@@ -33,11 +34,6 @@
 ##' @param active.only only look for gene sets that are "active"? Defaults to
 ##'   \code{TRUE} if \code{x} is conformed to a target expression object, else
 ##'   \code{FALSE}. See \code{\link{conform}} for further details.
-##' @param fetch.all If \code{x} has been conformed, there are maybe be some
-##'   features in the gene set that weren't present in the target expression
-##'   object. If this is the case, and \code{fetch.all=FALSE} (the default),
-##'   then only the features that were "conformed" are returned, otherwise
-##'   all features are returned.
 ##' @return A vector of identifiers (or indexes into an expression object,
 ##'   depending on the \code{value} argument) for the features in the specified
 ##'   geneset. NA is returned if the geneset is not "active" (ie. listed in
@@ -53,11 +49,13 @@
 ##' gdb <- conform(gdb, vm)
 ##' ## fewer than before
 ##' featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+##' ## same as before
+##' featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
 ##' ## returned as row indices into vm
 ##' featureIds(gdb, 'c2', value='x.idx')
 setGeneric("featureIds", signature="x",
 function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
-         fetch.all=FALSE, active.only=is.conformed(x), ...) {
+         active.only=is.conformed(x), ...) {
   standardGeneric("featureIds")
 })
 

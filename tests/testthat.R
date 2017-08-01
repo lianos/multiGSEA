@@ -1,5 +1,5 @@
-library("testthat")
 library("multiGSEA")
+library("testthat")
 library("magrittr")
 library("data.table")
 library("dtplyr")

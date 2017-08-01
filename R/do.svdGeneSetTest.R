@@ -26,16 +26,18 @@ do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
                               trend.eBayes=FALSE, ...) {
   stop("TODO: Implement svdGeneSetTest")
   stopifnot(is.conformed(gsd, x))
-  X <- scoreSingleSamples(gsd, x, 'svd', scale=TRUE, center=TRUE,
+  X <- scoreSingleSamples(gsd, x, 'ewm', scale=TRUE, center=TRUE,
                           unscale=TRUE, uncenter=TRUE,
                           as.matrix=TRUE)
   stopifnot(all(colnames(x) == colnames(X)))
 
-  if (is(x, 'DGEList')) {
-    X <- cpm(x, prior.count=5, log=TRUE)
-    trend.eBayes <- TRUE
-  } else if (is(x, 'EList') && is.matrix(x$weights)) {
-    trend.eBayes <- TRUE
+  if (missing(trend.eBayes)) {
+    if (is(x, 'DGEList')) {
+      X <- cpm(x, prior.count=5, log=TRUE)
+      trend.eBayes <- TRUE
+    } else if (is(x, 'EList') && is.matrix(x$weights)) {
+      trend.eBayes <- TRUE
+    }
   }
 
   res <- calculateIndividualLogFC(X, design, contrast,

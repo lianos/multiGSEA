@@ -132,7 +132,7 @@ test_that("featureIds(GeneSetDb, i, j) removes 'unconformable' featureIds", {
     for (id in names(gsl[[group]])) {
       all.ids <- gsl[[group]][[id]]
       expected.ids <- intersect(all.ids, rownames(vm))
-      gsc.ids.all <- featureIds(gsc, group, id, fetch.all=TRUE)
+      gsc.ids.all <- featureIds(gsc, group, id, active.only=FALSE)
       gsc.ids <- featureIds(gsc, group, id)
       msg <- "unexpected ids returned featureIds(gsd, %s, %s), fetch.all=%s"
       expect_true(setequal(expected.ids, gsc.ids),

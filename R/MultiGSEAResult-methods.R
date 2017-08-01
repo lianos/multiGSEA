@@ -18,17 +18,15 @@ geneSetDb <- function(x) {
 
 ##' @rdname geneSet
 setMethod("geneSet", c(x="MultiGSEAResult"),
-function(x, i, j, active.only=TRUE, fetch.all=FALSE,
-         with.feature.map=FALSE, ..., .external=TRUE) {
+function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
+         .external=TRUE) {
   if (!isTRUE(active.only)) {
-    warning("active.only ignored on geneSet,MultiGSEAResult")
-  }
-  if (isTRUE(fetch.all)) {
-    warning("fetch.all must be `FALSE` when called on MultiGSEAResult")
+    warning("active.only set to TRUE for geneSet,MultiGSEAResult")
+    active.only <- TRUE
   }
   gdb <- geneSetDb(x)
-  gs <- geneSet(gdb, i, j, active.only=active.only, fetch.all=fetch.all,
-                with.feature.map=with.feature.map, ..., .external=FALSE)
+  gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
+                ..., .external=FALSE)
   lfc <- logFC(x, .external=FALSE)[J(gs$featureId), on='featureId']
   out <- cbind(gs, lfc)
   ## remove duplicate columns if they exist after cbind
@@ -57,14 +55,13 @@ function(x, i, ...) {
 ##' @rdname featureIds
 setMethod("featureIds", c(x="MultiGSEAResult"),
 function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
-         fetch.all=FALSE, active.only=TRUE, ...) {
+         active.only=TRUE, ...) {
   value <- match.arg(value)
   if (!isTRUE(active.only)) {
     warning("The featureIds() accessor for a MultiGSEAResult enforces ",
             "`active.only` to be set to TRUE")
   }
-  featureIds(geneSetDb(x), i, j, value=value, fetch.all=FALSE,
-             active.only=TRUE)
+  featureIds(geneSetDb(x), i, j, value=value, active.only=TRUE, ...)
 })
 
 ##' Summarizes useful statistics per gene set from a MultiGSEAResult
