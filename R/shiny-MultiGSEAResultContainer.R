@@ -36,7 +36,7 @@ MultiGSEAResultContainer <- function(x) {
     out
   })
 
-  gs.choices <- gs.select.c,hoices(mg)
+  gs.choices <- gs.select.choices(mg)
 
   out <- list(mg=mg, methods=methods, choices=gs.choices)
   class(out) <- c('MultiGSEAResultContainer', class(out))

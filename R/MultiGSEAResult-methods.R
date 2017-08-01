@@ -437,13 +437,13 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
 # }
 
 setMethod("show", "MultiGSEAResult", function(object) {
-  msg <- paste("multiGSEA result (max FDR by collection set to 30%)",
+  msg <- paste("multiGSEA result (max FDR by collection set to 20%)",
                "---------------------------------------------------", sep='\n')
   cat(msg, "\n")
   if (length(resultNames(object)) == 0) {
     cat("No GSEA methods were run, only geneset level statistics calculated")
   } else {
-    base::print.data.frame(as.data.frame(tabulateResults(object, max.p=0.30)))
+    base::print.data.frame(as.data.frame(tabulateResults(object, max.p=0.20)))
   }
   cat("\n")
 })

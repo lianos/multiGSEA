@@ -54,6 +54,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     stop("Illegal coefficient to test in design")
   }
 
+  use.treat <- FALSE
   if (is.numeric(treat.lfc)) {
     stopifnot(length(treat.lfc) == 1L, treat.lfc > 0)
     use.treat <- TRUE

@@ -201,9 +201,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   ## ---------------------------------------------------------------------------
   ## Run the analyses
+  treat.lfc <- if (use.treat) feature.min.logFC else NULL
   logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                    treat.lfc=feature.min.logFC,
-                                    verbose=verbose, ..., .external=FALSE)
+                                    treat.lfc=treat.lfc, verbose=verbose, ...,
+                                    .external=FALSE)
   logFC <- within(logFC, {
     significant <- if (use.treat) {
       padj <= feature.max.padj

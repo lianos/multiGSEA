@@ -72,21 +72,16 @@ When using these methods in analyses that lead to publication, please cite
 the original papers that developed these methods and cite multiGSEA when its
 functionality assisted in your interpretation and analysis.
 
+The multiGSEA package provides a small example expression dataset extracted from
+the TCGA BRCA dataset, which is available via the `exampleExpressionSet`
+function. In this vignette we will explore differential expression and gene
+set enrichment analysis by examining differences between basal and her2 PAM50
+subtypes.
+
 # Standard Workflow
 
-We'll use the `r"Biocpkg("airway")"` data package from [Himes et al.][himes] as
-the basis for our analysis here[^rnaseqworkflow]. This dataset contains
-treatment (with the glucocorticoid dexamethasone) and control samples from four
-airway smooth muscle (ASM) cell lines in order to study the mechanism by which
-glucocorticoids suppress inflammation in ASM.
-
-[himes]: http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0099625
-
-[^rnaseqworkflow]: This dataset is also used as the basis for the RNA-seq
-workflow tutorial published by Love et al. on
-[f1000research](http://f1000research.com/articles/4-1070/v1)
-
-Let's setup our work environment for analysis with multiGSEA.
+Let's begin by setting up our work environment for exploratory analysis using
+the multiGSEA package.
 
 ```{r init-env}
 library(multiGSEA)
@@ -110,92 +105,52 @@ and not `data.tables`.
 ## Data Setup
 
 multiGSEA is most straightforward to use when our data objects and analysis are
-performed with either the edgeR or voom/limma pipelines. In order to facilitate
-our analyses, we first convert the `airway` `SummarizedExperiment` to a
-`DGEList` and add simple gene annotations to the data.
+performed with either the edgeR or voom/limma pipelines and when we use
+Entrez IDs for gene gene identifiers.
 
-We provide a `createAirwayDGEList` function that encapsulates the logic
-described above and returns a DGEList from the airway dataset with Entrez
-identifiers as its gene-level identifiers.
+The `exampleExpressionSet` function gives us just such an object. We call it
+below in a manner that gives us an object that allows us to explore expression
+differnces between different subtypes of breast cancer.
 
 ```{r data-setup, eval=!exists('y.all'), results='hide'}
-y.all <- createAirwayDGEList()
+vm <- exampleExpressionSet(dataset='tumor-subtype', do.voom=TRUE)
 ```
 
-Below you'll find the `$samples` data.frame of the DGEList to give you an idea
-of what the samples are that we are working with.
+Below you'll find the `$targets` data.frame of the voomed `EList`
 
-`r knitr::kable(y.all$samples)`
+```{r}
+vm$targets[, c('Patient_ID', 'Cancer_Status', 'PAM50subtype')]
+```
 
 ## Data Analysis
 
-We want to identify the genes (and genesets) regulated under `dex` treatment.
+We will identify the genes and genesets that are differentially expressed
+between the basal and her2 subtypes. The `vm` object has already been `voom`d
+using this design:
 
-We'll use the following design:
-
-```{r design-setup}
-des <- model.matrix(~ 0 + group + cell, y.all$samples)
-colnames(des) <- sub('group', '', colnames(des))
-knitr::kable(as.data.frame(des))
+```{r}
+vm$design
 ```
 
-To test for the general affect of dexamethasone treatment independant of
-cell-type, we would test the following contrast:
+We can test for differences between basla and her2 subtypes using the following
+contrast:
 
 ```{r contrast-setup}
-(cm <- makeContrasts(dex=trt - untrt, levels=des))
+(cm <- makeContrasts(BvH=Basal - Her2, levels=vm$design))
 ```
-
-<div class="note">
-Many of the GSEA methods provided by limma support arbitrarily
-complex experimental designs. For instance, we can consider the `cell` factor
-to be a random effect (as opposed to the fixed effect we've setup above) and use
-limma's `duplicateCorrelation` functionality to model this, like so:
-
-```{r random-effects, eval=FALSE}
-## This code isn't runnable now. It is included here to provide an
-## example of the more exotic models that multiGSEA can support by
-## virtue of leveraging limma internally.
-des.re <- model.matrix(~ 0 + group, y.all$samples)
-vm.re <- voom(y, des.re)
-corfit <- duplicateCorrelation(vm.re, vm.re$design, block=y$samples$cell)
-vm.re <- voom(y, des.re, plot=TRUE, block=y$samples$cell,
-              correlation=corfit$consensus)
-```
-
-It is worth keeping in mind that that you can leverage these same moves in
-limma's gene set enrichment methods as well (ie. camera, fry/(m)roast, and
-romer).
-</div>
 
 ### Differential Gene Expression
 
 In this section, we first show you the straightforward analysis you would do
 if you were only testing for differential gene expression.
 
-As with any voom-based analysis, our first job is to remove lowly expressed
-genes across our dataset. Here we consider a gene to be lowly
-expressed if it's not expressed above 1 cpm in at least 4 experiments (because
-this dataset has n=4 replication between dex treatments).
-
-```{r gene-filter, fig.width=5, fig.height=4.5}
-keep <- rowSums(cpm(y.all) >= 1) >= 4
-y <- y.all[keep,,keep.lib.sizes=FALSE] %>%
-  calcNormFactors %>%
-  set_rownames(., .$genes$entrez_id) ## using entrez identifiers
-vm <- voom(y, des, plot=FALSE)
-# vm <-  exampleExpressionSet('tumor-subtype')
-# cm <- makeContrasts(BvH=Her2 - Basal, levels=vm$design)
-```
-
-Now that we have our expression (`vm`), design (`vm$design`) and contrast (`cm`)
-data in hand, we can perform our differential expression analyss.
+With the data we have at hand, you would simply do the following:
 
 ```{r dge-analysis}
 fit <- lmFit(vm, vm$design) %>%
   contrasts.fit(cm) %>%
   eBayes
-tt.dex <- topTable(fit, 'dex', n=Inf, sort.by='none')
+tt <- topTable(fit, 'BvH', n=Inf, sort.by='none')
 ```
 
 ### Gene Set Enrichment Analysis
@@ -216,7 +171,7 @@ on hand, but the package also provides convenience wrappers to generate
 
 We'll use the `getMSigGeneSetDb` convenience function provided by the
 *multiGSEA* package to load the [hallmark][hallmark] (`"h"`) and
-[ImmuneSigDb][isigdb] (`"c7"`) gene set collections.
+[c2 (curated)][c2] (`"c2"`) gene set collections from [MSigDB][msigdb].
 
 [msigdb]: http://software.broadinstitute.org/gsea/msigdb/
 [hallmark]: http://www.cell.com/cell-systems/abstract/S2405-4712(15)00218-5
@@ -228,9 +183,7 @@ We'll use the `getMSigGeneSetDb` convenience function provided by the
 [pgoslim]: http://www.pantherdb.org/panther/ontologies.jsp
 
 ```{r build-gdb, eval=!exists('gdb')}
-library(multiGSEA)
-gdb <- getMSigGeneSetDb(c('h', 'c7'),  'human')
-# getMSigGeneSetDb(c('h', 'c2'), 'human')
+gdb <- getMSigGeneSetDb(c('h', 'c2'), 'human')
 ```
 
 You can view a table of the gene sets defined inside a `GeneSetDb` (`gdb`)object
@@ -239,8 +192,7 @@ via its `geneSets(gdb)` accessor:
 ```{r geneSets-accessor}
 geneSets(gdb) %>%
   head %>%
-  select(1:4) %>%
-  knitr::kable()
+  select(1:4)
 ```
 
 For more details on creating and manipluating `GeneSetDb` objects, please jump
@@ -255,20 +207,16 @@ enumeration of the methods you want to use in your analysis.
 The call to `multiGSEA` will perform these analyses and return a
 `MultiGSEAResult` object which you can then use for downstream analysis.mg.d
 
-```{r run-multi-GSEA, eval=!exists('mg.dex'), cache=TRUE, results='hide'}
-mg.dex <- multiGSEA(
-  gdb, vm, vm$design, cm[, 'dex'],
+```{r run-multi-GSEA, eval=!exists('mg'), results='hide'}
+mg <- multiGSEA(
+  gdb, vm, vm$design, cm[, 'BvH'],
   methods=c('camera', 'fry', 'goseq'),
   ## these parameters define which genes are differentially expressed
   feature.max.padj=0.05, feature.min.logFC=1,
   ## for camera:
   inter.gene.cor=0.01,
   ## for goseq (the *.max.padj and *.min.logFC parameters also affect goseq)
-  feature.bias=setNames(vm$genes$length, rownames(vm)))
-
-# mg = multiGSEA(gdb, vm, vm$design, cm[,1], 
-#                methods=c('camera', 'goseq'),
-#                feature.bias=setNames(vm$genes$size, rownames(vm)))
+  feature.bias=setNames(vm$genes$size, rownames(vm)))
 ```
 
 We will unpack the details of the `multiGSEA` call shortly ...
@@ -285,12 +233,11 @@ a `matrix`, `ExpressionSet` or `EList` into `multiGSEA`, a *limma*-based
 Either way, the results of the internally run differential expression analysis
 is accessible via a call to `logFC` function on the `MultiGSEAResult` object:
 
-```{r logFC-results, results='asis'}
-lfc <- logFC(mg.dex)
+```{r logFC-results}
+lfc <- logFC(mg)
 lfc %>%
-  select(symbol, entrez_id, logFC, CI.L, CI.R, t, pval, padj) %>%
-  head(5) %>%
-  knitr::kable(digits=3)
+  select(symbol, entrez_id, logFC, t, pval, padj) %>%
+  head
 ```
 
 We can confirm that the statistics generated internally in multiGSEA mimic our
@@ -298,9 +245,9 @@ explicit analysis above by verifying that the t-statistics generated by both
 approaches are identical.
 
 ```{r compare-dge-t-stats}
-comp <- tt.dex %>% 
-  dplyr::select(entrez_id, symbol, logFC, t) %>%
-  inner_join(lfc, by=c('entrez_id'), suffix=c('.tt', '.mg'))
+comp <- tt %>% 
+  select(entrez_id, logFC, t, pval=P.Value, padj=adj.P.Val) %>%
+  inner_join(lfc, by='entrez_id', suffix=c('.tt', '.mg'))
 all.equal(comp$t.tt, comp$t.mg)
 ```
 
@@ -321,13 +268,13 @@ We also have the results of all the GSEA analyses that we specified to our
 multiGSEA call via the `methods` parameter.
 
 ```{r mg-res}
-mg.dex
+mg
 ```
 
 The table above enumerates the different GSEA methods run over each geneset
 collection in the rows. The columns enumerate the number of genesets that the
 collection has in total (`geneset_count`), and how many were found significant
-at a given FDR, which is set to 30% by default. The `show` command for the
+at a given FDR, which is set to 20% by default. The `show` command for the
 `MultiGSEAResult` object simply calls the `tabulateResults` function, which
 you can call directrly with the value of `max.p` that you might find more
 appropriate.
@@ -340,7 +287,7 @@ methods were run, and therefore available to you, within the the
 `MultiGSEAResult` object:
 
 ```{r resultnames}
-resultNames(mg.dex)
+resultNames(mg)
 ```
 
 Note that when running a "goseq" analysis, multiGSEA will (by default) run
@@ -352,24 +299,35 @@ The individual gene set statistics generated by each method are available via
 the `result` function (or several can be returned with `results`):
 
 ```{r goseq-res}
-cam.res <- result(mg.dex, 'camera')
-cam.go.res <- results(mg.dex, c('camera', 'goseq.up'))
+cam.res <- result(mg, 'camera')
+cam.go.res <- results(mg, c('camera', 'goseq.up'))
+```
+
+You can identify genesets with the strongest enrichment by filtering and sorting
+against the appropraite columns. We can, for instance, identify which hallmark
+gene sets show the strongest enrichment as follows:
+
+```{r}
+cam.res %>% 
+  filter(padj < 0.1, collection == 'h') %>% 
+  arrange(desc(mean.logFC)) %>% 
+  select(name, n, mean.logFC, padj) %>% 
+  head
 ```
 
 You can also list the members of a geneset and their individual differential
 expression statistics for the contrast under test using the `geneSet` function.
 
 ```{r geneset-result}
-gs <- geneSet(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP')
-gs %>%
+geneSet(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING') %>% 
   select(symbol, entrez_id, logFC, pval, padj) %>%
-  head %>%
-  knitr::kable(digits=3)
+  head
 ```
 
 <div class="note">
 The results provided in the table generated from a call to `geneSet` are
-independant of GSEA method.
+independant of GSEA method. The statistics appended to the gene set members
+are simply the ones generated from a differential expression analysis.
 </div>
 
 #### Plotting
@@ -380,16 +338,22 @@ density plots shown below, the log fold changes (logFCs) (or t-statistics) for
 all genes under the contrast are visualized in the "background" set, and these
 same values are shown for the desired geneset under the "geneset" group.
 
+The logFC (or t-statistics) of the genes in the gene set are plotted as points,
+which allow you to hover to identify the identify of the genes that land in
+the regions of the distributions you care about.
+
 **Boxplot**
 
-```{r iplot-tnfa-box}
-iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='boxplot', value='logFC')
+```{r iplot-tnfa-box, fig.asp=1}
+iplot(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
+      type='boxplot', value='logFC')
 ```
 
 **Density**
 
-```{r iplot-tnfa-density}
-iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='density', value='logFC')
+```{r iplot-tnfa-density, fig.asp=1}
+iplot(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
+      type='density', value='logFC')
 ```
 
 #### Interactive Exploration
@@ -397,10 +361,13 @@ iplot(mg.dex, 'c2', 'STEGER_ADIPOGENESIS_UP', type='density', value='logFC')
 A shiny application is included in the `inst/shiny` folder of this package.
 This shiny application can be launched via tha `explore` function so that
 the analyst can explore the results stored in a MultiGSEAResult "in real time."
-The application can also be deployed to a shiny server, and users can upload
-`MultiGSEAResult` objects in an rds object (via `saveRDS`).
+The same application can also be deployed to a shiny server, which allows users
+to upload serialized `MultiGSEAResult` objects as rds objects (via `saveRDS`).
 
-Run `explore(mg.dex)` to see it in action.
+Run `explore(mg)` to see this application in action.
+
+A separate vignette will be written that gives a tour of this application in
+more deatail.
 
 # The GeneSetDb Class
 
@@ -408,12 +375,12 @@ The GeneSetDb class is a new container to store collections of genesets which
 provides different types of functionality than is found in
 GSEABase::GeneSetCollection objects.
 
-We can, for instance, identify all 117 gene sets that have genes "2040" and
-"10062" (entrez ids) as members.
+We can, for instance, identify all 84 gene sets that have genes "10014" and
+"1454" (entrez ids) as members (HDAC5 and CSNK1E, respectively).
 
 ```{r subset-gdb}
-gdb <- geneSetDb(mg.dex)
-gdb.sub <- subsetByFeatures(gdb, c('2040', '10062'))
+gdb <- geneSetDb(mg)
+gdb.sub <- subsetByFeatures(gdb, c('10014', '1454'))
 nrow(gdb); nrow(gdb.sub)
 ```
 
@@ -437,9 +404,9 @@ as.data.frame(gdb)[c(1:5, 201:205),]
 
 
 The `(collection,name)` tuple is the primary key of a gene set. The `featureId`
-column stores gene identifiers. For the time being, it might be most natural
+column stores gene identifiers. For the time being, it will be most natural
 for these featureIds to simply be entrez ids, as many of the annotation
-databases use entrez gene identifiers themselves. 
+databases use entrez gene identifiers themselves.
 
 ## Building a GeneSetDb
 
@@ -461,7 +428,18 @@ accpets the following inputs:
 3. A named list of (2)-like lists. The top level names are the names of the
    different collecitons, and each sublist represents the genesets in that
    collection.
-  
+
+Two `GeneSetDb` objects can be combined using the `append` function. For now
+it is your responsibility to ensure that the two `GeneSetDb` objedts are
+"reasonably conformable", ie. they use the same types of gene identifiers, and
+are referencing the same species, etc.
+
+```{r, eval=FALSE}
+msigdb <- getMSigGeneSetDb('h', 'human')
+goslimdb <- getPantherGeneSetDb('goslim', 'human')
+gdb.uber <- append(msigdb, goslimdb)
+```
+
 See the help and examples in `?GeneSeDb` for more information.
 
 ## Active vs Inactive Gene Sets
@@ -487,9 +465,9 @@ gdbc <- conform(gdb, vm, min.gs.size=10, max.gs.size=100)
 head(geneSets(gdbc, active.only=FALSE))
 ```
 
-We can see that, only 14 of the 16 genes in the
-`(c2,ABDELMOHSEN_ELAVL4_TARGETS)` were found in the rows of `vm`, and the `(c2,ABBUD_LIF_SIGNALING_2_DN)` was "deactivated." Deactivated
-(`active == FALSE`) gene setrs will be ignored during downstream analyses. This
+We can see that, only 23 of the 26 genes in the
+`(c2,ABBUD_LIF_SIGNALING_1_DN)` were found in the rows of `vm`, and the `(c2,ABBUD_LIF_SIGNALING_2_DN)` was "deactivated." Deactivated
+(`active == FALSE`) gene sets will be ignored during downstream analyses. This
 gene set was deactivated  because it only has five "conformed" genes, but the
 minimum geneset size we wanted to consider (`min.gs.size`) was set to ten in
 our call to `conform`.
@@ -502,19 +480,21 @@ which, is `TRUE` by default. This specifies that only the genes that have been
 successfully conformed to a gene set should be the ones that are returned.
 
 For instance, we can identify which genes belong to the
-`(c2,ABDELMOHSEN_ELAVL4_TARGETS)`, and which two were not found in `vm` like so:
+`(c2,ABBUD_LIF_SIGNALING_1_DN)`, and which three were not found in `vm` like so:
 
 ```{r}
-setdiff(
-  featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=FALSE),
-  featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=TRUE))
+missed <- setdiff(
+  featureIds(gdbc, 'c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE),
+  featureIds(gdbc, 'c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=TRUE))
+missed
 ```
 
 or we can use the `geneSet` function to return a `data.frame` of these results:
 
 ```{r}
-geneSet(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS', active.only=FALSE) %>%
-  subset(!featureId %in% featureIds(gdbc, 'c2', 'ABDELMOHSEN_ELAVL4_TARGETS'))
+gdbc %>% 
+  geneSet('c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE) %>%
+  subset(featureId %in% missed)
 ```
 
 ## Mapping of gene set featureIds to target expression containers
@@ -554,7 +534,7 @@ a minimal log fold change thershold for gene significanc test, you would do
 so as follows:
 
 ```{r, eval=FALSE}
-mg <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
+mg <- multiGSEA(gdb, vm, vm$design, cm[, 'BvH'],
                 methods=c('goseq'),
                 treat.lfc=log2(1.5))
 ```
@@ -568,10 +548,10 @@ via the `...` in the `multiGSEA` call.
 For instance, you can read `?camera` to find that the `camera` method accepts an `inter.gene.cor` parameter, and `?roast` will tell you that you can specify
 the number of rotations used via the `nrot` parameter.
 
-```{r}
-mg <- multiGSEA(gdb, vm, vm$design, cm[, 'dex'],
-                methods=c('camera', 'roast'),
-                inter.gene.cor=0.04, nrot=500)
+```{r, eval=FALSE}
+mgx <- multiGSEA(gdb, vm, vm$design, cm[, 'BvH'],
+                 methods=c('camera', 'roast'),
+                 inter.gene.cor=0.04, nrot=500)
 ```
 
 # Single Sample Gene Set Scoring
@@ -594,7 +574,7 @@ scores <- scoreSingleSamples(h, vm, methods=c('ssgsea', 'zscore'),
 And we can compare the results of ssgsea vs zscores by manipulating the result
 into a wide data.frame and plotting these scores against each other:
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.width=5, fig.height=3.75}
 suppressPackageStartupMessages(library(tidyr))
 sw <- spread(scores, method, score)
 sw.some <- filter(sw, name %in% c('HALLMARK_ADIPOGENESIS', 'HALLMARK_APOPTOSIS'))
