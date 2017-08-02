@@ -15,7 +15,7 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
   gdb.sub <- subsetByFeatures(gdb, features)
   db.expect <- gdb.sub@db %>%
     copy %>%
-    dplyr::filter(featureId %in% features) %>%
+    subset(featureId %in% features) %>%
     setkeyv(c('collection', 'name', 'featureId'))
   db.result <- res %>%
     dplyr::select(collection, name, starts_with('featureId_')) %>%
@@ -56,16 +56,16 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
   ## check that symbol remapping works, too
   res.s <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
                                  feature.rename='symbol', .external=FALSE)
-  
+
   lfc.ex <- logFC(mg) %>%
     dplyr::filter(featureId %in% features) %>%
     dplyr::transmute(renamed=ifelse(!is.na(symbol), symbol, paste0('featureId_', featureId)),
                      logFC) %>%
     dplyr::arrange(renamed)
   expect_true(all(lfc.ex$renamed %in% colnames(res.s)))
-  
-  lfc.s <- res.s %>% 
-    dplyr::select_(.dots=lfc.ex$renamed) %>% 
+
+  lfc.s <- res.s %>%
+    dplyr::select_(.dots=lfc.ex$renamed) %>%
     as.matrix %>%
     melt %>%
     dplyr::transmute(renamed=as.character(Var2), logFC=value) %>%
@@ -82,7 +82,7 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
   p.thresh <- 0.20
   camera.sig <- dplyr::filter(result(mg, 'camera'), padj <= p.thresh)
-  
+
   features <- sample(featureIds(mg), 10)
   res.all <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
                                    feature.rename='symbol', .external=FALSE)

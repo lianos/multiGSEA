@@ -9,13 +9,13 @@
 \title{Returns the relevant featureIds for a given geneset.}
 \usage{
 featureIds(x, i, j, value = c("featureId", "x.id", "x.idx"),
-  fetch.all = FALSE, active.only = is.conformed(x), ...)
+  active.only = is.conformed(x), ...)
 
 \S4method{featureIds}{GeneSetDb}(x, i, j, value = c("featureId", "x.id",
-  "x.idx"), fetch.all = FALSE, active.only = is.conformed(x), ...)
+  "x.idx"), active.only = is.conformed(x), ...)
 
 \S4method{featureIds}{MultiGSEAResult}(x, i, j, value = c("featureId", "x.id",
-  "x.idx"), fetch.all = FALSE, active.only = TRUE, ...)
+  "x.idx"), active.only = TRUE, ...)
 }
 \arguments{
 \item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
@@ -31,12 +31,6 @@ a \code{MultiGSEAResult}.}
   \item{x.idx}{The integer index into the expresion object \code{x} that
         the GeneSetDb has been conformed to.}
 }}
-
-\item{fetch.all}{If \code{x} has been conformed, there are maybe be some
-features in the gene set that weren't present in the target expression
-object. If this is the case, and \code{fetch.all=FALSE} (the default),
-then only the features that were "conformed" are returned, otherwise
-all features are returned.}
 
 \item{active.only}{only look for gene sets that are "active"? Defaults to
 \code{TRUE} if \code{x} is conformed to a target expression object, else
@@ -56,9 +50,10 @@ these are missing, then a character vector of all the unique feature ids
 within \code{x} are returned.
 
 If the GeneSetDb \code{x} has been conformed to an expression object this
-will default to return the featureId's as they are used/matched to the
-expression object, otherwise it will return the featureIds used in the
-definition of the gene set database.
+will default to return only the featureId's that are matched to the target
+expression object, and they will be returned using the same identifiers that
+the target expression object uses. To change this behavior, tweak the values
+for the \code{activee.only} and \code{value} parameters, respectively.
 
 \code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If
 its the latter, then this call simply delegates to the internal
@@ -74,6 +69,8 @@ vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- conform(gdb, vm)
 ## fewer than before
 featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+## same as before
+featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
 ## returned as row indices into vm
 featureIds(gdb, 'c2', value='x.idx')
 }

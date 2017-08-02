@@ -14,7 +14,8 @@
 ##'     The "eigenWeightedMean" calculates the fraction each gene contributes
 ##'     to a pre-specified principal component. These contributions acts as
 ##'     weights over each gene, which are then used in a simple weighted mean
-##'     calculation over all the genes in the geneset per sample.}
+##'     calculation over all the genes in the geneset per sample. This is
+##'     similar, in spirit, to the svd/gsdecon method}
 ##'   \item{svd,gsdecon}{
 ##'     This method was first introduced by Jason Hackney in
 ##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
@@ -55,10 +56,10 @@
 ##' library(reshape2)
 ##' gdb <- exampleGeneSetDb()
 ##' vm <- exampleExpressionSet()
-##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'gsdecon', 'zscore'),
+##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'svd', 'zscore'),
 ##'                              uncenter=FALSE, unscale=FALSE)
 ##' sw <- dcast(scores, name + sample ~ method, value.var='score')
-##' corplot(sw[, c('ewm', 'gsdecon', 'zscore')],
+##' corplot(sw[, c('ewm', 'svd', 'zscore')],
 ##'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
                                drop.sd=1e-4, verbose=FALSE, ...) {
@@ -248,28 +249,7 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
   x / (max.b - min.b)
 }
 
-# Jason's method
-# do.scoreSingleSamples.gsdecon <- function(gdb, y, as.matrix=FALSE, design=NULL,
-#                                           doPerm=FALSE, nPerm=249,
-#                                           pvalueCutoff=0.01, nComp=1, seed=NULL,
-#                                           ...) {
-#   if (!requireNamespace('GSDecon')) {
-#     stop("Jason Hackney's GSDecon package required")
-#   }
-#   if (is.null(design)) {
-#     design <- cbind(Intercept=rep(1L, ncol(y)))
-#   }
-#   stopifnot(is.matrix(design))
-#   stopifnot(nrow(design) == ncol(y))
-#   im <- incidenceMatrix(gdb)
-#   res <- GSDecon::decon(y, design, im, doPerm=doPerm, nPerm=nPerm,
-#                         pvalueCutoff=pvalueCutoff, nComp=nComp, seed=seed)
-#   out <- t(res@eigengenes)
-#   rownames(out) <- rownames(im)
-#   out
-# }
-
-## A no dependency call to GSDecon's eigengene scoring
+## A no dependency call to GSDecon-like eigengene scoring
 do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, gs.idxs=NULL, ...) {
@@ -322,5 +302,6 @@ gs.score.map <- list(
   ssgsea=do.scoreSingleSamples.gsva,
   gsdecon=do.scoreSingleSamples.svd,
   svd=do.scoreSingleSamples.svd,
+  gsdecon=do.scoreSingleSamples.svd,
   ewm=do.scoreSingleSamples.eigenWeightedMean,
   mean=do.scoreSingleSamples.mean)

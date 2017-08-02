@@ -11,10 +11,10 @@
 geneSet(x, i, j, ...)
 
 \S4method{geneSet}{GeneSetDb}(x, i, j, active.only = is.conformed(x),
-  fetch.all = FALSE, with.feature.map = FALSE, ..., .external = TRUE)
+  with.feature.map = FALSE, ..., .external = TRUE)
 
 \S4method{geneSet}{MultiGSEAResult}(x, i, j, active.only = TRUE,
-  fetch.all = FALSE, with.feature.map = FALSE, ..., .external = TRUE)
+  with.feature.map = FALSE, ..., .external = TRUE)
 }
 \arguments{
 \item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
@@ -29,12 +29,6 @@ a \code{MultiGSEAResult}.}
 \item{active.only}{only look for gene sets that are "active"? Defaults to
 \code{TRUE} if \code{x} is conformed to a target expression object, else
 \code{FALSE}. See \code{\link{conform}} for further details.}
-
-\item{fetch.all}{If \code{x} has been conformed, there are maybe be some
-features in the gene set that weren't present in the target expression
-object. If this is the case, and \code{fetch.all=FALSE} (the default),
-then only the features that were "conformed" are returned, otherwise
-all features are returned.}
 
 \item{with.feature.map}{If \code{TRUE}, then deatils of the feature mapping
 from the original featureId space to the target feature space are included

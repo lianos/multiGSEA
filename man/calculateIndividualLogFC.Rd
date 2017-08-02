@@ -6,8 +6,8 @@
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
-  use.treat = FALSE, treat.lfc = log2(1.25), confint = TRUE,
-  with.fit = FALSE, ..., .external = TRUE)
+  treat.lfc = NULL, confint = TRUE, with.fit = FALSE, ...,
+  .external = TRUE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -23,11 +23,9 @@ running any analysis, and this function essentially is just a "pass through"}
 \item{robust.eBayes}{The value of the \code{robust} parameter in the
 \code{eBayes} call.}
 
-\item{use.treat}{logical indicating whether or not to use the "treat"
-functionality to calculate pvalues based on minimum logFC
-(\code{treat.lfc})}
-
-\item{treat.lfc}{The logFC to test the dge on.}
+\item{treat.lfc}{If this is numeric, this activates limma's "treat"
+functionality and tests for differential expression against this
+specified log fold change threshold. This defaults to \code{NULL}.}
 
 \item{confint}{add confidence intervals to \code{topTable} output (default
 \code{TRUE})? Ignored if \code{x} is a \code{DGEList}.}
@@ -56,6 +54,7 @@ already been called and this will run a quasi-likelihood based differential
 expression analysis, otherwise a "vanilla" limma run will be run.
 
 Lastly, if \code{x} is simply a single column matrix, we assume that we are
-just "passing through" a single pre-ranked vector of statistics a dummy
-logFC-like data.frame is returned as a result.
+just passing a single pre-ranked vector of statistics through multiGSEA's
+analysis pipelines, and a logFC-like data.frame is constructed with these
+statistics in the \code{logFC} and \code{t} columns.
 }

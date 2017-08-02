@@ -1,5 +1,5 @@
 ---
-title: "An Introduction to the multiGSEA Package"
+title: "Performing gene set enrichment analyses with multiGSEA"
 author: "Steve Lianoglou"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('multiGSEA')`"
@@ -8,15 +8,17 @@ abstract: >
   GSEA approaches for a single experimental contrast and provides tools
   to explore these results from within the user's workspace or via a shiny
   application.
-vignette: >
-  %\VignetteIndexEntry{An Introduction to the multiGSEA Package}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding[utf8]{inputenc}
+  multiGSEA package version: `r packageVersion("multiGSEA")`
 output:
   rmarkdown::html_document:
+    self_contained: yes
     highlight: pygments
     toc: true
     fig_width: 5
+vignette: >
+  %\VignetteIndexEntry{Performing gene set enrichment analyses with multiGSEA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding[utf8]{inputenc}
 ---
 
 ```{r init, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -45,7 +47,7 @@ by providing these top-line functionalities:
   single sample gene set scoring methods.
 * The `GeneSetDb` class: a new class to store collections of gene sets. This
   provides a bit more functionality than the base `GeneSetCollection` class
-  defined in the [GSEABase][http://bioconductor.org/packages/GSEABase].
+  defined in the [GSEABase](http://bioconductor.org/packages/GSEABase).
 
 The initial GSEA methods that multiGSEA wrapped were the ones provided by limma
 and edgeR. As such, many analyses using multiGSEA expect you to re-use the same
@@ -574,7 +576,7 @@ scores <- scoreSingleSamples(h, vm, methods=c('ssgsea', 'zscore'),
 And we can compare the results of ssgsea vs zscores by manipulating the result
 into a wide data.frame and plotting these scores against each other:
 
-```{r, message=FALSE, fig.width=5, fig.height=3.75}
+```{r, message=FALSE, fig.asp=0.85}
 suppressPackageStartupMessages(library(tidyr))
 sw <- spread(scores, method, score)
 sw.some <- filter(sw, name %in% c('HALLMARK_ADIPOGENESIS', 'HALLMARK_APOPTOSIS'))

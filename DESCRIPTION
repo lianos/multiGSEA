@@ -19,21 +19,17 @@ Imports:
     GSVA,
     reshape2,
     data.table (>= 1.10.4),
-    dplyr,
-    dtplyr,
     Matrix,
     ggplot2 (>= 2.2.0),
     plotly (>= 4.7.0),
     matrixStats,
     circlize,
-    stringr,
     magrittr,
     shiny,
     shinyjs,
     miniUI,
     DT
 Suggests:
-    fgsea,
     goseq,
     DESeq2,
     testthat,
@@ -51,7 +47,9 @@ Suggests:
     rprojroot,
     statmod,
     org.Hs.eg.db,
-    KernSmooth
+    KernSmooth,
+    dplyr,
+    dtplyr
 VignetteBuilder: knitr
 License: GPL (>=2)
 Collate: 

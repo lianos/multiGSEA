@@ -1,9 +1,5 @@
 library("multiGSEA")
 library("testthat")
-library("magrittr")
-library("data.table")
-library("dtplyr")
-library("dplyr")
 
 test_check("multiGSEA")
 

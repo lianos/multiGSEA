@@ -20,10 +20,6 @@ running any analysis, and this function essentially is just a "pass through"}
 
 \item{contrast}{The contrast you want to test and provide stats for}
 
-\item{use.treat}{logical indicating whether or not to use the "treat"
-functionality to calculate pvalues based on minimum logFC
-(\code{treat.lfc})}
-
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
 }
 \value{

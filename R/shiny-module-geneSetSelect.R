@@ -157,8 +157,4 @@ gs.select.choices <- function(mg, sep='_::_') {
     list(collection, label=name, value=paste(collection, name, sep=sep))
   }]
   setDF(out)
-  # geneSets(mg) %>%
-  #   select(collection, label=name) %>%
-  #   mutate(value=paste(collection, label, sep=sep)) %>%
-  #   as.data.frame(stringsAsFactors=FALSE)
 }
