@@ -13,6 +13,7 @@ col.pairs <- circlize::colorRamp2(c(-1, 0, 1), c('blue', 'white', 'red'), 0.5)
 ##'   score of all genes in E.
 ##'
 ##' @export
+##' @importFrom graphics smoothScatter text
 ##' @seealso \url{http://cran.r-project.org/package=corrplot}
 ##'
 ##' @param E the matrix used to plot a pairs correlation plot. The vectors used

@@ -45,6 +45,8 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   hex <- dat[hex.me,,drop=FALSE]
   pts <- dat[!hex.me,,drop=FALSE]
 
+  # silence R CMD check NOTEs
+  .xvt <- .yvt <- .xv <- .yv <- NULL
   gg <- ggplot(dat, aes(.xvt, .yvt))
   if (nrow(pts)) {
     if ('symbol' %in% names(dat)) {

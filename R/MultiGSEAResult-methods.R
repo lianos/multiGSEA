@@ -27,7 +27,7 @@ function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
                 ..., .external=FALSE)
-  lfc <- logFC(x, .external=FALSE)[J(gs$featureId), on='featureId']
+  lfc <- logFC(x, .external=FALSE)[list(gs$featureId), on='featureId']
   out <- cbind(gs, lfc)
   ## remove duplicate columns if they exist after cbind
   keep.cols <- !duplicated(colnames(out))
@@ -224,7 +224,6 @@ invalidMethods <- function(x, names, as.error=FALSE) {
 ##'
 ##' @export
 ##' @rdname results
-##' @param x A \code{MultiGSEAResult} object.
 ##'
 ##' @examples
 ##' ## Refer to the examples in ?multiGSEA
@@ -399,6 +398,7 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
       r$pcol <- r[[idx]]
     }
     ## r$pcol <- r[[p.col]]
+    pcol <- NULL # silence R CMD check NOTEs
     r[, {
       list(method=wut, geneset_count=length(pcol),
            sig_count=sum(pcol <= max.p, na.rm=TRUE),

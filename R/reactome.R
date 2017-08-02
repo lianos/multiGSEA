@@ -27,14 +27,16 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
                keytype='PATHNAME')
   })
   stopifnot(setequal(org.pathnames, info$PATHNAME))
-  info <- subset(info, !is.na(ENTREZID))
+  info <- info[!is.na(info[['ENTREZID']]),,drop=FALSE]
   setDT(info)
+
+  N.pathid <- PATHNAME <- ENTREZID <- PATHID <- NULL # silence R CMD check NOTEs
 
   ## Are there multiple mappings for PATHNAME:PATHID combo?
   ## maybe from different organisms?
-  u.id2name <- unique(info[, list(PATHID, PATHNAME)])
+  u.id2name <- unique(info[, c('PATHID', 'PATHNAME'), with=FALSE])
   u.id2name[, N.pathid := .N, by='PATHID']
-  if (nrow(dups <- subset(u.id2name, N.pathid > 1))) {
+  if (nrow(dups <- u.id2name[N.pathid > 1])) {
     warning("Multiple PATHID to PATHNAME not resolved", immediate.=TRUE)
   }
 

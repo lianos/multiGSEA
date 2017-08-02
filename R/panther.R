@@ -69,16 +69,16 @@ getPantherPathways <- function(p.db, org.db) {
   ## Map uniprot to entrez
   umap <- aselect(org.db, p.all$UNIPROT, c('UNIPROT', 'ENTREZID'), 'UNIPROT')
   m <- merge(p.all, umap, by='UNIPROT')
-  m <- subset(m, !is.na(ENTREZID))
+  m <- m[!is.na(m[['ENTREZID']]),,drop=FALSE]
   lol <- list(`panther pathway`=split(m$ENTREZID, m$PATHWAY_TERM))
 
-  idxref <- unique(as.data.table(p.all)[, list(PATHWAY_TERM, PATHWAY_ID)])
+  idxref <- unique(as.data.table(p.all)[, c('PATHWAY_TERM', 'PATHWAY_ID'), with=FALSE])
   setkeyv(idxref, 'PATHWAY_TERM')
 
   url.fn <- function(coll, name) {
     ## Captures the lookup table for future use from parent.frame(!)
     ## Not sure if this will cause any serious memory leak, but ...
-    pid <- idxref[J(name)]$PATHWAY_ID
+    pid <- idxref[list(name)]$PATHWAY_ID
     if (is.na(pid)) {
       return("http://pantherdb.org/panther/prowler.jsp?reset=1&selectedView=5")
     }
@@ -97,17 +97,17 @@ getPantherGOSLIM <- function(p.db, org.db) {
   }
   aselect <- getFromNamespace('select', 'AnnotationDbi')
   p.all <- aselect(p.db,
-                   keys(p.db, keytype='GOSLIM_ID'),
+                   AnnotationDbi::keys(p.db, keytype='GOSLIM_ID'),
                    columns=c('ENTREZ', 'GOSLIM_ID', 'GOSLIM_TERM'),
                    'GOSLIM_ID')
-  p.all <- subset(p.all, !is.na(ENTREZ))
-  p.all <- p.all[order(p.all$ENTREZ),]
+  p.all <- p.all[!is.na(p.all[['ENTREZ']]),,drop=FALSE]
+  p.all <- p.all[order(p.all[['ENTREZ']]),]
 
-  go <- aselect(GO.db,
-                unique(p.all$GOSLIM_ID),
+  go <- aselect(GO.db::GO.db,
+                unique(p.all[['GOSLIM_ID']]),
                 c('GOID', 'TERM'),
                 'GOID')
-  go.missed <- subset(go, is.na(TERM))
+  go.missed <- go[is.na(go[['TERM']]),,drop=FALSE]
   ## 2015-09-02 (Bioc 3.1)
   ##       GOID TERM
   ## GO:0005083   NA
@@ -120,7 +120,10 @@ getPantherGOSLIM <- function(p.db, org.db) {
       "apoptotic process",
       "nucleotide phosphatase activity (obsolete)"
     ), stringsAsFactors=FALSE)
-  go <- rbind(subset(go, !is.na(TERM)), go.add)
+  go <- rbind(
+    go[!is.na(go[['TERM']]),,drop=FALSE],
+    go.add
+  )
 
   GO <- merge(p.all, go, by.x='GOSLIM_ID', by.y='GOID', all.x=TRUE)
 

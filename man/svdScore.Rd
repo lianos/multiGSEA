@@ -41,7 +41,7 @@ It produces a single sample gene set score in values that are in
 to an eigengene based score.
 
 To easily use this method to score a number of gene setes across an
-experiment, you'll want to have the \code{\link{scoreSingleSasmples}} method
+experiment, you'll want to have the \code{\link{scoreSingleSamples}} method
 drive this function via specifying \code{"svd"} as one of the
 \code{methods}.
 }

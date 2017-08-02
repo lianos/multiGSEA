@@ -54,6 +54,7 @@ do.fry <- function(gsd, x, design, contrast=ncol(design),
 
   out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
                as.data.table(res))
+  NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
   out <- subset(out, name != dummy.gs)
 

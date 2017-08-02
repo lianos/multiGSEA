@@ -281,7 +281,7 @@ summaryHTMLTable.multiGSEA <- function(x, names=resultNames(x), max.p, p.col) {
     stopifnot(length(unique(sc$geneset_count)) == 1L)
 
     mres <- lapply(names, function(name) {
-      with(subset(sc, method == name), {
+      with(sc[sc[['method']] == name,,drop=FALSE], {
         tags$td(sprintf("%d (%d up; %d down)", sig_count, sig_up, sig_down))
       })
     })

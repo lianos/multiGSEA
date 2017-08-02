@@ -110,6 +110,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
     })
     setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
              c('pval', 'pval.under'))
+    padj.under <- pval.under <- NULL # silence R CMD check NOTEs
     res[, padj := p.adjust(pval, 'BH')]
     res[, padj.under := p.adjust(pval.under, 'BH')]
   }, simplify=FALSE)
@@ -188,6 +189,9 @@ goseq <- function(gsd, selected, universe, feature.bias,
     gsd <- conform(gsd, universe)
   }
   stopifnot(is.conformed(gsd, universe))
+
+  # silence R CMD check NOTEs
+  category <- padj_over <- pval_over <- padj_under <- pval_under <-  NULL
 
   gs <- geneSets(gsd, active.only=TRUE, .external=FALSE)
   gs[, category := paste(collection, name, sep=';;')]

@@ -7,7 +7,7 @@
 summaryHTMLTable.multiGSEA(x, names = resultNames(x), max.p, p.col)
 }
 \arguments{
-\item{x}{A \code{MultiGSEAResult} object.}
+\item{x}{MultiGSEAResult}
 
 \item{names}{The results you want to cbind together for the output, will
 default to all of them.}

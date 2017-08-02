@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
-Title: A utility belt for gene set enrichment analyses and their interactive exploration.
-Version: 0.8.3
+Title: A utility belt for gene set enrichment analyses and their interactive exploration
+Version: 0.8.4
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
@@ -9,8 +9,11 @@ Description: Provides a unified interface to orchestrate a plethora of GSEA
     scoring methods. This package also provides robust interactive tools to
     explore GSEA results.
 Depends:
-    edgeR
+    edgeR,
+    limma
 Imports:
+    edgeR,
+    limma,
     methods,
     BiocGenerics,
     BiocParallel,

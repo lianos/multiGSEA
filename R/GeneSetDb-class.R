@@ -175,6 +175,8 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   stopifnot(is.data.frame(x) && nrow(x) > 0)
   proto <- new("GeneSetDb")
   x <- setDT(as.data.frame(copy(x)))
+  # collection <- NULL # silence R CMD check NOTEs
+
   if (!'collection' %in% names(x)) {
     if (!is.character(collectionName) &&
         !length(collectionName) %in% c(1L, nrow(x))) {
@@ -440,6 +442,7 @@ setValidity("GeneSetDb", function(object) {
   }
   ## 2. Collect information about required metadata entries for each collection,
   ##    ie. the count of genesets in the collection and their url_function
+  # name <- value <- NULL # silence R CMD check NOTEs
   cm.info <- object@collectionMetadata[, {
     is.url.fn <- which(name == 'url_function')
     is.count <- which(name == 'count')

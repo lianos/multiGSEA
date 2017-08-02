@@ -21,7 +21,7 @@ test_that("geneSetsStats", {
   ## more manual way to do this.
   expected <- geneSets(gsd, .external=FALSE)[, {
     ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
-    lfc <- istats[J(ids)]
+    lfc <- istats[list(ids)]
     t.nona <- lfc$t[!is.na(lfc$t)]
     list(mean.logFC=mean(lfc$logFC, na.rm=TRUE),
          mean.logFC.trim=mean(lfc$logFC, na.rm=TRUE, trim=trim),

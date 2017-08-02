@@ -159,6 +159,7 @@ is.geneSetContrastViewer <- function(x) {
 }
 
 ##' @export
+##' @importFrom shiny withReactiveDomain
 ##' @rdname geneSetContrastViewModule
 updateActiveGeneSetInContrastView <- function(session, viewer, geneset, mgc) {
   stopifnot(is(mgc, 'MultiGSEAResultContainer'))

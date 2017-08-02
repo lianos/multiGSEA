@@ -81,6 +81,8 @@ hyperGeometricTest <- function(gsd, selected, universe,
   selected <- intersect(selected, universe)
   numDrawn <- length(selected)
 
+  # silence R CMD check NOTEs
+  odds <- expected <- NULL
   if (numDrawn == 0) {
     warning("No selected genes in hyperGeometricTest", immediate.=TRUE)
     out <- geneSets(gsd, .external=FALSE)[, list(collection, id)]

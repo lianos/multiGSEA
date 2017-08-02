@@ -88,7 +88,7 @@
 ##' parameters are passed down to that funciton.
 ##'
 ##' @export
-##' @importFrom BiocParallel bplapply SerialParam
+##' @importFrom BiocParallel bplapply SerialParam bpparam
 ##'
 ##' @seealso
 ##'   \code{\link[limma]{camera}},

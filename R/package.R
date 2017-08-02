@@ -3,6 +3,7 @@
 
 
 ##' @import edgeR
+##' @import limma
 ##' @import reshape2
 ##' @import data.table
 ##' @import Biobase
@@ -18,3 +19,18 @@
 ##' @importFrom graphics abline axis legend lines rect segments hist pairs par
 ##' @importFrom graphics points strwidth
 NULL
+
+## A workaround to avoid R CMD check NOTEs for 'no visible binding for global variable'
+## The following variables often appear within data.table[magic := stuff] when
+## working with GSEA results.
+utils::globalVariables(
+  c(".",
+    # appears in data.table[manip := ulations] of core multiGSEA tables
+    "active", "collection", "featureId", "N", "n", "name",
+    "mean.logFC.trim",
+    "pval", "padj", "padj.by.collection", "padj.up", "padj.down",
+    "value",  "significant", "x.idx",
+    # random
+    "group", "finalId", "ID", "id"
+    ))
+## https://github.com/jennybc/googlesheets/blob/master/R/googlesheets.R

@@ -17,7 +17,6 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
     out <- tagList(
       useShinyjs(),
       tags$a(id=ns('settings'), icon("wrench")),
-      # rbokehOutput(ns("plot")),
       plotlyOutput(ns("plot")),
       hidden(
         tags$div(
@@ -27,7 +26,7 @@ mgVolcanoUI <- function(id, x, stats='dge', xaxis='logFC', yaxis='padj',
           sliderInput(
             ns("yhex"), 'y filter', min=0, max=1, step=0.025, value=0.10))))
   } else {
-    out <- rbokehOutput(ns("plot"))
+    out <- plotlyOutput(ns("plot"))
   }
   out
 }
@@ -76,7 +75,7 @@ mgVolcano <- function(input, output, session,
     yhex <- input$yhex
     p <- volcano_plot(x(), stats, xaxis, yaxis, idx, xhex=xhex, yhex=yhex,
                       tools=tools, shiny_source='mgvolcano',
-                      width=width, heigh=height)
+                      width=width, height=height)
     p
   })
 

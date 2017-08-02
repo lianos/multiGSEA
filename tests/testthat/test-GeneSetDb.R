@@ -24,7 +24,7 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   ## retrieves them using the back door -- this is intentional.
   for (xgrp in names(gsl)) {
     for (xid in names(gsl[[xgrp]])) {
-      gsd.ids <- gsd@db[J(xgrp, xid)]$featureId
+      gsd.ids <- gsd@db[list(xgrp, xid)]$featureId
       expected.ids <- gsl[[xgrp]][[xid]]
       info.lol <- sprintf('collection %s id %s', xgrp, xid)
       expect_true(setequal(expected.ids, gsd.ids), info=info.lol)
@@ -209,7 +209,7 @@ test_that("conform,GeneSetDb follows row permutation in expression object", {
     ## Was this geneset deactivated in the subset gt?
     if (is.active(gsd.sub, grp, xid)) {
       fids.sub <- featureIds(gsd.sub, grp, xid)
-      n.sub <- gsd.sub@table[J(grp, xid)]$n
+      n.sub <- gsd.sub@table[list(grp, xid)]$n
       expect_equal(n.sub, length(fids.sub))
       expect_true(length(fids.sub) <= length(fids.es))
       ## sub features are subset of original features

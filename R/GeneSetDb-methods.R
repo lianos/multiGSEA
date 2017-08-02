@@ -149,7 +149,7 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
 
   x@table <- x@db[, {
     f <- featureId
-    xref <- fm[J(f)]
+    xref <- fm[list(f)]
     n <- sum(!is.na(xref$x.idx))
     active <- n >= min.gs.size && n <= max.gs.size
     list(active=active, N=.N, n=n)
@@ -268,7 +268,7 @@ incidenceMatrix <- function(x, y, ...) {
 is.active <- function(x, i, j) {
   stopifnot(is(x, 'GeneSetDb'))
   stopifnot(is.character(i), is.character(j), length(i) == length(j))
-  gsx <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i,j), nomatch=NA]
+  gsx <- geneSets(x, active.only=FALSE, .external=FALSE)[list(i,j), nomatch=NA]
   res <- gsx$active
   isna <- is.na(res)
   if (any(isna)) {
@@ -333,7 +333,7 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
 
   gs <- geneSets(x, active.only=active.only, .external=FALSE)
   gs <- gs[, key(gs), with=FALSE]
-  gs <- gs[J(i)]
+  gs <- gs[list(i)]
 
   if (nrow(gs) == 0L) {
     stop("There are no ", if (active.only) "active " else NULL,
@@ -345,7 +345,7 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
   } else {
     ## I am purposefully not using `hasGeneSet` here for performance reasons
     ## hasGeneSet(x, i, j, as.error=TRUE)
-    db <- x@db[J(i, j)]
+    db <- x@db[list(i, j)]
     if (is.na(db$featureId[1L])) {
       msg <- sprintf("collection=%s, name=%s does not exist in GeneSetDb db",
                      i, j)
@@ -403,16 +403,16 @@ function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
          .external=TRUE) {
   stopifnot(isSingleCharacter(i), isSingleCharacter(j))
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only, ...)
-  info <- geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j)]
-  info <- info[, list(collection, name, active, N, n)]
+  info <- geneSets(x, active.only=FALSE, .external=FALSE)[list(i, j)]
+  info <- info[, c("collection", "name", "active", "N", "n"), with=FALSE]
 
   ## Fetch information from x@db. Extra information per feature are stored here
-  dbx <- x@db[J(i,j,fids)]
+  dbx <- x@db[list(i,j,fids)]
   out <- cbind(info[rep(1L, nrow(dbx))], dbx[, -(1:2), with=FALSE])
 
   ## Add featureIdMap info
   if (with.feature.map) {
-    fminfo <- featureIdMap(x, .external=FALSE)[J(fids)]
+    fminfo <- featureIdMap(x, .external=FALSE)[list(fids)]
     out <- cbind(out, fminfo[, -1L, with=FALSE])
   }
 
@@ -468,8 +468,10 @@ subset.GeneSetDb <- function(x, keep) {
   ## 4b
   cc <- keep.table[, list(name='count', value=.N), by='collection']
   setkeyv(cc, key(keep.cm))
+
   ## Currently (data.table v1.9.4( there's nothing I can do to make i.value a
   ## list element and this `set` mojo doesn't work either
+  value <- NULL # silence R CMD check NOTEs
   suppressWarnings(keep.cm[cc, value := list(i.value)])
   ## update.idxs <- keep.cm[cc, which=TRUE]
   ## val.idx <- which(colnames(keep.cm) == 'value')
@@ -582,7 +584,7 @@ setMethod("collectionMetadata",
     .col <- collection
     .name <- name
     cmd <- x@collectionMetadata
-    idx <- cmd[J(.col, .name), which=TRUE]
+    idx <- cmd[list(.col, .name), which=TRUE]
     if (is.na(idx[1L])) {
       msg <- sprintf("metadata not defined for collection:%s, varname:%s",
                      .col, .name)
@@ -608,7 +610,7 @@ setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
 setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {
   fn <- collectionMetadata(x, i, 'url_function')
   stopifnot(isSingleCharacter(i))
-  fn.dt <- x@collectionMetadata[J(i, 'url_function'), nomatch=0]
+  fn.dt <- x@collectionMetadata[list(i, 'url_function'), nomatch=0]
   if (nrow(fn.dt) == 0) {
     ## validObject(x) : this call is slow and should never be FALSE anyway
     stop(sprintf("No url_function for collection '%s' found", i))
@@ -658,7 +660,7 @@ setReplaceMethod("featureIdType", "GeneSetDb", function(x, i, value) {
 })
 
 setMethod("featureIdType", "GeneSetDb", function(x, i, ...) {
-  x@collectionMetadata[J(i, 'id_type')]$value[[1L]]
+  x@collectionMetadata[list(i, 'id_type')]$value[[1L]]
 })
 
 setReplaceMethod("org", "GeneSetDb", function(x, i, value) {
@@ -691,7 +693,7 @@ setMethod("org", "GeneSetDb", function(x, i, ...) {
   if (missing(i)) {
     x@collectionMetadata[name == 'organism']
   } else {
-    x@collectionMetadata[J(i, 'organism')]$value[[1L]]
+    x@collectionMetadata[list(i, 'organism')]$value[[1L]]
   }
 })
 
@@ -740,7 +742,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
   if (!is.list(value)) {
     value <- list(value)
   }
-  idx <- x@collectionMetadata[J(xcoll, xname), which=TRUE]
+  idx <- x@collectionMetadata[list(xcoll, xname), which=TRUE]
   if (is.na(idx)) {
     if (!allow.add) {
       msg <- sprintf("%s,%s metadata does not exist in the GeneSetDb, but it",
@@ -926,7 +928,8 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 ##' gdf <- as.data.frame(gdb)
 ##' gdfi <- as.data.frame(gdb, 'x.idx')
 ##' gdl <- as.list(gdb)
-as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
+as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
+                                    value=c('featureId', 'x.id', 'x.idx'),
                                     active.only=is.conformed(x), ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
@@ -936,7 +939,8 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
 
   fid.map <- featureIdMap(x, .external=FALSE)
   if (is.conformed(x) && active.only) {
-    fid.map <- subset(fid.map, !is.na(x.idx))
+    # x.idx <- NULL # silence R CMD check NOTEs
+    fid.map <- fid.map[!is.na(x.idx)]
   }
 
   gs <- copy(geneSets(x, active.only=active.only, .external=FALSE))
@@ -945,6 +949,7 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   gene2cat <- gene2cat[!is.na(gene2cat[[value]]),]
   gene2cat$finalId <- gene2cat[[value]]
 
+  # collection <- name <- finalId <- featureId <- NULL # silence R CMD check NOTEs
   out <- gene2cat[, list(collection, name, featureId=finalId)]
 
   more.cols <- setdiff(names(gene2cat),
@@ -956,7 +961,7 @@ as.data.frame.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
   }
 
   setkeyv(out, key(x@db))
-  trimmed <- out[gs[, .(collection, name)]]
+  trimmed <- out[gs[, list(collection, name)]]
   setDF(trimmed)
 }
 
@@ -978,13 +983,13 @@ as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
                               ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
-  df <- as.data.frame(x, value, active.only)
+  df <- as.data.frame(x, value=value, active.only=active.only)
   if (nested) {
     colls <- unique(df$collection)
     ## Using the "naive split" call converts xdf$name to a factor and doesn't
     ## preserve ordering
     out <- sapply(colls, function(coll) {
-      xdf <- subset(df, collection == coll)
+      xdf <- df[df[['collection']] == coll,,drop=FALSE]
       csplit(xdf$featureId, xdf$name)
     }, simplify=FALSE)
   } else {
@@ -1046,5 +1051,5 @@ setAs("GeneSetDb", "GeneSetCollection", function(from) {
 ##' a given geneset, then NA is returned.
 .gsd.row.index <- function(x, i, j) {
   stopifnot(is(x, 'GeneSetDb'), is.character(i), is.character(j))
-  geneSets(x, active.only=FALSE, .external=FALSE)[J(i, j), which=TRUE]
+  geneSets(x, active.only=FALSE, .external=FALSE)[list(i, j), which=TRUE]
 }

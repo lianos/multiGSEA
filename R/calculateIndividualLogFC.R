@@ -111,11 +111,13 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                       featureId=rownames(x))
     fit <- NULL
   }
+
+  # x.idx <- ID <- NULL # silence R CMD check NOTEs
   out[, x.idx := 1:nrow(x)]
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
   }
-  # setkeyv(out, 'featureId')
+
   out <- ret.df(out, .external=.external)
   if (with.fit) list(result=out, fit=fit) else out
 }

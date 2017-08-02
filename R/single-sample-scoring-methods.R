@@ -8,7 +8,7 @@
 ##' to an eigengene based score.
 ##'
 ##' To easily use this method to score a number of gene setes across an
-##' experiment, you'll want to have the \code{\link{scoreSingleSasmples}} method
+##' experiment, you'll want to have the \code{\link{scoreSingleSamples}} method
 ##' drive this function via specifying \code{"svd"} as one of the
 ##' \code{methods}.
 ##'
@@ -145,6 +145,7 @@ gsdScore <- svdScore
 ##' be applied on the centered or scaled values, respectively.
 ##'
 ##' @export
+##' @importFrom stats weighted.mean
 ##' @inheritParams svdScore
 ##' @param eigengene the PC used to extract the gene weights from
 ##' @param weights a user can pass in a prespecified set of waits using a named

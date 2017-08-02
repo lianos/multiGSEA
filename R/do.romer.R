@@ -51,6 +51,7 @@ do.romer <- function(gsd, x, design, contrast=ncol(design),
 
   out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
                as.data.table(res))
+  NGenes <- padj <- padj.up <- padj.down <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
 
   setnames(out,

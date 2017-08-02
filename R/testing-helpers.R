@@ -121,6 +121,7 @@ exampleGeneSetDb <- function() {
 ##' can be passed into the \code{GeneSetDb} contructor.
 ##'
 ##' @export
+##' @importFrom utils read.csv
 ##' @rdname examples
 ##' @aliases exampleGeneSetDF
 exampleGeneSetDF <- function() {

@@ -51,7 +51,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   ## Check that x is generally OK
   x.kosher <- validate.X(x)
   if (!isTRUE(x.kosher)) {
-    stop("Bad expression object x provided: ", paste(x.errs, collapse=','))
+    stop("Bad expression object x provided: ", paste(x.kosher, collapse=','))
   }
 
   ## Validate the input expression object separately (not sure why now)
@@ -115,8 +115,8 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
 na.check <- function(x) {
   if (is(x, 'DGEList')) x <- x$counts
   if (is(x, 'EList')) x <- x$E
-  if (is(x, 'ExpressionSet')) x <- exprs(x)
-  if (is(x, 'SummarizedExperiment')) x <- assay(x)
+  if (is(x, 'ExpressionSet')) x <- ExpessionSet::exprs(x)
+  if (is(x, 'SummarizedExperiment')) x <- SummarizedExperiment::assay(x)
   if (any(is.na(x))) {
     stop("No NA's allowed in x")
   }
@@ -279,7 +279,8 @@ validate.XwithWeights <- function(x) {
     return("x must be an EList or ExpressionSet")
   }
   if (is(x, 'EList')) {
-    if (!isTRUE(dim(x$weights), dim(x))) {
+    W <- x$weights
+    if (!(is.matrix(W) && nrow(x) == nrow(W) && ncol(x) == ncol(W))) {
       return("EList does not have weights")
     }
   }

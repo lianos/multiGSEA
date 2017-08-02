@@ -36,7 +36,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   ## we turn x.dt$featureId into a factor with levels == features because there
   ## maybe be some features that don't appear anywhere (due to conformation(?))
 
-  x.dt <- dcast.data.table(x.db[, present := TRUE],
+  x.dt <- dcast.data.table(transform(x.db, present=TRUE),
                            collection + name ~ featureId,
                            value.var='present', fill=FALSE)
 
@@ -164,7 +164,7 @@ rename.feature.columns <- function(x, gdb, feature.rename=NULL) {
   }
   rename.cols <- colnames(x)[colnames(x) %in% featureIds(gdb)]
   if (length(rename.cols) == 0) {
-    return(out)
+    return(x)
   }
 
   if (!is.null(feature.rename)) {

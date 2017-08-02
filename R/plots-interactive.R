@@ -52,6 +52,8 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     main <- sprintf("%s (%s)", j, y)
   }
 
+  # silence R CMD check NOTEs
+  val <- NULL
   dat <- local({
     lfc <- copy(logFC(x, .external=FALSE))[, group := 'bg']
     lfc[, val := lfc[[value]]]
@@ -86,10 +88,10 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     # out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
     #                             with.legend=with.legend, tools=tools,
     #                             with.data=with.data, ...)
-    out <- iplot.volcano.plotly(x, y, j, value, main, dat=dat,
-                                with.legend=with.legend, tools=tools,
-                                with.data=with.data, width=width, height=height,
-                                shiny_source=shiny_source, ggtheme=ggtheme, ...)
+    # out <- iplot.volcano.plotly(x, y, j, value, main, dat=dat,
+    #                             with.legend=with.legend, tools=tools,
+    #                             with.data=with.data, width=width, height=height,
+    #                             shiny_source=shiny_source, ggtheme=ggtheme, ...)
   }
 
   out
@@ -161,6 +163,8 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     value <- 't-statistic'
   }
 
+  # silence R CMD check NOTEs
+  val <- symbol <- NULL
   all.dat <- rbind(transform(dat, group='background'), gs) %>% setDF
   gg <- ggplot(all.dat, aes(group, val)) +
     geom_boxplot(data=subset(all.dat, group == 'background')) +
@@ -206,6 +210,8 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 }
 
 ## rbokeh ----------------------------------------------------------------------
+
+if (FALSE) {
 ##' @rdname iplot
 iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
@@ -284,4 +290,5 @@ iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   }
 
   p
+}
 }

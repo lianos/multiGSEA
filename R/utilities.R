@@ -12,7 +12,7 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
     ## If multiGSEA was called with a preranked vector, the validateInputs function
     ## would have converted it into a column matrix with rownames, but most
     ## preranked functions want a named vector
-    out <- setNames(as.vector(x), rownames(m))
+    out <- setNames(as.vector(x), rownames(x))
   }
   out
 }
@@ -25,11 +25,11 @@ as_matrix <- function(y) {
   } else if (is(y, 'EList')) {
     y <- y$E
   } else if (is(y, 'DGEList')) {
-    y <- cpm(x, prior.count=5, log=TRUE)
+    y <- cpm(y, prior.count=5, log=TRUE)
   } else if (is(y, 'eSet')) {
     y <- Biobase::exprs(y)
   } else if (is(y, 'DESeqDataSet')) {
-    y <- assay(DESeq2::normTransform(y, pc=5))
+    y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
   }
   stopifnot(is.matrix(y) && is.numeric(y))
   y

@@ -19,7 +19,7 @@ tabulateResults(x, names = resultNames(x), max.p = 0.3, p.col = c("padj",
   "padj.by.collection", "pval"))
 }
 \arguments{
-\item{x}{A \code{MultiGSEAResult} object.}
+\item{x}{MultiGSEAResult}
 
 \item{name}{the names of the results desired}
 
@@ -44,8 +44,6 @@ default to all of them.}
 \item{max.p}{The maximum padj value to consider a result significant}
 
 \item{p.col}{use padj or padj.by.collection?}
-
-\item{x}{MultiGSEAResult}
 
 \item{x}{A \code{\link{MultiGSEAResult}} object.}
 
