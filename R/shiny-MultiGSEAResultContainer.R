@@ -5,12 +5,19 @@
 ##'   an rds-serliazed one
 ##' @return a \code{MultiGSEAResultContainer} object
 MultiGSEAResultContainer <- function(x) {
+  ## TODO: S4ize MultiGSEAResultContainer
   if (is.character(x)) {
     ## Assume this is a file
     if (!file.exists(x)) {
       stop("file does not exist: ", x)
     }
     mg <- readRDS(x)
+  } else if (is(x, 'GeneSetDb')) {
+    ## Hack to init some shinybits that are useful to have ontop of a GeneSetDb
+    ## (I feel horrible for having this)
+    fids <- featureIds(x)
+    fids <- setNames(rnorm(length(fids)), fids)
+    mg <- multiGSEA(x, fids, methods=NULL)
   } else if (is(x, 'MultiGSEAResult')) {
     mg <- x
   } else {
