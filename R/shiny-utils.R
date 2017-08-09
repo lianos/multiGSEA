@@ -25,6 +25,26 @@ explore <- function(x) {
   runApp(system.file('shiny', package='multiGSEA'))
 }
 
+##' Adds a js$reset_<id>_<event>() to reset the selection on a plot
+##'
+##' selected elements stick on a plot even after it is redrawn, most of the
+##' times you don't want to do that.
+##'
+##' See:
+##' https://community.plot.ly/t/reseting-click-events/2718/2
+##' https://stackoverflow.com/questions/44412382/
+insertPlotlyReset <- function(source, event=c('hover', 'click', 'selected')) {
+  stopifnot(is.character(source), length(source) == 1L)
+  event <- match.arg(event)
+  text <- sprintf(
+    "shinyjs.reset_%s_%s = function() {
+       var jsid = '.clientValue-plotly_%s-%s';
+       // window.alert(jsid);
+       Shiny.onInputChange(jsid, 'null'); }",
+    source, event, event, source)
+  extendShinyjs(text=text)
+}
+
 ## Gene Set Level Table Helpers ================================================
 
 ##' Builds the table of GSEA statistics to present to the user

@@ -2,6 +2,7 @@ library(miniUI)
 
 shinyUI(fluidPage(
   title="multiGSEA Explorer",
+  useShinyjs(),
   tags$head(
     tags$link(rel="stylesheet", type="text/css", href="dashboard.css"),
     tags$link(rel="stylesheet", type="text/css", href="miniUI.css")

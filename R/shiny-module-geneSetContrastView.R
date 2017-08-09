@@ -55,6 +55,8 @@ geneSetContrastViewUI <- function(id, height="590px", width="400px") {
           "Visualize", icon = icon("area-chart"),
           miniContentPanel(
             plotlyOutput(ns("gs_viz"), height="350px"),
+            # call with js$reset_gs_viz_selected()
+            insertPlotlyReset('gs_viz', 'selected'),
             fluidRow(
               column(
                 8,
@@ -98,16 +100,17 @@ geneSetContrastView <- function(input, output, session, mgc,
     coll <- req(gs()$collection)
     name <- req(gs()$name)
     ns <- session$ns
+    js$reset_gs_viz_selected()
     iplot(mgc()$mg, coll, name,
           value=input$gs_viz_stat,
           type=input$gs_viz_type, tools=itools,
           main=NULL, with.legend=FALSE, with.data=TRUE,
-          shiny_source='gsviz', width=350, height=350)
+          shiny_source='gs_viz', width=350, height=350)
 
   })
 
   selected_features <- reactive({
-    event <- event_data('plotly_selected', source='gsviz')
+    event <- event_data('plotly_selected', source='gs_viz')
     if (!is.null(event)) {
       # dat <- isolate(plt()) %>% plotly_data
       # selected <- subset(dat, featureId %in% event$key)
