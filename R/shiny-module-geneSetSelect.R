@@ -153,7 +153,7 @@ gs.render.select.ui <- function(ns, choices, server=TRUE,
 ##' @return \code{data.frame} to populate \code{choices} of
 ##'   \code{selectizeInput}
 gs.select.choices <- function(mg, sep='_::_') {
-  out <- geneSets(mg)[, {
+  out <- geneSets(mg, .external=FALSE)[, {
     list(collection, label=name, value=paste(collection, name, sep=sep))
   }]
   setDF(out)
