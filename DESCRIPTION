@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
-Title: A utility belt for gene set enrichment analyses and their interactive exploration
-Version: 0.8.7
+Title: A Unified Interface to a Plethora of Gene Set Enrichment Analysis Methods
+Version: 0.9.0
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
@@ -56,6 +56,8 @@ Suggests:
     dtplyr
 VignetteBuilder: knitr
 License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
 Collate: 
     'AllClasses.R'
     'AllGenerics.R'
@@ -87,14 +89,6 @@ Collate:
     'plots-interactive.R'
     'reactome.R'
     'scoreSingleSamples.R'
-    'shiny-MultiGSEAResultContainer.R'
-    'shiny-module-geneSetContrastView.R'
-    'shiny-module-geneSetSelect.R'
-    'shiny-module-mgGeneSetSummaryByGenes.R'
-    'shiny-module-mgResultFilter.R'
-    'shiny-module-mgTableBrowser.R'
-    'shiny-module-mgVolcano.R'
-    'shiny-utils.R'
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
@@ -102,6 +96,3 @@ Collate:
     'volcano_plot.R'
     'zzz.R'
 RoxygenNote: 6.0.1
-SwitchrLibrary: facile
-FullSandbox: FALSE
-DeploySubPath: GSEAx
