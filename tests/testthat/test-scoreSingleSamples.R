@@ -67,4 +67,14 @@ test_that("ssGSEA (raw) scores are not affected by samples included in test", {
   expect_equal(scores$scores.all, scores$scores.some)
 })
 
+test_that("eigenWeightedMean with equal weights can be same as zScore", {
+  gdbc <- conform(gdb, vm)
+  gs.idxs <- as.list(gdbc, value='x.idx')
 
+  E <- vm$E[gs.idxs[[1]], ]
+  ewm.pc1 <- eigenWeightedMean(E, unscale=FALSE, uncenter=FALSE)
+  ewm.z <- eigenWeightedMean(E, weights=1, unscale=FALSE, uncenter=FALSE)
+  zs <- zScore(E)
+  expect_equal(ewm.z$score, zs$score)
+  expect_is(all.equal(ewm.pc1$score, zs$score), 'character')
+})

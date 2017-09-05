@@ -6,14 +6,13 @@
 \usage{
 volcano_plot(x, stats = "dge", xaxis = "logFC", yaxis = "pval", idx,
   xtfrm = base::identity, ytfrm = function(vals) -log10(vals),
-  xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis),
-  highlight_genes = NULL, horiz_lines = c(padj = 0.1), xhex = NULL,
-  yhex = NULL, point.size = 5, tools = c("box_select", "reset", "save"),
-  width = NULL, height = NULL, shiny_source = "mgvolcano",
-  ggtheme = theme_bw(), ...)
+  xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis), highlight = NULL,
+  horiz_lines = c(padj = 0.1), xhex = NULL, yhex = NULL, point.size = 5,
+  tools = c("box_select", "reset", "save"), width = NULL, height = NULL,
+  shiny_source = "mgvolcano", ggtheme = theme_bw(), ...)
 }
 \arguments{
-\item{highlight_genes}{A vector of featureIds to highlight, or a GeneSetDb
+\item{highlight}{A vector of featureIds to highlight, or a GeneSetDb
 that we can extract the featureIds from for this purpose.}
 }
 \description{

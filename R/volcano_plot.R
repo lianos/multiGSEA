@@ -7,13 +7,13 @@
 ##'
 ##' @export
 ##'
-##' @param highlight_genes A vector of featureIds to highlight, or a GeneSetDb
+##' @param highlight A vector of featureIds to highlight, or a GeneSetDb
 ##'   that we can extract the featureIds from for this purpose.
 volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                          xtfrm=base::identity,
                          ytfrm=function(vals) -log10(vals),
                          xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
-                         highlight_genes=NULL,
+                         highlight=NULL,
                          horiz_lines=c('padj'=0.10),
                          xhex=NULL, yhex=NULL,
                          point.size=5,
@@ -42,33 +42,26 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   } else {
     hex.me <- rep(FALSE, nrow(dat))
   }
+
   hex <- dat[hex.me,,drop=FALSE]
+  if (is.character(highlight)) {
+    hlite <- dat[dat[['featureId']] %in% highlight,,drop=FALSE]
+  } else {
+    hlite <- dat[FALSE,,drop=FALSE]
+  }
   pts <- dat[!hex.me,,drop=FALSE]
+  if (nrow(hlite)) {
+    pts <- pts[!pts[['featureId']] %in% hlite[['featureId']],,drop=FALSE]
+  }
 
   # silence R CMD check NOTEs
   .xvt <- .yvt <- .xv <- .yv <- NULL
   gg <- ggplot(dat, aes(.xvt, .yvt))
-  if (nrow(pts)) {
-    if ('symbol' %in% names(dat)) {
-      gg <- gg + suppressWarnings({
-        geom_point(aes(key=featureId,
-                       text=paste0('Symbol: ', symbol, '<br>',
-                                   xaxis, ': ', sprintf('%.3f', .xv), '<br>',
-                                   yaxis, ': ', sprintf('%.3f', .yv))),
-                   data=pts)
-      })
-    } else {
-      gg <- gg +
-        geom_point(aes(key=featureId,
-                       text=paste0('featureId: ', featureId, '<br>',
-                                   xaxis, ': ', sprintf('%.3f', .xv), '<br>',
-                                   yaxis, ': ', sprintf('%.3f', .yv))),
-                   data=pts)
-    }
-  }
   if (nrow(hex)) {
     gg <- gg + geom_hex(data=hex, bins=50)
   }
+  gg <- mg_add_points(gg, pts)
+  gg <- mg_add_points(gg, hlite, color='red')
 
   ## Add horizontal lines to indicate where padj of 0.10 lands
   lpos <- NULL
@@ -93,13 +86,6 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
       lpos <- ytfrm(ypos)
       ablabel <- if (horiz.unit == 'padj') 'q-value' else horiz.unit
       lbl <- sprintf('%s: %.2f', ablabel, horiz_lines[1L])
-      # txtdat <- data.frame(x=xrange[1], y=lpos[1], lbl=lbl)
-      # gg <- gg +
-      #   geom_hline(yintercept=lpos, color='red', linetype='dashed') +
-      #   geom_text(aes(x, y, label=lbl), data=txtdat, vjust=1.5, hjust=0.2, color='red')
-      #
-      # gg <- gg +
-      #   geom_hline(aes(text=lbl), yintercept=lpos, color='red', linetype='dashed')
     }
   }
 
@@ -108,7 +94,8 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   }
 
   ## ggplotly messages to use github: hadley/ggplot2
-  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text'))
+  # p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text'))
+  p <- suppressMessages(ggplotly(gg, width=width, height=height))
   if (is.numeric(lpos)) {
     p <- add_lines(p, x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
                    y=rep(lpos, 100),
@@ -121,18 +108,46 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
               yaxis=list(title=ylab))
   p <- plotly_build(p)
 
+  ## We don't need to do this when we don't ggplotly(..., tooltip='text')
   ## Disable hovering on hexbin
-  p$x$source <- shiny_source
-  if (nrow(hex)) {
-    hexidx <- 2:(length(p$x$data) -1L)
-    for (idx in hexidx) {
-      p$x$data[[idx]]$hoverinfo <- 'none'
-      # len <- length(p$x$data[[idx]]$x)
-      # p$x$data[[idx]]$text <- sprintf('count: %d', rep(len))
-    }
-  }
+  # p$x$source <- shiny_source
+  # if (nrow(hex)) {
+  #   # hexidx <- 2:(length(p$x$data) -1L)
+  #   end.idx <- length(p$x$data)
+  #   if (nrow(pts)) end.idx <- end.idx - 1L
+  #   if (nrow(hlite)) end.idx <- end.idx - 1L
+  #   hexidx <- 1:end.idx
+  #   for (idx in hexidx) {
+  #     p$x$data[[idx]]$hoverinfo <- 'none'
+  #     # len <- length(p$x$data[[idx]]$x)
+  #     # p$x$data[[idx]]$text <- sprintf('count: %d', rep(len))
+  #   }
+  # }
 
   config(p, collaborate=FALSE, displaylogo=FALSE)
+}
+
+mg_add_points <- function(gg, dat, color='black') {
+  if (is.null(dat) || nrow(dat) == 0) {
+    return(gg)
+  }
+  if ('symbol' %in% names(dat)) {
+    gg <- gg + suppressWarnings({
+      geom_point(aes(key=featureId,
+                     text=paste0('Symbol: ', symbol, '<br>',
+                                 xaxis, ': ', sprintf('%.3f', .xv), '<br>',
+                                 yaxis, ': ', sprintf('%.3f', .yv))),
+                 color=color, data=dat)
+    })
+  } else {
+    gg <- gg +
+      geom_point(aes(key=featureId,
+                     text=paste0('featureId: ', featureId, '<br>',
+                                 xaxis, ': ', sprintf('%.3f', .xv), '<br>',
+                                 yaxis, ': ', sprintf('%.3f', .yv))),
+                 color=color, data=dat)
+  }
+  gg
 }
 
 ##' Get the approximate nominal pvalue for a target qvalue given the

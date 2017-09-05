@@ -68,7 +68,7 @@
 ##' Heatmap(Z)
 ##' }
 svdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
-                     uncenter=center, unscale=scale, retx=FALSE) {
+                     uncenter=center, unscale=scale, retx=FALSE, ...) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
   x <- as_matrix(x)
@@ -156,15 +156,18 @@ gsdScore <- svdScore
 ##'   the SVD/PCA decomposition are included for the ride.
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
-                              weights=NULL) {
+                              weights=NULL, ...) {
   x <- as_matrix(x)
 
   if (is.numeric(weights)) {
+    if (length(weights) == 1) {
+      weights <- setNames(rep(weights, nrow(x)), rownames(x))
+    }
     stopifnot(all(rownames(x) %in% names(weights)))
-    res[['weights']] <- weights[rownames(x)]
+    res <- list(weights=weights[rownames(x)])
   } else {
     pc <- paste0('PC', eigengene)
-    res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
+    res <- svdScore(x, eigengene, center, scale, uncenter=uncenter,
                     unscale=unscale, retx=FALSE)
     res[['weights']] <- setNames(res$factor.contrib[[pc]], rownames(x))
   }
@@ -183,7 +186,7 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 ##' @param x gene x sample matrix
 ##' @param summary sqrt or mean
 ##' @param trim calculate trimmed mean?
-zScore <- function(x, summary=c('mean', 'sqrt'), trim=0) {
+zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   summary <- match.arg(summary)
   score.fn <- if (summary == 'mean') {
     function(vals) mean(vals, trim=trim, na.rm=TRUE)
@@ -198,7 +201,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0) {
   scores <- apply(xs, 2L, score.fn)
 
   out <- list(
-    score=as.vector(scores),
+    score=setNames(as.vector(scores), colnames(x)),
     center=attributes(xs)$"scaled:center",
     scale=attributes(xs)$"scaled:scale")
   out
