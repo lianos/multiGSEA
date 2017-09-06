@@ -206,10 +206,10 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
   if (is(x, 'MultiGSEAResult')) {
     stats <- match.arg(stats, c('dge', resultNames(x)))
     if (stats == 'dge') {
-      x <- logFC(x)
+      x <- logFC(x, .external=FALSE)
       idx <- 'featureId'
     } else {
-      x <- result(x, stats)
+      x <- result(x, stats, .external=FALSE)
       idx <- 'idx'
       x[[idx]] <- paste(x$collection, x$name, sep=';;')
     }
@@ -218,7 +218,7 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
   if (!is.data.frame(x)) {
     stop('x should have been converted into a data.frame by now')
   }
-  x <- as.data.frame(x)
+  x <- setDF(data.table::copy(x))
   missed.cols <- setdiff(c(xaxis, yaxis, idx), names(x))
   if (length(missed.cols)) {
     stop("Missing columns from stats data.frame from volcano object:\n  ",

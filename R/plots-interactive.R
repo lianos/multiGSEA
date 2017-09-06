@@ -156,8 +156,8 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  shiny_source='mggenes', height=NULL,
                                  width=NULL, ggtheme=theme_bw(), ...) {
   is.gs <- dat[['group']] == 'geneset'
-  gs <- subset(dat, is.gs)
-  bg <- subset(dat, !is.gs)
+  gs <- subset(dat, is.gs) %>% setDF
+  bg <- subset(dat, !is.gs) %>% setDF
   n.gs <- sum(is.gs)
   if (value == 't') {
     value <- 't-statistic'
