@@ -38,7 +38,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                   main=NULL, with.legend=TRUE, with.data=FALSE,
                   shiny_source='mggenes', width=NULL, height=NULL,
-                  ggtheme=theme_bw(), ...) {
+                  ggtheme=theme_bw(), trim=0.005, ...) {
   if (FALSE) {
     x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
     main <- NULL; type <- 'boxplot'; with.legend <- TRUE
@@ -75,7 +75,7 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     out <- iplot.density.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
-                                ggtheme=ggtheme, ...)
+                                ggtheme=ggtheme, trim=trim, ...)
   } else if (type == 'boxplot') {
     # out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
     #                             with.legend=with.legend, tools=tools,
@@ -83,7 +83,8 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
     out <- iplot.boxplot.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
-                                width=width, height=height, ggtheme=ggtheme,...)
+                                width=width, height=height, ggtheme=ggtheme,
+                                trim=trim, ...)
   } else if (type == 'volcano') {
     # out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
     #                             with.legend=with.legend, tools=tools,
@@ -104,7 +105,8 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.points=TRUE,  with.data=FALSE,
                                  shiny_source='mggenes',
                                  legend.pos=c('inside', 'outside'),
-                                 height=NULL, width=NULL, ...) {
+                                 height=NULL, width=NULL, trim=0.02,
+                                 square=TRUE, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
   legend.pos <- match.arg(legend.pos)
   gs.dat <- subset(dat, group == 'geneset') %>% setDF
@@ -127,10 +129,24 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   bgd <- density(bg$val)
   gsd <- density(gs.dat$val)
   lmeta <- list(width=3)
+
+  if (is.numeric(trim) && trim != 0) {
+    xrange <- quantile(dat$val, c(trim, 1 - trim))
+    xrange[1] <- min(xrange[1], min(gs.dat$val), min(gsd$x))
+    xrange[2] <- max(xrange[1], max(gs.dat$val), max(gsd$x))
+  } else {
+    xrange <- range(dat$val)
+  }
+  if (square) {
+    extreme <- max(abs(xrange))
+    xrange <- c(-extreme, extreme)
+  }
+
   p <- plot_ly(source=shiny_source, width=width, height=height) %>%
     add_lines(x=bgd$x, y=bgd$y, name='All Genes', hoverinfo='none', line=lmeta) %>%
     add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
-    layout(xaxis=list(title="logFC"), yaxis=list(title="Density"),
+    layout(xaxis=list(title="logFC", range=xrange),
+           yaxis=list(title="Density"),
            dragmode="select")
   if ('symbol' %in% names(gs.dat) && with.points) {
     p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
@@ -154,7 +170,8 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.points=TRUE, with.data=FALSE,
                                  shiny_source='mggenes', height=NULL,
-                                 width=NULL, ggtheme=theme_bw(), ...) {
+                                 width=NULL, ggtheme=theme_bw(), trim=0.02,
+                                 ...) {
   is.gs <- dat[['group']] == 'geneset'
   gs <- subset(dat, is.gs) %>% setDF
   bg <- subset(dat, !is.gs) %>% setDF

@@ -95,7 +95,10 @@ volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
 
   ## ggplotly messages to use github: hadley/ggplot2
   # p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text'))
-  p <- suppressMessages(ggplotly(gg, width=width, height=height))
+  p <- suppressMessages({
+    ggplotly(gg, width=width, height=height, source=shiny_source,
+             layerData=if (nrow(hex)) 2 else 1)
+  })
   if (is.numeric(lpos)) {
     p <- add_lines(p, x=seq(xrange[1] - 1, xrange[2] + 1, length=100),
                    y=rep(lpos, 100),
