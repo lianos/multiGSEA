@@ -360,16 +360,17 @@ iplot(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
 
 #### Interactive Exploration
 
-A shiny application is included in the `inst/shiny` folder of this package.
-This shiny application can be launched via tha `explore` function so that
-the analyst can explore the results stored in a MultiGSEAResult "in real time."
-The same application can also be deployed to a shiny server, which allows users
-to upload serialized `MultiGSEAResult` objects as rds objects (via `saveRDS`).
+A sister `multiGSEA.shiny` package is available that can be used to
+interactively explore `MultiGSEAResult` objects. The application can be invoked
+as follows:
 
-Run `explore(mg)` to see this application in action.
+```r
+library("multiGSEA.shiny")
+explore(mg)
+```
 
-A separate vignette will be written that gives a tour of this application in
-more detail.
+Please refer to the `"multiGSEA-shiny"`" vignette available in that package
+for more documentation of its use.
 
 # The GeneSetDb Class
 
@@ -444,6 +445,25 @@ gdb.uber <- append(msigdb, goslimdb)
 
 See the help and examples in `?GeneSetDb` for more information.
 
+<div class="warning">
+
+For some reason the `PANTHER.db` package needs to be installed in a
+user-writable package location for this to work properly. If you see an error
+that speaks to using "rsqlite to write to a readonly database", you will have to
+install `PANTHER.db` in a user-writable directory using 
+`BiocInstaller::biocLite("PANTHER.db")`
+
+</div>
+
+
+## Packaged MSigDb Gene Sets
+
+The multiGSEA pacakge strives to include the latest version of the MSigDB gene
+set collections within the application itself.
+
+Speak about the geneSets()$organism column.
+
+
 ## Active vs Inactive Gene Sets
 
 A `GeneSetDb` is used to hold "the universe" of genes that belong to different
@@ -508,7 +528,11 @@ Ensembl gene identifiers, but the rownames of the expression object might
 be Entrez ID. This is where the `mapping` parameter becomes useful.
 
 The `GeneSetDb` class has a concept of an internal `featureIdMap` to accommodate
-these scenarios, which will be further developed in future versions. For the
+these scenarios, which would allow for a non-destructive mapping of the original
+IDs to a new "ID space" (entrez to ensembl, for instance).
+
+This functionality is not ready for this release, but it's just a note to keep
+the user aware of some future development of the package. For the
 time being, the user is required to manually map the feautreIds in their
 expression matrix to be concordant with the ones found in the `GeneSetDb`.
 
@@ -538,7 +562,9 @@ so as follows:
 ```{r, eval=FALSE}
 mg <- multiGSEA(gdb, vm, vm$design, cm[, 'BvH'],
                 methods=c('goseq'),
-                treat.lfc=log2(1.5))
+                treat.lfc=log2(1.5),
+                ## feature length vector required for goseq
+                feature.bias=setNames(vm$genes$size, rownames(vm)))
 ```
 
 Using the internal `treat` functionality would really only affect enrichment
@@ -551,7 +577,8 @@ The GSEA methods that are wrapped by `multiGSEA` all take the same parameters
 that are defined by their implementation. Simply pass these parameters down
 via the `...` in the `multiGSEA` call.
 
-For instance, you can read `?camera` to find that the `camera` method accepts an `inter.gene.cor` parameter, and `?roast` will tell you that you can specify
+For instance, you can read `?camera` to find that the `camera` method accepts an
+`inter.gene.cor` parameter, and `?roast` will tell you that you can specify
 the number of rotations used via the `nrot` parameter.
 
 ```{r, eval=FALSE}
