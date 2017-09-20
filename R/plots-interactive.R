@@ -182,11 +182,10 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 
   # silence R CMD check NOTEs
   val <- symbol <- NULL
-  all.dat <- rbind(transform(dat, group='background'), gs) %>% setDF
-  gg <- ggplot(all.dat, aes(group, val)) +
-    geom_boxplot(data=subset(all.dat, group == 'background')) +
+  gg <- ggplot(bg, aes(group, val)) +
+    geom_boxplot(data=bg) +
     geom_boxplot(outlier.shape=NA, data=gs)
-  if ('symbol' %in% names(all.dat) && with.points) {
+  if ('symbol' %in% names(bg) && with.points) {
     gg <- gg +
       suppressWarnings({
         geom_jitter(aes(key=featureId,
