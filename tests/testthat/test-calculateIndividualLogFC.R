@@ -9,8 +9,6 @@ tt2dt <- function(x) {
   x <- as.data.frame(x)
   x$featureId <- rownames(x)
   data.table::setnames(x, onames, c('pval', 'padj'))
-  # data.table::setkeyv(data.table::setDT(x), 'featureId')
-  multiGSEA:::ret.df(x)
 }
 
 ## TODO: Test that logFC's are calculated correctly when using contrast

@@ -49,8 +49,17 @@ do.romer <- function(gsd, x, design, contrast=ncol(design),
 
   res <- do.call(romer, call.args)
 
-  out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
+  ## check gsnames matches to geneSets()
+  gsnames <- sub('.*;;', '', rownames(res))
+  gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
+  kosher <- length(gsnames) == nrow(gs) && all(gsnames == gs$name)
+  if (!kosher) {
+    stop("genesets from romer do not match geneSets(gdb)")
+  }
+
+  out <- cbind(gs, res)
   NGenes <- padj <- padj.up <- padj.down <- NULL # silence R CMD check NOTEs
+
   out[, NGenes := NULL]
 
   setnames(out,

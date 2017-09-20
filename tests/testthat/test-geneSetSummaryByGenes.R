@@ -87,7 +87,7 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
   res.all <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
                                    feature.rename='symbol', as.dt=TRUE)
   res.sig <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
-                                   feature.rename='symbol', as.dt=TRUE)
+                                   feature.rename='symbol', as.dt=TRUE,
                                    method='camera', max.p=p.thresh)
   expect_true(all(res.sig$name %in% res.all$name))
   expect_true(all(res.sig$name %in% camera.sig$name))

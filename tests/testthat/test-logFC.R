@@ -24,9 +24,9 @@ test_that("t-stats and logFCs match full design when only stats passed", {
   mgt <- multiGSEA(gsd, tstats)
   mgl <- multiGSEA(gsd, lfc)
 
-  ro <- results(mgf)
-  rt <- results(mgt)
-  rl <- results(mgl)
+  ro <- suppressWarnings(results(mgf))
+  rt <- suppressWarnings(results(mgt))
+  rl <- suppressWarnings(results(mgl))
 
   expect_equal(ro$mean.t, rt$mean.t)
   expect_equal(ro$mean.t.trim, rt$mean.t.trim)

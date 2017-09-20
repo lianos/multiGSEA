@@ -62,7 +62,7 @@
 ##' corplot(sw[, c('ewm', 'svd', 'zscore')],
 ##'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
-                               drop.sd=1e-4, verbose=FALSE, ...) {
+                               drop.sd=1e-4, verbose=FALSE, ..., as.dt=FALSE) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
@@ -102,7 +102,7 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
               gs.idxs=gs.idxs, ...)
     rownames(out) <- gs.names
     if (!as.matrix) {
-      out <- ret.df(melt.gs.scores(gdb, out))
+      out <- melt.gs.scores(gdb, out)
       out$method <- method
     }
     out
@@ -112,10 +112,11 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     scores <- scores[[1L]]
   } else {
     if (!as.matrix) {
-      scores <- ret.df(rbindlist(scores))
+      scores <- rbindlist(scores)
     }
   }
 
+  if (!as.matrix && !as.dt) setDF(scores)
   scores
 }
 

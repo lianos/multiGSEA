@@ -342,29 +342,30 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
       ## User is asking for something that is not there
       stop("No GSEA methods were run, you can only get set statistics")
     }
-    message("No GSEA methods were run, only geneset statistics have ",
-            "been returned.")
-    geneSets(x, as.dt=as.dt)
-  }
-  invalidMethods(x, names)
-  stopifnot(isSingleLogical(stats.only))
-  rank.by <- match.arg(rank.by)
-  if (length(names) > 1L && add.suffix == FALSE) {
-    add.suffix <- TRUE
-    warning("Forcing method suffix to generated result columns",
-            immediate.=TRUE)
-  }
-
-  ## Idiomatic data.table, non-idiomatic R
-  out <- copy(geneSets(x, as.dt=TRUE))
-  for (name in names) {
-    res <- result(x, name, stats.only, rank.by, add.suffix, as.dt=TRUE)
-    for (col in setdiff(names(res), names(out))) {
-      out[, (col) := res[[col]]]
+    warning("No GSEA methods were run, only geneset statistics have ",
+            "been returned.", immediate.=TRUE)
+    out <- geneSets(x, as.dt=as.dt)
+  } else {
+    invalidMethods(x, names)
+    stopifnot(isSingleLogical(stats.only))
+    rank.by <- match.arg(rank.by)
+    if (length(names) > 1L && add.suffix == FALSE) {
+      add.suffix <- TRUE
+      warning("Forcing method suffix to generated result columns",
+              immediate.=TRUE)
     }
-  }
 
-  if (!as.dt) setDF(out)
+    ## Idiomatic data.table, non-idiomatic R
+    out <- copy(geneSets(x, as.dt=TRUE))
+    for (name in names) {
+      res <- result(x, name, stats.only, rank.by, add.suffix, as.dt=TRUE)
+      for (col in setdiff(names(res), names(out))) {
+        out[, (col) := res[[col]]]
+      }
+    }
+
+    if (!as.dt) setDF(out)
+  }
   out
 }
 
