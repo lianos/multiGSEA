@@ -5,7 +5,7 @@
 \title{Scores each sample by a weighted average of the gene in a signature.}
 \usage{
 eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE, weights = NULL)
+  uncenter = center, unscale = scale, retx = FALSE, weights = NULL, ...)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score

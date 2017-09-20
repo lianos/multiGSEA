@@ -11,12 +11,12 @@ geneSetSummaryByGenes(x, features, with.features = TRUE,
   feature.rename = NULL, ...)
 
 \S4method{geneSetSummaryByGenes}{GeneSetDb}(x, features, with.features = TRUE,
-  feature.rename = NULL, ..., .external = TRUE)
+  feature.rename = NULL, ..., as.dt = FALSE)
 
 \S4method{geneSetSummaryByGenes}{MultiGSEAResult}(x, features,
   with.features = TRUE, feature.rename = NULL, method = NULL,
   max.p = 0.3, p.col = c("padj", "padj.by.collection", "pval"), ...,
-  .external = TRUE)
+  as.dt = FALSE)
 }
 \arguments{
 \item{x}{\code{GeneSetDb} or \code{MultiGSEAResult}}

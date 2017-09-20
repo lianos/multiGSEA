@@ -60,12 +60,12 @@ getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
   fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
   out <- readRDS(fn)
 
-  gs <- geneSets(out, .external=FALSE)
+  gs <- geneSets(out, as.dt=TRUE)
 
   if (!setequal(collection, avail.cols)) {
     keep <- gs$collection %in% collection
     out <- subset.GeneSetDb(out, gs$collection %in% collection)
-    gs <- geneSets(out, .external=FALSE)
+    gs <- geneSets(out, as.dt=TRUE)
   }
 
   if ('c2' %in% gs$collection && !with.kegg) {

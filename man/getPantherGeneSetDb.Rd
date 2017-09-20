@@ -22,6 +22,13 @@ A wired up GeneSetDb
 This is a convience function that orchestrates the PANTHER.db package to
 return GeneSetDb objects for either pathway or GOslim information for
 human or mouse.
+
+Note that for some reason the \code{PANTHER.db} package needs to be
+installed in a user-writable package location for this to work properly.
+If you see an error like \code{Error in resqlite_send_query ... attempt to
+write a readonly database}, this is the problem. Please install another
+version of the \code{PANTHER.db} package in a user-writable directory using
+\code{\link[BiocInstaller]{biocLite}}.
 }
 \section{GOSLIM}{
 

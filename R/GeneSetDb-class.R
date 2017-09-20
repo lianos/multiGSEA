@@ -257,7 +257,7 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   if (is.null(featureIdMap)) {
     .ids <- unique(db$featureId)
     featureIdMap <- data.table(featureId=.ids, x.id=.ids, x.idx=NA_integer_)
-    setkeyv(featureIdMap, key(featureIdMap(proto, .external=FALSE)))
+    setkeyv(featureIdMap, key(featureIdMap(proto, as.dt=TRUE)))
   }
 
   out <- .GeneSetDb(table=tbl,
@@ -354,7 +354,7 @@ setMethod("show", "GeneSetDb", function(object) {
   hr <- paste(rep("=", nchar(msg)), collapse='')
   hr.sub <- gsub('=', '-', hr)
   cat(hr, "\n", msg, "\n", is.conf, "\n", hr.sub, "\n", sep="")
-  data.table:::print.data.table(geneSets(object, .external=FALSE))
+  data.table:::print.data.table(geneSets(object, as.dt=TRUE))
   cat(hr.sub, "\n", msg, "\n", is.conf, "\n", hr, "\n", sep="")
 })
 
@@ -386,7 +386,7 @@ setValidity("GeneSetDb", function(object) {
   ## ---------------------------------------------------------------------------
   ## Further check @db slot:
   ## 1. ensure all features in @db have a row in the @featureIdMap
-  if (!all(object@db$featureId %in% featureIdMap(object, .external=FALSE)$featureId)) {
+  if (!all(object@db$featureId %in% featureIdMap(object, as.dt=TRUE)$featureId)) {
     return("Some @db$featureId's are not in featureIdMap(object)$featureId")
   }
   if (any(is.na(object@db$featureId))) {
@@ -430,7 +430,7 @@ setValidity("GeneSetDb", function(object) {
 
   ## Get geneSet information from GeneSetDb to ensure we have collectionMetadata
   ## for all the genesets in our object
-  gs.info <- geneSets(object, active.only=FALSE, .external=FALSE)[, {
+  gs.info <- geneSets(object, active.only=FALSE, as.dt=TRUE)[, {
     list(count=.N)
   }, keyby='collection']
 

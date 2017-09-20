@@ -11,10 +11,10 @@
 geneSet(x, i, j, ...)
 
 \S4method{geneSet}{GeneSetDb}(x, i, j, active.only = is.conformed(x),
-  with.feature.map = FALSE, ..., .external = TRUE)
+  with.feature.map = FALSE, ..., as.dt = FALSE)
 
 \S4method{geneSet}{MultiGSEAResult}(x, i, j, active.only = TRUE,
-  with.feature.map = FALSE, ..., .external = TRUE)
+  with.feature.map = FALSE, ..., as.dt = FALSE)
 }
 \arguments{
 \item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
@@ -34,13 +34,9 @@ a \code{MultiGSEAResult}.}
 from the original featureId space to the target feature space are included
 (default: \code{FALSE}).}
 
-\item{.external}{If \code{TRUE} (default), honors the user's setting to
-return either a \code{data.frame} or \code{data.table} object. This
-setting is defined in the \code{"multiGSEA.df.return"} option
-(\code{getOption("multiGSEA.df.return"))}). The value for this option
-can be either of \code{"data.frame"} or \code{"data.table"}. If this
-option is not defined, \code{"data.frame"} will be assumed.
-If \code{FALSE}, a \code{data.table} is always returned.}
+\item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
+this funciton returns will be set to a data.frame. Set this to \code{TRUE}
+to keep this object as a \code{data.table}}
 }
 \value{
 a data.(frame|table) of gene set information. If \code{x} is a

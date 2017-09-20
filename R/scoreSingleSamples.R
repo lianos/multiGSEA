@@ -90,7 +90,7 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
 
-  gs.names <- with(geneSets(gdb, .external=FALSE), {
+  gs.names <- with(geneSets(gdb, as.dt=TRUE), {
     paste(collection, name, sep=';;')
   })
 
@@ -139,8 +139,7 @@ singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
 ##'   \code{do.scoreSingleSamples.*} methods.
 ##' @param a melted \code{data.table} of scores
 melt.gs.scores <- function(gdb, scores) {
-  out <- cbind(geneSets(gdb, .external=FALSE)[, list(collection, name, n)],
-               scores)
+  out <- cbind(geneSets(gdb, as.dt=TRUE)[, list(collection, name, n)], scores)
   out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
                                       variable.name='sample',
                                       value.name='score')

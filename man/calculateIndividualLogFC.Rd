@@ -7,7 +7,7 @@
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
   treat.lfc = NULL, confint = TRUE, with.fit = FALSE, ...,
-  .external = TRUE)
+  as.dt = FALSE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -35,9 +35,8 @@ to the logFC statistics.}
 
 \item{...}{parameters passed through to the \code{lmFit} call.}
 
-\item{.external}{If called w/in multiGSEA package, we don't check to convert
-outgoing data.table to user's preferred type. \code{.external} is by
-default \code{TRUE}, as if someone on the outside is calling.}
+\item{as.dt}{Return the result as a \code{data.table}? Defaults to
+\code{FALSE}.}
 }
 \value{
 If \code{with.fit == FALSE} (the default) a \code{data.table} of

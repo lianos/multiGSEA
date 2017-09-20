@@ -4,7 +4,7 @@
 \alias{zScore}
 \title{Calculate geneset score by average z-score method}
 \usage{
-zScore(x, summary = c("mean", "sqrt"), trim = 0)
+zScore(x, summary = c("mean", "sqrt"), trim = 0, ...)
 }
 \arguments{
 \item{x}{gene x sample matrix}

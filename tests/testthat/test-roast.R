@@ -25,9 +25,9 @@ test_that('roast runs equivalently from do.roast vs direct call', {
                              use.cache=FALSE)
 
   ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd, .external=FALSE)[, list(collection, name)],
+  expect_equal(geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
                my[, list(collection, name)])
-  my[, n := geneSets(gsd, .external=FALSE)$n]
+  my[, n := geneSets(gsd, as.dt=TRUE)$n]
 
   ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
   ## make `my` look like that, and test for equality

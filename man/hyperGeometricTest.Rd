@@ -5,7 +5,7 @@
 \title{Perform Hypergeometric Enrichment tests across a GeneSetDb.}
 \usage{
 hyperGeometricTest(gsd, selected, universe, direction = c("over", "under"),
-  do.conform = TRUE, .external = FALSE)
+  do.conform = TRUE, as.dt = FALSE)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}
@@ -22,13 +22,9 @@ to \code{FALSE}, but this parameter is here so that when this function
 is called from the \code{\link{multiGSEA}} codepath, we do not have to
 reconform the \code{GeneSetDb} object, because it has already been done.}
 
-\item{.external}{If \code{TRUE} (default), honors the user's setting to
-return either a \code{data.frame} or \code{data.table} object. This
-setting is defined in the \code{"multiGSEA.df.return"} option
-(\code{getOption("multiGSEA.df.return"))}). The value for this option
-can be either of \code{"data.frame"} or \code{"data.table"}. If this
-option is not defined, \code{"data.frame"} will be assumed.
-If \code{FALSE}, a \code{data.table} is always returned.}
+\item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
+this funciton returns will be set to a data.frame. Set this to \code{TRUE}
+to keep this object as a \code{data.table}}
 }
 \value{
 A \code{data.table} of results

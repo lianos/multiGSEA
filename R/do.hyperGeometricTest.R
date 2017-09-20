@@ -32,7 +32,7 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   if (is.null(logFC)) {
     treat.lfc <- if (use.treat) feature.min.logFC else NULL
     logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
-                                      ..., .external=FALSE)
+                                      ..., as.dt=TRUE)
   }
   is.logFC.like(logFC, x, as.error=TRUE)
   logFC <- setDT(copy(logFC))
@@ -44,7 +44,7 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
 
   drawn <- logFC[significant == TRUE]$featureId
   hyperGeometricTest(gsd, drawn, rownames(x), direction, do.conform=FALSE,
-                     .external=FALSE)
+                     as.dt=TRUE)
 }
 
 ##' Perform Hypergeometric Enrichment tests across a GeneSetDb.
@@ -64,7 +64,7 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
 ##' @return A \code{data.table} of results
 hyperGeometricTest <- function(gsd, selected, universe,
                                direction=c('over', 'under'),
-                               do.conform=TRUE, .external=FALSE) {
+                               do.conform=TRUE, as.dt=FALSE) {
   stopifnot(is(gsd, 'GeneSetDb'))
   stopifnot(is.character(selected))
   stopifnot(is.character(universe))
@@ -85,7 +85,7 @@ hyperGeometricTest <- function(gsd, selected, universe,
   odds <- expected <- NULL
   if (numDrawn == 0) {
     warning("No selected genes in hyperGeometricTest", immediate.=TRUE)
-    out <- geneSets(gsd, .external=FALSE)[, list(collection, id)]
+    out <- geneSets(gsd, as.dt=TRUE)[, list(collection, id)]
     out[, pval := NA_real_]
     out[, odds := NA_real_]
     out[, expected := NA_real_]
@@ -93,7 +93,7 @@ hyperGeometricTest <- function(gsd, selected, universe,
     out[, padj.by.collection := NA_real_]
   } else {
     numB <- length(universe) ## number of genes in universe
-    out <- geneSets(gsd, .external=FALSE)[, {
+    out <- geneSets(gsd, as.dt=TRUE)[, {
       ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
       numW <- length(ids)
       Wdrawn <- intersect(ids, selected)
@@ -109,7 +109,8 @@ hyperGeometricTest <- function(gsd, selected, universe,
     out[, padj := p.adjust(pval, 'BH')]
   }
 
-  ret.df(out, .external=.external)
+  if (!as.dt) setDF(out)
+  out
 }
 
 ## -----------------------------------------------------------------------------

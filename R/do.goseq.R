@@ -83,7 +83,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
   if (is.null(logFC)) {
     treat.lfc <- if (use.treat) feature.min.logFC else NULL
     logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
-                                      ..., .external=FALSE)
+                                      ..., as.dt=TRUE)
     if (use.treat) {
       logFC[, significant := padj <= feature.max.padj]
     }
@@ -106,7 +106,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
     res <- suppressWarnings({
       multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                       do.conform=FALSE, .external=FALSE, .pipelined=TRUE)
+                       do.conform=FALSE, as.dt=TRUE, .pipelined=TRUE)
     })
     setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
              c('pval', 'pval.under'))
@@ -168,7 +168,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
-                  plot.fit=TRUE, do.conform=TRUE, .external=TRUE,
+                  plot.fit=TRUE, do.conform=TRUE, as.dt=FALSE,
                   .pipelined=FALSE) {
   gseq <- tryCatch(loadNamespace("goseq"), error=function(e) NULL)
   if (is.null(goseq)) {
@@ -193,7 +193,7 @@ goseq <- function(gsd, selected, universe, feature.bias,
   # silence R CMD check NOTEs
   category <- padj_over <- pval_over <- padj_under <- pval_under <-  NULL
 
-  gs <- geneSets(gsd, active.only=TRUE, .external=FALSE)
+  gs <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
   gs[, category := paste(collection, name, sep=';;')]
   g2c <- as.data.frame(gsd, active.only=TRUE, value='x.id')
   g2c <- transform(g2c, category=paste(collection, name, sep=';;'))
@@ -224,7 +224,7 @@ goseq <- function(gsd, selected, universe, feature.bias,
     out[, padj_over := p.adjust(pval_over, 'BH')]
     out[, padj_under := p.adjust(pval_under, 'BH')]
   }
-  out <- ret.df(out, .external=.external)
+  if (!as.dt) setDF(out)
   setattr(out, 'pwf', pwf)
   out
 }

@@ -204,7 +204,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   treat.lfc <- if (use.treat) feature.min.logFC else NULL
   logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
                                     treat.lfc=treat.lfc, verbose=verbose, ...,
-                                    .external=FALSE)
+                                    as.dt=TRUE)
   logFC <- within(logFC, {
     significant <- if (use.treat) {
       padj <= feature.max.padj
@@ -250,7 +250,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
                             feature.max.padj=feature.max.padj,
-                            trim=trim, .external=FALSE)
+                            trim=trim, as.dt=TRUE)
   out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
   finished <- TRUE
   out

@@ -30,7 +30,7 @@ test_that('romer runs equivalently from do.romer vs direct call', {
   my <- multiGSEA:::do.romer(gdb, y, d, ncol(d), nrot=nrot, use.cache=FALSE)
 
   ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gdb, .external=FALSE)[, list(collection, name)],
+  expect_equal(geneSets(gdb, as.dt=TRUE)[, list(collection, name)],
                my[, list(collection, name)])
   my[, n := geneSets(gdb)$n]
 

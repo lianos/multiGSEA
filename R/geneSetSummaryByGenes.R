@@ -8,7 +8,7 @@
 ##' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="GeneSetDb"),
 function(x, features, with.features=TRUE, feature.rename=NULL, ...,
-         .external=TRUE) {
+         as.dt=FALSE) {
   stopifnot(is.character(features))
   unk.f <- setdiff(features, featureIds(x))
   if (length(unk.f)) {
@@ -20,7 +20,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   }
   x.sub <- subsetByFeatures(x, features)
   x.db <- x.sub@db[featureId %in% features]
-  x.gs <- geneSets(x.sub, .external=FALSE)
+  x.gs <- geneSets(x.sub, as.dt=TRUE)
 
   gs.cols <- c('collection', 'name', 'active')
   if (is.conformed(x)) {
@@ -58,14 +58,15 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
     x.dt <- x.dt[, list(collection, name, n)]
   }
   out <- out[x.dt, nomatch=0]
-  ret.df(out, .external=.external)
+  if (!as.dt) setDF(copy(out))
+  out
 })
 
 ##' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="MultiGSEAResult"),
 function(x, features, with.features=TRUE, feature.rename=NULL,
          method=NULL, max.p=0.3, p.col=c('padj', 'padj.by.collection', 'pval'),
-         ..., .external=TRUE) {
+         ..., as.dt=FALSE) {
   stopifnot(is.character(features))
   unk.f <- setdiff(features, featureIds(x))
   if (length(unk.f)) {
@@ -79,14 +80,14 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     p.col <- match.arg(p.col)
     method <- match.arg(method, resultNames(x))
     stopifnot(max.p >= 0 & max.p <= 1)
-    r <- result(x, method, .external=FALSE)
+    r <- result(x, method, as.dt=TRUE)
   }
 
   gdb <- copy(geneSetDb(x))
   gs <- geneSets(x)
 
   res <- geneSetSummaryByGenes(gdb, features, with.features,
-                               feature.rename=FALSE, .external=FALSE, ...)
+                               feature.rename=FALSE, as.dt=TRUE, ...)
 
   if (with.features) {
     ## Account for impossible scenario that I "dance around" in the function
@@ -113,7 +114,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
   ## logFC of that feature
   if (with.features) {
     ## spank on the logFCs of the genes
-    lfc <- setkeyv(copy(logFC(x, .external=FALSE)), 'featureId')
+    lfc <- setkeyv(copy(logFC(x, as.dt=TRUE)), 'featureId')
     for (fid in features) {
       replace.me <- fcols[[fid]]
       fcols[, (fid) := ifelse(replace.me, lfc[fid]$logFC, 0)]
@@ -143,7 +144,8 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
     res <- res[keep, nomatch=0]
   }
 
-  ret.df(res, .external=.external)
+  if (!as.dt) res <- setDF(copy(res))
+  res
 })
 
 # utility function. accepts a pivoted geneset <-> feature table, and renames

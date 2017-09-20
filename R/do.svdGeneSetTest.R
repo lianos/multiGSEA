@@ -43,7 +43,6 @@ do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
   res <- calculateIndividualLogFC(X, design, contrast,
                                   trend.eBayes=trend.eBayes, ...)
 
-  out <- cbind(geneSets(gsd, .external=FALSE)[, list(collection, name)],
-               as.data.table(res))
+  out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
 }
 

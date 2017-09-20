@@ -6,10 +6,10 @@
 \title{Calculates the expression-rescaled SVD based eigengene score per sample.}
 \usage{
 svdScore(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE)
+  uncenter = center, unscale = scale, retx = FALSE, ...)
 
 gsdScore(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE)
+  uncenter = center, unscale = scale, retx = FALSE, ...)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score

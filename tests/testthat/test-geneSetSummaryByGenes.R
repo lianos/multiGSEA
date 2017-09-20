@@ -55,7 +55,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
 
   ## check that symbol remapping works, too
   res.s <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
-                                 feature.rename='symbol', .external=FALSE)
+                                 feature.rename='symbol', as.dt=TRUE)
 
   lfc.ex <- logFC(mg) %>%
     dplyr::filter(featureId %in% features) %>%
@@ -85,9 +85,9 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
 
   features <- sample(featureIds(mg), 10)
   res.all <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
-                                   feature.rename='symbol', .external=FALSE)
+                                   feature.rename='symbol', as.dt=TRUE)
   res.sig <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
-                                   feature.rename='symbol', .external=FALSE,
+                                   feature.rename='symbol', as.dt=TRUE)
                                    method='camera', max.p=p.thresh)
   expect_true(all(res.sig$name %in% res.all$name))
   expect_true(all(res.sig$name %in% camera.sig$name))

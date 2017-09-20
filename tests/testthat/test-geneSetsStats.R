@@ -10,16 +10,15 @@ test_that("geneSetsStats", {
   trim <- 0.10
   min.logFC <- 1
   max.padj <- 0.10
-  gs.stats <- geneSetsStats(mg, min.logFC, max.padj, trim, .external=FALSE)
+  gs.stats <- geneSetsStats(mg, min.logFC, max.padj, trim, as.dt=TRUE)
 
   ## calculate expected
-  istats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design),
-                                     .external=FALSE)
+  istats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design), as.dt=TRUE)
   data.table::setkeyv(istats, 'featureId')
 
   ## The code below is the same used in do.geneSetScores -- let's think of a
   ## more manual way to do this.
-  expected <- geneSets(gsd, .external=FALSE)[, {
+  expected <- geneSets(gsd, as.dt=TRUE)[, {
     ids <- featureIds(gsd, .BY[[1]], .BY[[2]])
     lfc <- istats[list(ids)]
     t.nona <- lfc$t[!is.na(lfc$t)]

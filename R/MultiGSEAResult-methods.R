@@ -19,26 +19,26 @@ geneSetDb <- function(x) {
 ##' @rdname geneSet
 setMethod("geneSet", c(x="MultiGSEAResult"),
 function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
-         .external=TRUE) {
+         as.dt=FALSE) {
   if (!isTRUE(active.only)) {
     warning("active.only set to TRUE for geneSet,MultiGSEAResult")
     active.only <- TRUE
   }
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
-                ..., .external=FALSE)
-  lfc <- logFC(x, .external=FALSE)[list(gs$featureId), on='featureId']
+                ..., as.dt=TRUE)
+  lfc <- logFC(x, as.dt=TRUE)[list(gs$featureId), on='featureId']
   out <- cbind(gs, lfc)
   ## remove duplicate columns if they exist after cbind
   keep.cols <- !duplicated(colnames(out))
   out <- out[, keep.cols, with=FALSE]
-  ret.df(out, .external=.external)
+  if (!as.dt) setDF(out)
+  out
 })
 
 setMethod("geneSets", c(x="MultiGSEAResult"),
-function(x, ..., .external=TRUE) {
-  ret.df(geneSets(geneSetDb(x), active.only=TRUE, .external=FALSE),
-         .external=.external)
+function(x, ..., as.dt=FALSE) {
+  geneSets(geneSetDb(x), active.only=TRUE, as.dt=as.dt)
 })
 
 ## Here's your chance to vectorize this. Once that's done push this code down
@@ -127,10 +127,10 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
 ##' gdb <- exampleGeneSetDb()
 ##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
 ##' head(geneSetsStats(mg))
-geneSetsStats <- function(x, feature.min.logFC=1,
-                          feature.max.padj=0.10, trim=0.10, .external=TRUE) {
+geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
+                          trim=0.10, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  lfc <- logFC(x, .external=FALSE)
+  lfc <- logFC(x, as.dt=TRUE)
 
   annotate.lfc <- !missing(feature.min.logFC) ||
     !missing(feature.max.padj) ||
@@ -144,7 +144,7 @@ geneSetsStats <- function(x, feature.min.logFC=1,
     })
   }
 
-  gs <- geneSets(x, .external=FALSE)
+  gs <- geneSets(x, as.dt=TRUE)
   do.by <- key(gs)
 
   out <- gs[, {
@@ -163,7 +163,9 @@ geneSetsStats <- function(x, feature.min.logFC=1,
          mean.t.trim=mean(stats$t, na.rm=TRUE, trim=trim))
   }, by=do.by]
   setkeyv(out, do.by)
-  ret.df(out, .external=.external)
+
+  if (!as.dt) setDF(out)
+  out
 }
 
 ##' Extract the individual fold changes statistics for elements in the
@@ -179,9 +181,11 @@ geneSetsStats <- function(x, feature.min.logFC=1,
 ##' gdb <- exampleGeneSetDb()
 ##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 ##' lfc <- logFC(mg)
-logFC <- function(x, .external=TRUE) {
+logFC <- function(x, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
-  ret.df(x@logFC, .external=.external)
+  out <- x@logFC
+  if (!as.dt) out <- setDF(copy(out))
+  out
 }
 
 ## Helper function: returns method names that were not run on a MultiGSEAResult
@@ -253,11 +257,11 @@ resultNames <- function(x) {
 ##' @return a data.table with the results from the requested method.
 result <- function(x, name, stats.only=FALSE,
                    rank.by=c('pval', 't', 'logFC'),
-                   add.suffix=FALSE, .external=TRUE) {
+                   add.suffix=FALSE, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
     if (missing(name)) name <- NULL
-    return(results(x, name, .external=.external))
+    return(results(x, name, as.dt=as.dt))
   }
   if (length(resultNames(x)) == 1L) {
     name <- resultNames(x)
@@ -269,7 +273,7 @@ result <- function(x, name, stats.only=FALSE,
   rank.by <- match.arg(rank.by)
   stopifnot(isSingleLogical(add.suffix))
 
-  out <- copy(geneSets(x, .external=FALSE))
+  out <- copy(geneSets(x, as.dt=TRUE))
 
   pval.col <- 'pval'
   rank.col <- 'rank'
@@ -319,7 +323,8 @@ result <- function(x, name, stats.only=FALSE,
                   pval=rank(out[[pval.col]], ties.method="min"))
   out[, (rank.col) := ranks]
 
-  ret.df(out, .external=.external)
+  if (!as.dt) setDF(out)
+  out
 }
 
 ##' @export
@@ -329,7 +334,7 @@ result <- function(x, name, stats.only=FALSE,
 ##'   default to all of them.
 results <- function(x, names=resultNames(x), stats.only=TRUE,
                     rank.by=c('pval', 'logFC', 't'),
-                    add.suffix=length(names) > 1L, .external=TRUE) {
+                    add.suffix=length(names) > 1L, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0L) {
     ## No methods were run, you can only return geneset stats
@@ -339,7 +344,7 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
     }
     message("No GSEA methods were run, only geneset statistics have ",
             "been returned.")
-    return(ret.df(geneSets(x, .external=FALSE)))
+    geneSets(x, as.dt=as.dt)
   }
   invalidMethods(x, names)
   stopifnot(isSingleLogical(stats.only))
@@ -351,15 +356,16 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
   }
 
   ## Idiomatic data.table, non-idiomatic R
-  out <- copy(geneSets(x, .external=FALSE))
+  out <- copy(geneSets(x, as.dt=TRUE))
   for (name in names) {
-    res <- result(x, name, stats.only, rank.by, add.suffix, .external=FALSE)
+    res <- result(x, name, stats.only, rank.by, add.suffix, as.dt=TRUE)
     for (col in setdiff(names(res), names(out))) {
       out[, (col) := res[[col]]]
     }
   }
 
-  ret.df(out, .external=.external)
+  if (!as.dt) setDF(out)
+  out
 }
 
 ##' Summary of geneset level results at a specified FDR
@@ -380,14 +386,15 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
 ##'
 ##' @return a data.table that summarizes the significant results per method
 ##'   per collection for the GSEA that was run
-tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
-                            p.col=c('padj', 'padj.by.collection', 'pval')) {
+tabulateResults <- function(x, names=resultNames(x), max.p=0.20,
+                            p.col=c('padj', 'padj.by.collection', 'pval'),
+                            as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)
   stopifnot(isSingleNumeric(max.p))
   p.col <- match.arg(p.col)
   res <- lapply(names, function(wut) {
-    r <- result(x, wut, .external=FALSE)
+    r <- result(x, wut, as.dt=TRUE)
     ## some results (like goseq) don't have just "padj" or "pval" columns,
     ## because it has pval.over and pval.under, so let's just grab the first
     ## pval or padj "hit"
@@ -406,35 +413,11 @@ tabulateResults <- function(x, names=resultNames(x), max.p=0.30,
            sig_down=sum(pcol <= max.p & mean.logFC.trim < 0, na.rm=TRUE))
     }, by='collection']
   })
-  ret.df(rbindlist(res))
+  out <- rbindlist(res)
+  if (!as.dt) setDF(out)
+  out
 }
 
-# ##' Subset MultiGSEAResult to include include results for specified genesets
-# ##'
-# ##' This isn't exported yet because I don't like its implementation
-# ##' @param x MultiGSEAResult
-# ##' @param keep logical vector as long as there are numbers of results
-# ##' @return a \code{MultiGSEAResult} that has only the results for the specified
-# ##'   genesets.
-# subset.MultiGSEAResult <- function(x, keep) {
-#   stopifnot(is(x, 'MultiGSEAResult'))
-#   did.gsea <- length(x@results) > 0
-#   ## length of x@results is 0 if no methods were run (only stats calc'd)
-#   nr <- nrow(if (did.gsea) x@results[[1]] else geneSets(x, .external=FALSE))
-#   if (!is.logical(keep) && lenght(keep) != nr) {
-#     stop("The `keep` vector is FUBAR'd")
-#   }
-#   if (did.gsea) {
-#     new.res <- lapply(x@results, function(x) subset(x, keep))
-#     x@results <- new.res
-#     gsets <- with(new.res[[1]], paste(collection, name, sep=':'))
-#     x@gsd@table <- x@gsd@table[paste(collection, name, sep=':') %in% gsets]
-#   } else {
-#     x@gsd@table <- x@gsd@table[keep]
-#   }
-#
-#   x
-# }
 
 setMethod("show", "MultiGSEAResult", function(object) {
   msg <- paste("multiGSEA result (max FDR by collection set to 20%)",
@@ -470,7 +453,7 @@ p.matrix <- function(x, names=resultNames(x),
   stopifnot(is(x, 'MultiGSEAResult'))
   invalidMethods(x, names)
   pcol <- match.arg(pcol)
-  res <- results(x, names, add.suffix=TRUE, .external=FALSE)
+  res <- results(x, names, add.suffix=TRUE, as.dt=TRUE)
   regex <- sprintf('^%s\\.', pcol)
   col.idx <- grep(regex, names(res))
   if (pcol != 'padj.by.collection') {

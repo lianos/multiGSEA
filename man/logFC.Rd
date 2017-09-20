@@ -5,18 +5,14 @@
 \title{Extract the individual fold changes statistics for elements in the
 expression object.}
 \usage{
-logFC(x, .external = TRUE)
+logFC(x, as.dt = FALSE)
 }
 \arguments{
 \item{x}{A \code{MultiGSEAResult}}
 
-\item{.external}{If \code{TRUE} (default), honors the user's setting to
-return either a \code{data.frame} or \code{data.table} object. This
-setting is defined in the \code{"multiGSEA.df.return"} option
-(\code{getOption("multiGSEA.df.return"))}). The value for this option
-can be either of \code{"data.frame"} or \code{"data.table"}. If this
-option is not defined, \code{"data.frame"} will be assumed.
-If \code{FALSE}, a \code{data.table} is always returned.}
+\item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
+this funciton returns will be set to a data.frame. Set this to \code{TRUE}
+to keep this object as a \code{data.table}}
 }
 \value{
 The log fold change \code{data.table}

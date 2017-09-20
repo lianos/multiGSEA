@@ -7,7 +7,7 @@
 goseq(gsd, selected, universe, feature.bias, method = c("Wallenius",
   "Sampling", "Hypergeometric"), repcnt = 2000,
   use_genes_without_cat = TRUE, plot.fit = TRUE, do.conform = TRUE,
-  .external = TRUE, .pipelined = FALSE)
+  as.dt = FALSE, .pipelined = FALSE)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}

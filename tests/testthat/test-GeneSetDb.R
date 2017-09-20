@@ -288,7 +288,7 @@ test_that("as.list.GeneSetDb returns gene sets in same order as GeneSetDb", {
   gs.idxs <- as.list(gsd)
   info <- strsplit(names(gs.idxs), ';;')
   res <- data.table(collection=sapply(info,'[[',1L), name=sapply(info,'[[',2L))
-  expected <- geneSets(gsd, active.only=TRUE, .external=FALSE)
+  expected <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
   expect_equal(res, expected[, list(collection, name)], check.attributes=FALSE)
 })
 
@@ -396,9 +396,9 @@ test_that('subset.GeneSetDb ("[".GeneSetDb) creates valid result', {
   expect_equal(geneSets(sdb)$name, geneSets(gdb)$name[keep])
 
   ## check counts
-  sdb.coll.counts <- collectionMetadata(sdb, .external=FALSE)[name == 'count']
+  sdb.coll.counts <- collectionMetadata(sdb, as.dt=TRUE)[name == 'count']
   sdb.coll.counts[, value := unlist(value)]
-  exp.coll.counts <- geneSets(sdb, .external=FALSE)[, {
+  exp.coll.counts <- geneSets(sdb, as.dt=TRUE)[, {
     .(name='count', value=.N)
   }, by='collection']
   setkeyv(exp.coll.counts, c('collection', 'name'))

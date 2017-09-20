@@ -209,10 +209,10 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
   if (is(x, 'MultiGSEAResult')) {
     stats <- match.arg(stats, c('dge', resultNames(x)))
     if (stats == 'dge') {
-      x <- logFC(x, .external=FALSE)
+      x <- logFC(x, as.dt=TRUE)
       idx <- 'featureId'
     } else {
-      x <- result(x, stats, .external=FALSE)
+      x <- result(x, stats, as.dt=TRUE)
       idx <- 'idx'
       x[[idx]] <- paste(x$collection, x$name, sep=';;')
     }

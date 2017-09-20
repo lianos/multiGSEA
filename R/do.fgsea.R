@@ -59,7 +59,7 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
   # }
   # xref <- match(names(gs.idxs), res$pathway)
   # res <- res[xref]
-  gs <- geneSets(gsd, .external=FALSE)[, list(collection, name)]
+  gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
   stopifnot(all.equal(res$pathway, paste(gs$collection, gs$name, sep=';;')))
   out <- cbind(gs, res[, -1, with=FALSE])
   out

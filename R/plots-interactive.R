@@ -55,9 +55,9 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   # silence R CMD check NOTEs
   val <- NULL
   dat <- local({
-    lfc <- copy(logFC(x, .external=FALSE))[, group := 'bg']
+    lfc <- copy(logFC(x, as.dt=TRUE))[, group := 'bg']
     lfc[, val := lfc[[value]]]
-    gs.stats <- geneSet(x, y, j, .external=FALSE)[, group := 'geneset']
+    gs.stats <- copy(geneSet(x, y, j, as.dt=TRUE))[, group := 'geneset']
     gs.stats[, val := gs.stats[[value]]]
     kcols <- intersect(names(gs.stats), names(lfc))
 
@@ -229,7 +229,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 ## rbokeh ----------------------------------------------------------------------
 
 if (FALSE) {
-##' @rdname iplot
+## @rdname iplot
 iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                                  with.data=FALSE, ...) {
@@ -264,7 +264,7 @@ iplot.boxplot.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p
 }
 
-##' @rdname iplot
+## @rdname iplot
 iplot.density.rbokeh <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                                  with.data=FALSE, ...) {
