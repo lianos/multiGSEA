@@ -7,16 +7,17 @@
 ##' arguments down through the \code{...} of this wrapper function.
 ##'
 ##' Currently this primarily wraps many of the GSEA methods available in
-##' edgeR/limma as well as goseq and hypergeometric testing functionality.
+##' edgeR/limma as well as goseq, hypergeometric tests, and fgsea.
 ##' Others will be added over time. Refer to the \emph{GSEA Methods} and
 ##' \emph{GSEA Method Parameterization} sections for more details.
 ##'
 ##' In addition to performing GSEA, this function also internally orchestrates
-##' a differential expression analysis, which can be tweaked by idnetifying
+##' a differential expression analysis, which can be tweaked by identifying
 ##' the parameters in the \code{\link{calculateIndividualLogFC}} function, and
 ##' passing them down through \code{...} here. The results of the differential
-##' expression analysis are accessible by calling the \code{logFC} function on
-##' the \code{\link{MultiGSEAResult}} object returned from this function call.
+##' expression analysis (ie. the \code{"topTable"}) are accessible by calling
+##' the \code{logFC} function on the \code{\link{MultiGSEAResult}} object
+##' returned from this function call.
 ##'
 ##' \emph{Please Note}: be sure to cite the original GSEA method when using
 ##' results generated from it.
@@ -34,6 +35,7 @@
 ##'   \item \code{\link[limma]{geneSetTest}}
 ##'   \item \code{\link{goseq}}
 ##'   \item \code{\link{hyperGeometricTest}}
+##'   \item \code{\link[fgsea]{fgsea}}
 ##' }
 ##'
 ##' Methods annotated with a \code{(*)} indicate that these methods require
@@ -46,9 +48,9 @@
 ##' of logFC's or t-statistics for genes).
 ##'
 ##' The worker functions that execute these GSEA methods are functions named
-##' \code{do.METHOD}. These functions aren't executed, but you can find help
-##' on them via the console, via \code{?do.goseq}, or \code{?do.camera},
-##' for example.
+##' \code{do.METHOD}. These functions are not meant to be executed directly,
+##' by the suer, but you can find help on them via \code{?do.goseq}, or
+##' \code{?do.camera}, for example.
 ##'
 ##' @section GSEA Method Parameterization:
 ##'
