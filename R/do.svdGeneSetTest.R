@@ -44,5 +44,7 @@ do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
                                   trend.eBayes=trend.eBayes, ...)
 
   out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
+  setattr(res, 'rawresult', TRUE)
 }
 
+mgres.svdGeneSetTest <- function(res, gsd, ...) res

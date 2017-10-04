@@ -72,4 +72,8 @@ do.geneSetTest <- function(gsd, x, design, contrast, outdir=NULL,
   out <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
   out[, pval := pvals]
   out[, padj := p.adjust(pval, 'BH')]
+  setattr(out, 'rawresult', TRUE)
 }
+
+mgres.geneSetTest <- function(res, gsd, ...) res
+

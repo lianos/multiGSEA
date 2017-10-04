@@ -48,7 +48,11 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
 
   res <- fgsea::fgsea(pathways, ranks, nperm, minSize=gs.range[1L],
                       maxSize=gs.range[2L], gseaParam=gseaParam)
+  setattr(res, 'rawresult', TRUE)
+}
 
+mgres.fgsea <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
   # fgsea will sometimes return 0 hits for a pathway. Need to reconstruct a fix!
   # missed <- setdiff(names(gs.idxs), res$pathway)
   # if (length(missed)) {
@@ -61,7 +65,6 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
   # res <- res[xref]
   gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
   stopifnot(all.equal(res$pathway, paste(gs$collection, gs$name, sep=';;')))
-  out <- cbind(gs, res[, -1, with=FALSE])
+  out <- cbind(gs, as.data.table(res[, -1, drop=FALSE]))
   out
 }
-

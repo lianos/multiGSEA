@@ -43,9 +43,12 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
   }
 
   drawn <- logFC[significant == TRUE]$featureId
-  hyperGeometricTest(gsd, drawn, rownames(x), direction, do.conform=FALSE,
-                     as.dt=TRUE)
+  out <- hyperGeometricTest(gsd, drawn, rownames(x), direction, do.conform=FALSE,
+                            as.dt=TRUE)
+  setattr(out, 'rawresult', TRUE)
 }
+
+mgres.hyperGeometricTest <- function(res, gsd, ...) res
 
 ##' Perform Hypergeometric Enrichment tests across a GeneSetDb.
 ##'

@@ -108,14 +108,11 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
                        do.conform=FALSE, as.dt=TRUE, .pipelined=TRUE)
     })
-    setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
-             c('pval', 'pval.under'))
-    padj.under <- pval.under <- NULL # silence R CMD check NOTEs
-    res[, padj := p.adjust(pval, 'BH')]
-    res[, padj.under := p.adjust(pval.under, 'BH')]
   }, simplify=FALSE)
   if (length(out) == 1L) {
     out <- out[[1L]]
+  } else {
+    setattr(out, 'unlist', TRUE)
   }
   out
 }
@@ -208,23 +205,32 @@ goseq <- function(gsd, selected, universe, feature.bias,
                     use_genes_without_cat=use_genes_without_cat)
 
   ## resort output to match gs ordering
-  res <- res[match(gs$category, res$category),]
-  ##            !names(res) %in% c('category', 'numInCat')]
-  ## out <- cbind(gs[, list(collection, name, n, n.drawn=res$numDEInCat)], res)
+  res <- res[match(gs$category, res$category),,drop=FALSE]
+  res <- if (as.dt) setDT(out) else setDF(out)
+  setattr(out, 'pwf', pwf)
+  setattr(out, 'rawresult', TRUE)
+  out
+}
+
+mgres.goseq <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
+  stopifnot(is.data.table(res), is(gsd, "GeneSetDb"))
+  gs <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
+  gs[, category := paste(collection, name, sep=';;')]
+  xref <- match(gs$category, res$category)
+  if (any(is.na(xref))) {
+    stop("The conformed GeneSetDb used in analysis is not this one")
+  }
+  res <- res[xref]
   out <- gs[, list(collection, name, n, n.drawn=res$numDEInCat)]
   rcols <- setdiff(names(res), c('category', 'numInCat', 'numDEInCat'))
   for (rcol in rcols) {
     out[, (rcol) := res[rcol]]
   }
 
-  if (!.pipelined) {
-    setnames(out,
-             c('over_represented_pvalue', 'under_represented_pvalue'),
-             c('pval_over', 'pval_under'))
-    out[, padj_over := p.adjust(pval_over, 'BH')]
-    out[, padj_under := p.adjust(pval_under, 'BH')]
-  }
-  if (!as.dt) setDF(out)
-  setattr(out, 'pwf', pwf)
-  out
+  setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
+           c('pval', 'pval.under'))
+  padj.under <- pval.under <- NULL # silence R CMD check NOTEs
+  res[, padj := p.adjust(pval, 'BH')]
+  res[, padj.under := p.adjust(pval.under, 'BH')]
 }

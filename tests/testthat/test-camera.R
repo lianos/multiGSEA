@@ -7,29 +7,24 @@ test_that('camera runs equivalently from do.camera vs direct call', {
 
   photo <- limma::camera(vm, gsi, vm$design, ncol(vm$design))
   my <- multiGSEA:::do.camera(gsd, vm, vm$design, ncol(vm$design))
+  expect_true(setequal(rownames(photo), rownames(my)))
+  my <- my[rownames(photo),]
 
-  ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
-               my[, list(collection, name)])
-  my[, n := geneSets(gsd, as.dt=TRUE)$n]
-
-  ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
-  ## make `my` look like that, and test for equality
-  comp <- local({
-    ## NOTE: As of Bioc3.3 camera has a default inter.gene.cor of 0.01. If this
-    ##       parameter isn't explicitly set to NULL, then it is used and the
-    ##       Correlation column of camera's output is dropped
-    if ('Correlation' %in% names(photo)) {
-      out <- my[, list(n, Correlation, Direction, pval, padj)]
-    } else {
-      out <- my[, list(n, Direction, pval, padj)]
-    }
-    data.table::setnames(out, names(photo))
-    out <- as.data.frame(out)
-    rownames(out) <- paste(my$collection, my$name, sep=';;')
-    out[rownames(photo),]
-  })
-
-  expect_equal(photo, comp)
+  expect_equal(my, photo, check.attributes=FALSE)
 })
 
+test_that("camera result() is decorated correctly and has correct stats", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsd <- conform(exampleGeneSetDb(), vm)
+  gsi <- as.list(gsd, value='x.idx')
+  mg <- multiGSEA(gsd, vm, vm$design, ncol(vm$design), methods='camera')
+
+  photo <- limma::camera(vm, gsi, vm$design, ncol(vm$design))
+  res <- result(mg, 'camera', as.dt=TRUE)
+  check <- setDF(res[, list(NGenes=n, Direction, PValue=pval, FDR=padj)])
+  rownames(check) <- paste(res$collection, res$name, sep=";;")
+
+  expect_true(setequal(rownames(check), rownames(photo)))
+  check <- check[rownames(photo),]
+  expect_equal(check, photo, check.attributes=TRUE)
+})

@@ -51,12 +51,17 @@ do.fry <- function(gsd, x, design, contrast=ncol(design),
   }
 
   res <- do.call(limma::fry, call.args)
+  if (add.dummy) res <- subset(res, name != dummy.gs)
+  setattr(res, 'rawresult', TRUE)
+}
 
-  out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
+mgres.fry <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
+  out <- cbind(
+    geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
+    as.data.table(res))
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
-  out <- subset(out, name != dummy.gs)
-
   rcols <- c(PValue='pval', FDR='padj', PValue.Mixed='pval.mixed',
              FDR.Mixed='padj.mixed')
   rcols <- rcols[names(rcols) %in% names(out)]

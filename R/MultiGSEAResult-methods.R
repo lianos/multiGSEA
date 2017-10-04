@@ -283,8 +283,12 @@ result <- function(x, name, stats.only=FALSE,
   }
 
   res <- local({
-    r <- x@results[[name]]
-    kosher <- all.equal(out[, key(out), with=FALSE], r[, key(out), with=FALSE])[1L]
+    # r <- x@results[[name]]
+    fnfetch <- getFunction(paste0('mgres.', name))
+    r <- fnfetch(x@results[[name]], geneSetDb(x))
+    kosher <- all.equal(
+      out[, key(out), with=FALSE],
+      r[, key(out), with=FALSE])[1L]
     if (!isTRUE(kosher)) {
       stop("Unexpected geneset ordering in `", name, "` result")
     }

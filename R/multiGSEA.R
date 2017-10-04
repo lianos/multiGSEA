@@ -271,7 +271,7 @@ mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
   res <- fn(gsd, x, design, contrast, logFC=logFC,
             use.treat=use.treat, feature.min.logFC=feature.min.logFC,
             feature.max.padj=feature.max.padj, verbose=verbose, ...)
-  if (is.data.table(res)) {
+  if (!isTRUE(attr(res, 'unlist', TRUE))) {
     res <- list(all=res)
   }
   out <- lapply(res, function(dt) {

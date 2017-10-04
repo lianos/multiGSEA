@@ -17,6 +17,9 @@ do.logFC <- function(gsd, x, design, contrast=ncol(design), outdir=NULL,
                      use.cache=TRUE, logFC=NULL, robust.fit=FALSE,
                      robust.eBayes=FALSE, ...) {
   ## This function is actually never called.
-  transform(geneSets(gsd, as.dt=TRUE),
-            logFC=NA_real_, pval=NA_real_, padj=NA_real_)
+  res <- transform(geneSets(gsd, as.dt=TRUE),
+                   logFC=NA_real_, pval=NA_real_, padj=NA_real_)
+  setattr(res, 'rawresult', TRUE)
 }
+
+mgres.logFC <- function(res, gsd, ...) res

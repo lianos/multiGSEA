@@ -50,8 +50,14 @@ do.camera <- function(gsd, x, design, contrast=ncol(design),
   call.args[['...']] <- NULL
 
   res <- do.call(camera, call.args)
+  setattr(res, 'rawresult', TRUE)
+}
 
-  out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
+mgres.camera <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
+  out <- cbind(
+    geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
+    as.data.table(res))
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
   setnames(out, c('PValue', 'FDR'), c('pval', 'padj'))

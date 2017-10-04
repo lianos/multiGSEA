@@ -32,7 +32,11 @@ do.roast <- function(gsd, x, design, contrast=ncol(design),
     call.args[['df.prior']] <- NULL
   }
   res <- do.call(mroast, call.args)
+  setattr(res, 'rawresult', TRUE)
+}
 
+mgres.roast <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
   out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]

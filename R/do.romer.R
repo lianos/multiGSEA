@@ -48,7 +48,11 @@ do.romer <- function(gsd, x, design, contrast=ncol(design),
   call.args[['...']] <- NULL
 
   res <- do.call(romer, call.args)
+  setattr(res, 'rawresult', TRUE)
+}
 
+mgres.romer <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, 'rawresult'))) return(res)
   ## check gsnames matches to geneSets()
   gsnames <- sub('.*;;', '', rownames(res))
   gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
