@@ -65,6 +65,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
 }
 
 ##' @rdname getPantherGeneSetDb
+##' @export
 getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
   getPantherGeneSetDb('goslim', species)
 }
