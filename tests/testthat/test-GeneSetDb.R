@@ -281,6 +281,23 @@ test_that("as.*.GeneSetDb conversions honor `active.only` requests", {
   expect_true(setequal(gs.active, gdbc.df$name))
 })
 
+test_that("Conformed GeneSetDb returns only matched genes on data.frame conversion", {
+  vm <- exampleExpressionSet()
+  gdb <- getMSigGeneSetDb(c('c2'))
+  expect_warning(gdbc <- conform(gdb, vm)) ## fires off warning when genesets are dropped
+
+  gdb.df <- as.data.frame(gdb)
+  gdbc.df <- as.data.frame(gdbc)
+
+  extra.genes <- setdiff(gdb.df$featureId, rownames(vm))
+  matched.genes <- intersect(gdb.df$featureId, rownames(vm))
+  expect_true(length(extra.genes) > 0)
+  expect_true(length(matched.genes) > 0)
+
+  expect_true(!all(gdb.df$featureId %in% rownames(vm)))
+  expect_true(all(gdbc.df$featureId %in% rownames(vm)))
+})
+
 test_that("as.list.GeneSetDb returns gene sets in same order as GeneSetDb", {
   es <- exampleExpressionSet()
   gsd <- conform(exampleGeneSetDb(), es)

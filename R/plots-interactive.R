@@ -147,7 +147,7 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
     layout(xaxis=list(title="logFC", range=xrange),
            yaxis=list(title="Density"),
-           dragmode="select")
+           title=main, dragmode="select")
   if ('symbol' %in% names(gs.dat) && with.points) {
     p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
                      hoverinfo='text',
