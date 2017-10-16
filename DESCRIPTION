@@ -26,6 +26,7 @@ Imports:
     ggplot2 (>= 2.2.0),
     plotly (>= 4.7.0),
     matrixStats,
+    ComplexHeatmap,
     circlize,
     magrittr,
     shiny,
@@ -87,6 +88,7 @@ Collate:
     'panther.R'
     'plots-corplot.R'
     'plots-interactive.R'
+    'plots-mgheatmap.R'
     'reactome.R'
     'scoreSingleSamples.R'
     'single-sample-scoring-methods.R'

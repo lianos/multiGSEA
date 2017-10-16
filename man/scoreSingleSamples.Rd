@@ -6,7 +6,7 @@
 \title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
 scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
-  drop.sd = 1e-04, verbose = FALSE, ...)
+  drop.sd = 1e-04, verbose = FALSE, ..., as.dt = FALSE)
 
 singleSampleScores(y, gdb, methods = "ssgsea", as.matrix = FALSE,
   drop.sd = 1e-04, verbose = FALSE, ...)
