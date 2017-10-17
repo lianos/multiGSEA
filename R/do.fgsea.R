@@ -22,32 +22,28 @@ validate.x.fgsea <- validate.X
 ##' @return A data.table of fgsea results.
 do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      minSize=15, maxSize=15, nperm=10000, gseaParam=1,
-                     score.by=c('t', 'logFC', 'pval'), use.treat=FALSE,
-                     feature.min.logFC=if (use.treat) log2(1.25) else 1,
-                     feature.max.padj=0.10,
+                     score.by=c('t', 'logFC', 'pval'), logFC=NULL,
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
-                     logFC=NULL,
                      ...) {
   score.by <- match.arg(score.by)
   if (!requireNamespace('fgsea')) {
     stop("The Bioconductor fgsea is required for this functionality")
   }
-  if (!is.conformed(gsd, x)) {
-    gsd <- conform(gsd, x, min.gs.size=minSize, max.gs.size=maxSize)
-    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
-  }
+  stopifnot(is.conformed(gsd, x))
 
-  ## The call to calculateIndividualLogFC in multiGSEA puts "the right stuff"
-  ## in the logFC data.table, so we just need that.
-  ranks <- setNames(logFC[[score.by]], logFC[['featureId']])
-  gs <- subset(geneSets(gsd), active)
-  gs.range <- range(gs$n, na.rm=TRUE)
+  stats <- extract_preranked_stats(x, design, contrast, score.by=score.by,
+                                   logFC=logFC, ...)
+
+  ## fgsea call needs minSize and maxSize params, we set this to whatever
+  ## the min/max active geneset sizes are, since this was already specified
+  ## in the internally called conform(gsd, x, min.gs.size, max.gs.size) call
+  gs.size <- range(subset(geneSets(gsd), active)$n)
 
   ## fgsea function wans a list of gene identifiers for pathway definition
-  pathways <- lapply(gs.idxs, function(idxs) names(ranks)[idxs])
+  pathways <- lapply(gs.idxs, function(idxs) names(stats)[idxs])
 
-  res <- fgsea::fgsea(pathways, ranks, nperm, minSize=gs.range[1L],
-                      maxSize=gs.range[2L], gseaParam=gseaParam)
+  res <- fgsea::fgsea(pathways, stats, nperm, minSize=gs.size[1L],
+                      maxSize=gs.size[2L], gseaParam=gseaParam)
   setattr(res, 'rawresult', TRUE)
 }
 
@@ -65,6 +61,6 @@ mgres.fgsea <- function(res, gsd, ...) {
   # res <- res[xref]
   gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
   stopifnot(all.equal(res$pathway, encode_gskey(gs)))
-  out <- cbind(gs, as.data.table(res[, -1, drop=FALSE]))
+  out <- cbind(gs, as.data.table(res[, -1L, drop=FALSE]))
   out
 }

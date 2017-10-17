@@ -1,6 +1,6 @@
 context("fgsea")
 
-test_that("fgsea works like a boss", {
+test_that("multiGSEA calculate t and preranked t match fgsea results", {
   nperm <- 1000
   gseaParam <- 1
 

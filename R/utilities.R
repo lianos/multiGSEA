@@ -1,3 +1,38 @@
+extract_preranked_stats <- function(x, design, contrast, robust.fit=FALSE,
+                                    robust.eBayes=FALSE, logFC=NULL,
+                                    score.by=c('t', 'logFC', 'pval'), ...) {
+  score.by <- match.arg(score.by)
+  if (ncol(x) > 1) {
+    if (is.null(logFC)) {
+      logFC <- calculateIndividualLogFC(x, design, contrast, robust.fit,
+                                        robust.eBayes, ..., as.dt=TRUE)
+    } else {
+      is.logFC.like(logFC, x, as.error=TRUE)
+    }
+    ## t will be NA if statistics were computed using edgeR from a DGEList
+    if (score.by == 't' && any(is.na(logFC[['t']]))) {
+      warning("t statistics not found in dge results, switching to logFC",
+              immediate.=TRUE)
+      score.by <- 'logFC'
+    }
+    stats <- setNames(logFC[[score.by]], logFC$featureId)
+  } else {
+    ## This is already a column matrix of precomputed things (logFC, perhaps)
+    ## to rank
+    stats <- setNames(x[, 1L], rownames(x))
+  }
+
+  if (any(is.na(stats))) {
+    stop("NA values are found in the stats vector for geneSetTest")
+  }
+
+  if (!setequal(rownames(x), names(stats))) {
+    stop("Identifiers are not setequal among stats vector and x matrix")
+  }
+
+  stats[rownames(x)]
+}
+
 ##' Converts collection,name combination to key for geneset
 ##'
 ##' The "key" form often comes out as rownames to matrices and such, or
