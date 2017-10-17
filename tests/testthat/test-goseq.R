@@ -25,6 +25,7 @@ test_that("internal goseq mimics goseq package", {
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
 
+  ## Identify differentially expressed genes
   mg <- multiGSEA(gsd, vm, vm$design)
   lfc <- logFC(mg)
   selected <- subset(lfc, significant)$featureId
@@ -33,14 +34,17 @@ test_that("internal goseq mimics goseq package", {
   degenes <- setNames(integer(length(universe)), universe)
   degenes[selected] <- 1L
 
+  ## Run internal version of goseq
   my.res <- suppressWarnings({
     multiGSEA::goseq(gsd, selected, universe, mylens, method='Wallenius',
                      use_genes_without_cat=TRUE, .pipelined=TRUE)
   })
   ## pwf <- attr(my.res, 'pwf')
 
-  ## expected
-  g2c <- transform(as.data.frame(gsd), category=name)
+  ## run goseq::goseq
+  g2c <- transform(as.data.frame(gsd),
+                   category=encode_gskey(collection, name),
+                   stringsAsFactors=FALSE)
   g2c <- g2c[, c('category', 'featureId')]
   pwf <- suppressWarnings(goseq::nullp(degenes, bias.data=mylens))
   goseq.res <- suppressWarnings({
@@ -49,61 +53,22 @@ test_that("internal goseq mimics goseq package", {
   })
 
   ## Match up and compare
-  goseq.res <- goseq.res[match(my.res$name, goseq.res$category),]
-  my <- data.table::setnames(data.table::copy(my.res),
-                             c("name", "n", "n.drawn"),
-                             c("category", "numInCat", "numDEInCat"))
-  my <- my[, names(goseq.res)]
-  expect_equal(my, goseq.res, check.attributes=FALSE)
+  expect_true(setequal(my.res$category, goseq.res$category))
+  goseq.res <- goseq.res[match(my.res$category, goseq.res$category),]
+  expect_equal(goseq.res, my.res, check.attributes=FALSE)
 
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE,
-                   feature.bias=mylens)
-
-  r <- result(mgs, 'goseq')
-  data.table::setnames(r,
-                       c('n.sig', 'pval', 'pval.under'),
-                       c('n.drawn', 'over_represented_pvalue',
-                         'under_represented_pvalue'))
-  r <- r[, names(my.res)]
-  expect_equal(r, my.res, info="multiGSEA(method='goseq')", check.attributes=FALSE)
+  ## Run goseq through multiGSEA to make sure it matches goseq.res
+  mg <- multiGSEA(gsd, vm, vm$design, methods=c('goseq'), feature.bias=mylens)
+  expect_true(setequal(resultNames(mg), c("goseq", "goseq.up", "goseq.down")))
+  my2 <- result(mg, 'goseq')
+  my2$key <- encode_gskey(my2)
+  expect_equal(my2$key, goseq.res$category)
+  expect_equal(my2$pval, goseq.res$over_represented_pvalue)
+  expect_equal(my2$pval.under, goseq.res$under_represented_pvalue)
+  expect_equal(my2$n, goseq.res$numInCat)
+  expect_equal(my2$n.sig, goseq.res$numDEInCat)
 })
 
-test_that("goseq,split.updown=TRUE is sane", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
-  gsl <- exampleGeneSets()
-  gsd <- GeneSetDb(gsl)
-  gsd <- conform(gsd, vm)
-
-  mylens <- setNames(vm$genes$size, rownames(vm))
-
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
-                   feature.bias=mylens)
-  mg <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=FALSE,
-                  feature.bias=mylens)
-
-  expect_true(setequal(resultNames(mgs), c('goseq', 'goseq.up', 'goseq.down')))
-  expect_equal(result(mgs, 'goseq'), result(mg, 'goseq'))
-})
-
-test_that("goseq,split.updown=TRUE plays well with other multiGSEA methods", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
-  gsl <- exampleGeneSets()
-  gsd <- GeneSetDb(gsl)
-  gsd <- conform(gsd, vm)
-  mylens <- setNames(vm$genes$size, rownames(vm))
-
-  mgs <- multiGSEA(gsd, vm, vm$design, methods='goseq', split.updown=TRUE,
-                   feature.bias=mylens)
-  mga <- multiGSEA(gsd, vm, vm$design, methods=c('goseq', 'camera'),
-                   split.updown=TRUE, feature.bias=mylens)
-  expect_true(setequal(resultNames(mga),
-                       c('camera', 'goseq', 'goseq.up', 'goseq.down')))
-
-  both <- intersect(resultNames(mgs), resultNames(mga))
-  for (wut in both) {
-    expect_equal(result(mgs, wut), result(mga, wut), info=wut)
-  }
-})
 
 
 test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
@@ -129,5 +94,5 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
     abline(0,1,col='red')
   }
 
-  expect_equal(mygoh$pval_over, myhyp$pval, tolerance=0.015)
+  expect_equal(mygoh$over_represented_pvalue, myhyp$pval, tolerance=0.015)
 })

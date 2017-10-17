@@ -64,7 +64,7 @@ mgres.fgsea <- function(res, gsd, ...) {
   # xref <- match(names(gs.idxs), res$pathway)
   # res <- res[xref]
   gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
-  stopifnot(all.equal(res$pathway, paste(gs$collection, gs$name, sep=';;')))
+  stopifnot(all.equal(res$pathway, encode_gskey(gs)))
   out <- cbind(gs, as.data.table(res[, -1, drop=FALSE]))
   out
 }

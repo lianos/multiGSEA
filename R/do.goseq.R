@@ -106,13 +106,13 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
     res <- suppressWarnings({
       multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
-                       do.conform=FALSE, as.dt=TRUE, .pipelined=TRUE)
+                       do.conform=FALSE, as.dt=FALSE, .pipelined=TRUE)
     })
   }, simplify=FALSE)
   if (length(out) == 1L) {
     out <- out[[1L]]
   } else {
-    setattr(out, 'unlist', TRUE)
+    setattr(out, 'mgunlist', TRUE)
   }
   out
 }
@@ -191,9 +191,9 @@ goseq <- function(gsd, selected, universe, feature.bias,
   category <- padj_over <- pval_over <- padj_under <- pval_under <-  NULL
 
   gs <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
-  gs[, category := paste(collection, name, sep=';;')]
+  gs[, category := encode_gskey(gs)]
   g2c <- as.data.frame(gsd, active.only=TRUE, value='x.id')
-  g2c <- transform(g2c, category=paste(collection, name, sep=';;'))
+  g2c <- transform(g2c, category=encode_gskey(g2c))
   g2c <- g2c[, c('category', 'featureId')]
 
   selected <- intersect(selected, universe)
@@ -206,31 +206,30 @@ goseq <- function(gsd, selected, universe, feature.bias,
 
   ## resort output to match gs ordering
   res <- res[match(gs$category, res$category),,drop=FALSE]
-  res <- if (as.dt) setDT(out) else setDF(out)
-  setattr(out, 'pwf', pwf)
-  setattr(out, 'rawresult', TRUE)
-  out
+  res <- if (as.dt) setDT(res) else setDF(res)
+  setattr(res, 'pwf', pwf)
+  setattr(res, 'rawresult', TRUE)
+  res
 }
 
 mgres.goseq <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, 'rawresult'))) return(res)
-  stopifnot(is.data.table(res), is(gsd, "GeneSetDb"))
+  stopifnot(is.data.frame(res), is(gsd, "GeneSetDb"))
   gs <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
-  gs[, category := paste(collection, name, sep=';;')]
+  gs[, category := encode_gskey(gs)]
   xref <- match(gs$category, res$category)
   if (any(is.na(xref))) {
     stop("The conformed GeneSetDb used in analysis is not this one")
   }
-  res <- res[xref]
+  res <- res[xref,,drop=FALSE]
   out <- gs[, list(collection, name, n, n.drawn=res$numDEInCat)]
   rcols <- setdiff(names(res), c('category', 'numInCat', 'numDEInCat'))
   for (rcol in rcols) {
-    out[, (rcol) := res[rcol]]
+    out[, (rcol) := res[[rcol]]]
   }
-
-  setnames(res, c('over_represented_pvalue', 'under_represented_pvalue'),
+  setnames(out, c('over_represented_pvalue', 'under_represented_pvalue'),
            c('pval', 'pval.under'))
   padj.under <- pval.under <- NULL # silence R CMD check NOTEs
-  res[, padj := p.adjust(pval, 'BH')]
-  res[, padj.under := p.adjust(pval.under, 'BH')]
+  out[, padj := p.adjust(pval, 'BH')]
+  out[, padj.under := p.adjust(pval.under, 'BH')]
 }

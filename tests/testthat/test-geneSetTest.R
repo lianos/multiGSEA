@@ -19,7 +19,7 @@ test_that("geneSetTest matches re-implememtation", {
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), methods='geneSetTest',
                   score.by='t')
   res <- result(mg, 'geneSetTest')
-  my <- setNames(res$pval, paste(res$collection, res$name, sep=";;"))
+  my <- setNames(res$pval, encode_gskey(res))
   my <- my[names(expected)]
   expect_equal(my, expected)
 })

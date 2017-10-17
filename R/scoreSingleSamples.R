@@ -90,10 +90,7 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     colnames(y) <- if (ncol(y) == 1) 'score' else paste0('scores', seq(ncol(y)))
   }
 
-  gs.names <- with(geneSets(gdb, as.dt=TRUE), {
-    paste(collection, name, sep=';;')
-  })
-
+  gs.names <- encode_gskey(geneSets(gdb))
   gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
 
   scores <- sapply(methods, function(method) {

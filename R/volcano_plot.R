@@ -214,7 +214,7 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
     } else {
       x <- result(x, stats, as.dt=TRUE)
       idx <- 'idx'
-      x[[idx]] <- paste(x$collection, x$name, sep=';;')
+      x[[idx]] <- encode_gskey(x)
     }
   }
 

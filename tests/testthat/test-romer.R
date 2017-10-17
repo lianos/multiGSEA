@@ -27,26 +27,26 @@ test_that('romer runs equivalently from do.romer vs direct call', {
   expected <- limma::romer(y, gsd.idxs, d, ncol(d), nrot=nrot)
 
   set.seed(seed)
-  my <- multiGSEA:::do.romer(gdb, y, d, ncol(d), nrot=nrot, use.cache=FALSE)
+  my <- multiGSEA:::do.romer(gdb, y, d, ncol(d), nrot=nrot)
 
-  ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gdb, as.dt=TRUE)[, list(collection, name)],
-               my[, list(collection, name)])
-  my[, n := geneSets(gdb)$n]
+  ## Test that inernal call matches direct limma call
+  expect_true(setequal(rownames(my), rownames(expected)))
+  expected <- expected[rownames(my),,drop=FALSE]
+  expect_equal(my, expected, check.attributes=FALSE)
 
-  ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
-  ## make `my` look like that, and test for equality
-  comp <- local({
-    out <- my[, list(n, pval.up, pval.down, pval)]
-    data.table::setnames(out, colnames(expected))
-    out <- as.matrix(out)
-    rownames(out) <- paste(my$collection, my$name, sep=';;')
-    out[rownames(expected),]
-  })
+  ## order of geneset should be the same as the GeneSetDb
+  expect_equal(rownames(my), encode_gskey(geneSets(gdb)))
+  expect_equal(my[, 'NGenes'], geneSets(gdb)$n, check.attributes=FALSE)
 
-  expect_equal(comp, expected)
-})
+  ## multiGSEA pass through & result call matches raw result
+  set.seed(seed)
+  mg <- multiGSEA(gdb, y, d, ncol(d), method='romer', nrot=nrot)
+  res <- result(mg, 'romer')
+  res$key <- encode_gskey(res)
 
-test_that("multiGSEA romer fails when not given a DGEList", {
-
+  expect_equal(res$key, rownames(my))
+  expect_equal(res$n, my[, 'NGenes'], check.attributes=FALSE)
+  expect_equal(res$pval.up, my[, 'Up'], check.attributes=FALSE)
+  expect_equal(res$pval.down, my[, 'Down'], check.attributes=FALSE)
+  expect_equal(res$pval, my[, 'Mixed'], check.attributes=FALSE)
 })

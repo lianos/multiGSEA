@@ -15,24 +15,13 @@ test_that('fry runs equivalently from do.roast vs direct call', {
   fried <- limma::fry(vm, gsi, vm$design, ncol(vm$design), sort=FALSE)
   my <- multiGSEA:::do.fry(gsd, vm, vm$design, ncol(vm$design))
 
-  ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
-               my[, list(collection, name)])
-  my[, NGenes := geneSets(gsd, as.dt=TRUE)$n]
+  expect_equal(my, fried, check.attributes=FALSE)
 
-  ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
-  ## make `my` look like that, and test for equality
-  comp <- local({
-    out <- my[, !names(my) %in% c('collection', 'name'), with=FALSE]
-    data.table::setnames(out,
-                         c('pval', 'padj', 'pval.mixed', 'padj.mixed'),
-                         c('PValue', 'FDR', 'PValue.Mixed', 'FDR.Mixed'))
-    out <- as.data.frame(out)[, names(fried)]
-    rownames(out) <- paste(my$collection, my$name, sep=';;')
-    out[rownames(fried),]
-  })
+  mgr <- multiGSEA:::mgres.fry(my, gsd)
+  gs.tuple <- split_gskey(rownames(my))
 
-  expect_equal(fried, comp)
+  expect_equal(mgr$collection, gs.tuple$collection)
+  expect_equal(mgr$name, gs.tuple$name)
 })
 
 test_that("fry runs through multiGSEA wrapper", {
@@ -46,8 +35,16 @@ test_that("fry runs through multiGSEA wrapper", {
   ## the same random seed.
   gsd.idxs <- as.list(gsd, value='x.idx')
   gsi <- gsi[names(gsd.idxs)]
-
   fried <- limma::fry(vm, gsi, vm$design, ncol(vm$design), sort=FALSE)
-  my <- multiGSEA(gsd, vm, vm$design, ncol(vm$design), methods='fry')
 
+  my <- multiGSEA(gsd, vm, vm$design, ncol(vm$design), methods='fry')
+  mgres <- transform(result(my, 'fry'),
+                     key=encode_gskey(collection, name),
+                     stringsAsFactors=FALSE)
+
+  expect_true(setequal(rownames(fried), mgres$key))
+  comp <- fried[mgres$key,]
+
+  expect_equal(mgres$n, comp$NGenes)
+  expect_equal(mgres$pval, comp$PValue)
 })

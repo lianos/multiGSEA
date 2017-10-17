@@ -1,3 +1,38 @@
+##' Converts collection,name combination to key for geneset
+##'
+##' The "key" form often comes out as rownames to matrices and such, or
+##' particularly for sending genesets down into wrapped methods, like do.camera.
+##'
+##' @export
+##' @rdname gskey
+##' @return a character vector
+encode_gskey <- function(x, y, sep=";;") {
+  if (is.data.frame(x)) {
+    stopifnot(
+      "collection" %in% colnames(x),
+      "name" %in% colnames(x))
+    y <- x[['name']]
+    x <- x[['collection']]
+  }
+  if (is.factor(x)) x <- as.character(x)
+  if (is.factor(y)) y <- as.character(y)
+  stopifnot(is.character(x), is.character(y))
+  paste(x, y, sep=sep)
+}
+
+##' Splits collection,name combinations to collection,name data.frames
+##'
+##' @export
+##' @rdname gskey
+##' @return a data.frame with (collection,name) columns
+split_gskey <- function(x, sep=";;") {
+  stopifnot(all(grepl(sep, x)))
+  data.frame(
+    collection=sub(sprintf("%s.*$", sep), "", x),
+    name=sub(sprintf(".*?%s", sep), "", x),
+    stringsAsFactors=FALSE)
+}
+
 ## Helper function to extract a vector of "pre-ranked" stats for a GSEA. This
 ## can come from: (1) a user provided vector; (2) the logFCs or t-stats of
 ## an internal call to calculalateIndividualLogFCs from a "full design"ed

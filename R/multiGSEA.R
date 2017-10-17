@@ -271,21 +271,22 @@ mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
   res <- fn(gsd, x, design, contrast, logFC=logFC,
             use.treat=use.treat, feature.min.logFC=feature.min.logFC,
             feature.max.padj=feature.max.padj, verbose=verbose, ...)
-  if (!isTRUE(attr(res, 'unlist', TRUE))) {
+  if (!isTRUE(attr(res, 'mgunlist', TRUE))) {
     res <- list(all=res)
   }
-  out <- lapply(res, function(dt) {
-    pcols <- grepl('^pval\\.?', names(dt))
-    if (any(pcols)) {
-      for (i in which(pcols)) {
-        pcol <- names(dt)[i]
-        pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
-        padjs <- p.adjust(dt[[pcol]], 'BH')
-        dt[, (pname) := padjs]
-      }
-    }
-    dt
-  })
+  # out <- lapply(res, function(dt) {
+  #   pcols <- grepl('^pval\\.?', names(dt))
+  #   if (any(pcols)) {
+  #     for (i in which(pcols)) {
+  #       pcol <- names(dt)[i]
+  #       pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
+  #       padjs <- p.adjust(dt[[pcol]], 'BH')
+  #       dt[, (pname) := padjs]
+  #     }
+  #   }
+  #   dt
+  # })
+  out <- res
   if (verbose) {
     message("... ", fn.name, " finishd without error.")
   }

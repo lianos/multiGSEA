@@ -83,5 +83,6 @@ Z <- t(scale(t(S)))
 rownames(Z) <- sub("HALLMARK_", "", rownames(Z))
 colnames(Z) <- substring(colnames(Z), 10, 16)
 Heatmap(Z)
+## See also mgheatmap function
 }
 }

@@ -240,7 +240,7 @@ incidenceMatrix <- function(x, y, ...) {
   }
 
   gs <- geneSets(x, as.dt=TRUE)
-  dimnames <- list(paste(gs$collection, gs$name, sep=';;'), ynames)
+  dimnames <- list(encode_gskey(gs), ynames)
   out <- matrix(0L, nrow(gs), ncol, dimnames=dimnames)
 
   for (i in 1:nrow(gs)) {
@@ -1000,7 +1000,7 @@ as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
       csplit(xdf$featureId, xdf$name)
     }, simplify=FALSE)
   } else {
-    df$key <- paste(df$collection, df$name, sep=";;")
+    df$key <- encode_gskey(df)
     out <- csplit(df$featureId, df$key)
   }
   out

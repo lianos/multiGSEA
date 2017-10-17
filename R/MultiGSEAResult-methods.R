@@ -283,8 +283,17 @@ result <- function(x, name, stats.only=FALSE,
   }
 
   res <- local({
-    # r <- x@results[[name]]
-    fnfetch <- getFunction(paste0('mgres.', name))
+    ## The <name> of the GSEA methods should not have a "." in them. If there
+    ## is a ".", we take this to mean (for now) some modification of the
+    ## method named up to that dot, for instatnce "goseq.up" is "goseq" method.
+    ## We can have other "."s appear in the future. For instance, someone might
+    ## want to run camera twice with different values for inter.gene.cor. In
+    ## this case, one "name" could be "camera.igc01" or something. This part
+    ## isn't formal, and will be more formalized (and changed) in a future
+    ## release.
+    fnname <- sub("\\..*$", "", name)
+    fnname <- paste0('mgres.', fnname)
+    fnfetch <- getFunction(fnname)
     r <- fnfetch(x@results[[name]], geneSetDb(x))
     kosher <- all.equal(
       out[, key(out), with=FALSE],
@@ -292,11 +301,16 @@ result <- function(x, name, stats.only=FALSE,
     if (!isTRUE(kosher)) {
       stop("Unexpected geneset ordering in `", name, "` result")
     }
+    ## All mgres.* function must return a pval and padj column
+    if (!all(c('pval', 'padj') %in% colnames(r))) {
+      stop(fnname, " does not provide pval and/or padj column")
+    }
+
     if (stats.only) {
-      res.cols <- c('pval', 'padj', 'padj.by.collection',
-                    ## roast has these, presumably other methods will have
-                    ## others
-                    'pval.mixed', 'padj.mixed')
+      # res.cols <- c('pval', 'padj',#  'padj.by.collection',
+      #               ## roast has these, presumably other methods will have
+      #               ## others
+      #               'pval.mixed', 'padj.mixed')
       ## Select any column that starts with pval or padj
       res.cols <- names(r)[grepl('^(pval\\.?|padj\\.?)', names(r))]
     } else {
@@ -316,10 +330,12 @@ result <- function(x, name, stats.only=FALSE,
   missing.pvals <- is.na(out[[pval.col]])
   n.missing <- sum(missing.pvals)
   if (any(missing.pvals)) {
-    msg <- sprintf("%d missing pvalues for actige genesets from %s",
+    msg <- sprintf("%d missing pvalues for active genesets from %s",
                    n.missing, name)
     warning(msg, immediate.=TRUE)
   }
+
+  out[, padj.by.collection := p.adjust(pval, 'BH'), by='collection']
 
   ranks <- switch(rank.by,
                   logFC=rank(-abs(out$mean.logFC.trim), ties.method="min"),

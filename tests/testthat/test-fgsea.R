@@ -21,7 +21,7 @@ test_that("fgsea works like a boss", {
 
   mgres <- mgt %>%
     result('fgsea') %>%
-    mutate(pathway=paste(collection, name, sep=';;'))
+    mutate(pathway=encode_gskey(collection, name))
   expect_equal(nrow(mgres), nrow(rest))
   expect_equal(mgres$pathway, rest$pathway)
   expect_equal(rest$size, mgres$n)

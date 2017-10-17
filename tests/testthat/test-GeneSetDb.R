@@ -336,11 +336,10 @@ test_that("conformed & unconformed GeneSetDb,incidenceMatrix is kosher", {
 
   im <- incidenceMatrix(gsd)
   imc <- incidenceMatrix(gsdc)
-  g.cols <- sub(';;.*', '', rownames(im))
-  g.names <- sub('.*?;;', '', rownames(im))
+  gs.tuple <- split_gskey(rownames(im))
   for (i in 1:nrow(im)) {
-    col <- g.cols[i]
-    name <- g.names[i]
+    col <- gs.tuple$collection[i]
+    name <- gs.tuple$name[i]
     fidx <- im[i,] == 1
     fidxc <- imc[i,] == 1
 

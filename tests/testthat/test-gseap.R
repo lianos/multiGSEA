@@ -18,10 +18,10 @@ if (FALSE) {
     my <- multiGSEA(gsd, vm, vm$design, ncol(vm$design), NULL)
     lfc <- logFC(my)
     df <- as.data.frame(gsd)
-    term2gene <- data.frame(term=paste(df$collection, df$name, sep=';;'),
+    term2gene <- data.frame(term=encode_gskey(df),
                             gene=df$featureId, stringsAsFactors=FALSE)
     term2name <- term2gene[, 'term', drop=FALSE]
-    term2name$name <- sub('.*?;;', '', term2name$term)
+    term2name$name <- split_gskey(term2name$term)$name
 
     ##anno <- clusterProfiler:::build_Anno(term2gene, term2name)
     geneList <- setNames(lfc$t, lfc$entrez_id)

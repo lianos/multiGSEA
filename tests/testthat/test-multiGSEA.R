@@ -39,10 +39,6 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   for (m in no.random) {
     do.x <- do[[m]]
     mg.x <- mg@results[[m]]
-    expect_true(all(names(do.x) %in% names(mg.x)),
-                info=paste('colnames check for', m))
-    mg.res <- mg.x[, names(do.x), with=FALSE]
-    expect_equal(do.x, mg.res, info=paste('values check for', m),
-                 check.attributes=FALSE)
+    expect_equal(do.x, mg.x, info=m)
   }
 })

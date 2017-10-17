@@ -66,6 +66,7 @@
 ##' rownames(Z) <- sub("HALLMARK_", "", rownames(Z))
 ##' colnames(Z) <- substring(colnames(Z), 10, 16)
 ##' Heatmap(Z)
+##' ## See also mgheatmap function
 ##' }
 svdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                      uncenter=center, unscale=scale, retx=FALSE, ...) {

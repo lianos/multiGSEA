@@ -24,22 +24,13 @@ test_that('roast runs equivalently from do.roast vs direct call', {
   my <- multiGSEA:::do.roast(gsd, vm, vm$design, ncol(vm$design), nrot=nrot,
                              use.cache=FALSE)
 
-  ## order of geneset should be the same as gsd
-  expect_equal(geneSets(gsd, as.dt=TRUE)[, list(collection, name)],
-               my[, list(collection, name)])
-  my[, n := geneSets(gsd, as.dt=TRUE)$n]
+  ## Internal result should match external call
+  expect_true(setequal(rownames(my), rownames(roasted)))
+  roasted <- roasted[rownames(my),,drop=FALSE]
+  expect_equal(my, roasted, check.attributes=FALSE)
 
-  ## Columns of camera output are NGenes, Correlation, Direction, PValue, FDR
-  ## make `my` look like that, and test for equality
-  comp <- local({
-    out <- my[, list(n, PropDown, PropUp, Direction, pval, padj,
-                     pval.mixed, padj.mixed)]
-    data.table::setnames(out, names(roasted))
-    out <- as.data.frame(out)
-    rownames(out) <- paste(my$collection, my$name, sep=';;')
-    out[rownames(roasted),]
-  })
-
-  expect_equal(roasted, comp)
+  ## order of geneset should be the same as the GeneSetDb
+  expect_equal(rownames(my), encode_gskey(geneSets(gsd)))
+  expect_equal(my$NGenes, geneSets(gsd)$n)
 })
 

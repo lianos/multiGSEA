@@ -48,20 +48,25 @@ do.romer <- function(gsd, x, design, contrast=ncol(design),
   call.args[['...']] <- NULL
 
   res <- do.call(romer, call.args)
+  ## returns a matrix(!) with the following columns
+  ## "NGenes", "Up" (pvalue), "Down" (pvalue), "Mixed" (pvalue)
   setattr(res, 'rawresult', TRUE)
 }
 
+## this Mixed column becomes the pval
 mgres.romer <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, 'rawresult'))) return(res)
   ## check gsnames matches to geneSets()
-  gsnames <- sub('.*;;', '', rownames(res))
+  # gsnames <- sub('.*;;', '', rownames(res))
+  gs.tuple <- split_gskey(rownames(res))
+  gsnames <- gs.tuple$name
   gs <- geneSets(gsd, as.dt=TRUE)[, list(collection, name)]
   kosher <- length(gsnames) == nrow(gs) && all(gsnames == gs$name)
   if (!kosher) {
     stop("genesets from romer do not match geneSets(gdb)")
   }
 
-  out <- cbind(gs, res)
+  out <- cbind(gs, as.data.table(res))
   NGenes <- padj <- padj.up <- padj.down <- NULL # silence R CMD check NOTEs
 
   out[, NGenes := NULL]

@@ -22,7 +22,7 @@ test_that("camera result() is decorated correctly and has correct stats", {
   photo <- limma::camera(vm, gsi, vm$design, ncol(vm$design))
   res <- result(mg, 'camera', as.dt=TRUE)
   check <- setDF(res[, list(NGenes=n, Direction, PValue=pval, FDR=padj)])
-  rownames(check) <- paste(res$collection, res$name, sep=";;")
+  rownames(check) <- encode_gskey(res)
 
   expect_true(setequal(rownames(check), rownames(photo)))
   check <- check[rownames(photo),]

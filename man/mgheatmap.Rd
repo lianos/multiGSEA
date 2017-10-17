@@ -5,8 +5,8 @@
 \title{Create a "geneset smart" heatmap.}
 \usage{
 mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
-  split.by = c("none", "geneset", "collection"), rm.dups = FALSE,
-  recenter = TRUE, rescale = TRUE, ...)
+  split = TRUE, name = NULL, rm.collection.prefix = TRUE,
+  rm.dups = FALSE, recenter = TRUE, rescale = TRUE, ...)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -16,9 +16,6 @@ mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
 \item{aggregate.by}{the method used to generate single-sample geneset
 scores. Default is \code{none} which plots heatmap at the gene level}
 
-\item{split.by}{introduce row-segmentation based on genesets or collections?
-Defaults to \code{'none'}}
-
 \item{rm.dups}{if \code{aggregate.by == 'none'}, do we remove genes that
 appear in more than one geneset? Defaults to \code{FALSE}}
 
@@ -27,11 +24,23 @@ display?}
 
 \item{rescale}{do you want to rescale the heatmap matrix prior to display?}
 
-\item{...}{parameters to send down to the scoreSingleSample function to
-tweak how single-sample geneset scoring is performed.}
+\item{...}{parameters to send down to \code{\link{scoreSingleSample}} or
+\code{\link[ComplexHeatmap]{Heatmap}}.}
 
 \item{the}{\code{GeneSetDb} object that holds the genesets to plot}
+
+\item{split.by}{introduce row-segmentation based on genesets or collections?
+Defaults to \code{'none'}}
+}
+\value{
+list(heatmap=ComplexHeatmap, matrix=X)
 }
 \description{
 Create a "geneset smart" heatmap.
+}
+\examples{
+
+vm <- exampleExpressionSet()
+gdb <- exampleGeneSetDb()
+mgh <- mgheatmap(gdb, vm, aggregate.by='ewm', split=TRUE)
 }

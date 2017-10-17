@@ -126,7 +126,7 @@
 ##' (gdb.df <- GeneSetDb(gs.df))
 ##'
 ##' ## list of ids
-##' gs.df$key <- paste(gs.df$collection, gs.df$name, sep=';;')
+##' gs.df$key <- encode_gskey(gs.df)
 ##' gs.list <- split(gs.df$featureId, gs.df$key)
 ##' (gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'))
 ##'

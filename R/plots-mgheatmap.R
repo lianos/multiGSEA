@@ -47,12 +47,12 @@ mgheatmap <- function(gdb, x, col=NULL,
 
   gdbc <- conform(gdb, X, min.gs.size=2L)
   gdbc.df <- as.data.frame(gdbc) ## keep only genes that matched in gdb.df
-  gdbc.df$key <- paste(gdbc.df$collection, gdbc.df$name, sep=";;")
+  gdbc.df$key <- encode_gskey(gdbc.df)
 
   if (aggregate.by != 'none') {
     X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
     ## If we want to split, it (only?) makes sense to split by collection
-    split <- if (split) sub(';;.*', '', rownames(X)) else NULL
+    split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
 
   if (recenter || rescale) {
@@ -71,9 +71,9 @@ mgheatmap <- function(gdb, x, col=NULL,
 
   if (rm.collection.prefix) {
     if (aggregate.by != 'none') {
-      rownames(X) <- sub('.*?;;', '', rownames(X))
+      rownames(X) <- split_gskey(rownames(X))$name
     } else {
-      if (!is.null(split)) split <- sub('.*?;;', '', split)
+      if (!is.null(split)) split <- split_gskey(split)$name
     }
   }
 
