@@ -70,6 +70,7 @@ Collate:
     'calculateIndividualLogFC.R'
     'validateInputs.R'
     'do.camera.R'
+    'do.cameraPR.R'
     'do.fgsea.R'
     'do.fry.R'
     'do.geneSetTest.R'

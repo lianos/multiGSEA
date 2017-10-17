@@ -28,3 +28,27 @@ test_that("camera result() is decorated correctly and has correct stats", {
   check <- check[rownames(photo),]
   expect_equal(check, photo, check.attributes=TRUE)
 })
+
+test_that("cameraPR pass through method works like direct call", {
+  vm <- exampleExpressionSet(do.voom=TRUE)
+  gsd <- conform(exampleGeneSetDb(), vm)
+  gsi <- as.list(gsd, value='x.idx')
+
+  lfc <- logFC(multiGSEA(gsd, vm, vm$design, 'tumor'))
+
+  expected <- cameraPR(setNames(lfc$t, lfc$entrez_id), gsi, inter.gene.cor=0.01)
+
+  mg <- multiGSEA(gsd, vm, vm$design, 'tumor',
+                  methods=c('camera', 'cameraPR'),
+                  inter.gene.cor=0.01)
+
+  res.pr <- result(mg, 'cameraPR')
+  res.pr$key <- encode_gskey(res.pr)
+  expect_true(setequal(res.pr$key, rownames(expected)))
+
+  expected <- expected[res.pr$key,,drop=FALSE]
+  expect_equal(res.pr$n, expected$NGenes)
+  expect_equal(res.pr$pval, expected$PValue)
+  expect_equal(res.pr$Direction, expected$Direction)
+  expect_equal(res.pr$padj, expected$FDR)
+})

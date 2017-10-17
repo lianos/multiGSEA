@@ -10,7 +10,7 @@ validate.x.geneSetTest <- validate.X
 ##'
 ##' \strong{This function is not meant to be called directly, it should only be
 ##' called internally within \code{multiGSEA}}
-do.geneSetTest <- function(gsd, x, design, contrast,
+do.geneSetTest <- function(gsd, x, design, contrast=ncol(design),
                            score.by=c('t', 'logFC', 'pval'), logFC=NULL,
                            gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                            ...) {

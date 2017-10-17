@@ -9,7 +9,7 @@
 ##'
 ##' @export
 multiGSEA.methods <- function() {
-  c('camera', 'roast', 'fry', 'romer', 'geneSetTest',
+  c('camera', 'cameraPR', 'roast', 'fry', 'romer', 'geneSetTest',
     'goseq', 'hyperGeometricTest', 'fgsea',
     'svdGeneSetTest', 'logFC')
 }

@@ -4,10 +4,9 @@
 \alias{do.geneSetTest}
 \title{Worker function to run geneSetTest from within a multiGSEA pipeline}
 \usage{
-\method{do}{geneSetTest}(gsd, x, design, contrast, outdir = NULL,
-  robust.fit = FALSE, robust.eBayes = FALSE, logFC = NULL,
-  score.by = c("t", "logFC", "pval"), gs.idxs = as.list(gsd, active.only =
-  TRUE, value = "x.idx"), ...)
+\method{do}{geneSetTest}(gsd, x, design, contrast = ncol(design),
+  score.by = c("t", "logFC", "pval"), logFC = NULL, gs.idxs = as.list(gsd,
+  active.only = TRUE, value = "x.idx"), ...)
 }
 \description{
 \strong{This function is not meant to be called directly, it should only be
