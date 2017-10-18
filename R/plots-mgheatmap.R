@@ -9,13 +9,22 @@
 ##' @param col a colorRamp(2) funciton
 ##' @param aggregate.by the method used to generate single-sample geneset
 ##'   scores. Default is \code{none} which plots heatmap at the gene level
-##' @param split.by introduce row-segmentation based on genesets or collections?
-##'   Defaults to \code{'none'}
+##' @param split introduce row-segmentation based on genesets or collections?
+##'   Defaults is \code{TRUE} which will create split heatmaps based on
+##'   collection if \code{aggregate.by= != 'none'}, or based on gene sets
+##'   if \code{aggregate.by == "none"}.
+##' @param scores If \code{aggregate.by != "none"} you can pass in a precomupted
+##'   \code{\link{singleSampleGeneSet}} result, otherwise one will be
+##'   computed internally. Note that if this is a \code{data.frame} of
+##'   pre-computed scores, the \code{gdb} is largely irrelevant (but still
+##'   required).
 ##' @param rm.dups if \code{aggregate.by == 'none'}, do we remove genes that
 ##'   appear in more than one geneset? Defaults to \code{FALSE}
-##' @param recenter do you want to mean center the heatmap matrix prior to
-##'   display?
-##' @param rescale do you want to rescale the heatmap matrix prior to display?
+##' @param recenter do you want to mean center the rows of the heatmap matrix
+##'   prior to calling \code{\link[ComplexHeatmap]{Heatmap}}?
+##' @param rescale do you want to standardize the row variance to one on the
+##'   values of the heatmap matrix prior to calling
+##'   \code{\link[ComplexHeatmap]{Heatmap}}?
 ##' @param ... parameters to send down to \code{\link{scoreSingleSample}} or
 ##'   \code{\link[ComplexHeatmap]{Heatmap}}.
 ##' @return list(heatmap=ComplexHeatmap, matrix=X)
@@ -28,7 +37,7 @@
 mgheatmap <- function(gdb, x, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
                       # split.by=c('none', 'geneset', 'collection'),
-                      split=TRUE,
+                      split=TRUE, scores=NULL,
                       name=NULL, rm.collection.prefix=TRUE,
                       rm.dups=FALSE, recenter=TRUE, rescale=TRUE,
                       ...) {
@@ -43,14 +52,29 @@ mgheatmap <- function(gdb, x, col=NULL,
     col <- colorRamp2(c(-2, 0, 2), c('#1F294E', 'white', '#6E0F11'))
   }
   stopifnot(is.function(col))
-  aggregate.by <- match.arg(aggregate.by)
 
-  gdbc <- conform(gdb, X, min.gs.size=2L)
+  if (is.null(scores)) {
+    aggregate.by <- match.arg(aggregate.by)
+  } else {
+    stopifnot(
+      is.character(aggregate.by),
+      length(aggregate.by) == 1L,
+      aggregate.by %in% scores$method)
+  }
+
+
+  gdbc <- suppressWarnings(conform(gdb, X, min.gs.size=2L))
   gdbc.df <- as.data.frame(gdbc) ## keep only genes that matched in gdb.df
   gdbc.df$key <- encode_gskey(gdbc.df)
 
   if (aggregate.by != 'none') {
-    X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
+    if (is.null(scores)) {
+      X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
+    } else {
+      xs <- subset(scores, method == aggregate.by)
+      xs$key <- encode_gskey(xs)
+      X <- acast(xs, key ~ sample, value.var="score")
+    }
     ## If we want to split, it (only?) makes sense to split by collection
     split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
@@ -94,3 +118,26 @@ mgheatmap <- function(gdb, x, col=NULL,
   H <- do.call(ComplexHeatmap::Heatmap, hm.args)
   H
 }
+
+# mgheatmap <- function(x, ...) {
+#   ## I'm not a bad person, I just want to keep this S3 so end users can
+#   ## use the data.frame results in dplyr chains.
+#   UseMethod("mgheatmap")
+# }
+#
+# mgheatmap.sss_frame <- function(x, col=NULL, aggregate.by=x$method[1L],
+#                                 split=TRUE, name=NULL,
+#                                 rm.collection.prefix=TRUE, recenter=TRUE,
+#                                 rescale=TRUE, ...) {
+#   stopifnot(
+#     is.character(aggregate.by),
+#     length(aggregate.by) == 1L,
+#     aggregate.by %in% x$method)
+#
+#   x$key <- encode_gskey(x)
+#   xs <- subset(x, method == aggregate.by)
+#   X <- acast(xs, key ~ sample, value.var="score")
+#   mgheatmap(X, )
+# }
+#
+# mgheatmap.default <- function()

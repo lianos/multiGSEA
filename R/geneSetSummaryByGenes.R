@@ -58,7 +58,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
     x.dt <- x.dt[, list(collection, name, n)]
   }
   out <- out[x.dt, nomatch=0]
-  if (!as.dt) setDF(copy(out))
+  if (!as.dt) out <- setDF(copy(out))
   out
 })
 

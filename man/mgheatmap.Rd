@@ -5,7 +5,7 @@
 \title{Create a "geneset smart" heatmap.}
 \usage{
 mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
-  split = TRUE, name = NULL, rm.collection.prefix = TRUE,
+  split = TRUE, scores = NULL, name = NULL, rm.collection.prefix = TRUE,
   rm.dups = FALSE, recenter = TRUE, rescale = TRUE, ...)
 }
 \arguments{
@@ -15,6 +15,17 @@ mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
 
 \item{aggregate.by}{the method used to generate single-sample geneset
 scores. Default is \code{none} which plots heatmap at the gene level}
+
+\item{split}{introduce row-segmentation based on genesets or collections?
+Defaults is \code{TRUE} which will create split heatmaps based on
+collection if \code{aggregate.by= != 'none'}, or based on gene sets
+if \code{aggregate.by == "none"}.}
+
+\item{scores}{If \code{aggregate.by != "none"} you can pass in a precomupted
+\code{\link{singleSampleGeneSet}} result, otherwise one will be
+computed internally. Note that if this is a \code{data.frame} of
+pre-computed scores, the \code{gdb} is largely irrelevant (but still
+required).}
 
 \item{rm.dups}{if \code{aggregate.by == 'none'}, do we remove genes that
 appear in more than one geneset? Defaults to \code{FALSE}}
@@ -28,9 +39,6 @@ display?}
 \code{\link[ComplexHeatmap]{Heatmap}}.}
 
 \item{the}{\code{GeneSetDb} object that holds the genesets to plot}
-
-\item{split.by}{introduce row-segmentation based on genesets or collections?
-Defaults to \code{'none'}}
 }
 \value{
 list(heatmap=ComplexHeatmap, matrix=X)

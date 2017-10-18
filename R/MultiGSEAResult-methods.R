@@ -275,13 +275,6 @@ result <- function(x, name, stats.only=FALSE,
 
   out <- copy(geneSets(x, as.dt=TRUE))
 
-  pval.col <- 'pval'
-  rank.col <- 'rank'
-  if (add.suffix) {
-    pval.col <- paste0('pval.', name)
-    rank.col <- paste0('rank.', name)
-  }
-
   res <- local({
     ## The <name> of the GSEA methods should not have a "." in them. If there
     ## is a ".", we take this to mean (for now) some modification of the
@@ -307,19 +300,12 @@ result <- function(x, name, stats.only=FALSE,
     }
 
     if (stats.only) {
-      # res.cols <- c('pval', 'padj',#  'padj.by.collection',
-      #               ## roast has these, presumably other methods will have
-      #               ## others
-      #               'pval.mixed', 'padj.mixed')
       ## Select any column that starts with pval or padj
       res.cols <- names(r)[grepl('^(pval\\.?|padj\\.?)', names(r))]
     } else {
       res.cols <- setdiff(names(r), names(out))
     }
     r <- r[, res.cols, with=FALSE]
-    if (add.suffix) {
-      setnames(r, res.cols, paste(res.cols, name, sep='.'))
-    }
     r
   })
 
@@ -327,7 +313,7 @@ result <- function(x, name, stats.only=FALSE,
     out[, (col) := res[[col]]]
   }
 
-  missing.pvals <- is.na(out[[pval.col]])
+  missing.pvals <- is.na(out[['pval']])
   n.missing <- sum(missing.pvals)
   if (any(missing.pvals)) {
     msg <- sprintf("%d missing pvalues for active genesets from %s",
@@ -340,8 +326,13 @@ result <- function(x, name, stats.only=FALSE,
   ranks <- switch(rank.by,
                   logFC=rank(-abs(out$mean.logFC.trim), ties.method="min"),
                   t=rank(-abs(out$mean.t.trim), ties.method="min"),
-                  pval=rank(out[[pval.col]], ties.method="min"))
-  out[, (rank.col) := ranks]
+                  pval=rank(out[['pval']], ties.method="min"))
+  out[, rank := ranks]
+
+  if (add.suffix) {
+    rename.cols <- c(names(res), 'padj.by.collection', 'rank')
+    setnames(out, rename.cols, paste(rename.cols, name, sep='.'))
+  }
 
   if (!as.dt) setDF(out)
   out

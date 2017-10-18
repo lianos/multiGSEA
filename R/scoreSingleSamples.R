@@ -114,6 +114,15 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
   }
 
   if (!as.matrix && !as.dt) setDF(scores)
+
+  # I'm not a bad person, I just want to keep this S3 so end users can
+  # use the data.frame results in dplyr chains.
+  # if (is.matrix(scores)) {
+  #   class(scores) <- c('sss_matrix', class(scores))
+  # } else {
+  #   class(scores) <- c('sss_frame', class(scores))
+  # }
+
   scores
 }
 

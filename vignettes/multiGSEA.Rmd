@@ -4,10 +4,13 @@ author: "Steve Lianoglou"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('multiGSEA')`"
 abstract: >
-  The multiGSEA package facilitates the execution and comparison of several
-  GSEA approaches for a single experimental contrast and provides tools
-  to explore these results from within the user's workspace or via a shiny
-  application.
+  The multiGSEA package facilitates the use of gene sets in the analysis 
+  of high throughput genomics data. It provides simple execution and
+  comparison of several GSEA approaches for a single experimental contrast
+  and provides tools to explore these results from within the user's
+  workspace or interactively via a shiny application provided by the
+  multiGSEA.shiny package. This package also provides an easy wrapper to single
+  sample gene set scoring and geneset-centric heatmaps for visualization.
   multiGSEA package version: `r packageVersion("multiGSEA")`
 output:
   rmarkdown::html_document:
@@ -38,10 +41,11 @@ by providing these top-line functionalities:
   experimental contrast of interest. This will create a `MultiGSEAResult`
   object which stores the results of each GSEA method internally, allowing
   for easy query and retrieval.
-* The `explore` function launches a shiny application that facilitates the
-  interactive exploration of these GSEA results. This application lives in
-  `inst/shiny` and can also be deployed to a shiny server and can be initialized
-  by uploading a serialized MultiGSEAResult *.rds file.
+* A sister `multiGSEA.shiny` package provides an `explore` function, which is
+  invoked on `MultiGSEAREsult` objects returned from a call to `multiGSEA`.
+  The shiny application facilitates interactive exploration of these GSEA
+  results. This application can also be deployed to a shiny server and can be
+  initialized by uploading a serialized `MultiGSEAResult` `*.rds` file.
 * The `scoreSingleSamples` function is a wrapper that enables the user to
   generate single sample gene set scores using a variety of different
   single sample gene set scoring methods.
@@ -60,6 +64,9 @@ data objects used for differential expression analysis, namely:
 Other methods only require the user to provide a vector of statistics that
 represent some differential expression statistic per gene, and the GSEA is
 performed by analyzing the ranks of genes within this vector.
+
+The user can invoke one `multiGSEA` call that can orchestrate multiple analyses
+of any type.
 
 All GSEA methods require the use of a `GeneSetDb`.
 
@@ -88,20 +95,22 @@ the multiGSEA package.
 ```{r init-env}
 library(multiGSEA)
 library(magrittr)
+library(reshape2)
 library(dplyr)
 library(ggplot2)
 theme_set(theme_bw())
+library(ComplexHeatmap)
+library(circlize)
 options(multiGSEA.df.return='data.frame')
 ```
 
 <div class="note">
 Internally, mulitGSEA leverages the
 [`data.table`](https://CRAN.R-project.org/package=data.table) package for fast
-indexing and manipulation over data.frames. There are many functions that return
-data.tables back to the end user, but some users may not want to work with those.
-The `multiGSEA.df.return` option can be set to `data.frame` (as above) so that
-all data.frame-like objects returned by this package are actually `data.frames`,
-and not `data.tables`.
+indexing and manipulation over data.frames. All functions that return these
+objects back to the user have an `as.dt` argument, which is set to `FALSE` by
+default. This means that unless the end user wants to work with `data.table`
+objects, they will always be returned a `data.frame`.
 </div>
 
 ## Data Setup
@@ -232,8 +241,8 @@ a `matrix`, `ExpressionSet` or `EList` into `multiGSEA`, a *limma*-based
 `DGEList` was passed, then `multiGSEA` utilizes the *edgeR*-based
 `glmQLFit %>% (glmQLFTest | glmTreat) %>% topTags` pipeline.
 
-Either way, the results of the internally run differential expression analysis
-is accessible via a call to `logFC` function on the `MultiGSEAResult` object:
+The result of the internally run differential expression analysis is accessible
+via a call to `logFC` function on the `MultiGSEAResult` object:
 
 ```{r logFC-results}
 lfc <- logFC(mg)
@@ -369,20 +378,193 @@ library("multiGSEA.shiny")
 explore(mg)
 ```
 
-Please refer to the `"multiGSEA-shiny"`" vignette available in that package
-for more documentation of its use.
+Please refer to the `"multiGSEA-shiny"`" vignette in the `multiGSEA.shiny` 
+package for documentation on the application's use.
+
+# Singe Sample Gene Set Scoring
+
+It can be both convenient and effective to transform a gene-by-sample expression
+matrix to a geneset-by-sample expression matrix. By doing so, so we can quickly
+identify biological processes that are up/down regulated (loosely speaking) in
+each sample.
+
+We can generate single sample gene set scores using the gene sets defined in a
+`GeneSetDb` using the `scoreSingleSamples` function. This function takes a
+`GeneSetDb`, an expression container, and a `methods` argument, which is
+analagous to the `methods` argument in the `multiGSEA` call: it defines
+all of the scoring methos the user wants to apply to each sample.
+
+
+Let's pick a few gene sets to score our samples with for this exercise. We'll
+take the significant hallmark gene sets, or any other significant gene set that
+has a large (on average) log fold change beteen conditions.
+
+```{r ssgenesets}
+sig.res <- cam.res %>% 
+  filter(padj < 0.1 & (collection == 'h' | abs(mean.logFC) >= 2))
+gdb.sub <- gdb[geneSets(gdb)$name %in% sig.res$name]
+```
+
+<div class="note">
+Refer to the [Subsetting a GeneSetDb](#subsetting-a-genesetdb) section to
+learn how to subset a `GeneSetDb` object to create a derivative object with
+fewer gene sets.
+</div>
+
+Recall that the GSEA analysis we performed was perfomed between the Basal and
+Her2 subtypes, so we will use an expression matrix that only has the samples
+from those two groups.
+
+```{r subset-exprs}
+vm.bh <- vm[, vm$targets$PAM50subtype %in% c("Basal", "Her2")]
+```
+
+## Generating Single Sample Gene Set Scores
+
+Once we have a `GeneSetDb` object that contains all of the gene sets we wish
+to use to create single sample gene set scores, we can use the
+`scoreSingleSamples` function to produce these scores using a variety of
+algorithmes, which the user species using the `methods` parameter.
+
+The `scoreSingleSamples` function will return a long `data.frame` with
+`length(methods) * ncol(exprs)` rows. Each row represents the score for the
+given `sample` using the specified `method`. You can subset against the `method`
+column to extract all of the single sample scores for a given method.
+
+```{r ssscore}
+scores <- scoreSingleSamples(gdb.sub, vm.bh,
+                             methods=c('ewm', 'ssgsea', 'zscore'),
+                             ssgsea.norm=TRUE,
+                             unscale=FALSE, uncenter=FALSE)
+```
+
+We can see how the scores from different methods compare to each other with
+using a little `reshape2` mojo and the `multiGSEA::corplot` function.
+
+```{r sss-pairs}
+sm <- acast(scores, name + sample ~ method, value.var="score")
+corplot(sm, cluster=TRUE)
+```
+
+It is, perhaps, interesting to compare how the `ewm` method scores change when
+we choose not to "unenter" and "unscale" them:
+
+```{r}
+ewmu <- scoreSingleSamples(gdb.sub, vm.bh,
+                           methods=c('ewm'),
+                           unscale=TRUE, uncenter=TRUE) %>% 
+  mutate(method='ewm_unscale')
+scores.all <- bind_rows(scores, ewmu)
+sma <- acast(scores.all, name + sample ~ method, value.var="score")
+corplot(sma, cluster=TRUE)
+```
+
+Furhter exposition on the "ewm" (eigenWeightedMean) scoring method can be
+found in the `?eigenWeightedMean` function.
+
+## Visualizing Single Sample Gene Set Scores
+
+The "long" data.frame nature of the results produced by `scoreSingleSamples`
+makes it convenient to use with graphing libraries like ggplot2 so that we can
+create arbitrary visualizations. Creating boxplots for gene sets per subtype
+is an easy way to explore these results.
+
+Let's annotate each row in `scores.all` with the subtype annotation and observe
+how these methods score each sample for a few gene sets.
+
+```{r anno-scores}
+all.scores <- scores.all %>% 
+  inner_join(select(vm.bh$targets, sample=Sample_ID, subtype=PAM50subtype),
+             by='sample')
+
+some.scores <- all.scores %>% 
+  filter(name %in% head(unique(all.scores$name), 5))
+
+ggplot(some.scores, aes(subtype, score)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_jitter(width=0.25) +
+  facet_grid(name ~ method)
+```
+
+## Gene Set Based Heatmap with mgheatmap
+
+We often want to create expression based heatmaps that highlight the behavior of
+gene sets across our samples. The `mgheatmap` function uses the 
+[ComplexHeatmap][cplxhmap] package to create two different types of heatmaps:
+
+1. Gene based heatmaps, that split the genes (rows) based on their genesets
+2. Single sample gene set based heatmaps, optionally split by gene set
+   collection.
+
+The `mgheatmap` function has a set of arguments that customize how the heatmap
+is to be created (gene level vs. gene set level, whether to split it, etcv) and
+will also use the `...` argument to pass any parameters down to the inner
+`ComplexHeatmap::Heatmap` function call and customize its behavior. The
+`mgheatmap` function returns a `ComplexHeatmap,Heatmap` object for plotting
+or combining with other ComplexHeatmap heatmaps or annotations in order to
+create arbitrarily complex/informative heatmap figures.
+
+[cplxhmap]: http://bioconductor.org/packages/ComplexHeatmap
+
+### Gene level based heatmap (from genesets)
+
+You can plot a heatmap of the genes from a predefined set of gene sets by
+providing the gene sets you want to visualize in a `GeneSetDb` object.
+
+We'll create a new `GeneSetDb` object using the first two gene sets in `gdb.sub`
+and draw a heatmap of their expression.
+
+```{r gheatmap, fig.height=8, fig.width=4}
+gs.sub <- geneSets(gdb.sub)
+gdb.2 <- gdb.sub[geneSets(gdb.sub)$name %in% head(gs.sub$name, 2)]
+
+## Setting a colorRamp that becomes fully saturated at low numbers (1.2)
+## to exacerbate the differences between groups.
+hcols <- circlize::colorRamp2(c(-1.2, 0, 1.2), 
+                              c('#1F294E', 'white', '#6E0F11'))
+
+col.anno <- HeatmapAnnotation(
+  vm.bh$targets[, 'PAM50subtype', drop=FALSE],
+  col=list(PAM50subtype=c(Basal="gray", Her2="black")))
+mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="none", split=TRUE,
+          show_row_names=FALSE, show_column_names=FALSE,
+          top_annotation=col.anno)
+```
+
+### Gene set-based heatmap
+
+You can often get a higher information:ink ratio by plotting heatmaps based
+on single sample gene set scores as opposed to the genes that make up a
+geneset.
+
+Let's see what the simple 2-geneset version of the heatmap above looks like:
+
+```{r gshm2}
+mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="ewm", split=FALSE,
+          show_row_names=TRUE, show_column_names=FALSE,
+          top_annotation=col.anno)
+```
+
+Plotted in this way, we can now show the activity of a greater number of
+genesets
+
+```{r gshm-all}
+mgheatmap(gdb.sub, vm.bh, col=hcols,
+          aggregate.by='ewm', split=TRUE,
+          show_row_names=TRUE, show_column_names=FALSE,
+          top_annotation=col.anno)
+```
 
 # The GeneSetDb Class
 
 The GeneSetDb class is a new container to store collections of genesets which
 provides different types of functionality than is found in
-GSEABase::GeneSetCollection objects.
+`GSEABase::GeneSetCollection` objects.
 
 We can, for instance, identify all 84 gene sets that have genes "10014" and
 "1454" (entrez ids) as members (HDAC5 and CSNK1E, respectively).
 
 ```{r subset-gdb}
-gdb <- geneSetDb(mg)
 gdb.sub <- subsetByFeatures(gdb, c('10014', '1454'))
 nrow(gdb); nrow(gdb.sub)
 ```
@@ -455,14 +637,45 @@ install `PANTHER.db` in a user-writable directory using
 
 </div>
 
+## Subsetting a GeneSetDb
+
+The subsetting functionality for a `GeneSetDb` isn't quite as fluent as I would
+like to be. Improvements will be provided in a future release.
+
+I would ideally like to be able to remove gene sets from a `GeneSetDb` as if
+you were calling `subset` (or `filter`) on the `data.frame` returned from the
+`geneSets(gdb)` function. In this way, if we wanted to keep all of the gene sets
+in `gdb` that were defined in `organism == 'Mus musculus'` you could simply do:
+
+```r
+gdb.sub <- subset(gdb, organism == "Mus musculus")
+```
+
+**Unfortunatey we aren't there yet**. Currently have to first define a logical
+vector over the `data.frame` you get from `geneSets(gdb)`. Then use that vector
+to remove gene sets using the `GeneSetDb,"["` function:
+
+```{r subset-gdb}
+keep <- geneSets(gdb)$organism == "Mus musculus"
+gdb.sub <- gdb[keep]
+```
+
+To reiterate, `length(keep)` **must equal** `nrow(geneSets(gdb))`.
+
+We have also showed you above how to create a subsetted `GeneSetDb` by keeping
+only the gene sets that have certain features in them using the
+`subsetByFeatures` function.
 
 ## Packaged MSigDb Gene Sets
 
 The multiGSEA pacakge strives to include the latest version of the MSigDB gene
 set collections within the application itself.
 
-Speak about the geneSets()$organism column.
-
+The MSigDB `GeneSetDb` objects include an `organism` column in their 
+`geneSets(gdb)` table. Note that this column indicates which organism that the
+geneset *was defined in*. The identifiers in the genesets provided in the
+`GeneSetDb` are all either "human" or "mouse" identifiers, depending on the
+value of the `species` argument in your `getMSigGeneSetDb` call.
 
 ## Active vs Inactive Gene Sets
 
@@ -587,31 +800,48 @@ mgx <- multiGSEA(gdb, vm, vm$design, cm[, 'BvH'],
                  inter.gene.cor=0.04, nrot=500)
 ```
 
-# Single Sample Gene Set Scoring
+# Developing multiGSEA
 
-Gene sets can also be used outside of these "formal testing frameworks" in the
-"singe sample scoring" scenario. The `scoreSingleSamples` method is a wrapper
-function to these types of methods the same way that the `multiGSEA` function
-wraps formal gene set enrichment analysis methods.
+## Adding new GSEA methods
 
-The `scoreSingleSamples` function will return a long data.frame that has scores
-on a per sample, per gene set, per method basis. For instance, we can get ssGSEA
-(from the GSVA package) and mean Z scores for the genesets per sample like so:
+<div class="note">
+This section needs more explanation
+</div>
 
-```{r}
-h <- getMSigGeneSetDb('h', 'human')
-scores <- scoreSingleSamples(h, vm, methods=c('ssgsea', 'zscore'),
-                             ssgsea.norm=TRUE)
-```
+Suppose we wanted to add a new GSEA method named `superGSEA` to the methods that
+the `multiGSEA` can delegate to via its `methods` argument, we need to add the
+following internal multiGSEA methods.
 
-And we can compare the results of ssgsea vs zscores by manipulating the result
-into a wide data.frame and plotting these scores against each other:
+* `validate.inputs.superGSEA`: Choose either `.validate.inputs.full.design` or
+  `.validate.inputs.preranked` depending on whether or not the method needs:
+    * a full expression,design,contrast tripple like roast, romer, or camera,
+      use `.validate.inputs.full.design`;
+    * or a preranked set of stats vector like cameraPR or fgsea, use
+      `.validate.inputs.preranked`
+* `validate.x.superGSEA`: this is redundant, just put `validate.X`. This will
+  be fixed in a future release
+* `do.superGSEA`: this method should take the parameters listed below, and
+  return the result of the `superGSEA` call **unmodified** from its original
+  form that the `superGSEA` method that is being wrapped returns it. The
+  parameters of the `do.superGSEA` function are:
+    * `gsd`: the pre-conformed `GeneSetDb`
+    * `x`: the expression matrix or pre-ranked stats vector
+    * `design`: the design matrix. If the method uses a pre-ranked stats vector
+      just ignore this argument in the `do.superGSEA` function body.
+    * `contrast`: the contrast to test. If the method uses a pre-ranked stats
+      vector just ignore this argument in the `do.superGSEA` function body.
+    * `gsd.idxs`: this will be a list of gene sets. The names are the
+      `collection;;name` tuples pasted together, and the values are integers
+      indices into the rows of `x` for each gene in the gene set. Genes in
+      the gene set that are not in `x` have already been removed.
+    * any custom parameters you want to set the defaults for in `superGSEA`
+      when the default values are not what you want.
+    * `...`: any other formal arguments defined in `superGSEA` will be passed
+      into here, and it will be your responsibility to extract them and pass
+      them down into the `superGSEA` call.
+* `mgres.superGSEA`: The function takes the output from `do.superGSEA` and
+  turns it into a `data.table` that minimally has `collection`, `name`,
+  `pval`, and `padj` columns.
 
-```{r, message=FALSE, fig.asp=0.85}
-suppressPackageStartupMessages(library(tidyr))
-sw <- spread(scores, method, score)
-sw.some <- filter(sw, name %in% c('HALLMARK_ADIPOGENESIS', 'HALLMARK_APOPTOSIS'))
-ggplot(sw.some, aes(zscore, ssgsea)) +
-  geom_point(aes(color=name))
-```
+Look to the implementation in the `do.camera.R` file for a reference.
 
