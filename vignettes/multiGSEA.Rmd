@@ -101,12 +101,11 @@ library(ggplot2)
 theme_set(theme_bw())
 library(ComplexHeatmap)
 library(circlize)
-options(multiGSEA.df.return='data.frame')
 ```
 
 <div class="note">
 Internally, mulitGSEA leverages the
-[`data.table`](https://CRAN.R-project.org/package=data.table) package for fast
+[data.table](https://CRAN.R-project.org/package=data.table) package for fast
 indexing and manipulation over data.frames. All functions that return these
 objects back to the user have an `as.dt` argument, which is set to `FALSE` by
 default. This means that unless the end user wants to work with `data.table`
