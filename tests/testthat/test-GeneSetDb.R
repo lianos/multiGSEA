@@ -245,6 +245,20 @@ test_that("append,GeneSetDb works", {
   }
 })
 
+test_that("gene set metadata kept pre/post conform,GeneSetDb", {
+  es <- exampleExpressionSet(do.voom=FALSE)
+  gsd <- GeneSetDb(exampleGeneSets())
+  gsd@table$metacol <- sample(letters, nrow(gsd@table), replace=TRUE)
+  gsdc <- conform(gsd, es)
+
+  gs.o <- geneSets(gsd)
+  gs.c <- geneSets(gsdc)
+
+  expect_equal(
+    gs.o[, !names(gs.o) %in% c('active', 'n')],
+    gs.c[, !names(gs.c) %in% c('active', 'n')])
+})
+
 test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
   m <- getMSigGeneSetDb('h')
   r <- getReactomeGeneSetDb()

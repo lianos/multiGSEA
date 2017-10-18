@@ -147,13 +147,23 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
          "for the genesets")
   }
 
-  x@table <- x@db[, {
+  otable <- x@table
+  ntable <- x@db[, {
     f <- featureId
     xref <- fm[list(f)]
     n <- sum(!is.na(xref$x.idx))
     active <- n >= min.gs.size && n <= max.gs.size
     list(active=active, N=.N, n=n)
   }, by=c('collection', 'name')]
+
+  ## Add back columns from original x@table that you just nuked
+  kosher <- all.equal(
+    otable[, list(collection, name)],
+    ntable[, list(collection, name)])
+  stopifnot(kosher)
+  add.me <- setdiff(colnames(otable), colnames(ntable))
+  for (col in add.me) ntable[, (col) := otable[[col]]]
+  x@table <- ntable
 
   inactive <- !x@table$active
   if (any(inactive)) {
@@ -363,7 +373,7 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
 
 setMethod("featureIdMap", c(x="GeneSetDb"), function(x, as.dt=FALSE) {
   out <- x@featureIdMap
-  if (!as.dt) setDF(copy(out))
+  if (!as.dt) out <- setDF(copy(out))
   out
 })
 
@@ -396,7 +406,7 @@ setReplaceMethod('featureIdMap', 'GeneSetDb', function(x, value) {
 setMethod("geneSets", c(x="GeneSetDb"),
 function(x, active.only=is.conformed(x), ... , as.dt=FALSE) {
   out <- if (active.only[1L]) x@table[active == TRUE] else x@table
-  if (!as.dt) setDF(copy(out))
+  if (!as.dt) out <- setDF(copy(out))
   out
 })
 
@@ -419,7 +429,7 @@ function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
     out <- cbind(out, fminfo[, -1L, with=FALSE])
   }
 
-  if (!as.dt) setDF(copy(out))
+  if (!as.dt) out <- setDF(copy(out))
   out
 })
 
