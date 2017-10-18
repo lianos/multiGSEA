@@ -655,7 +655,7 @@ gdb.sub <- subset(gdb, organism == "Mus musculus")
 vector over the `data.frame` you get from `geneSets(gdb)`. Then use that vector
 to remove gene sets using the `GeneSetDb,"["` function:
 
-```{r subset-gdb}
+```{r subset-gdb-by-metadata}
 keep <- geneSets(gdb)$organism == "Mus musculus"
 gdb.sub <- gdb[keep]
 ```
