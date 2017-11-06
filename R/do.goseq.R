@@ -216,6 +216,7 @@ mgres.goseq <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, 'rawresult'))) return(res)
   stopifnot(is.data.frame(res), is(gsd, "GeneSetDb"))
   gs <- geneSets(gsd, active.only=TRUE, as.dt=TRUE)
+  category <- NULL ## silence "no visible binding" note
   gs[, category := encode_gskey(gs)]
   xref <- match(gs$category, res$category)
   if (any(is.na(xref))) {

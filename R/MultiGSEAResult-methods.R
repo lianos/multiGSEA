@@ -173,7 +173,7 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
 ##'
 ##' @export
 ##' @param x A \code{MultiGSEAResult}
-##' @template external-param
+##' @template asdt-param
 ##' @return The log fold change \code{data.table}
 ##'
 ##' @examples

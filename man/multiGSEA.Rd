@@ -76,10 +76,10 @@ The particular analyses that are performed are specified by the
 arguments down through the \code{...} of this wrapper function.
 }
 \details{
-Currently this primarily wraps many of the GSEA methods available in
-edgeR/limma as well as goseq, hypergeometric tests, and fgsea.
-Others will be added over time. Refer to the \emph{GSEA Methods} and
-\emph{GSEA Method Parameterization} sections for more details.
+The bulk of the GSEA methods currently available in this package come from
+edgeR/limma, however others are included (and are being added), as well.
+\emph{GSEA Methods} and \emph{GSEA Method Parameterization} sections for
+more details.
 
 In addition to performing GSEA, this function also internally orchestrates
 a differential expression analysis, which can be tweaked by identifying
@@ -100,6 +100,7 @@ You can choose the methods you want to run over your contrast using the
 
 \enumerate{
   \item \code{\link[limma]{camera}(*)}
+  \item \code{\link[limma]{cameraPR}}
   \item \code{\link[limma]{roast}(*)}
   \item \code{\link[limma]{fry}(*)}
   \item \code{\link[limma]{romer}(*)}
@@ -116,7 +117,11 @@ provide when performing a vanilla differential gene expression analysis.
 
 Methods missing a \code{(*)} can be run on a feature-named input vector
 of gene level statistics which will be used for ranking (ie. a named vector
-of logFC's or t-statistics for genes).
+of logFC's or t-statistics for genes). They can also be run by providing
+an expression, design, and contrast vector, and the appropriate statistics
+vector will be generated internally from the t-statistics, p-values, or
+log-fold-changes, depending on the value provided in the \code{score.by}
+parameter.
 
 The worker functions that execute these GSEA methods are functions named
 \code{do.METHOD}. These functions are not meant to be executed directly,
@@ -130,7 +135,7 @@ by the suer, but you can find help on them via \code{?do.goseq}, or
 Each GSEA method can be tweaked via a custom set of parameters. We leave the
 documentation of these parameters and how they affect their respective GSEA
 methods to the documentation available in the packages where they are
-defined. The caller simply has to pass these parameters down
+defined. The \code{multiGSEA} call simply has to pass these parameters down
 into the \code{...} parameters here. The \code{multiGSEA} function will then
 pass these along to their worker functions.
 
@@ -169,14 +174,12 @@ parameters are passed down to that funciton.
 
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- exampleGeneSetDb()
-mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+mg <- multiGSEA(gdb, vm, vm$design, 'tumor',
+                methods=c('camera', 'fry'),
+                ## customzie camera parameter:
+                inter.gene.cor=0.04)
 resultNames(mg)
 res.camera <- result(mg, 'camera')
 res.fry <- result(mg, 'fry')
 res.all <- results(mg)
-}
-\seealso{
-\code{\link[limma]{camera}},
-  \code{\link[limma]{roast}},
-  \code{\link[limma]{geneSetTest}}
 }

@@ -63,7 +63,7 @@ mgres.hyperGeometricTest <- function(res, gsd, ...) res
 ##'   to \code{FALSE}, but this parameter is here so that when this function
 ##'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
 ##'   reconform the \code{GeneSetDb} object, because it has already been done.
-##' @template external-param
+##' @template asdt-param
 ##' @return A \code{data.table} of results
 hyperGeometricTest <- function(gsd, selected, universe,
                                direction=c('over', 'under'),

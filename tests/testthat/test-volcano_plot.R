@@ -9,7 +9,7 @@
 #   xhex <- 1
 #   yhex <- 0.05
 #
-#   dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
+#   dat <- volcanoStatsTable(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 #
 #
 # })

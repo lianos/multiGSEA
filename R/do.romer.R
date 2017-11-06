@@ -67,14 +67,15 @@ mgres.romer <- function(res, gsd, ...) {
   }
 
   out <- cbind(gs, as.data.table(res))
-  NGenes <- padj <- padj.up <- padj.down <- NULL # silence R CMD check NOTEs
+  ## silence R CMD check NOTEs
+  NGenes <- padj <- padj.up <- padj.down <- pval.up <- pval.down <- NULL
 
   out[, NGenes := NULL]
 
   setnames(out,
            c('Up', 'Down', 'Mixed'),
            c('pval.up', 'pval.down', 'pval'))
-
+  ## silence no visible binding note
   out[, padj := p.adjust(pval)]
   out[, padj.up := p.adjust(pval.up)]
   out[, padj.down := p.adjust(pval.down)]

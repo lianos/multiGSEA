@@ -45,6 +45,7 @@ mgheatmap <- function(gdb, x, col=NULL,
   # split.by <- match.arg(split.by)
   drop1.split <- missing(split)
   stopifnot(is.logical(split) && length(split) == 1L)
+  if (!is.null(scores)) stopifnot(is.data.frame(scores))
 
   X <- as_matrix(x)
   stopifnot(ncol(X) > 1)
@@ -71,7 +72,7 @@ mgheatmap <- function(gdb, x, col=NULL,
     if (is.null(scores)) {
       X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
     } else {
-      xs <- subset(scores, method == aggregate.by)
+      xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
       X <- acast(xs, key ~ sample, value.var="score")
     }

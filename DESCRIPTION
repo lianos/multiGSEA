@@ -12,8 +12,6 @@ Depends:
     edgeR (>= 3.18.1),
     limma (>= 3.32.5)
 Imports:
-    edgeR (>= 3.18.1),
-    limma (>= 3.32.5),
     methods,
     BiocGenerics,
     BiocParallel,
@@ -28,13 +26,9 @@ Imports:
     matrixStats,
     ComplexHeatmap,
     circlize,
-    magrittr,
-    shiny,
-    shinyjs,
-    miniUI,
-    DT,
-    shinydashboard
+    magrittr
 Suggests:
+    fgsea,
     goseq,
     DESeq2,
     testthat,
@@ -48,7 +42,6 @@ Suggests:
     BiocStyle,
     airway,
     SummarizedExperiment,
-    shinydashboard,
     rprojroot,
     statmod,
     org.Hs.eg.db,

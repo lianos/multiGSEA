@@ -26,8 +26,8 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                      ...) {
   score.by <- match.arg(score.by)
-  if (!requireNamespace('fgsea')) {
-    stop("The Bioconductor fgsea is required for this functionality")
+  if (!requireNamespace('fgsea', quietly=TRUE)) {
+    stop("The Bioconductor fgsea package is required for this functionality")
   }
   stopifnot(is.conformed(gsd, x))
 

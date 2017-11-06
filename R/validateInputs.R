@@ -115,7 +115,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
 na.check <- function(x) {
   if (is(x, 'DGEList')) x <- x$counts
   if (is(x, 'EList')) x <- x$E
-  if (is(x, 'ExpressionSet')) x <- ExpessionSet::exprs(x)
+  if (is(x, 'ExpressionSet')) x <- Biobase::exprs(x)
   if (is(x, 'SummarizedExperiment')) x <- SummarizedExperiment::assay(x)
   if (any(is.na(x))) {
     stop("No NA's allowed in x")

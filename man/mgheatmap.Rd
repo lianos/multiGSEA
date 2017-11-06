@@ -30,10 +30,12 @@ required).}
 \item{rm.dups}{if \code{aggregate.by == 'none'}, do we remove genes that
 appear in more than one geneset? Defaults to \code{FALSE}}
 
-\item{recenter}{do you want to mean center the heatmap matrix prior to
-display?}
+\item{recenter}{do you want to mean center the rows of the heatmap matrix
+prior to calling \code{\link[ComplexHeatmap]{Heatmap}}?}
 
-\item{rescale}{do you want to rescale the heatmap matrix prior to display?}
+\item{rescale}{do you want to standardize the row variance to one on the
+values of the heatmap matrix prior to calling
+\code{\link[ComplexHeatmap]{Heatmap}}?}
 
 \item{...}{parameters to send down to \code{\link{scoreSingleSample}} or
 \code{\link[ComplexHeatmap]{Heatmap}}.}

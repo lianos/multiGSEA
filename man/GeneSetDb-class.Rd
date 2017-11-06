@@ -5,7 +5,7 @@
 \alias{GeneSetDb-class}
 \alias{.GeneSetDb}
 \alias{GeneSetDb}
-\title{A class that defines the gene to geneset mapping.}
+\title{A container for geneset definitions.}
 \usage{
 GeneSetDb(x, featureIdMap = NULL, collectionName = NULL)
 }
@@ -32,7 +32,9 @@ If a value is passed here, it will overide any names stored in the list of
 \code{x}.}
 }
 \description{
-A class that defines the gene to geneset mapping.
+Please refer to the multiGSEA vignette (\code{vignette("multiGSEA")}),
+(and the "The GeneSetDb Class" section, in particular) for a more deatiled
+description of the sematnics of this central data object.
 
 The GeneSetDb class serves the same purpose as the
 \code{GSEABase::GeneSetCollection} class does: it acts as a centralized

@@ -7,21 +7,28 @@
 ##'
 ##' @export
 ##'
+##' @param xhex The raw \code{.xv} (not \code{xtfrm(.xv)}) value that acts
+##'   as a threshold such that values less than this will be hexbinned.
+##' @param yhex the \code{.yvt} value threshold. Vaues less than this will
+##'   be hexbinned.
 ##' @param highlight A vector of featureIds to highlight, or a GeneSetDb
 ##'   that we can extract the featureIds from for this purpose.
-volcano_plot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
-                         xtfrm=base::identity,
-                         ytfrm=function(vals) -log10(vals),
-                         xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
-                         highlight=NULL,
-                         horiz_lines=c('padj'=0.10),
-                         xhex=NULL, yhex=NULL,
-                         point.size=5,
-                         tools=c('box_select', 'reset', 'save'),
-                         width=NULL, height=NULL,
-                         shiny_source='mgvolcano', ggtheme=theme_bw(), ...) {
+##'
+##' @examples
+##' mg <- exampleMultiGSEAResult()
+##' volcanoPlot(mg)
+##' volcanoPlot(mg, xhex=1, yhex=0.05)
+volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
+                        xtfrm=base::identity,
+                        ytfrm=function(vals) -log10(vals),
+                        xlab=xaxis, ylab=sprintf('-log10(%s)', yaxis),
+                        highlight=NULL,
+                        horiz_lines=c('padj'=0.10),
+                        xhex=NULL, yhex=NULL,
+                        width=NULL, height=NULL,
+                        shiny_source='mgvolcano', ggtheme=theme_bw(), ...) {
   ## NOTE: I should use S3 or S4 here, but I'm lazy right now.
-  dat <- volcano.stats.table(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
+  dat <- volcanoStatsTable(x, stats, xaxis, yaxis, idx, xtfrm, ytfrm)
 
   yvals <- dat[['.yvt']]
   yrange <- range(yvals)
@@ -134,6 +141,7 @@ mg_add_points <- function(gg, dat, color='black') {
   if (is.null(dat) || nrow(dat) == 0) {
     return(gg)
   }
+  symbol <- xaxis <- yaxis <- .xv <- .yv <- NULL ## "missing symbol" NOTE
   if ('symbol' %in% names(dat)) {
     gg <- gg + suppressWarnings({
       geom_point(aes(key=featureId,
@@ -178,7 +186,6 @@ approx.target.from.transformed <- function(target, orig, xformed,
   out
 }
 
-##' @export
 extract.genes <- function(x, ...) {
   stopifnot(is.character(x) || is(x, 'GeneSetDb') || is(x, 'MultiGSEAResult'))
   if (is.character(x)) {
@@ -187,7 +194,6 @@ extract.genes <- function(x, ...) {
   featureIds(x)
 }
 
-##' @export
 volcano.source.type <- function(x) {
   is.valid <- sapply(.volcano.sources, function(src) is(x, src))
   if (sum(is.valid) != 1L) {
@@ -196,11 +202,39 @@ volcano.source.type <- function(x) {
   .volcano.sources[is.valid]
 }
 
+##' Extracts x and y axis values from objects to create input for volcano plot
+##'
+##' You can, in theory, create a volcano plot from a number of different parts
+##' of a \code{MultiGSEAResult} object. Most often you want to create a volcano
+##' plot from the differential expressino results, but you could imagine
+##' building a volcan plot where each point is a geneset. In this case, you
+##' would extract the pvalues from the method you like in the
+##' \code{MultiGSEAResult} object using the \code{stats} parameter.
+##'
 ##' @export
-volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
-                                idx='idx',
-                                xtfrm=identity,
-                                ytfrm=function(vals) -log10(vals)) {
+##'
+##' @param x A \code{MultiGSEAResult} object, or a \code{data.frame}
+##' @param stats One of \code{"dge"} or \code{resultNames(x)}
+##' @param xaxis,yaxis the column of the the provided (or extracted)
+##'   \code{data.frame} to use for the xaxis and yaxis of the volcano
+##' @param idx The column of the \code{data.frame} to use as the identifier
+##'n   for the element in the row. You probably don't want to mess with this
+##' @param xtfrm A function that transforms the \code{xaxis} column to an
+##'   appropriate scale for the x-axis. This is the \code{identity} function
+##'   by default, because most often the logFC is plotted as is.
+##' @param ytfrm A function that transforms the \code{yaxis} column to an
+##'   appropriate scale for the y-axis. This is the \code{-log10(yval)} function
+##'   by default, because this is how we most often plot the y-axis.
+##' @return a \code{data.frame} with \code{.xv}, \code{.xy}, \code{.xvt} and
+##'   \code{.xvy} columns that represent the xvalues, yvalues, transformed
+##'   xvalues, and transformed yvalues, respectively
+##' @examples
+##' v.dge <- volcanoStatsTable(mg)
+##' v.camera <- volcanoStatsTable(mg, 'camera')
+volcanoStatsTable <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
+                             idx='idx',
+                             xtfrm=identity,
+                             ytfrm=function(vals) -log10(vals)) {
   stopifnot(is.function(xtfrm), is.function(ytfrm))
   type <- volcano.source.type(x)
   if (is(x, 'MultiGSEAResultContainer')) {
@@ -213,6 +247,7 @@ volcano.stats.table <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
       idx <- 'featureId'
     } else {
       x <- result(x, stats, as.dt=TRUE)
+      if (missing(xaxis)) xaxis <- "mean.logFC.trim"
       idx <- 'idx'
       x[[idx]] <- encode_gskey(x)
     }

@@ -1,27 +1,27 @@
 ##' Generates single sample gene set scores across a datasets by many methods
 ##'
-##' @description
 ##' It is common to assess the activity of a gene set in a given sample. There
-##' are many ways to do that, and among the most often used one these days
-##' is ssGSEA. This method orchestrates the scoring of each gene set across
-##' each sample using as many methods as you like, in the same way that
-##' the multiGSEA call runs a variate of GSEA analysis across a contrast.
+##' are many ways to do that, and this method is analogous to the
+##' \code{\link{multiGSEA}} function in that it enables the user to run a
+##' multitude of single-sample-gene-set-scoring algorithms over a target
+##' expression matrix using a \code{\link{GeneSetDb}} object.
 ##'
-##' Current scoring methods that the user can invoke include:
+##' Please refer to the "Generating Single Sample Gene Set Scores" of the
+##' multiGSEA vignette for further exposition.
+##'
+##' The following \code{methods} are currenly provided.
 ##'
 ##' \describe{
 ##'   \item{ewm}{
-##'     The "eigenWeightedMean" calculates the fraction each gene contributes
+##'     The \code{\link{eigenWeightedMean}} calculates the fraction each gene contributes
 ##'     to a pre-specified principal component. These contributions acts as
 ##'     weights over each gene, which are then used in a simple weighted mean
 ##'     calculation over all the genes in the geneset per sample. This is
-##'     similar, in spirit, to the svd/gsdecon method}
-##'   \item{svd,gsdecon}{
+##'     similar, in spirit, to the svd/gsdecon method ("gsd")}
+##'   \item{gsd}{
 ##'     This method was first introduced by Jason Hackney in
 ##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
-##'     see the help for \code{?svdScore} for more details. It is, in principal,
-##'     something close to the \code{eigenWeightedMean}, but there's a bit more
-##'     voodoo invovled in its calculation.}
+##'     refer to the \code{\link{gsdScore}} function for more information.}
 ##'   \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
 ##'   \item{zscore}{
 ##'     The features in the expression matrix are rowwise z transformed. The
@@ -56,10 +56,11 @@
 ##' library(reshape2)
 ##' gdb <- exampleGeneSetDb()
 ##' vm <- exampleExpressionSet()
-##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'svd', 'zscore'),
-##'                              uncenter=FALSE, unscale=FALSE)
+##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
+##'                              uncenter=FALSE, unscale=FALSE,
+##'                              ssgsea.norm=TRUE)
 ##' sw <- dcast(scores, name + sample ~ method, value.var='score')
-##' corplot(sw[, c('ewm', 'svd', 'zscore')],
+##' corplot(sw[, c("ewm", "svd", "zscore")],
 ##'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
                                drop.sd=1e-4, verbose=FALSE, ..., as.dt=FALSE) {
@@ -126,18 +127,18 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
   scores
 }
 
-##' The \code{singleSampleScores} function is the same as
-##' \code{scoreSingleSamples}, but switches the order of the first two arguments
-##' for easier piping.
-##'
-##' @rdname scoreSingleSamples
-##' @export
-##' @inheritParams scoreSingleSamples
-singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
-                               drop.sd=1e-4, verbose=FALSE, ...) {
-  scoreSingleSamples(gdb, y, methods=methods, as.matrix=as.matrix,
-                     drop.sd=drop.sd, verbose=verbose, ...)
-}
+# The \code{singleSampleScores} function is the same as
+# \code{scoreSingleSamples}, but switches the order of the first two arguments
+# for easier piping.
+#
+# @rdname scoreSingleSamples
+# @export
+# @inheritParams scoreSingleSamples
+# singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
+#                                drop.sd=1e-4, verbose=FALSE, ...) {
+#   scoreSingleSamples(gdb, y, methods=methods, as.matrix=as.matrix,
+#                      drop.sd=drop.sd, verbose=verbose, ...)
+# }
 
 ##' Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
 ##'
@@ -147,9 +148,9 @@ singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
 ##' @param a melted \code{data.table} of scores
 melt.gs.scores <- function(gdb, scores) {
   out <- cbind(geneSets(gdb, as.dt=TRUE)[, list(collection, name, n)], scores)
-  out <- data.table:::melt.data.table(out, c('collection', 'name', 'n'),
-                                      variable.name='sample',
-                                      value.name='score')
+  out <- data.table::melt.data.table(out, c('collection', 'name', 'n'),
+                                     variable.name='sample',
+                                     value.name='score')
   out[, sample := as.character(sample)]
 }
 
@@ -241,7 +242,6 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
 ##' genesets. It does NOTE normalize the scores within each geneset
 ##' independantly of the others.
 ##'
-##' @export
 ##' @param x a \code{numeric} vector of ssGSEA scores for a single signature
 ##' @param bounds the maximum and minimum scores obvserved used to normalize
 ##'   against.
@@ -256,7 +256,7 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
 }
 
 ## A no dependency call to GSDecon-like eigengene scoring
-do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
+do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, gs.idxs=NULL, ...) {
   stopifnot(is.matrix(y))
@@ -267,7 +267,7 @@ do.scoreSingleSamples.svd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   }
 
   scores <- lapply(gs.idxs, function(idxs) {
-    svdScore(y[idxs,], center=center, scale=scale, uncenter=uncenter,
+    gsdScore(y[idxs,], center=center, scale=scale, uncenter=uncenter,
              unscale=unscale)
   })
 
@@ -306,8 +306,7 @@ gs.score.map <- list(
   gsva=do.scoreSingleSamples.gsva,
   plage=do.scoreSingleSamples.gsva,
   ssgsea=do.scoreSingleSamples.gsva,
-  gsdecon=do.scoreSingleSamples.svd,
-  svd=do.scoreSingleSamples.svd,
-  gsdecon=do.scoreSingleSamples.svd,
+  svd=do.scoreSingleSamples.gsd,
+  gsd=do.scoreSingleSamples.gsd,
   ewm=do.scoreSingleSamples.eigenWeightedMean,
   mean=do.scoreSingleSamples.mean)

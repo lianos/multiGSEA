@@ -2,7 +2,7 @@
 % Please edit documentation in R/single-sample-scoring-methods.R
 \name{zScore}
 \alias{zScore}
-\title{Calculate geneset score by average z-score method}
+\title{Calculate single sample geneset score by average z-score method}
 \usage{
 zScore(x, summary = c("mean", "sqrt"), trim = 0, ...)
 }
@@ -14,5 +14,18 @@ zScore(x, summary = c("mean", "sqrt"), trim = 0, ...)
 \item{trim}{calculate trimmed mean?}
 }
 \description{
-Calculate geneset score by average z-score method
+Calculate single sample geneset score by average z-score method
+}
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- conform(getMSigGeneSetDb('h'), vm)
+features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+                       value='x.idx')
+scores <- zScore(vm[features,])$score
+
+## Use scoreSingleSamples to facilitate scoring of all gene sets
+scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
+s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+           setNames(score, sample))
+all.equal(s2, scores) ## should be TRUE
 }

@@ -18,7 +18,7 @@ expression analysis is available via \code{\link{logFC}}.
 
 Visualizing results of a geneset based analysis also are functions that
 operate over a \code{MultiGSEAResult} object, for instance see the
-\code{\link{iplot}} and \code{\link{explore}} functions.
+\code{\link{iplot}} and \code{\link[multiGSEA.shiny]{explore}} functions.
 }
 \section{Slots}{
 

@@ -36,7 +36,6 @@ TODO: Add with.signature parameter to allow a box to plot the signature
   score of all genes in E.
 }
 \examples{
-
 x <- matrix(rnorm(1000), ncol=5)
 corplot(x)
 }

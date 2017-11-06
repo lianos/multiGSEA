@@ -27,17 +27,13 @@ col.pairs <- circlize::colorRamp2(c(-1, 0, 1), c('blue', 'white', 'red'), 0.5)
 ##' @return nothing, just creates the plot
 ##'
 ##' @examples
-##'
 ##' x <- matrix(rnorm(1000), ncol=5)
 ##' corplot(x)
 corplot <- function(E, title, cluster=FALSE, col.point='#00000066',
                     diag.distro=TRUE, smooth.scatter=nrow(E) > 400, ...) {
+  stopifnot(is.matrix(E))
   if (missing(title)) {
     title <- 'Pairs Plot'
-  }
-
-  if (is.null(E)) {
-    return(plot(3, 3, pch=16, xlim=c(1, 5), ylim=c(1, 5)))
   }
 
   if (cluster) {

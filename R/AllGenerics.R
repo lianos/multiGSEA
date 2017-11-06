@@ -243,7 +243,7 @@ setGeneric("org<-", signature="x", function(x, i, value) {
 ##'   from the original featureId space to the target feature space are included
 ##'   (default: \code{FALSE}).
 ##' @param ... passed down to inner functinos
-##' @template external-param
+##' @template asdt-param
 ##' @return a data.(frame|table) of gene set information. If \code{x} is a
 ##'   \code{MultiGSEAResult} object, then differential expression statistics
 ##'   are added as columns to this result.
@@ -255,7 +255,7 @@ setGeneric("geneSet", signature="x", function(x, i, j, ...) {
 ##'
 ##' @export
 ##' @inheritParams featureIds
-##' @template external-param
+##' @template asdt-param
 ##' @return a data.table with geneset information.
 ##'
 ##' @rdname geneSets
@@ -333,7 +333,3 @@ setGeneric("unconform", function(x, ...) standardGeneric("unconform"))
 ##'
 ##' @exportMethod summarized
 setGeneric("summarized", function(x, ...) standardGeneric("summarized"))
-
-##' @exportMethod plot
-##' @rdname plot
-setGeneric("plot")

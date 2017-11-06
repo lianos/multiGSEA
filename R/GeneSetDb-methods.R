@@ -485,7 +485,7 @@ subset.GeneSetDb <- function(x, keep) {
 
   ## Currently (data.table v1.9.4( there's nothing I can do to make i.value a
   ## list element and this `set` mojo doesn't work either
-  value <- NULL # silence R CMD check NOTEs
+  value <- i.value <- NULL # silence R CMD check NOTEs
   suppressWarnings(keep.cm[cc, value := list(i.value)])
   ## update.idxs <- keep.cm[cc, which=TRUE]
   ## val.idx <- which(colnames(keep.cm) == 'value')

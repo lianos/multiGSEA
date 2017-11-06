@@ -1,4 +1,105 @@
-##' Calculates the expression-rescaled SVD based eigengene score per sample.
+##' Single sample gene set score by a weighted average of the genes in geneset
+##'
+##' Weights for the genes in \code{x} are calculated by the percent of which
+##' they contribute to the principal component indicated by \code{eigengene}.
+##'
+##' You will generally want the rows of the gene x sample matrix \code{x} to
+##' be z-transformed. If it is not already, ensure that \code{center} and
+##' \code{scale} are set to \code{TRUE}.
+##'
+##' When uncenter and/or unscale are \code{FALSE}, it means that the scores
+##' should be applied on the centered or scaled values, respectively.
+##'
+##' @export
+##' @importFrom stats weighted.mean
+##' @inheritParams gsdScore
+##' @seealso scoreSingleSamples
+##' @param eigengene the PC used to extract the gene weights from
+##' @param weights a user can pass in a prespecified set of waits using a named
+##'   numeric vector. The names must be a superset of \code{rownames(x)}. If
+##'   this is \code{NULL}, we calculate the "eigenweights".
+##' @return A list of useful transformation information. The caller is likely
+##'   most interested in the \code{$score} vector, but other bits related to
+##'   the SVD/PCA decomposition are included for the ride.
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- conform(getMSigGeneSetDb('h'), vm)
+##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+##'                        value='x.idx')
+##' scores <- eigenWeightedMean(vm[features,])$score
+##'
+##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
+##' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
+##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+##'            setNames(score, sample))
+##' all.equal(s2, scores) ## should be TRUE
+eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
+                              uncenter=center, unscale=scale, retx=FALSE,
+                              weights=NULL, ...) {
+  x <- as_matrix(x)
+
+  if (is.numeric(weights)) {
+    if (length(weights) == 1) {
+      weights <- setNames(rep(weights, nrow(x)), rownames(x))
+    }
+    stopifnot(all(rownames(x) %in% names(weights)))
+    res <- list(weights=weights[rownames(x)])
+  } else {
+    pc <- paste0('PC', eigengene)
+    res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
+                    unscale=unscale, retx=FALSE)
+    res[['weights']] <- setNames(res$factor.contrib[[pc]], rownames(x))
+  }
+  if (!uncenter || !unscale) {
+    xx <- t(scale(t(x), center=!uncenter, scale=!unscale))
+  } else {
+    xx <- x
+  }
+  res[['score']] <- apply(xx, 2, weighted.mean, res[['weights']])
+  res
+}
+
+##' Calculate single sample geneset score by average z-score method
+##'
+##' @export
+##' @param x gene x sample matrix
+##' @param summary sqrt or mean
+##' @param trim calculate trimmed mean?
+##' @examples
+##' vm <- exampleExpressionSet(do.voom=TRUE)
+##' gdb <- conform(getMSigGeneSetDb('h'), vm)
+##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+##'                        value='x.idx')
+##' scores <- zScore(vm[features,])$score
+##'
+##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
+##' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
+##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+##'            setNames(score, sample))
+##' all.equal(s2, scores) ## should be TRUE
+zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
+  x <- as_matrix(x)
+  summary <- match.arg(summary)
+  score.fn <- if (summary == 'mean') {
+    function(vals) mean(vals, trim=trim, na.rm=TRUE)
+  } else {
+    function(vals) {
+      keep <- !is.na(vals)
+      sum(vals[keep]) / sqrt(sum(keep))
+    }
+  }
+
+  xs <- t(scale(t(x)))
+  scores <- apply(xs, 2L, score.fn)
+
+  out <- list(
+    score=setNames(as.vector(scores), colnames(x)),
+    center=attributes(xs)$"scaled:center",
+    scale=attributes(xs)$"scaled:scale")
+  out
+}
+
+##' Single sample geneset score using SVD based eigengene value per sample.
 ##'
 ##' @description
 ##' This method was developed by Jason Hackney and first introduced in the
@@ -23,7 +124,8 @@
 ##' also run around the problem of sign of the eigenvector. The scores you get
 ##' are very similar to average zscores of the genes per sample, where the
 ##' average is weighted by the degree to which each gene contributes to the
-##' principal component chosen by \code{eigengene}.
+##' principal component chosen by \code{eigengene}, as implemented in the
+##' \code{\link{eigenWeightedMean}} function.
 ##'
 ##' \emph{The core functionality provided here is taken from the soon to be
 ##' released GSDecon package by Jason Hackney}
@@ -49,26 +151,14 @@
 ##' gdb <- conform(getMSigGeneSetDb('h'), vm)
 ##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 ##'                        value='x.idx')
-##' scores <- svdScore(vm[features,])$score
+##' scores <- gsdScore(vm[features,])$score
 ##'
 ##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
-##' scores.all <- scoreSingleSamples(gdb, vm, 'svd')
+##' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
 ##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 ##'            setNames(score, sample))
 ##' all.equal(s2, scores) ## should be TRUE
-##'
-##' ## Draw a heatmap of geneset activities across dataset
-##' \dontrun{
-##' library(ComplexHeatmap)
-##' library(reshape2)
-##' S <- acast(scores.all, name ~ sample, value.var='score')
-##' Z <- t(scale(t(S)))
-##' rownames(Z) <- sub("HALLMARK_", "", rownames(Z))
-##' colnames(Z) <- substring(colnames(Z), 10, 16)
-##' Heatmap(Z)
-##' ## See also mgheatmap function
-##' }
-svdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
+gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                      uncenter=center, unscale=scale, retx=FALSE, ...) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
@@ -126,84 +216,4 @@ svdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 
   list(score=score, egene=egene,
        svd=s, pca=pca, factor.contrib=ctrb)
-}
-
-##' @export
-##' @rdname svdScore
-gsdScore <- svdScore
-
-##' Scores each sample by a weighted average of the gene in a signature.
-##'
-##' @description
-##' Weights for the genes in \code{x} are calculated by the percent of which
-##' they contribute to the principal component indicated by \code{eigengene}.
-##'
-##' You will generally want the rows of the gene x sample matrix \code{x} to
-##' be z-transformed. If it is not already, ensure that \code{center} and
-##' \code{scale} are set to \code{TRUE}.
-##'
-##' When uncenter and/or unscale are FALSE, it means that the scores should
-##' be applied on the centered or scaled values, respectively.
-##'
-##' @export
-##' @importFrom stats weighted.mean
-##' @inheritParams svdScore
-##' @param eigengene the PC used to extract the gene weights from
-##' @param weights a user can pass in a prespecified set of waits using a named
-##'   numeric vector. The names must be a superset of \code{rownames(x)}. If
-##'   this is \code{NULL}, we calculate the "eigenweights".
-##' @return A list of useful transformation information. The caller is likely
-##'   most interested in the \code{$score} vector, but other bits related to
-##'   the SVD/PCA decomposition are included for the ride.
-eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
-                              uncenter=center, unscale=scale, retx=FALSE,
-                              weights=NULL, ...) {
-  x <- as_matrix(x)
-
-  if (is.numeric(weights)) {
-    if (length(weights) == 1) {
-      weights <- setNames(rep(weights, nrow(x)), rownames(x))
-    }
-    stopifnot(all(rownames(x) %in% names(weights)))
-    res <- list(weights=weights[rownames(x)])
-  } else {
-    pc <- paste0('PC', eigengene)
-    res <- svdScore(x, eigengene, center, scale, uncenter=uncenter,
-                    unscale=unscale, retx=FALSE)
-    res[['weights']] <- setNames(res$factor.contrib[[pc]], rownames(x))
-  }
-  if (!uncenter || !unscale) {
-    xx <- t(scale(t(x), center=!uncenter, scale=!unscale))
-  } else {
-    xx <- x
-  }
-  res[['score']] <- apply(xx, 2, weighted.mean, res[['weights']])
-  res
-}
-
-##' Calculate geneset score by average z-score method
-##'
-##' @export
-##' @param x gene x sample matrix
-##' @param summary sqrt or mean
-##' @param trim calculate trimmed mean?
-zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
-  summary <- match.arg(summary)
-  score.fn <- if (summary == 'mean') {
-    function(vals) mean(vals, trim=trim, na.rm=TRUE)
-  } else {
-    function(vals) {
-      keep <- !is.na(vals)
-      sum(vals[keep]) / sqrt(sum(keep))
-    }
-  }
-
-  xs <- t(scale(t(x)))
-  scores <- apply(xs, 2L, score.fn)
-
-  out <- list(
-    score=setNames(as.vector(scores), colnames(x)),
-    center=attributes(xs)$"scaled:center",
-    scale=attributes(xs)$"scaled:scale")
-  out
 }

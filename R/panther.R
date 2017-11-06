@@ -33,7 +33,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
   species <- match.arg(species)
   type <- match.arg(type)
 
-  if (!requireNamespace('PANTHER.db')) {
+  if (!requireNamespace('PANTHER.db', quietly=TRUE)) {
     stop("The PANTHER.db bioconductor package is required")
   }
   if (species == 'human') {
@@ -47,7 +47,7 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
     unloadNamespace('PANTHER.db')
     unloadNamespace(org.pkg)
   })
-  if (!requireNamespace(org.pkg)) {
+  if (!requireNamespace(org.pkg, quietly=TRUE)) {
     stop(org.pkg, " bioconductor package required for this species query")
   }
 

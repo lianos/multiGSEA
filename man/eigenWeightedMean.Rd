@@ -2,7 +2,7 @@
 % Please edit documentation in R/single-sample-scoring-methods.R
 \name{eigenWeightedMean}
 \alias{eigenWeightedMean}
-\title{Scores each sample by a weighted average of the gene in a signature.}
+\title{Single sample gene set score by a weighted average of the genes in geneset}
 \usage{
 eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
   uncenter = center, unscale = scale, retx = FALSE, weights = NULL, ...)
@@ -40,11 +40,28 @@ A list of useful transformation information. The caller is likely
 \description{
 Weights for the genes in \code{x} are calculated by the percent of which
 they contribute to the principal component indicated by \code{eigengene}.
-
+}
+\details{
 You will generally want the rows of the gene x sample matrix \code{x} to
 be z-transformed. If it is not already, ensure that \code{center} and
 \code{scale} are set to \code{TRUE}.
 
-When uncenter and/or unscale are FALSE, it means that the scores should
-be applied on the centered or scaled values, respectively.
+When uncenter and/or unscale are \code{FALSE}, it means that the scores
+should be applied on the centered or scaled values, respectively.
+}
+\examples{
+vm <- exampleExpressionSet(do.voom=TRUE)
+gdb <- conform(getMSigGeneSetDb('h'), vm)
+features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+                       value='x.idx')
+scores <- eigenWeightedMean(vm[features,])$score
+
+## Use scoreSingleSamples to facilitate scoring of all gene sets
+scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
+s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+           setNames(score, sample))
+all.equal(s2, scores) ## should be TRUE
+}
+\seealso{
+scoreSingleSamples
 }

@@ -1,4 +1,8 @@
-##' A class that defines the gene to geneset mapping.
+##' A container for geneset definitions.
+##'
+##' Please refer to the multiGSEA vignette (\code{vignette("multiGSEA")}),
+##' (and the "The GeneSetDb Class" section, in particular) for a more deatiled
+##' description of the sematnics of this central data object.
 ##'
 ##' @exportClass GeneSetDb
 ##'
@@ -69,7 +73,7 @@
 ##'
 ##' Visualizing results of a geneset based analysis also are functions that
 ##' operate over a \code{MultiGSEAResult} object, for instance see the
-##' \code{\link{iplot}} and \code{\link{explore}} functions.
+##' \code{\link{iplot}} and \code{\link[multiGSEA.shiny]{explore}} functions.
 ##'
 ##' @exportClass MultiGSEAResult
 ##' @rdname MultiGSEAResult

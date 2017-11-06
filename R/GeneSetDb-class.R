@@ -354,7 +354,7 @@ setMethod("show", "GeneSetDb", function(object) {
   hr <- paste(rep("=", nchar(msg)), collapse='')
   hr.sub <- gsub('=', '-', hr)
   cat(hr, "\n", msg, "\n", is.conf, "\n", hr.sub, "\n", sep="")
-  data.table:::print.data.table(geneSets(object, as.dt=TRUE))
+  print(geneSets(object, as.dt=TRUE))
   cat(hr.sub, "\n", msg, "\n", is.conf, "\n", hr, "\n", sep="")
 })
 
