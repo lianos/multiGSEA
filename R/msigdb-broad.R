@@ -1,7 +1,8 @@
 .msigdb.species <- c('human', 'mouse')
 .msigdb.collections <- list(
   'v5.1'=c(paste0('c', 1:7), 'h'),
-  'v5.2'=c(paste0('c', 1:7), 'h'))
+  'v5.2'=c(paste0('c', 1:7), 'h'),
+  'v6.1'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
 
 ##' Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.
