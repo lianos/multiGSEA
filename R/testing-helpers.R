@@ -136,8 +136,15 @@ exampleGeneSetDF <- function() {
 ##' @export
 ##' @rdname examples
 ##' @aliases exampleGeneSetDF
-exampleMultiGSEAResult <- function() {
-  fn <- system.file('extdata', 'testdata', 'test-MultiGSEAResult.rds',
-                    package='multiGSEA')
-  readRDS(fn)
+exampleMultiGSEAResult <- function(cached=TRUE) {
+  if (cached) {
+    fn <- system.file('extdata', 'testdata', 'test-MultiGSEAResult.rds',
+                      package='multiGSEA')
+    out <- readRDS(fn)
+  } else {
+    vm <- exampleExpressionSet()
+    gdb <- exampleGeneSetDb()
+    out <- multiGSEA(gdb, vm, vm$design, "tumor", c('camera', 'fry'))
+  }
+  out
 }

@@ -273,7 +273,9 @@ result <- function(x, name, stats.only=FALSE,
   rank.by <- match.arg(rank.by)
   stopifnot(isSingleLogical(add.suffix))
 
-  out <- copy(geneSets(x, as.dt=TRUE))
+  gs <- geneSets(x, as.dt=TRUE)
+  base.colnames <- colnames(gs)
+  out <- copy(gs)
 
   res <- local({
     ## The <name> of the GSEA methods should not have a "." in them. If there
@@ -330,7 +332,7 @@ result <- function(x, name, stats.only=FALSE,
   out[, rank := ranks]
 
   if (add.suffix) {
-    rename.cols <- c(names(res), 'padj.by.collection', 'rank')
+    rename.cols <- setdiff(colnames(out), base.colnames)
     setnames(out, rename.cols, paste(rename.cols, name, sep='.'))
   }
 

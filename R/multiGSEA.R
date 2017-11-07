@@ -223,12 +223,12 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   ## provided
   methods <- setdiff(methods, 'logFC')
 
-  ## Many methods create a geneset to rowname/index vector. Let's run it once
-  ## here and pass it along
-  gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
-
   ## Let's do this!
   if (length(methods) > 0L) {
+    ## Many methods create a geneset to rowname/index vector. Let's run it once
+    ## here and pass it along
+    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+
     if (!.parallel) {
       BPPARAM <- SerialParam(stop.on.error=FALSE)
     }
@@ -256,7 +256,18 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
                             feature.max.padj=feature.max.padj,
                             trim=trim, as.dt=TRUE)
-  out@gsd@table <- merge(out@gsd@table, gs.stats, by=key(out@gsd@table))
+  axe.gsd.cols <- setdiff(colnames(gs.stats), c('collection', 'name'))
+  axe.gsd.cols <- intersect(axe.gsd.cols, colnames(out@gsd@table))
+  new.table <- copy(out@gsd@table)
+  ## Remove any columns in gs.stats that are already in the GeneSetDb@table
+  ## (ie. if we got a GeneSetDb from a previous MultiGSEAResult and we don't
+  ## remove these columns, you will get thigns like mean.logFC.x and
+  ## mean.logFC.y
+  if (length(axe.gsd.cols)) {
+    name <- NULL
+    for (name in axe.gsd.cols) new.table[, c(name) := NULL]
+  }
+  out@gsd@table <- merge(new.table, gs.stats, by=key(new.table))
   finished <- TRUE
   out
 }
