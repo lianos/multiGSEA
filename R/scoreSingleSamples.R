@@ -186,8 +186,13 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
       score.fn(col.vals[vidx])
     })
   })
+  if (!is.matrix(scores)) {
+    ## This happens when the GeneSetDb had only one signature. Turn it into
+    ## a matrix because things upstream expect matrices as outputs of these
+    ## do.* functions.
+    scores <- matrix(scores, nrow=1L)
+  }
   colnames(scores) <- colnames(y)
-
   scores
 }
 
