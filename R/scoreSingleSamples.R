@@ -233,10 +233,6 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
   gargs <- c(gargs, args[take])
 
   gres <- do.call(gsva, gargs)
-  if (is.list(gres)) {
-    gres <- gres$es.obs
-  }
-
   gres
 }
 
@@ -247,6 +243,7 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
 ##' genesets. It does NOTE normalize the scores within each geneset
 ##' independantly of the others.
 ##'
+##' @export
 ##' @param x a \code{numeric} vector of ssGSEA scores for a single signature
 ##' @param bounds the maximum and minimum scores obvserved used to normalize
 ##'   against.

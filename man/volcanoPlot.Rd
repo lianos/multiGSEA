@@ -7,13 +7,18 @@
 volcanoPlot(x, stats = "dge", xaxis = "logFC", yaxis = "pval", idx,
   xtfrm = base::identity, ytfrm = function(vals) -log10(vals),
   xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis), highlight = NULL,
-  horiz_lines = c(padj = 0.1), xhex = NULL, yhex = NULL, point.size = 5,
-  tools = c("box_select", "reset", "save"), width = NULL, height = NULL,
-  shiny_source = "mgvolcano", ggtheme = theme_bw(), ...)
+  horiz_lines = c(padj = 0.1), xhex = NULL, yhex = NULL, width = NULL,
+  height = NULL, shiny_source = "mgvolcano", ggtheme = theme_bw(), ...)
 }
 \arguments{
 \item{highlight}{A vector of featureIds to highlight, or a GeneSetDb
 that we can extract the featureIds from for this purpose.}
+
+\item{xhex}{The raw \code{.xv} (not \code{xtfrm(.xv)}) value that acts
+as a threshold such that values less than this will be hexbinned.}
+
+\item{yhex}{the \code{.yvt} value threshold. Vaues less than this will
+be hexbinned.}
 }
 \description{
 Create an interactive volcano plot
@@ -21,4 +26,5 @@ Create an interactive volcano plot
 \examples{
 mg <- exampleMultiGSEAResult()
 volcanoPlot(mg)
+volcanoPlot(mg, xhex=1, yhex=0.05)
 }

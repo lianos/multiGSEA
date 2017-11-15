@@ -17,7 +17,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   E <- vm$E
   gdb <- conform(gdb, E)
 
-  gsva.ex <- gsva(E, lol, method='gsva', parallel.sz=4, verbose=FALSE)$es.obs
+  gsva.ex <- gsva(E, lol, method='gsva', parallel.sz=4, verbose=FALSE)
   gsva.mg <- scoreSingleSamples(gdb, E, methods='gsva', as.matrix=TRUE)
   expect_equal(gsva.mg, gsva.ex, info='GSVA,gsva')
 
@@ -30,9 +30,9 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   es <- exampleExpressionSet(do.voom=FALSE)
   counts <- exprs(es)
 
-  gsvar.ex <- gsva(counts, lol, method='gsva', rnaseq=TRUE, parallel.sz=4,
-                   verbose=FALSE)$es.obs
-  gsvar.mg <- scoreSingleSamples(gdb, counts, method='gsva', rnaseq=TRUE,
+  gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=4,
+                   verbose=FALSE)
+  gsvar.mg <- scoreSingleSamples(gdb, counts, method='gsva', kcdf='Poisson',
                                  as.matrix=TRUE)
   expect_equal(gsvar.mg, gsvar.ex, info='GSVA,gsva RNAseq')
 })

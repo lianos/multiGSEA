@@ -18,7 +18,7 @@ exampleGeneSetDb()
 
 exampleGeneSetDF()
 
-exampleMultiGSEAResult()
+exampleMultiGSEAResult(cached = TRUE)
 }
 \arguments{
 \item{dataset}{Character vector indicating what samples wanted, either
