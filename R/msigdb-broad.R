@@ -37,9 +37,15 @@
 ##'   restricted license, so by default we do not return them as part of the
 ##'   GeneSetDb. To include the KEGG gene sets when asking for the c2
 ##'   collection, set this flag to \code{TRUE}.
+##' @param species.specific Many of the genesets defined in MSigDB are annotated
+##'   with the organism from which the experiment was conducted and which the
+##'   geneset was extracted from. If this is set to \code{TRUE}, then only
+##'   gene sets that match \code{species} will be included. Default is
+##'   \code{FALSE}.
 ##' @param version the version of the MSigDB database to use.
 ##' @return a \code{GeneSetDb} object
 getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
+                             species.specific=FALSE,
                              version=.msigdb.version.current) {
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
@@ -72,6 +78,13 @@ getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
   if ('c2' %in% gs$collection && !with.kegg) {
     is.c2 <- gs$collection == 'c2'
     keep <- !is.c2 | (is.c2 & !grepl('^KEGG_', gs$name))
+    out <- subset.GeneSetDb(out, keep)
+  }
+
+  if (species.specific) {
+    spec <- sub('_', ' ', species)
+    org <- geneSets(out)$organism
+    keep <-  !is.na(org) & org == spec
     out <- subset.GeneSetDb(out, keep)
   }
 
