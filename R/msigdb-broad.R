@@ -1,6 +1,6 @@
 .msigdb.species <- c('human', 'mouse')
 .msigdb.collections <- list(
-  'v5.1'=c(paste0('c', 1:7), 'h'),
+  # 'v5.1'=c(paste0('c', 1:7), 'h'),
   'v5.2'=c(paste0('c', 1:7), 'h'),
   'v6.1'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
@@ -27,6 +27,9 @@
 ##' end user's responsibility to ensure that they are appropriately adhering
 ##' to the licensing restricions of the genesets provided herein.
 ##'
+##' Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
+##' package (data files from AnnotationHub) to be installed/accessible.
+##'
 ##' @export
 ##' @rdname MSigDB
 ##' @param collection character vector specifying the collections you want
@@ -50,21 +53,33 @@ getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
   avail.cols <- .msigdb.collections[[version]]
-  if (species == 'Mus_musculus') {
-    avail.cols <- setdiff(avail.cols, 'c1')
-  }
-  if (is.null(collection) || missing(collection)) {
-    collection <- avail.cols
-  } else {
-    bad.col <- setdiff(collection, avail.cols)
-    if (length(bad.col)) {
-      stop("Illegal MSigDB collection IDs in ", species, ":\n  ",
-           paste(bad.col, collapse=','))
-    }
-  }
 
-  fn <- sprintf('MSigDB.%s.GeneSetDb.rds', species)
-  fn <- system.file('extdata', 'MSigDB', version, fn, package='multiGSEA')
+  pkg.species <- if (species == 'Mus_musculus') 'Mmusculus' else 'Hsapiens'
+  pkg.version <- sub('\\.', '', version)
+
+  ## Note: This will be updated when AnnotationHub files come oneline to
+  ## support that properly, but right now I require these packages to be
+  ## installed as the "more traditional" data packages.
+
+  ## For the first releas, v5.2 is stored in the v6.1 package, so the general
+  ## code below is special cased. This will change in the future after relase.
+  # pkg <- sprintf("GeneSetDb.MSigDB.%s.%s", pkg.species, pkg.version)
+  # pkg.dir <- find.package(pkg, quiet=TRUE)
+  # if (length(pkg.dir) == 0L) {
+  #   stop("GeneSetDb.* package not installed: ", pkg)
+  # }
+  # fn <- paste0(pkg, '.rds')
+  # fn <- file.path(pkg.dir, 'extdata', fn)
+  # out <- readRDS(fn)
+  pkg <- sprintf("GeneSetDb.MSigDB.%s.v61", pkg.species)
+  ## Check that package is installed so we can get the extdata
+  pkg.dir <- find.package(pkg, quiet=TRUE)
+  if (length(pkg.dir) == 0L) {
+    stop("GeneSetDb.* package not installed: ", pkg)
+  }
+  fn <- paste0(sub('v61', pkg.version, pkg), '.rds')
+  fn <- file.path(pkg.dir, 'extdata', fn)
+
   out <- readRDS(fn)
 
   gs <- geneSets(out, as.dt=TRUE)

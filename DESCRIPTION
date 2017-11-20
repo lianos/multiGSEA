@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A Unified Interface to a Plethora of Gene Set Enrichment Analysis Methods
-Version: 0.10.2
+Version: 0.10.3
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
@@ -47,7 +47,9 @@ Suggests:
     org.Hs.eg.db,
     KernSmooth,
     dplyr,
-    dtplyr
+    dtplyr,
+    GeneSetDb.MSigDB.Hsapiens.v61,
+    GeneSetDb.MSigDB.Mmusculus.v61
 VignetteBuilder: knitr
 License: GPL (>=2)
 Encoding: UTF-8

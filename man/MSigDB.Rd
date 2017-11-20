@@ -5,7 +5,7 @@
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
 getMSigGeneSetDb(collection, species = "human", with.kegg = FALSE,
-  version = .msigdb.version.current)
+  species.specific = FALSE, version = .msigdb.version.current)
 }
 \arguments{
 \item{collection}{character vector specifying the collections you want
@@ -18,6 +18,12 @@ genesets as part of the c2 collection. These genesets come with a
 restricted license, so by default we do not return them as part of the
 GeneSetDb. To include the KEGG gene sets when asking for the c2
 collection, set this flag to \code{TRUE}.}
+
+\item{species.specific}{Many of the genesets defined in MSigDB are annotated
+with the organism from which the experiment was conducted and which the
+geneset was extracted from. If this is set to \code{TRUE}, then only
+gene sets that match \code{species} will be included. Default is
+\code{FALSE}.}
 
 \item{version}{the version of the MSigDB database to use.}
 }
@@ -43,4 +49,7 @@ Note that this function by default will exclude the KEGG genesets from the
 MSigDB c2 collection. Set \code{with.kegg=TRUE} to include them. It is the
 end user's responsibility to ensure that they are appropriately adhering
 to the licensing restricions of the genesets provided herein.
+
+Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
+package (data files from AnnotationHub) to be installed/accessible.
 }
