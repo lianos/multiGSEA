@@ -40,6 +40,7 @@ would extract the pvalues from the method you like in the
 \code{MultiGSEAResult} object using the \code{stats} parameter.
 }
 \examples{
+mg <- exampleMultiGSEAResult()
 v.dge <- volcanoStatsTable(mg)
 v.camera <- volcanoStatsTable(mg, 'camera')
 }
