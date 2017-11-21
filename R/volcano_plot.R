@@ -223,7 +223,7 @@ volcano.source.type <- function(x) {
 ##' @param xaxis,yaxis the column of the the provided (or extracted)
 ##'   \code{data.frame} to use for the xaxis and yaxis of the volcano
 ##' @param idx The column of the \code{data.frame} to use as the identifier
-##'n   for the element in the row. You probably don't want to mess with this
+##'   for the element in the row. You probably don't want to mess with this
 ##' @param xtfrm A function that transforms the \code{xaxis} column to an
 ##'   appropriate scale for the x-axis. This is the \code{identity} function
 ##'   by default, because most often the logFC is plotted as is.

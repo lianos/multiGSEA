@@ -16,7 +16,7 @@ volcanoStatsTable(x, stats = "dge", xaxis = "logFC", yaxis = "pval",
 \code{data.frame} to use for the xaxis and yaxis of the volcano}
 
 \item{idx}{The column of the \code{data.frame} to use as the identifier
-n   for the element in the row. You probably don't want to mess with this}
+for the element in the row. You probably don't want to mess with this}
 
 \item{xtfrm}{A function that transforms the \code{xaxis} column to an
 appropriate scale for the x-axis. This is the \code{identity} function
