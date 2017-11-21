@@ -234,6 +234,7 @@ volcano.source.type <- function(x) {
 ##'   \code{.xvy} columns that represent the xvalues, yvalues, transformed
 ##'   xvalues, and transformed yvalues, respectively
 ##' @examples
+##' mg <- exampleMultiGSEAResult()
 ##' v.dge <- volcanoStatsTable(mg)
 ##' v.camera <- volcanoStatsTable(mg, 'camera')
 volcanoStatsTable <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
