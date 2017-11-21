@@ -28,6 +28,8 @@ Imports:
     circlize,
     magrittr
 Suggests:
+    GeneSetDb.MSigDB.Hsapiens.v61,
+    GeneSetDb.MSigDB.Mmusculus.v61,
     fgsea,
     goseq,
     DESeq2,
@@ -47,9 +49,7 @@ Suggests:
     org.Hs.eg.db,
     KernSmooth,
     dplyr,
-    dtplyr,
-    GeneSetDb.MSigDB.Hsapiens.v61,
-    GeneSetDb.MSigDB.Mmusculus.v61
+    dtplyr
 VignetteBuilder: knitr
 License: GPL (>=2)
 Encoding: UTF-8
