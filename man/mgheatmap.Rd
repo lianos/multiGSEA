@@ -11,18 +11,18 @@ mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
 \arguments{
 \item{x}{the data matrix}
 
-\item{col}{a colorRamp(2) funciton}
+\item{col}{a colorRamp(2) function}
 
 \item{aggregate.by}{the method used to generate single-sample geneset
 scores. Default is \code{none} which plots heatmap at the gene level}
 
 \item{split}{introduce row-segmentation based on genesets or collections?
 Defaults is \code{TRUE} which will create split heatmaps based on
-collection if \code{aggregate.by= != 'none'}, or based on gene sets
+collection if \code{aggregate.by != 'none'}, or based on gene sets
 if \code{aggregate.by == "none"}.}
 
 \item{scores}{If \code{aggregate.by != "none"} you can pass in a precomupted
-\code{\link{singleSampleGeneSet}} result, otherwise one will be
+\code{\link{scoreSingleSamples}} result, otherwise one will be
 computed internally. Note that if this is a \code{data.frame} of
 pre-computed scores, the \code{gdb} is largely irrelevant (but still
 required).}
@@ -37,7 +37,7 @@ prior to calling \code{\link[ComplexHeatmap]{Heatmap}}?}
 values of the heatmap matrix prior to calling
 \code{\link[ComplexHeatmap]{Heatmap}}?}
 
-\item{...}{parameters to send down to \code{\link{scoreSingleSample}} or
+\item{...}{parameters to send down to \code{\link{scoreSingleSamples}} or
 \code{\link[ComplexHeatmap]{Heatmap}}.}
 
 \item{the}{\code{GeneSetDb} object that holds the genesets to plot}

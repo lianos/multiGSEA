@@ -6,15 +6,15 @@
 ##'
 ##' @param the \code{GeneSetDb} object that holds the genesets to plot
 ##' @param x the data matrix
-##' @param col a colorRamp(2) funciton
+##' @param col a colorRamp(2) function
 ##' @param aggregate.by the method used to generate single-sample geneset
 ##'   scores. Default is \code{none} which plots heatmap at the gene level
 ##' @param split introduce row-segmentation based on genesets or collections?
 ##'   Defaults is \code{TRUE} which will create split heatmaps based on
-##'   collection if \code{aggregate.by= != 'none'}, or based on gene sets
+##'   collection if \code{aggregate.by != 'none'}, or based on gene sets
 ##'   if \code{aggregate.by == "none"}.
 ##' @param scores If \code{aggregate.by != "none"} you can pass in a precomupted
-##'   \code{\link{singleSampleGeneSet}} result, otherwise one will be
+##'   \code{\link{scoreSingleSamples}} result, otherwise one will be
 ##'   computed internally. Note that if this is a \code{data.frame} of
 ##'   pre-computed scores, the \code{gdb} is largely irrelevant (but still
 ##'   required).
@@ -25,7 +25,7 @@
 ##' @param rescale do you want to standardize the row variance to one on the
 ##'   values of the heatmap matrix prior to calling
 ##'   \code{\link[ComplexHeatmap]{Heatmap}}?
-##' @param ... parameters to send down to \code{\link{scoreSingleSample}} or
+##' @param ... parameters to send down to \code{\link{scoreSingleSamples}} or
 ##'   \code{\link[ComplexHeatmap]{Heatmap}}.
 ##' @return list(heatmap=ComplexHeatmap, matrix=X)
 ##'
@@ -36,7 +36,6 @@
 ##' mgh <- mgheatmap(gdb, vm, aggregate.by='ewm', split=TRUE)
 mgheatmap <- function(gdb, x, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
-                      # split.by=c('none', 'geneset', 'collection'),
                       split=TRUE, scores=NULL,
                       name=NULL, rm.collection.prefix=TRUE,
                       rm.dups=FALSE, recenter=TRUE, rescale=TRUE,

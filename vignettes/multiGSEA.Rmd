@@ -446,7 +446,7 @@ corplot(sm, cluster=TRUE)
 ```
 
 It is, perhaps, interesting to compare how the `ewm` method scores change when
-we choose not to "unenter" and "unscale" them:
+we choose not to "uncenter" and "unscale" them:
 
 ```{r}
 ewmu <- scoreSingleSamples(gdb.sub, vm.bh,
@@ -598,7 +598,11 @@ The multiGSEA package provides convenience funcitons to fetch genesets from many
 sources and convert them into a GeneSetDb object. The two most useful sources
 may be:
 
-* [MSigDB][msigdb] via `getMSigGeneSetDb(...)`
+* [MSigDB][msigdb] via `getMSigGeneSetDb(...)`. Although the core `multiGSEA`
+  package provides the getter function for these genesets, the user needs to
+  install the `GeneSetDb.MSigDB.<species>.version` packages, which provide
+  the actuall geneset information. These datasets will be released on
+  AnnotationHub, however the data packages are provided for the time being.
 * [PANTHER][pantherdb] (pathways and GOSLIM) via `getPantherGeneSetDb()`
 
 You can create a custom `GeneSetDb` via the `GeneSetDb` constructor, which

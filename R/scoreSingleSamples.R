@@ -46,8 +46,11 @@
 ##' @param as.matrix Return results as a list of matrices instead of a melted
 ##'   data.frame? Defaults to \code{FALSE}.
 ##' @param drop.sd Genes with a standard deviation across columns in \code{y}
-##'   with a standard deviation less than this value will be dropped.
+##'   that is less than this value will be dropped.
 ##' @param verbose make some noise? Defaults to \code{FALSE}.
+##' @param ... these parameters are passed down into the the individual single
+##'   sample scoring funcitons to customize them further.
+##' @template asdt-param
 ##' @return A long data.frame with sample,method,score values per row. If
 ##'   \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
 ##'   and as many columns as \code{ncol(x)}
@@ -60,7 +63,7 @@
 ##'                              uncenter=FALSE, unscale=FALSE,
 ##'                              ssgsea.norm=TRUE)
 ##' sw <- dcast(scores, name + sample ~ method, value.var='score')
-##' corplot(sw[, c("ewm", "svd", "zscore")],
+##' corplot(sw[, c("ewm", "ssgsea", "zscore")],
 ##'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
                                drop.sd=1e-4, verbose=FALSE, ..., as.dt=FALSE) {

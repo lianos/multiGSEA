@@ -14,6 +14,8 @@ annotateGeneSetMembership(x, gdb, x.ids = NULL, ...)
 \item{x.ids}{The name of the column in \code{x} that holds the feautre
 id's in \code{x} that match the featureId's in \code{gdb}, or a vector
 of id's to use for each row in \code{x} that represent these.}
+
+\item{...}{parameters passed down into \code{\link{incidenceMatrix}}}
 }
 \value{
 Returns the original \code{x} with additional columns: each is a

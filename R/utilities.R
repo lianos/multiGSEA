@@ -89,6 +89,20 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 
 
 ##' Converts an expression container like object to a matrix for analysis
+##'
+##' This function is not exported. It will convert various expression-like
+##' containers into a a matrix of values for use in GSEA or single-sample based
+##' scoring methods.
+##'
+##' There's nothing too fancy here. Keep in mind, however, that if \code{y}
+##' is something that typically stores counts (a \code{DGEList} or
+##' \code{DESeqDataSet}), then it is transformed into a matrix of values
+##' on the log scale.
+##'
+##' @param y an object to convert into an expression matrix for use in various
+##'   internal gene set based methods
+##' @return a matrix of values to use downstream of internal gene set based
+##'   methods.
 as_matrix <- function(y) {
   if (is.vector(y)) {
     y <- t(t(y)) ## column vectorization that sets names to rownames

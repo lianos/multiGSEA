@@ -127,9 +127,7 @@ exampleGeneSetDb <- function() {
 exampleGeneSetDF <- function() {
   gs.df <- system.file('extdata', 'testdata', 'custom-sigs.csv',
                        package='multiGSEA')
-  gs.df <- read.csv(gs.df, stringsAsFactors=FALSE)
-  gs.df$featureId <- as.character(gs.df$featureId)
-  gs.df
+  read.csv(gs.df, stringsAsFactors=FALSE, colClasses='character')
 }
 
 

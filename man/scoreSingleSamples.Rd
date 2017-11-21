@@ -18,9 +18,16 @@ scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
 data.frame? Defaults to \code{FALSE}.}
 
 \item{drop.sd}{Genes with a standard deviation across columns in \code{y}
-with a standard deviation less than this value will be dropped.}
+that is less than this value will be dropped.}
 
 \item{verbose}{make some noise? Defaults to \code{FALSE}.}
+
+\item{...}{these parameters are passed down into the the individual single
+sample scoring funcitons to customize them further.}
+
+\item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
+this funciton returns will be set to a data.frame. Set this to \code{TRUE}
+to keep this object as a \code{data.table}}
 }
 \value{
 A long data.frame with sample,method,score values per row. If
@@ -74,6 +81,6 @@ scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
                              uncenter=FALSE, unscale=FALSE,
                              ssgsea.norm=TRUE)
 sw <- dcast(scores, name + sample ~ method, value.var='score')
-corplot(sw[, c("ewm", "svd", "zscore")],
+corplot(sw[, c("ewm", "ssgsea", "zscore")],
         title='Single Sample Score Comparison')
 }

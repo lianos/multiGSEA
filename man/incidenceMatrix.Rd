@@ -11,6 +11,8 @@ incidenceMatrix(x, y, ...)
 
 \item{y}{(optional) A target (expression) object \code{x} is (or can be)
 conformed to}
+
+\item{...}{parameters passed down into \code{\link{conform}}.}
 }
 \value{
 incidence matrix with nrows = number of genesets and columns are

@@ -164,7 +164,12 @@ mg_add_points <- function(gg, dat, color='black') {
 ##' Get the approximate nominal pvalue for a target qvalue given the
 ##' distribution of adjusted pvalues from the nominal ones.
 ##'
-##' @param pval the adjust pvalue you want the nominal value for
+##' This is not an exported function, so you shouldn't be using this. This is
+##' used in the volcano plot code to identify the value on the y-axis of a
+##' nominal pvalues that a given corrected pvalue (FDR) lands at.
+##'
+##' @param target the FDR value you are trying to find on the nominal pvalue
+##'   space (y-axis). This is a value on the FDR scale
 ##' @param pvals the distribution of nominal pvalues
 ##' @param padjs the adjusted pvalues from \code{pvals}
 ##' @param thresh how close padj has to be in padjs to get its nominal

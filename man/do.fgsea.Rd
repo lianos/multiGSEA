@@ -17,7 +17,12 @@ running any analysis, and this function essentially is just a "pass through"}
 
 \item{design}{The design matrix for the experiment}
 
-\item{contrast}{The contrast you want to test and provide stats for}
+\item{contrast}{The contrast you want to test and provide stats for. By
+default this tests the last column of the \code{design} matrix. If you
+want to test a custom contrast, this can be a contrast vector, which
+means that it should be as long as \code{ncol(design)} and it most-often
+sum to one. In the future, the user will be able to specify a range of
+coefficients over \code{design} to perform an ANOVA analysis.}
 
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
 }

@@ -11,6 +11,7 @@
 ##' @param x.ids The name of the column in \code{x} that holds the feautre
 ##'   id's in \code{x} that match the featureId's in \code{gdb}, or a vector
 ##'   of id's to use for each row in \code{x} that represent these.
+##' @param ... parameters passed down into \code{\link{incidenceMatrix}}
 ##' @return Returns the original \code{x} with additional columns: each is a
 ##'   logical vector that indicates membership for genesets defined in
 ##'   \code{gdb}.
@@ -221,6 +222,7 @@ is.conformed <- function(x, to) {
 ##' @param x A \code{GeneSetDb}
 ##' @param y (optional) A target (expression) object \code{x} is (or can be)
 ##'   conformed to
+##' @param ... parameters passed down into \code{\link{conform}}.
 ##' @return incidence matrix with nrows = number of genesets and columns are
 ##'   featureIDs. If \code{y} is passed in, the columns of the returned value
 ##'   match the rows of \code{y}.
@@ -780,8 +782,17 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
   x
 }
 
+##' Appends two GeneSetDb objects togethter.
+##'
+##' @param x A \code{GeneSetDb} object
+##' @param values A \code{GeneSetDb} object
+##' @param after not used
 ##' @importMethodsFrom BiocGenerics append
 ##' @exportMethod append
+##' @examples
+##' gdb1 <- exampleGeneSetDb()
+##' gdb2 <- GeneSetDb(exampleGeneSetDF())
+##' gdb <- append(gdb1, gdb2)
 setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   if (!missing(after)) {
     warning("`after` argument is ignored in append,GeneSetDb")

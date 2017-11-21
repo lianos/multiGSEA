@@ -8,10 +8,11 @@ distribution of adjusted pvalues from the nominal ones.}
 approx.target.from.transformed(target, orig, xformed, thresh = 0.01)
 }
 \arguments{
+\item{target}{the FDR value you are trying to find on the nominal pvalue
+space (y-axis). This is a value on the FDR scale}
+
 \item{thresh}{how close padj has to be in padjs to get its nominal
 counterpart}
-
-\item{pval}{the adjust pvalue you want the nominal value for}
 
 \item{pvals}{the distribution of nominal pvalues}
 
@@ -22,6 +23,7 @@ numeric answer, or NA if can't find nominal pvalue within given
   threshold for padjs
 }
 \description{
-Get the approximate nominal pvalue for a target qvalue given the
-distribution of adjusted pvalues from the nominal ones.
+This is not an exported function, so you shouldn't be using this. This is
+used in the volcano plot code to identify the value on the y-axis of a
+nominal pvalues that a given corrected pvalue (FDR) lands at.
 }
