@@ -10,8 +10,8 @@
 ##' @description
 ##' This provides versioned genesets from gene set collections defined in
 ##' \href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive
-##' to keep the latest version of MSigDB included in this package. The current
-##' version provided is v5.2.
+##' to keep the latest version of MSigDB available via this function.
+##' The current version provided is v6.1.
 ##'
 ##' Although the primariy identifiers used in MSigDB are human entrez IDs, we
 ##' also include gene symbols, and mouse versions of each gene set (except c1)

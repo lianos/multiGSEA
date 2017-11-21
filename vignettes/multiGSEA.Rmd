@@ -132,6 +132,15 @@ Below you'll find the `$targets` data.frame of the voomed `EList`
 vm$targets[, c('Patient_ID', 'Cancer_Status', 'PAM50subtype')]
 ```
 
+<div class="note">
+Note that there are many tutorials online that outline how to generate expression matrices
+for use with differential expression and analysis, such as the one that is returned from
+the `exampleExpressionSet` function. Summarizing assay data into such a format is out
+of scope for this vignette, but you can reference the
+[airway vignette](http://bioconductor.org/packages/release/data/experiment/vignettes/airway/inst/doc/airway.html)
+for full details (among others).
+</div>
+
 ## Data Analysis
 
 We will identify the genes and genesets that are differentially expressed
@@ -671,14 +680,30 @@ only the gene sets that have certain features in them using the
 
 ## Packaged MSigDb Gene Sets
 
-The multiGSEA pacakge strives to include the latest version of the MSigDB gene
-set collections within the application itself.
+The multiGSEA package provides the `getMSigGeneSetDb` utility function to provide
+easy access to [the MSigDB gene set collection][msigdb] for users. The data for
+this function is stored in data package that need to be downloaded first before
+use. The `GeneSetDb.MSigDB.Hsapiens.v*`, and `GeneSetDb.MSigDB.Mmusculus.v*`
+packages provide these genesets for human and mouse (using entrez identifiers).
+The latest version of these packages (`v61`) provides version 6.1 of the MSigDB
+gene sets, which is the latest version as of this relase.
 
 The MSigDB `GeneSetDb` objects include an `organism` column in their 
 `geneSets(gdb)` table. Note that this column indicates which organism that the
 geneset *was defined in*. The identifiers in the genesets provided in the
 `GeneSetDb` are all either "human" or "mouse" identifiers, depending on the
-value of the `species` argument in your `getMSigGeneSetDb` call.
+value of the `species` argument in your `getMSigGeneSetDb` call. The example
+above shows how to subset the GeneSetDb based on the `organism` column so that
+the resulting GeneSetDb only has genesets defined in mouse. The user can
+also set the `species.specific` parameter to `TRUE` so that we only return
+gene sets defined in the organism ('human' or 'mouse') that the user is
+retrieving the genesets from. For instance, the call below only retrieves
+gene sets in the "c2" and "c5" collections that were only defined in mouse.
+
+```{r species-specific, eval=FALSE}
+mgdb <- getMSigGeneSetDb(c('c2' 'c7'), species='mouse',
+                         species.specific=TRUE)
+```
 
 ## Active vs Inactive Gene Sets
 
