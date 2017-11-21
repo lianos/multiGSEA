@@ -114,6 +114,8 @@ as_matrix <- function(y) {
     y <- Biobase::exprs(y)
   } else if (is(y, 'DESeqDataSet')) {
     y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
+  } else if (is.data.frame(y)) {
+    y <- as.matrix(y)
   }
   stopifnot(is.matrix(y) && is.numeric(y))
   y
