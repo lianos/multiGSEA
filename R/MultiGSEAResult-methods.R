@@ -1,3 +1,16 @@
+# Makes MultiGSEAResult objects compatible with old GNE multiGSEA Explorer App
+#
+# This is not documented or exported on purpose and will be removed in the near
+# future without warning, so: don't use it.
+downgradeObject <- function(x) {
+  stopifnot(is(x, 'MultiGSEAResult'))
+  x@results <- sapply(names(x@results), function(res) {
+    out <- result(x, res, as.dt=TRUE)
+    setattr(out, 'rawresult', FALSE)
+  }, simplify=FALSE)
+  x
+}
+
 ##' Fetches the GeneSetDb from MultiGSEAResult
 ##'
 ##' @export
