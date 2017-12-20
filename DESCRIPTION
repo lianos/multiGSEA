@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.10.7
+Version: 0.10.8
 Author: Steve Lianoglou
 Maintainer: Steve Lianoglou <slianoglou@gmail.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
