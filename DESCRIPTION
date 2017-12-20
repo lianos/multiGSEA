@@ -3,7 +3,7 @@ Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
 Version: 0.10.7
 Author: Steve Lianoglou
-Maintainer: Steve Lianoglou <lianoglou.steve@gene.com>
+Maintainer: Steve Lianoglou <slianoglou@gmail.com>
 Description: Provides a unified interface to orchestrate a plethora of GSEA
     methods over a contrast of interest as well as single sample gene set
     scoring methods. This package also provides robust interactive tools to
