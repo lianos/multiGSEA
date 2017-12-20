@@ -36,7 +36,7 @@ The `multiGSEA` package was built to facilitate the use of gene sets in the
 analysis of high throughput genomics data (primarily RNA-seq). It does so
 by providing these top-line functionalities:
 
-* The `multiGESA` function is a wrapper that orchestrates the execution of any
+* The `multiGSEA` function is a wrapper that orchestrates the execution of any
   number of user-specified gene set enrichment analyses (GSEA) over a particular
   experimental contrast of interest. This will create a `MultiGSEAResult`
   object which stores the results of each GSEA method internally, allowing
