@@ -1,3 +1,10 @@
+CHANGES IN VERSION 0.10
+-----------------------
+
+USER VISIBLE CHANGES:
+
+  o MSigGeneSetDb updated to v6.1 and data refactored out into GeneSetDb.* packages
+
 CHANGES IN VERSION 0.6.x
 ------------------------
 
