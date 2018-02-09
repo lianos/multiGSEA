@@ -26,7 +26,7 @@ way as the same parameters in limma's \code{\link[limma]{camera}} and
 
 \item{methods}{A character vector indicating the GSEA methods you want to
 run. Refer to the GSEA Methods section for more details.
-If no methods are specified, only differential gene expressino and geneset
+If no methods are specified, only differential gene expression and geneset
 level statistics for the contrast are computed.}
 
 \item{use.treat}{should we use limma/edgeR's "treat" functionality for the
@@ -49,7 +49,8 @@ conjunction with \code{feature.min.logFC}.}
 
 \item{verbose}{make some noise during execution?}
 
-\item{...}{The arguments are passed down into the various geneset analysis
+\item{...}{The arguments are passed down into
+\code{\link{calculateIndividualLogFC}} and the various geneset analysis
 functions.}
 
 \item{.parallel}{by default, \code{.parallel=FALSE} runs each GSEA in a

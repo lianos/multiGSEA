@@ -47,6 +47,8 @@
 ##' @param with.fit If \code{TRUE}, this function returns a list object with
 ##'   both the fit and the table of logFC statistics, otherwise just the
 ##'   logFC statistics table is returned.
+##' @param use.qlf If \code{TRUE} (default), will use edgeR's quasilikelihood
+##'   framework for analysis, otherwise uses glmFit/glmTest.
 ##' @param ... parameters passed down into the relevant limma/edgeR based
 ##'   functions.
 ##' @param as.dt Return the result as a \code{data.table}? Defaults to
@@ -58,8 +60,8 @@
 calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      trend.eBayes=FALSE, treat.lfc=NULL,
-                                     confint=TRUE, with.fit=FALSE, ...,
-                                     as.dt=FALSE) {
+                                     confint=TRUE, with.fit=FALSE,
+                                     use.qlf = TRUE, ..., as.dt=FALSE) {
   do.contrast <- !is.vector(x) &&
     ncol(x) > 1L &&
     !is.null(design) &&
@@ -87,7 +89,11 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     if (!disp.estimated(x)) {
       stop("Dispersions not estimated, need to run estimateDisp first")
     }
-    fit <- glmQLFit(x, design, robust=TRUE)
+    if (use.qlf) {
+      fit <- glmQLFit(x, design, robust=TRUE)
+    } else {
+      fit <- glmFit(x, design)
+    }
     if (use.treat) {
       if (do.contrast) {
         tt <- glmTreat(fit, contrast=contrast, lfc=treat.lfc)
@@ -95,10 +101,11 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
         tt <- glmTreat(fit, coef=contrast, lfc=treat.lfc)
       }
     } else {
+      etest <- if (use.qlf) glmQLFTest else glmLRT
       if (do.contrast) {
-        tt <- glmQLFTest(fit, contrast=contrast)
+        tt <- etest(fit, contrast = contrast)
       } else {
-        tt <- glmQLFTest(fit, coef=contrast)
+        tt <- etest(fit, coef=contrast)
       }
     }
     tt <- as.data.frame(topTags(tt, Inf, sort.by='none'))

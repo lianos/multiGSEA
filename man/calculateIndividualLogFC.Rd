@@ -6,8 +6,8 @@
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
-  treat.lfc = NULL, confint = TRUE, with.fit = FALSE, ...,
-  as.dt = FALSE)
+  treat.lfc = NULL, confint = TRUE, with.fit = FALSE, use.qlf = TRUE,
+  ..., as.dt = FALSE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -41,6 +41,9 @@ specified log fold change threshold. This defaults to \code{NULL}.}
 \item{with.fit}{If \code{TRUE}, this function returns a list object with
 both the fit and the table of logFC statistics, otherwise just the
 logFC statistics table is returned.}
+
+\item{use.qlf}{If \code{TRUE} (default), will use edgeR's quasilikelihood
+framework for analysis, otherwise uses glmFit/glmTest.}
 
 \item{...}{parameters passed down into the relevant limma/edgeR based
 functions.}

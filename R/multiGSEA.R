@@ -109,7 +109,7 @@
 ##'   \code{\link[limma]{roast}} methods.
 ##' @param methods A character vector indicating the GSEA methods you want to
 ##'   run. Refer to the GSEA Methods section for more details.
-##'   If no methods are specified, only differential gene expressino and geneset
+##'   If no methods are specified, only differential gene expression and geneset
 ##'   level statistics for the contrast are computed.
 ##' @param use.treat should we use limma/edgeR's "treat" functionality for the
 ##'   gene-level differential expression analysis?
@@ -126,7 +126,8 @@
 ##'   \code{logFC} statistics for each geneset. This is passed down to the
 ##'   \code{\link{geneSetsStats}} function.
 ##' @param verbose make some noise during execution?
-##' @param ... The arguments are passed down into the various geneset analysis
+##' @param ... The arguments are passed down into
+##'   \code{\link{calculateIndividualLogFC}} and the various geneset analysis
 ##'   functions.
 ##' @param .parallel by default, \code{.parallel=FALSE} runs each GSEA in a
 ##'   serial manner. If \code{.parallel=TRUE}, the GSEA execution loop is

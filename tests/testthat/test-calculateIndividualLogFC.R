@@ -98,3 +98,30 @@ test_that("treat pvalues are legit", {
   expect_equal(yy$logFC, et$logFC, info="edgeR")
   expect_equal(yy$pval, et$pval, info="edgeR")
 })
+
+test_that("edgeR's glmLRT or QLF are used when asked", {
+  es <- exampleExpressionSet(do.voom=FALSE)
+  gdb <- exampleGeneSetDb()
+  d <- es@design
+
+  y <- edgeR::DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
+  y <- edgeR::calcNormFactors(y)
+  y <- edgeR::estimateDisp(y, d, robust=TRUE)
+
+  ex.qlf <- glmQLFit(y, y$design, robust = TRUE) %>%
+    glmQLFTest %>%
+    topTags(n = Inf, sort.by = "none") %>%
+    as.data.frame
+  mgq <- multiGSEA(gdb, y, y$design, use.qlf = TRUE)
+  expect_equal(logFC(mgq)$pval, ex.qlf$PValue, info = "QLF")
+
+  ex.lrt <- glmFit(y, y$design) %>%
+    glmLRT %>%
+    topTags(n = Inf, sort.by = "none") %>%
+    as.data.frame
+  mgl <- multiGSEA(gdb, y, y$design, use.qlf = FALSE)
+  expect_equal(logFC(mgl)$pval, ex.lrt$PValue, info = "LRT")
+
+  # Pvalues from QLF and LRT should not be the same
+  expect_false(isTRUE(all.equal(logFC(mgq)$pval, logFC(mgl)$pval)))
+})
