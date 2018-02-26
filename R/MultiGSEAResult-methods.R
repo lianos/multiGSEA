@@ -41,6 +41,8 @@ function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
                 ..., as.dt=TRUE)
   lfc <- logFC(x, as.dt=TRUE)[list(gs$featureId), on='featureId']
+  stopifnot(all(lfc$featureId == gs$featureId))
+  lfc$featureId <- NULL
   # Columns that appear in the geneset and also appear in the `logFC` data.frame
   # will be renamed to avoid collision. The duplicated columns used to be
   # removed with a preference to keep the columns in `gs`, however we might
@@ -166,7 +168,6 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
 
   out <- gs[, {
     fids <- featureIds(x, .BY[[1L]], .BY[[2L]])
-    browser()
     stats <- lfc[fids, on='featureId']
     up <- stats$direction == 'up'
     down <- !up
