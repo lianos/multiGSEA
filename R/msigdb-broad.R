@@ -47,11 +47,13 @@
 ##'   \code{FALSE}.
 ##' @param version the version of the MSigDB database to use.
 ##' @return a \code{GeneSetDb} object
-getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
+getMSigGeneSetDb <- function(collection, species='human',
+                             id.type = c("entrez", "ensembl"), with.kegg=FALSE,
                              species.specific=FALSE,
                              version=.msigdb.version.current) {
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
+  id.type <- match.arg(id.type)
   avail.cols <- .msigdb.collections[[version]]
 
   pkg.species <- if (species == 'Mus_musculus') 'Mmusculus' else 'Hsapiens'
@@ -77,7 +79,8 @@ getMSigGeneSetDb <- function(collection, species='human', with.kegg=FALSE,
   if (length(pkg.dir) == 0L) {
     stop("GeneSetDb.* package not installed: ", pkg)
   }
-  fn <- paste0(sub('v61', pkg.version, pkg), '.rds')
+  # fn <- paste0(sub('\\.v61', paste0(id.type, "-", pkg.version, pkg), '.rds'))
+  fn <- sub('\\.v61', paste0("-", id.type, ".", pkg.version, ".rds"), pkg)
   fn <- file.path(pkg.dir, 'extdata', fn)
 
   out <- readRDS(fn)
