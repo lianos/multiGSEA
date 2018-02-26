@@ -41,10 +41,14 @@ function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
                 ..., as.dt=TRUE)
   lfc <- logFC(x, as.dt=TRUE)[list(gs$featureId), on='featureId']
+  # Columns that appear in the geneset and also appear in the `logFC` data.frame
+  # will be renamed to avoid collision. The duplicated columns used to be
+  # removed with a preference to keep the columns in `gs`, however we might
+  # have a `logFC` column in the geneset database, which would then override
+  # the `logFC` column from the differential expression analysis.
+  rename <- intersect(colnames(lfc), colnames(gs))
+  if (length(rename)) setnames(gs, rename, paste0(rename, ".gs"))
   out <- cbind(gs, lfc)
-  ## remove duplicate columns if they exist after cbind
-  keep.cols <- !duplicated(colnames(out))
-  out <- out[, keep.cols, with=FALSE]
   if (!as.dt) setDF(out)
   out
 })
@@ -162,6 +166,7 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
 
   out <- gs[, {
     fids <- featureIds(x, .BY[[1L]], .BY[[2L]])
+    browser()
     stats <- lfc[fids, on='featureId']
     up <- stats$direction == 'up'
     down <- !up

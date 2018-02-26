@@ -4,6 +4,13 @@ CHANGES IN VERSION 0.10
 USER VISIBLE CHANGES:
 
   o MSigGeneSetDb updated to v6.1 and data refactored out into GeneSetDb.* packages
+  o `geneSet,MultiGSEAResult` method does not remove duplicated columns present
+    in both `geneSet(gdb)` and `logFC`, but rather appends a `*.gs` suffix to
+    the duplicated columns from `geneSet`. This happened because I defined
+    a geneset with a `logFC` column (from the experiment the set was derived)
+    from, but this collided with (and superseded) the `logFC` value for the gene
+    returned from `logFC(mgresult)`, and messed up interpretation of a geneset's
+    move across a contrast.
 
 CHANGES IN VERSION 0.6.x
 ------------------------
