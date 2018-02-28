@@ -16,6 +16,6 @@ test_that("GeneSetDb defined with logFC-like column names are kosher", {
   info <- merge(gs, logFC(mg), all.x = TRUE, by = "featureId")
 
   expect_equal(nrow(gs), nrow(info))
-  expect_true(sum(is.na(info$logFC.y) == 0))
+  expect_true(sum(is.na(info$logFC.y)) == 0)
   expect_equal(info$logFC.x, info$logFC.y)
 })

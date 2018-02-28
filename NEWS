@@ -11,6 +11,16 @@ USER VISIBLE CHANGES:
     from, but this collided with (and superseded) the `logFC` value for the gene
     returned from `logFC(mgresult)`, and messed up interpretation of a geneset's
     move across a contrast.
+  o Introduces idea of gene- and geneset-level metadata in a GeneSetDb. The
+    former (gene-level metadata) was always possible by creating a GeneSetDb
+    with a data.frame which has more columns than necessary, ie. instead of
+    just having a collection,name,featureId data.frame, you could add a symbol
+    column. This would simply be part of the GeneSetDb@db data.table. If there
+    are columns in your input data.frame that are all the same value per
+    collection,name subset, then these are marked as "geneset level annotations"
+    and tacked onto the GeneSetDb@table data.table. I put this in to pave the
+    way for simple support of "tags" per geneset, but there are other uses
+    as well.
 
 CHANGES IN VERSION 0.6.x
 ------------------------

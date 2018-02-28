@@ -4,8 +4,9 @@
 \alias{getMSigGeneSetDb}
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
-getMSigGeneSetDb(collection, species = "human", with.kegg = FALSE,
-  species.specific = FALSE, version = .msigdb.version.current)
+getMSigGeneSetDb(collection, species = "human", id.type = c("entrez",
+  "ensembl"), with.kegg = FALSE, species.specific = FALSE,
+  version = .msigdb.version.current)
 }
 \arguments{
 \item{collection}{character vector specifying the collections you want

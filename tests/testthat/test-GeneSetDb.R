@@ -53,6 +53,36 @@ test_that("GeneSetDb constructor works with an input data.frame", {
   expect_is(gdb@db$symbol, 'character')
 })
 
+test_that("gene- and gene-set level metadata data perserved via GeneSetDb.data.frame constructor", {
+  gdb <- exampleGeneSetDb()
+  gdf <- copy(gdb@db)
+  gdf[, glevel := sample(letters, nrow(gdf), replace = TRUE)]
+  gdf[, gslevel := .N, by = c("collection", "name")]
+  gdb2 <- GeneSetDb(gdf)
+
+  # Test that genesetlevel annotation is legit and correct
+  expect_equal(gdb@table[, list(collection, name, active, N)],
+               gdb2@table[, list(collection, name, active, N)])
+  expect_equal(gdb2@table$N, gdb2@table$gslevel)
+
+  # Test that the geneleve annotations are correct
+  expect_equal(gdb2@db[, list(collection, name, featureId, glevel)],
+               gdf[, list(collection, name, featureId, glevel)])
+})
+
+test_that("addGeneSetMetadata doesn't adds geneset metadata appropriately", {
+  gdb <- exampleGeneSetDb()
+  meta <- transform(geneSets(gdb, as.dt = TRUE)[, c("collection", "name")],
+                    var1 = sample(letters, length(name), replace = TRUE),
+                    var2 = sample(1:100, length(name), replace = TRUE))
+  gtbl <- copy(gdb@table)
+  gdu <- addGeneSetMetadata(gdb, meta)
+
+  expect_equal(gdu@table[, list(collection, name, active, N, n)],
+               gtbl[, list(collection, name, active, N, n)])
+  expect_equal(meta[, list(collection, name, var1, var2)],
+               gdu@table[, list(collection, name, var1, var2)])
+})
 
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
   gsc <- as(gdb.h, 'GeneSetCollection')

@@ -198,17 +198,46 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   }, simplify=FALSE)
   gdb <- GeneSetDb(lol, featureIdMap=featureIdMap)
 
+  # If the input data.frame has extra columns, we will either add them as
+  # annotations to the individual genes in the geneset, or as metadata for the
+  # geneset. We disambiguate between gene-level annotation and gene-set level
+  # annotations for each column be seeing if there is only one value for the
+  # column within the collection,name grouping.
   add.cols <- setdiff(names(x), req.cols)
+
   if (length(add.cols)) {
-    db <- merge(gdb@db, x, by=req.cols, all.x=TRUE)
-    db0 <- setkeyv(copy(gdb@db), req.cols)
-    setkeyv(db, req.cols)
-    if (!all.equal(db0, db[, req.cols, with=FALSE])) {
-      warning("Something unexpected happened merging more feature metadata",
-              immediate.=TRUE)
+    # Identify which columns in `x` are gene- or gene-set level annotations
+    # a geneset level annotatoin is one that has the same value for all rows
+    # in a particular collection,name combination
+    is.gs.level <- local({
+      xtype <- x[, {
+        lapply(.SD, function(vals) all(vals == vals[1L]))
+      }, by = c("collection", "name")]
+      sapply(xtype[, add.cols, with = FALSE], all)
+    })
+    gs.level <- names(is.gs.level)[is.gs.level]
+    gn.level <- names(is.gs.level)[!is.gs.level]
+    if (length(gn.level)) {
+      ganno.cnames <- c(req.cols, gn.level)
+      ganno <- x[, ganno.cnames, with = FALSE]
+      db <- merge(gdb@db, ganno, by=req.cols, all.x=TRUE)
+      db0 <- setkeyv(copy(gdb@db), req.cols)
+      setkeyv(db, req.cols)
+      if (!all.equal(db0, db[, req.cols, with=FALSE])) {
+        warning("Something unexpected happened merging more feature metadata",
+                immediate.=TRUE)
+      }
+      gdb@db <- db
     }
-    gdb@db <- db
+    if (length(gs.level)) {
+      gs.anno <- x[, c(key(proto@table), gs.level), with = FALSE]
+      # quick way to get first row of each group without materializing .SD
+      idxs <- gs.anno[, list(idx = .I[1L]), by = key(proto@table)]
+      gs.anno <- gs.anno[idxs$idx]
+      gdb <- addGeneSetMetadata(gdb, gs.anno)
+    }
   }
+
   gdb
 }
 
