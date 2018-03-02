@@ -200,18 +200,30 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
 
   # If the input data.frame has extra columns, we will either add them as
   # annotations to the individual genes in the geneset, or as metadata for the
-  # geneset. We disambiguate between gene-level annotation and gene-set level
-  # annotations for each column be seeing if there is only one value for the
-  # column within the collection,name grouping.
+  # geneset as a whole. We disambiguate between gene-level annotation and
+  # gene-set level annotations for each column be teseting if there is only one
+  # value for the column within all collection,name groupings. If this is TRUE,
+  # then the column is a geneset-level annotation, otherwise it's a gene-level
+  # (WITHIN geneset) annotation
   add.cols <- setdiff(names(x), req.cols)
 
   if (length(add.cols)) {
-    # Identify which columns in `x` are gene- or gene-set level annotations
-    # a geneset level annotatoin is one that has the same value for all rows
-    # in a particular collection,name combination
     is.gs.level <- local({
+      # test if every value of each extra meta column (add.cols) is equal to
+      # the first element (ie. they are all the same)
       xtype <- x[, {
-        lapply(.SD, function(vals) all(vals == vals[1L]))
+        lapply(.SD, function(vals) {
+          # test for equality (==) doesn't work if vals[1L] is NA or NULL
+          # all(vals == vals[1L])
+          if (is.na(vals[1L])) {
+            all(is.na(vals))
+          } else if (is.null(vals[1L])) {
+            # is this possible?
+            all(is.null(vals))
+          } else {
+            all(vals == vals[1L])
+          }
+        })
       }, by = c("collection", "name")]
       sapply(xtype[, add.cols, with = FALSE], all)
     })
