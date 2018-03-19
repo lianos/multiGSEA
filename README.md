@@ -6,7 +6,7 @@ Overview
 The `multiGSEA` package was built to facilitate the use of gene sets in the analysis of high throughput genomics data (primarily RNA-seq). Analysts can orchestrate any number of GSEA methods across a specific contrast using the unified interface provided by the `multiGSEA` function, and a shiny application is provided that facilitates the exploration and interpration of GSEA results.
 
 -   The `multiGSEA` function is a wrapper that orchestrates the execution of any number of user-specified gene set enrichment analyses (GSEA) over a particular experimental contrast of interest. This will create a `MultiGSEAResult` object which stores the results of each GSEA method internally, allowing for easy query and retrieval.
--   A sister [`multiGSEA.shiny`](/lianos/multiGSEA.shiny) package provides an `explore` function, which is invoked on `MultiGSEAREsult` objects returned from a call to `multiGSEA`. The shiny application facilitates interactive exploration of these GSEA results. This application can also be deployed to a shiny server and can be initialized by uploading a serialized `MultiGSEAResult` `*.rds` file.
+-   A sister [`multiGSEA.shiny`](https://github.com/lianos/multiGSEA.shiny) package provides an `explore` function, which is invoked on `MultiGSEAREsult` objects returned from a call to `multiGSEA`. The shiny application facilitates interactive exploration of these GSEA results. This application can also be deployed to a shiny server and can be initialized by uploading a serialized `MultiGSEAResult` `*.rds` file.
 
 Full details that outline the use of this software package is provided in the [package's vignette](vignettes/multiGSEA.Rmd), however a brief description is outlined below.
 
