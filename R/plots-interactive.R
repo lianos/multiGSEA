@@ -147,7 +147,7 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
     layout(xaxis=list(title="logFC", range=xrange),
            yaxis=list(title="Density"),
-           title=main, dragmode="select")
+           showlegend = with.legend, title=main, dragmode="select")
   if ('symbol' %in% names(gs.dat) && with.points) {
     p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
                      hoverinfo='text',
@@ -212,7 +212,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 
   ## ggplotly keeps suggesting to use the github/ggplot2
   p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
-    layout(yaxis=list(title=value), dragmode="select") %>%
+    layout(yaxis=list(title=value), dragmode="select", showlegend = with.legend) %>%
     plotly_build
 
   p$x$source <- shiny_source
