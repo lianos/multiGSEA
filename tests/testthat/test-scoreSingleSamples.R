@@ -1,7 +1,6 @@
 context("Single Sample Gene Set Scoring")
 suppressPackageStartupMessages({
   suppressWarnings({
-    # library(NMF)
     # library(GSDecon)
     # library(parallel)
     library(GSVA)

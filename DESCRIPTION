@@ -11,47 +11,44 @@ Description: Provides a unified interface to orchestrate a plethora of GSEA
     scoring methods. This package also provides robust interactive tools to
     explore GSEA results.
 Depends:
-    edgeR (>= 3.18.1),
-    limma (>= 3.32.5)
+    edgeR (>= 3.18.1)
 Imports:
-    methods,
     BiocGenerics,
     BiocParallel,
     Biobase (>= 2.24.0),
+    circlize,
+    ComplexHeatmap,
+    ggplot2 (>= 2.2.0),
     GSEABase,
     GSVA,
-    reshape2,
     data.table (>= 1.10.4),
+    magrittr,
     Matrix,
-    ggplot2 (>= 2.2.0),
-    plotly (>= 4.7.0),
     matrixStats,
-    ComplexHeatmap,
-    circlize,
-    magrittr
+    methods,
+    plotly (>= 4.7.0),
+    reshape2
 Suggests:
+    AnnotationDbi,
+    BiocStyle,
+    DESeq2,
+    dplyr,
+    dtplyr,
     GeneSetDb.MSigDB.Hsapiens.v61,
     GeneSetDb.MSigDB.Mmusculus.v61,
     fgsea,
+    GO.db,
     goseq,
-    DESeq2,
-    testthat,
-    rvest,
-    AnnotationDbi,
+    KernSmooth,
+    knitr,
+    org.Hs.eg.db,
+    org.Mm.eg.db,
     PANTHER.db (>= 1.0.3),
     reactome.db,
-    GO.db,
-    knitr,
-    NMF,
-    BiocStyle,
-    airway,
     SummarizedExperiment,
-    rprojroot,
     statmod,
-    org.Hs.eg.db,
-    KernSmooth,
-    dplyr,
-    dtplyr
+    testthat,
+    webshot
 VignetteBuilder: knitr
 License: MIT + file LICENSE
 Encoding: UTF-8
