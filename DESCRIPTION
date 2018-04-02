@@ -89,7 +89,7 @@ Collate:
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
-    'vignette-helpers.R'
     'volcano_plot.R'
     'zzz.R'
 RoxygenNote: 6.0.1
+biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq

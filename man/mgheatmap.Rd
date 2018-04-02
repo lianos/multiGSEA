@@ -6,7 +6,8 @@
 \usage{
 mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
   split = TRUE, scores = NULL, name = NULL, rm.collection.prefix = TRUE,
-  rm.dups = FALSE, recenter = TRUE, rescale = TRUE, ...)
+  rm.dups = FALSE, recenter = TRUE, rescale = TRUE, rename.rows = NULL,
+  ...)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -22,7 +23,7 @@ collection if \code{aggregate.by != 'none'}, or based on gene sets
 if \code{aggregate.by == "none"}.}
 
 \item{scores}{If \code{aggregate.by != "none"} you can pass in a precomupted
-\code{\link{scoreSingleSamples}} result, otherwise one will be
+\code{\link[=scoreSingleSamples]{scoreSingleSamples()}} result, otherwise one will be
 computed internally. Note that if this is a \code{data.frame} of
 pre-computed scores, the \code{gdb} is largely irrelevant (but still
 required).}
@@ -31,23 +32,52 @@ required).}
 appear in more than one geneset? Defaults to \code{FALSE}}
 
 \item{recenter}{do you want to mean center the rows of the heatmap matrix
-prior to calling \code{\link[ComplexHeatmap]{Heatmap}}?}
+prior to calling \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}?}
 
 \item{rescale}{do you want to standardize the row variance to one on the
 values of the heatmap matrix prior to calling
-\code{\link[ComplexHeatmap]{Heatmap}}?}
+\code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}?}
 
-\item{...}{parameters to send down to \code{\link{scoreSingleSamples}} or
-\code{\link[ComplexHeatmap]{Heatmap}}.}
+\item{rename.rows}{defaults to \code{NULL}, which induces no action. A \code{string}
+can be specified which will do a 'smart lookup' on meta information on the
+rows of \code{x} to swap out that column for the rownames of \code{x} (ie. from a
+\code{DGEList$genes} or \code{fData(ExpressionSet)}. A two-column data.frame can
+also be provided where the first column is assumed to be \code{rownames(x)} and
+the second is the renamed stuff.}
+
+\item{...}{parameters to send down to \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} or
+\code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.}
 
 \item{the}{\code{GeneSetDb} object that holds the genesets to plot}
 }
 \value{
-list(heatmap=ComplexHeatmap, matrix=X)
+A \code{Heatmap} object.
 }
 \description{
 Create a "geneset smart" heatmap.
 }
+\section{Renaming Heatmap Rows}{
+
+You might want to rename the rows of the heatmap
+"on the way out". For instance, \code{x} might be a \code{DGEList} whose
+\code{rownames()} are gene identifieres, but you want the rownames of the
+heatmap to gene symbols. You can perform this renaming using the
+\code{rename.rows} parameter.
+\itemize{
+\item If \code{rename.rows} is \code{NULL}, then nothing is done.
+\item If \code{rename.rows} is a \code{string}, then we assume that \code{x} has an associated
+metadata \code{data.frame} over its rows and that \code{rename.rows} names one of
+its columns, ie. \code{DGEList$genes[[rename.rows]]} or
+\code{fData(ExpressionSet)[[rename.rows]]}. The values in that column will
+be swapped out for \code{x}'s rownames
+\item If \code{rename.rows} is a two-column data.frame, the first column is assumed
+to be \code{rownames(x)} and the second is what you want to rename it to.
+}
+
+[[rename.rows]: R:[rename.rows
+[[rename.rows]: R:[rename.rows
+}
+
 \examples{
 
 vm <- exampleExpressionSet()
