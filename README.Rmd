@@ -18,7 +18,7 @@ The `multiGSEA` package was built to facilitate the use of gene sets in the
 analysis of high throughput genomics data (primarily RNA-seq). Analysts can
 orchestrate any number of GSEA methods across a specific contrast using the
 unified interface provided by the `multiGSEA` function, and a shiny application
-is provided that facilitates the exploration and interpration of GSEA results.
+is provided that facilitates the exploration and interpretation of GSEA results.
 
 * The `multiGSEA` function is a wrapper that orchestrates the execution of any
   number of user-specified gene set enrichment analyses (GSEA) over a particular
@@ -42,7 +42,7 @@ A [thorough vignette](vignettes/multiGSEA.Rmd) is provided with this package
 that illustrates the multitudes of its gene-set-based analysis functionality.
 For convenience, a small taster of the package's functionality is included here.
 
-A subset of the RNA-seq data tumor/nomral samples in the BRCA indication from
+A subset of the RNA-seq data tumor/normal samples in the BRCA indication from
 the TCGA are provided in this package. We will use that data to perform a
 "camera" and "fry" gene set enrichment analysis of tumor vs normal samples
 using the MSigDB hallmark and c2 gene set collections  with `multiGSEA`.
@@ -66,7 +66,7 @@ results(mg, "camera") %>%
 
 The shift in expression of the genes within the top gene set can be visualized
 with the `iplot` function below. This plot produces interactive graphics, but
-rasteriaed versions are saved for use with this `README` file:
+rasterized versions are saved for use with this `README` file:
 
 ```{r, eval = FALSE}
 iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type="density")
@@ -86,7 +86,7 @@ expression statistics.
 
 # Installation
 
-The multiGSEA suite of package will soon be submitted to bioconductor and
+The multiGSEA suite of packages will soon be submitted to bioconductor and
 installable via the recommended `biocLite` mechanism. In the meantime, these
 packages can be installed like so:
 
