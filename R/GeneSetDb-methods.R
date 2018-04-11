@@ -170,7 +170,7 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
   if (any(inactive)) {
     msg <- paste("Deactivating %d gene sets because conformation of GeneSetDb",
                  "to the target creates gene sets smaller than %s or greater",
-                 "than %s")
+                 "than %s\n")
     msg <- sprintf(msg, sum(inactive), as.character(min.gs.size),
                    as.character(max.gs.size))
     warning(msg, immediate.=TRUE)

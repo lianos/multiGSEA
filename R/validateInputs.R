@@ -35,7 +35,7 @@
 validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
                            require.x.rownames=TRUE, ...) {
   if (is.character(methods)) {
-    .unsupportedGSEAmethods(methods)
+    check.gsea.methods(methods)
   } else if (!is.null(methods)) {
     stop("Illegal type for `methods`: ", class(methods)[1L])
   }

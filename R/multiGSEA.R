@@ -172,27 +172,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   if (missing(methods) || length(methods) == 0) {
     methods <- 'logFC'
   }
-  ## We know all goes well when on.exit() sees that this variable is set to TRUE
-  finished <- FALSE
-  on.exit({
-    if (!finished) {
-      warning("An error in `multiGSEA` stopped it from finishing ...",
-              immediate.=TRUE)
-    }
-  })
 
   ## ---------------------------------------------------------------------------
-  ## Argument sanity checking
-
-  ## error-out if illegal methods were specified here
-  .unsupportedGSEAmethods(methods)
-
-  if (length(methods) == 0) {
-    stop("0 GSEA methods provided")
-  }
-
-  ## ---------------------------------------------------------------------------
-  ## Sanitize / cache inputs
+  ## Argument sanity checking and input sanitization
   args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
   inputs <- validateInputs(x, design, contrast, methods,
                            require.x.rownames=TRUE, ...)
@@ -225,7 +207,19 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   methods <- setdiff(methods, 'logFC')
 
   ## Let's do this!
+  results <- list()
   if (length(methods) > 0L) {
+    ## I'm being too clever here. The loop that calls the GSEA methods catches
+    ## errors thrown during iteration. I'm putting some code here to eat those
+    ## error so that the other GSEA methods that can finish.
+    finished <- FALSE
+    on.exit({
+      if (!finished) {
+        warning("An error in `multiGSEA` stopped it from finishing ...",
+                immediate.=TRUE)
+      }
+    })
+
     ## Many methods create a geneset to rowname/index vector. Let's run it once
     ## here and pass it along
     gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
@@ -242,15 +236,17 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                error=function(e) list(NULL))
     }, BPPARAM=BPPARAM)
     names(res1) <- methods
+
+    failed <- sapply(res1, function(res) is.null(res[[1L]]))
+    if (any(failed)) {
+      warning("The following GSEA methods failed and are removed from the ",
+              "downstream result: ",
+              paste(names(res1)[failed], collapse=','), "\n")
+      res1 <- res1[!failed]
+    }
+
     results <- unlist(res1, recursive=FALSE)
     names(results) <- sub('\\.all$', '', names(results))
-    failed <- sapply(results, is.null)
-    if (any(failed)) {
-      warning("The following GSEA methods failed: ",
-              paste(names(results)[failed], collapse=','))
-    }
-  } else {
-    results <- list()
   }
 
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
@@ -274,6 +270,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 }
 
 ## helper function that runs a single GSEA method
+## this method insures that all results (even for single data.frames) are
+## returned in a list object. this allows for the goseq.all, goseq.up,
+## goseq.down hacks from a single goseq call
 mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
                    use.treat=TRUE, feature.min.logFC=log2(1.25),
                    feature.max.padj=0.10, verbose=FALSE, ...) {
@@ -289,18 +288,6 @@ mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
   if (!isTRUE(attr(res, 'mgunlist', TRUE))) {
     res <- list(all=res)
   }
-  # out <- lapply(res, function(dt) {
-  #   pcols <- grepl('^pval\\.?', names(dt))
-  #   if (any(pcols)) {
-  #     for (i in which(pcols)) {
-  #       pcol <- names(dt)[i]
-  #       pname <- paste0(sub('pval', 'padj', pcol), '.by.collection')
-  #       padjs <- p.adjust(dt[[pcol]], 'BH')
-  #       dt[, (pname) := padjs]
-  #     }
-  #   }
-  #   dt
-  # })
   out <- res
   if (verbose) {
     message("... ", fn.name, " finishd without error.")

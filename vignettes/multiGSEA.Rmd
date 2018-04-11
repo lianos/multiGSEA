@@ -13,11 +13,12 @@ abstract: >
   sample gene set scoring and geneset-centric heatmaps for visualization.
   multiGSEA package version: `r packageVersion("multiGSEA")`
 output:
-  rmarkdown::html_document:
+  BiocStyle::html_document:
     self_contained: yes
     highlight: pygments
     toc: true
     fig_width: 5
+    css: mystyles.css
 vignette: >
   %\VignetteIndexEntry{Performing gene set enrichment analyses with multiGSEA}
   %\VignetteEngine{knitr::rmarkdown}
@@ -92,7 +93,7 @@ subtypes.
 Let's begin by setting up our work environment for exploratory analysis using
 the multiGSEA package.
 
-```{r init-env}
+```{r init-env, warning=FALSE, message=FALSE}
 library(multiGSEA)
 library(magrittr)
 library(reshape2)
@@ -129,7 +130,7 @@ vm <- exampleExpressionSet(dataset='tumor-subtype', do.voom=TRUE)
 Below you'll find the `$targets` data.frame of the voomed `EList`
 
 ```{r}
-vm$targets[, c('Patient_ID', 'Cancer_Status', 'PAM50subtype')]
+knitr::kable(vm$targets[, c('Patient_ID', 'Cancer_Status', 'PAM50subtype')])
 ```
 
 <div class="note">
@@ -226,7 +227,7 @@ enumeration of the methods you want to use in your analysis.
 The call to `multiGSEA` will perform these analyses and return a
 `MultiGSEAResult` object which you can then use for downstream analysis.
 
-```{r run-multi-GSEA, eval=!exists('mg'), results='hide'}
+```{r run-multi-GSEA, eval=!exists('mg'), results='hide', warning=FALSE}
 mg <- multiGSEA(
   gdb, vm, vm$design, cm[, 'BvH'],
   methods=c('camera', 'fry', 'goseq'),
@@ -547,7 +548,7 @@ geneset.
 
 Let's see what the simple 2-geneset version of the heatmap above looks like:
 
-```{r gshm2}
+```{r gshm2, fig.height = 2.5, fig.width = 8}
 mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="ewm", split=FALSE,
           show_row_names=TRUE, show_column_names=FALSE,
           top_annotation=col.anno)
@@ -556,7 +557,7 @@ mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="ewm", split=FALSE,
 Plotted in this way, we can now show the activity of a greater number of
 genesets
 
-```{r gshm-all}
+```{r gshm-all, fig.height = 6, fig.width = 8}
 mgheatmap(gdb.sub, vm.bh, col=hcols,
           aggregate.by='ewm', split=TRUE,
           show_row_names=TRUE, show_column_names=FALSE,

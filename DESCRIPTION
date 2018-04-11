@@ -1,10 +1,11 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.10.13
+Version: 0.10.14
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
-    person("Genentech", role = c("cph", "fnd"))
+    person("Genentech", role = c("cph", "fnd")),
+    person("Denali Therapeutics", role = c("fnd"))
     )
 Description: Provides a unified interface to orchestrate a plethora of GSEA
     methods over a contrast of interest as well as single sample gene set

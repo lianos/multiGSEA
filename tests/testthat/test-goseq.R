@@ -58,7 +58,7 @@ test_that("internal goseq mimics goseq package", {
   expect_equal(goseq.res, my.res, check.attributes=FALSE)
 
   ## Run goseq through multiGSEA to make sure it matches goseq.res
-  mg <- multiGSEA(gsd, vm, vm$design, methods=c('goseq'), feature.bias=mylens)
+  mg <- multiGSEA(gsd, vm, vm$design, methods="goseq", feature.bias=mylens)
   expect_true(setequal(resultNames(mg), c("goseq", "goseq.up", "goseq.down")))
   my2 <- result(mg, 'goseq')
   my2$key <- encode_gskey(my2)

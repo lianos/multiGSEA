@@ -79,7 +79,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      feature.max.padj=0.10, logFC=NULL, ...) {
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
-
+  # stop("testing graceful method failure in multiGSEA call")
   if (is.null(logFC)) {
     treat.lfc <- if (use.treat) feature.min.logFC else NULL
     logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
