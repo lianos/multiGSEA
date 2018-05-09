@@ -6,8 +6,8 @@
 \usage{
 mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
   split = TRUE, scores = NULL, name = NULL, rm.collection.prefix = TRUE,
-  rm.dups = FALSE, recenter = TRUE, rescale = TRUE, rename.rows = NULL,
-  ...)
+  rm.dups = FALSE, recenter = TRUE, rescale = recenter,
+  rename.rows = NULL, zlim = NULL, ...)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -44,6 +44,12 @@ rows of \code{x} to swap out that column for the rownames of \code{x} (ie. from 
 \code{DGEList$genes} or \code{fData(ExpressionSet)}. A two-column data.frame can
 also be provided where the first column is assumed to be \code{rownames(x)} and
 the second is the renamed stuff.}
+
+\item{zlim}{A \code{length(zlim) == 2} numeric vector that defines the min and max
+values from \code{x} for the \code{colorRamp2} call. If the heatmap that is being
+drawn is "0-centered"-ish, then this defines the real values of the
+fenceposts. If not, then these define the quantiles to trim off the top
+or bottom.}
 
 \item{...}{parameters to send down to \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} or
 \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.}

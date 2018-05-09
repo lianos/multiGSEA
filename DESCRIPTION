@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.10.14
+Version: 0.10.15
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Genentech", role = c("cph", "fnd")),
@@ -28,7 +28,8 @@ Imports:
     matrixStats,
     methods,
     plotly (>= 4.7.0),
-    reshape2
+    reshape2,
+    viridis
 Suggests:
     AnnotationDbi,
     BiocStyle,

@@ -4,7 +4,7 @@
 \alias{multiGSEA.methods}
 \title{Lists the supported GSEA methods by multiGSEA}
 \usage{
-multiGSEA.methods()
+multiGSEA.methods(names.only = TRUE)
 }
 \description{
 Lists the supported GSEA methods by multiGSEA

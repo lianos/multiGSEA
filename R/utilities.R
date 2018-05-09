@@ -116,6 +116,11 @@ as_matrix <- function(y) {
     y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
   } else if (is.data.frame(y)) {
     y <- as.matrix(y)
+  } else if (is(y, "SingleCellExperiment")) {
+    if (!"logcounts" %in% assayNames(y)) {
+      stop("`logcounts` assay missing from SingleCellExperiment")
+    }
+    y <- SummarizedExperiment::assay(y, "logcounts")
   }
   stopifnot(is.matrix(y) && is.numeric(y))
   y

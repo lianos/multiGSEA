@@ -20,6 +20,7 @@
 #' @export
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap
+#' @importFrom viridis viridis
 #'
 #' @param the `GeneSetDb` object that holds the genesets to plot
 #' @param x the data matrix
@@ -48,6 +49,11 @@
 #'   `DGEList$genes` or `fData(ExpressionSet)`. A two-column data.frame can
 #'   also be provided where the first column is assumed to be `rownames(x)` and
 #'   the second is the renamed stuff.
+#' @param zlim A `length(zlim) == 2` numeric vector that defines the min and max
+#'   values from `x` for the `colorRamp2` call. If the heatmap that is being
+#'   drawn is "0-centered"-ish, then this defines the real values of the
+#'   fenceposts. If not, then these define the quantiles to trim off the top
+#'   or bottom.
 #' @param ... parameters to send down to [scoreSingleSamples()] or
 #'   [ComplexHeatmap::Heatmap()].
 #' @return A `Heatmap` object.
@@ -61,19 +67,25 @@ mgheatmap <- function(gdb, x, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
                       split=TRUE, scores=NULL,
                       name=NULL, rm.collection.prefix=TRUE,
-                      rm.dups=FALSE, recenter=TRUE, rescale=TRUE,
-                      rename.rows = NULL, ...) {
+                      rm.dups=FALSE, recenter=TRUE, rescale=recenter,
+                      rename.rows = NULL, zlim = NULL, ...) {
   stopifnot(is(gdb, "GeneSetDb"))
   # split.by <- match.arg(split.by)
   drop1.split <- missing(split)
   stopifnot(is.logical(split) && length(split) == 1L)
   if (!is.null(scores)) stopifnot(is.data.frame(scores))
+  if (!missing(zlim) && !is.null(zlim)) {
+    stopifnot(
+      is.numeric(zlim),
+      length(zlim) == 2L,
+      zlim[1] < zlim[2])
+  }
 
   X <- as_matrix(x)
   stopifnot(ncol(X) > 1L)
 
   if (!is.null(rename.rows)) {
-    stopifnot(is.character(rename.rows), length(rename.rows) == 1L)
+    # stopifnot(is.character(rename.rows), length(rename.rows) == 1L)
     if (is.character(rename.rows)) {
       if (is(x, "DGEList")) {
         mdf <- x$genes
@@ -95,11 +107,6 @@ mgheatmap <- function(gdb, x, col=NULL,
       ncol(rename.rows) == 2L,
       is.character(rename.rows[[2L]]))
   }
-
-  if (is.null(col)) {
-    col <- colorRamp2(c(-2, 0, 2), c('#1F294E', 'white', '#6E0F11'))
-  }
-  stopifnot(is.function(col))
 
   if (is.null(scores)) {
     aggregate.by <- match.arg(aggregate.by)
@@ -135,6 +142,45 @@ mgheatmap <- function(gdb, x, col=NULL,
     X <- X[ridx,,drop=FALSE]
     split <- if (split) gdbc.df$key else NULL
   }
+
+  # What kind of colorscale are we going to use?
+  # If this is 0-centered ish, we use a red-white-blue scheme, otherwise
+  # we use viridis.
+  if (is.null(col)) {
+    # Is 0 close to the center of the score distribution?
+    mean.X <- mean(X)
+    zero.center <- mean.X >= -0.2 && mean.X <= 0.2
+    if (zero.center) {
+      if (missing(zlim)) {
+        fpost <- quantile(abs(X), 0.975)
+        zlim <- c(-fpost, fpost)
+      } else if (is.null(zlim)) {
+        zlim <- c(min(X), max(X))
+      } else {
+        stopifnot(zlim[1L] < 0, zlim[2L] > 0)
+      }
+      col <- colorRamp2(
+        c(zlim[1L], 0, zlim[2L]),
+        c('#1F294E', 'white', '#6E0F11'))
+    } else {
+      if (missing(zlim)) {
+        fpost <- quantile(X, c(0.025, 0.975))
+      } else if (is.null(zlim)) {
+        fpost <- c(min(X), max(X))
+      } else {
+        stopifnot(all(zlim >= 0), all(zlim <= 1))
+        fpost <- quantile(X, zlim)
+      }
+      breaks <- quantile(X, seq(0, 1, by = 0.25))
+      if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[4L]) {
+        stop("Illegal values for zlim")
+      }
+      breaks[1] <- fpost[1]
+      breaks[5] <- fpost[2]
+      col <- colorRamp2(breaks, viridis::viridis(5))
+    }
+  }
+  stopifnot(is.function(col))
 
   if (drop1.split && !is.null(split) && length(unique(split)) == 1L) {
     split <- NULL
