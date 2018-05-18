@@ -82,7 +82,9 @@ mgheatmap <- function(gdb, x, col=NULL,
   }
 
   X <- as_matrix(x)
-  stopifnot(ncol(X) > 1L)
+  stopifnot(
+    ncol(X) > 1L,
+    !any(is.na(X)))
 
   if (!is.null(rename.rows)) {
     # stopifnot(is.character(rename.rows), length(rename.rows) == 1L)
@@ -133,14 +135,25 @@ mgheatmap <- function(gdb, x, col=NULL,
     split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
 
-  if (recenter || rescale) {
-    X <- t(scale(t(X), center=recenter, scale=rescale))
-  }
-
   if (aggregate.by == 'none') {
     ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
     X <- X[ridx,,drop=FALSE]
     split <- if (split) gdbc.df$key else NULL
+  }
+
+  if (recenter || rescale) {
+    X <- t(scale(t(X), center=recenter, scale=rescale))
+    isna <- which(is.na(X), arr.ind = TRUE)
+    if (nrow(isna) > 0L) {
+      na.rows <- unique(isna[, "row"])
+      if (length(na.rows) == nrow(X)) {
+        stop("All rows removed after `scale`")
+      }
+      warning(length(na.rows), " features NA'd during `scale`, ",
+              "these are removed", immediate. = TRUE)
+      X <- X[-na.rows,,drop = FALSE]
+      split <- split[-na.rows]
+    }
   }
 
   # What kind of colorscale are we going to use?

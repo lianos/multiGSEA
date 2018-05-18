@@ -184,7 +184,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   contrast <- inputs$contrast
 
   if (!is.conformed(gsd, x)) {
-    gsd <- conform(gsd, x)
+    gsd <- conform(gsd, x, ...)
   }
 
   ## ---------------------------------------------------------------------------
