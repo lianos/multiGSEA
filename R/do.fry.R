@@ -51,7 +51,7 @@ do.fry <- function(gsd, x, design, contrast=ncol(design),
   }
 
   res <- do.call(limma::fry, call.args)
-  if (add.dummy) res <- subset(res, name != dummy.gs)
+  if (add.dummy) res <- res[rownames(res) != dummy.gs,,drop = FALSE]
   setattr(res, 'rawresult', TRUE)
 }
 
@@ -62,6 +62,12 @@ mgres.fry <- function(res, gsd, ...) {
     as.data.table(res))
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
+
+  # result may not have an FDR column if we only tested on geneset
+  # https://github.com/lianos/multiGSEA/issues/7
+  if (is.null(out[["FDR"]])) out[, FDR := p.adjust(PValue)]
+  if (is.null(out[["FDR.Mixed"]])) out[, FDR.Mixed := p.adjust(PValue.Mixed)]
+
   rcols <- c(PValue='pval', FDR='padj', PValue.Mixed='pval.mixed',
              FDR.Mixed='padj.mixed')
   rcols <- rcols[names(rcols) %in% names(out)]

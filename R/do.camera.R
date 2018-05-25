@@ -60,5 +60,10 @@ mgres.camera <- function(res, gsd, ...) {
     as.data.table(res))
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
+
+  # camera result doesn't have an FDR column if we only tested on geneset
+  # https://github.com/lianos/multiGSEA/issues/7
+  if (is.null(out[["FDR"]])) out[, FDR := p.adjust(PValue)]
+
   setnames(out, c('PValue', 'FDR'), c('pval', 'padj'))
 }

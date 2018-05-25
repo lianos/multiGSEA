@@ -41,6 +41,11 @@ mgres.roast <- function(res, gsd, ...) {
   NGenes <- NULL # silence R CMD check NOTEs
   out[, NGenes := NULL]
 
+  # result may not have an FDR column if we only tested on geneset
+  # https://github.com/lianos/multiGSEA/issues/7
+  if (is.null(out[["FDR"]])) out[, FDR := p.adjust(PValue)]
+  if (is.null(out[["FDR.Mixed"]])) out[, FDR.Mixed := p.adjust(PValue.Mixed)]
+
   setnames(out,
            c('PValue', 'FDR', 'PValue.Mixed', 'FDR.Mixed'),
            c('pval', 'padj', 'pval.mixed', 'padj.mixed'))
