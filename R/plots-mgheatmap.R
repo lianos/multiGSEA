@@ -1,4 +1,8 @@
-#' Create a "geneset smart" heatmap.
+#' Creates a "geneset smart" ComplexHeatmap::Heatmap
+#'
+#' Encapsulates many common "moves" you'll make when trying to make a heatmap,
+#' especially if you are trying to show geneset activity across a panel of
+#' samples.
 #'
 #' @section Renaming Heatmap Rows:
 #' You might want to rename the rows of the heatmap
@@ -22,8 +26,9 @@
 #' @importFrom ComplexHeatmap Heatmap
 #' @importFrom viridis viridis
 #'
-#' @param the `GeneSetDb` object that holds the genesets to plot
 #' @param x the data matrix
+#' @param gdb `GeneSetDb` object that holds the genesets to plot. Defaults to
+#'   `NULL`, which will plot all rows in `x`.
 #' @param col a colorRamp(2) function
 #' @param aggregate.by the method used to generate single-sample geneset
 #'   scores. Default is `none` which plots heatmap at the gene level
@@ -54,6 +59,7 @@
 #'   drawn is "0-centered"-ish, then this defines the real values of the
 #'   fenceposts. If not, then these define the quantiles to trim off the top
 #'   or bottom.
+#' @param transpose Flip display so that rows are columns. Default is `FALSE`.
 #' @param ... parameters to send down to [scoreSingleSamples()] or
 #'   [ComplexHeatmap::Heatmap()].
 #' @return A `Heatmap` object.
@@ -62,14 +68,29 @@
 #'
 #' vm <- exampleExpressionSet()
 #' gdb <- exampleGeneSetDb()
-#' mgh <- mgheatmap(gdb, vm, aggregate.by='ewm', split=TRUE)
-mgheatmap <- function(gdb, x, col=NULL,
+#' col.anno <- ComplexHeatmap::HeatmapAnnotation(
+#'   vm$targets[, c("Cancer_Status", "PAM50subtype")],
+#'   col = list(
+#'     Cancer_Status = c(normal = "grey", tumor = "red"),
+#'     PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
+#' mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+#'                  top_annotation = col.anno, show_column_names = FALSE,
+#'                  column_title = "Gene Set Activity in BRCA subset")
+mgheatmap <- function(x, gdb = NULL, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
                       split=TRUE, scores=NULL,
                       name=NULL, rm.collection.prefix=TRUE,
-                      rm.dups=FALSE, recenter=TRUE, rescale=recenter,
-                      rename.rows = NULL, zlim = NULL, ...) {
+                      rm.dups=FALSE, recenter=TRUE, rescale=FALSE,
+                      rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
+  X <- as_matrix(x)
+
+  if (is.null(gdb)) {
+    # make a one geneset GeneSetDb
+    faux.gs <- list(allgenes = rownames(x))
+    gdb <- GeneSetDb(faux.gs, collectionName = "faux")
+  }
   stopifnot(is(gdb, "GeneSetDb"))
+
   # split.by <- match.arg(split.by)
   drop1.split <- missing(split)
   stopifnot(is.logical(split) && length(split) == 1L)
@@ -81,7 +102,6 @@ mgheatmap <- function(gdb, x, col=NULL,
       zlim[1] < zlim[2])
   }
 
-  X <- as_matrix(x)
   stopifnot(
     ncol(X) > 1L,
     !any(is.na(X)))
@@ -119,7 +139,7 @@ mgheatmap <- function(gdb, x, col=NULL,
       aggregate.by %in% scores$method)
   }
 
-  gdbc <- suppressWarnings(conform(gdb, X, min.gs.size=2L))
+  gdbc <- suppressWarnings(conform(gdb, X, ...))
   gdbc.df <- as.data.frame(gdbc) ## keep only genes that matched in gdb.df
   gdbc.df$key <- encode_gskey(gdbc.df)
 

@@ -6,7 +6,6 @@
 \alias{exampleGeneSetDb}
 \alias{exampleGeneSetDF}
 \alias{exampleMultiGSEAResult}
-\alias{exampleGeneSetDF}
 \title{Functions that load data for use in examples and testing.}
 \usage{
 exampleExpressionSet(dataset = c("tumor-vs-normal", "tumor-subtype"),

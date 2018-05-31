@@ -59,6 +59,9 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   } else {
   }
 
+  # Two samples seem to be outliers:
+  axe.samples <- c("TCGA-A2-A3XV-01A-21R-A239-07", "TCGA-A2-A3XU-01A-12R-A22U-07")
+  out <- out[, !colnames(out) %in% axe.samples]
   out
 }
 

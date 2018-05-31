@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.10.17
+Version: 0.11.0
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Genentech", role = c("cph", "fnd")),
@@ -93,5 +93,5 @@ Collate:
     'utilities.R'
     'volcano_plot.R'
     'zzz.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq

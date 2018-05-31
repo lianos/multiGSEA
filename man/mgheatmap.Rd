@@ -2,15 +2,19 @@
 % Please edit documentation in R/plots-mgheatmap.R
 \name{mgheatmap}
 \alias{mgheatmap}
-\title{Create a "geneset smart" heatmap.}
+\title{Creates a "geneset smart" ComplexHeatmap}
 \usage{
-mgheatmap(gdb, x, col = NULL, aggregate.by = c("none", "ewm", "zscore"),
-  split = TRUE, scores = NULL, name = NULL, rm.collection.prefix = TRUE,
-  rm.dups = FALSE, recenter = TRUE, rescale = recenter,
-  rename.rows = NULL, zlim = NULL, ...)
+mgheatmap(x, gdb = NULL, col = NULL, aggregate.by = c("none", "ewm",
+  "zscore"), split = TRUE, scores = NULL, name = NULL,
+  rm.collection.prefix = TRUE, rm.dups = FALSE, recenter = TRUE,
+  rescale = recenter, rename.rows = NULL, zlim = NULL,
+  transpose = FALSE, ...)
 }
 \arguments{
 \item{x}{the data matrix}
+
+\item{gdb}{\code{GeneSetDb} object that holds the genesets to plot. Defaults to
+\code{NULL}, which will plot all rows in \code{x}.}
 
 \item{col}{a colorRamp(2) function}
 
@@ -51,16 +55,18 @@ drawn is "0-centered"-ish, then this defines the real values of the
 fenceposts. If not, then these define the quantiles to trim off the top
 or bottom.}
 
+\item{transpose}{Flip display so that rows are columns. Default is \code{FALSE}.}
+
 \item{...}{parameters to send down to \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} or
 \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.}
-
-\item{the}{\code{GeneSetDb} object that holds the genesets to plot}
 }
 \value{
 A \code{Heatmap} object.
 }
 \description{
-Create a "geneset smart" heatmap.
+Encapsulates many common "moves" you'll make when trying to make a heatmap,
+especially if you are trying to show geneset activity across a panel of
+samples.
 }
 \section{Renaming Heatmap Rows}{
 
@@ -88,5 +94,5 @@ to be \code{rownames(x)} and the second is what you want to rename it to.
 
 vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
-mgh <- mgheatmap(gdb, vm, aggregate.by='ewm', split=TRUE)
+mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE)
 }

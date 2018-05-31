@@ -17,6 +17,4 @@ a data.frame with (collection,name) columns
 \description{
 The "key" form often comes out as rownames to matrices and such, or
 particularly for sending genesets down into wrapped methods, like do.camera.
-
-Splits collection,name combinations to collection,name data.frames
 }

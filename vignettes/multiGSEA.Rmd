@@ -535,7 +535,7 @@ hcols <- circlize::colorRamp2(c(-1.2, 0, 1.2),
 col.anno <- HeatmapAnnotation(
   vm.bh$targets[, 'PAM50subtype', drop=FALSE],
   col=list(PAM50subtype=c(Basal="gray", Her2="black")))
-mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="none", split=TRUE,
+mgheatmap(vm.bh, gdb.2, col=hcols, aggregate.by="none", split=TRUE,
           show_row_names=FALSE, show_column_names=FALSE,
           top_annotation=col.anno)
 ```
@@ -549,7 +549,7 @@ geneset.
 Let's see what the simple 2-geneset version of the heatmap above looks like:
 
 ```{r gshm2, fig.height = 2.5, fig.width = 8}
-mgheatmap(gdb.2, vm.bh, col=hcols, aggregate.by="ewm", split=FALSE,
+mgheatmap(vm.bh, gdb.2, col=hcols, aggregate.by="ewm", split=FALSE,
           show_row_names=TRUE, show_column_names=FALSE,
           top_annotation=col.anno)
 ```
@@ -558,7 +558,7 @@ Plotted in this way, we can now show the activity of a greater number of
 genesets
 
 ```{r gshm-all, fig.height = 6, fig.width = 8}
-mgheatmap(gdb.sub, vm.bh, col=hcols,
+mgheatmap(vm.bh, gdb.sub, col=hcols,
           aggregate.by='ewm', split=TRUE,
           show_row_names=TRUE, show_column_names=FALSE,
           top_annotation=col.anno)

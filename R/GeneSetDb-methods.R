@@ -111,17 +111,13 @@ setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
 ##' head(geneSets(gdb))
 setMethod("conform", c(x="GeneSetDb"),
 function(x, target, unique.by=c('none', 'mean', 'var'),
-         min.gs.size=3L, max.gs.size=Inf, match.tolerance=0.25, ...) {
+         min.gs.size=2L, max.gs.size=Inf, match.tolerance=0.25, ...) {
   unique.by <- match.arg(unique.by)
   if (unique.by != 'none') {
     stop("`unique.by` must be 'none' for now")
   }
   if (min.gs.size == 1) {
     stop("Doing GSEA with 1 gene doesn't really make sense, does it?")
-  }
-  if (min.gs.size < 3) {
-    warning("Think twice before using genesets of size 2 in your GSEA",
-            immediate.=TRUE)
   }
   if (max.gs.size < min.gs.size) {
     stop("max.gs.size must be larger than min.gs.size")
