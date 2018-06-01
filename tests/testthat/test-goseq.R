@@ -71,7 +71,7 @@ test_that("internal goseq mimics goseq package", {
 
 
 
-test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
+test_that("goseq hypergeometric pvals close to do.hyperGeometricTest", {
   vm <- exampleExpressionSet(do.voom=TRUE)
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
@@ -94,5 +94,5 @@ test_that("goseq hypergeometric test is like do.hyperGeometricTest", {
     abline(0,1,col='red')
   }
 
-  expect_equal(mygoh$over_represented_pvalue, myhyp$pval, tolerance=0.015)
+  expect_equal(mygoh$over_represented_pvalue, myhyp$pval, tolerance=0.025)
 })

@@ -2,13 +2,13 @@
 % Please edit documentation in R/plots-mgheatmap.R
 \name{mgheatmap}
 \alias{mgheatmap}
-\title{Creates a "geneset smart" ComplexHeatmap}
+\title{Creates a "geneset smart" ComplexHeatmap::Heatmap}
 \usage{
 mgheatmap(x, gdb = NULL, col = NULL, aggregate.by = c("none", "ewm",
   "zscore"), split = TRUE, scores = NULL, name = NULL,
   rm.collection.prefix = TRUE, rm.dups = FALSE, recenter = TRUE,
-  rescale = recenter, rename.rows = NULL, zlim = NULL,
-  transpose = FALSE, ...)
+  rescale = FALSE, rename.rows = NULL, zlim = NULL, transpose = FALSE,
+  ...)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -94,5 +94,12 @@ to be \code{rownames(x)} and the second is what you want to rename it to.
 
 vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
-mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE)
+col.anno <- ComplexHeatmap::HeatmapAnnotation(
+  vm$targets[, c("Cancer_Status", "PAM50subtype")],
+  col = list(
+    Cancer_Status = c(normal = "grey", tumor = "red"),
+    PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
+mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+                 top_annotation = col.anno, show_column_names = FALSE,
+                 column_title = "Gene Set Activity in BRCA subset")
 }

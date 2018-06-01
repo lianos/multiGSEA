@@ -478,13 +478,14 @@ subset.GeneSetDb <- function(x, keep) {
   ## 4a
   keep.cm <- subset(x@collectionMetadata, collection %in% keep.db$collection)
   ## 4b
-  cc <- keep.table[, list(name='count', value=.N), by='collection']
-  setkeyv(cc, key(keep.cm))
+  # NOTE: remove count collectionMetadata
+  # cc <- keep.table[, list(name='count', value=.N), by='collection']
+  # setkeyv(cc, key(keep.cm))
 
   ## Currently (data.table v1.9.4( there's nothing I can do to make i.value a
   ## list element and this `set` mojo doesn't work either
-  value <- i.value <- NULL # silence R CMD check NOTEs
-  suppressWarnings(keep.cm[cc, value := list(i.value)])
+  # value <- i.value <- NULL # silence R CMD check NOTEs
+  # suppressWarnings(keep.cm[cc, value := list(i.value)])
   ## update.idxs <- keep.cm[cc, which=TRUE]
   ## val.idx <- which(colnames(keep.cm) == 'value')
   ## for (idx in seq_along(update.idxs)) {
@@ -577,7 +578,13 @@ setMethod("collectionMetadata",
   c(x="GeneSetDb", collection="missing", name="missing"),
   function(x, collection, name, as.dt=FALSE) {
     out <- x@collectionMetadata
-    if (!as.dt) out <- setDF(copy(out))
+    if (!as.dt) {
+      warning("The collectionMetadata has a list column ('value'). This ",
+              "may not play well with data.frame based operation. Consider ",
+              "returning as a data.table by setting `as.dt = TRUE`",
+              immediate. = TRUE)
+      out <- setDF(copy(out))
+    }
     out
   })
 
@@ -587,7 +594,13 @@ setMethod("collectionMetadata",
     stopifnot(isSingleCharacter(collection))
     hasGeneSetCollection(x, collection, as.error=TRUE)
     out <- x@collectionMetadata[collection]
-    if (!as.dt) out <- setDF(copy(out))
+    if (!as.dt) {
+      warning("The collectionMetadata has a list column ('value'). This ",
+              "may not play well with data.frame based operation. Consider ",
+              "returning as a data.table by setting `as.dt = TRUE`",
+              immediate. = TRUE)
+      out <- setDF(copy(out))
+    }
     out
   })
 

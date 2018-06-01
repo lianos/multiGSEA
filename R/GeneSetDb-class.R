@@ -289,9 +289,17 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   db <- init.gsd.db.from.list.of.lists(x)
   tbl <- init.gsd.table.from.db(db)
 
+  # pre-release versions of multiGSEA included a geneset count per collection
+  # but I am removing this going forward.
+  # NOTE: remove count collectionMetadata
+  # meta <- tbl[, {
+  #   list(name=c('count', "url_function"),
+  #        value=list(.N, function(x, y) NA_character_))
+  # }, by='collection']
+  # setkeyv(meta, c('collection', 'name'))
   meta <- tbl[, {
-    list(name=c('count', "url_function"),
-         value=list(.N, function(x, y) NA_character_))
+    list(name=c("url_function"),
+         value=list(function(x, y) NA_character_))
   }, by='collection']
   setkeyv(meta, c('collection', 'name'))
 
@@ -481,12 +489,14 @@ setValidity("GeneSetDb", function(object) {
   if (any(dupd)) {
     return('Duplicated (collection,name) entries in @collectionMetadata')
   }
+
+  # NOTE: remove count collectionMetadata
   ## 2. Collect information about required metadata entries for each collection,
   ##    ie. the count of genesets in the collection and their url_function
   # name <- value <- NULL # silence R CMD check NOTEs
   cm.info <- object@collectionMetadata[, {
     is.url.fn <- which(name == 'url_function')
-    is.count <- which(name == 'count')
+    # is.count <- which(name == 'count')
     if (length(is.url.fn) == 0) {
       url.fn.status <- 'not-defined'
     } else {
@@ -499,12 +509,13 @@ setValidity("GeneSetDb", function(object) {
         url.fn.status <- 'ok'
       }
     }
-    if (length(is.count) == 0) {
-      count <- NA_integer_
-    } else {
-      count <- value[[is.count]]
-    }
-    list(count=count, url.fn.stauts=url.fn.status)
+    # if (length(is.count) == 0) {
+    #   count <- NA_integer_
+    # } else {
+    #   count <- value[[is.count]]
+    # }
+    # list(count=count, url.fn.stauts=url.fn.status)
+    list(url.fn.stauts=url.fn.status)
   }, keyby='collection']
 
   ## 3. Minimally ensure we have metadata for all genesets
@@ -526,11 +537,12 @@ setValidity("GeneSetDb", function(object) {
     return(msg)
   }
 
+  # NOTE: remove count collectionMetadata
   ## 5. Check that counts match per geneset
-  if (any(gs.info$count != cm.info$count)) {
-    msg <- paste('gene set counts per collection do not match')
-    return(msg)
-  }
+  # if (any(gs.info$count != cm.info$count)) {
+  #   msg <- paste('gene set counts per collection do not match')
+  #   return(msg)
+  # }
 
   TRUE
 }

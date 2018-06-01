@@ -34,6 +34,11 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   dataset <- match.arg(dataset)
   es.all <- readRDS(system.file('extdata', 'testdata', 'TCGA-BRCA-some.es.rds',
                                 package='multiGSEA'))
+
+  # Two samples seem to be outliers:
+  axe.samples <- c("TCGA-A2-A3XV-01A-21R-A239-07", "TCGA-A2-A3XU-01A-12R-A22U-07")
+  es.all <- es.all[, !colnames(es.all) %in% axe.samples]
+
   pData(es.all) <- within(pData(es.all), {
     Cancer_Status <- factor(as.character(Cancer_Status))
     PAM50subtype <- factor(as.character(PAM50subtype))
@@ -59,9 +64,6 @@ exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
   } else {
   }
 
-  # Two samples seem to be outliers:
-  axe.samples <- c("TCGA-A2-A3XV-01A-21R-A239-07", "TCGA-A2-A3XU-01A-12R-A22U-07")
-  out <- out[, !colnames(out) %in% axe.samples]
   out
 }
 
@@ -109,7 +111,7 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
 ##' @export
 exampleGeneSetDb <- function() {
   out <- GeneSetDb(exampleGeneSets())
-  colls <- unique(collectionMetadata((out))$collection)
+  colls <- unique(collectionMetadata(out, as.dt = TRUE)$collection)
   fn <- function(x, y) {
     paste0('http://www.broadinstitute.org/gsea/msigdb/cards/', y, '.html')
   }

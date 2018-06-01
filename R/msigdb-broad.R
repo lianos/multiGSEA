@@ -106,6 +106,8 @@ getMSigGeneSetDb <- function(collection, species='human',
     out <- subset.GeneSetDb(out, keep)
   }
 
+  # NOTE: remove count collectionMetadata
+  out@collectionMetadata <- out@collectionMetadata[name != "count"]
   out
 }
 

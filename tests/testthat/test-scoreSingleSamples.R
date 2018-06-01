@@ -27,7 +27,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   expect_equal(plage.mg, plage.ex,info='GSVA,gsva')
 
   es <- exampleExpressionSet(do.voom=FALSE)
-  counts <- exprs(es)
+  counts <- Biobase::exprs(es)
 
   gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=4,
                    verbose=FALSE)

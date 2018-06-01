@@ -7,7 +7,7 @@ test_that("edgeR::quasiLikelihood pipeline run for logFC's of DGEList input", {
   d <-  model.matrix(~ es$Cancer_Status)
   colnames(d)[2] <- 'tumor'
 
-  y <- DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
+  y <- DGEList(Biobase::exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- calcNormFactors(y)
   y <- estimateDisp(y, d, robust=TRUE)
 

@@ -9,7 +9,7 @@ test_that('romer runs equivalently from do.romer vs direct call', {
   d <-  model.matrix(~ es$Cancer_Status)
   colnames(d)[2] <- 'tumor'
 
-  y <- edgeR::DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
+  y <- edgeR::DGEList(Biobase::exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- edgeR::calcNormFactors(y)
   y <- edgeR::estimateDisp(y, d)
 

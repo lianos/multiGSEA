@@ -6,8 +6,13 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
 
   vm <- exampleExpressionSet(do.voom=TRUE)
   gdb <- exampleGeneSetDb()
-  mgt <- multiGSEA(gdb, vm, vm$design, 'tumor', 'fgsea', nperm=nperm,
-                   gseaParam=gseaParam, score.by='t')
+
+  # Since Bioc 3.5, running fgsea warns about ties in preranked stats
+  expect_warning({
+    mgt <- multiGSEA(gdb, vm, vm$design, 'tumor', 'fgsea', nperm=nperm,
+                     gseaParam=gseaParam, score.by='t')
+  }, "ties")
+
 
   gs.idxs <- as.list(geneSetDb(mgt), active.only=TRUE, value='x.id')
   min.max <- range(sapply(gs.idxs, length))
@@ -16,8 +21,10 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
   ranks.lfc <- setNames(lfc[['logFC']], lfc[['featureId']])
   ranks.t <- setNames(lfc[['t']], lfc[['featureId']])
 
-  rest <- fgsea::fgsea(gs.idxs, ranks.t, nperm, min.max[1], min.max[2],
-                       gseaParam=gseaParam)
+  expect_warning({
+    rest <- fgsea::fgsea(gs.idxs, ranks.t, nperm, min.max[1], min.max[2],
+                         gseaParam=gseaParam)
+  }, "ties")
 
   mgres <- mgt %>%
     result('fgsea') %>%
@@ -29,8 +36,11 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
   expect_true(all(same.sign))
 
   ## passing in a preranked vector gives same results
-  mgpre <- multiGSEA(gdb, ranks.t, methods='fgsea', nperm=nperm,
-                     gseaParam=gseaParam, score.by='t')
+  expect_warning({
+    mgpre <- multiGSEA(gdb, ranks.t, methods='fgsea', nperm=nperm,
+                       gseaParam=gseaParam, score.by='t')
+  }, "ties")
+
   rpre <- result(mgpre, 'fgsea')
   comp.cols <- c('collection', 'name', 'N', 'n', 'size')
   expect_equal(rpre[, comp.cols], mgres[, comp.cols])

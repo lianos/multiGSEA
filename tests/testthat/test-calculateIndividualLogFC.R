@@ -62,7 +62,7 @@ test_that("treat pvalues are legit", {
   d <- es@design
 
   vm <- limma::voom(es, d)
-  y <- edgeR::DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
+  y <- edgeR::DGEList(Biobase::exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- edgeR::calcNormFactors(y)
   y <- edgeR::estimateDisp(y, d, robust=TRUE)
 
@@ -104,7 +104,7 @@ test_that("edgeR's glmLRT or QLF are used when asked", {
   gdb <- exampleGeneSetDb()
   d <- es@design
 
-  y <- edgeR::DGEList(exprs(es), group=es$Cancer_Status, genes=fData(es))
+  y <- edgeR::DGEList(Biobase::exprs(es), group=es$Cancer_Status, genes=fData(es))
   y <- edgeR::calcNormFactors(y)
   y <- edgeR::estimateDisp(y, d, robust=TRUE)
 
