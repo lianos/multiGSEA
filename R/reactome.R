@@ -1,6 +1,9 @@
 ##' @importFrom GSEABase EntrezIdentifier
 ##' @export
-getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE) {
+getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
+                                 id.type = c("entrez", "ensembl")) {
+  id.type <- match.arg(id.type)
+  id.col <- if (id.type == "entrez") "ENTREZID" else "ENSG"
   rdb <- tryCatch(loadNamespace('reactome.db'), error=function(e) NULL)
   if (is.null(rdb)) {
     stop("reactome.db package required for this functionality")
