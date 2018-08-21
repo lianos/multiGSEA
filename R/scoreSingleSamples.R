@@ -48,6 +48,10 @@
 ##' @param drop.sd Genes with a standard deviation across columns in \code{y}
 ##'   that is less than this value will be dropped.
 ##' @param verbose make some noise? Defaults to \code{FALSE}.
+##' @param recenter,rescale If \code{TRUE}, the scores computed by each method
+##'   are centered and scaled using the \code{scale} function. These variables
+##'   correspond to the \code{center} and \code{scale} parameters in the
+##'   \code{scale} function. Defaults to \code{FALSE}.
 ##' @param ... these parameters are passed down into the the individual single
 ##'   sample scoring funcitons to customize them further.
 ##' @template asdt-param
@@ -66,7 +70,8 @@
 ##' corplot(sw[, c("ewm", "ssgsea", "zscore")],
 ##'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
-                               drop.sd=1e-4, verbose=FALSE, ..., as.dt=FALSE) {
+                               drop.sd=1e-4, verbose=FALSE, recenter = FALSE,
+                               rescale = FALSE, ..., as.dt=FALSE) {
   methods <- tolower(methods)
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
@@ -102,6 +107,9 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose,
               gs.idxs=gs.idxs, ...)
     rownames(out) <- gs.names
+    if (recenter || rescale) {
+      out <- t(scale(t(out), center = recenter, scale = rescale))
+    }
     if (!as.matrix) {
       out <- melt.gs.scores(gdb, out)
       out$method <- method
@@ -286,6 +294,8 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
                                                     center=TRUE, scale=TRUE,
                                                     uncenter=center,
                                                     unscale=scale,
+                                                    weights=NULL,
+                                                    normalize=FALSE,
                                                     as.matrix=FALSE,
                                                     gs.idxs=NULL, ...) {
   stopifnot(is.matrix(y))
@@ -297,7 +307,8 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
 
   scores <- sapply(gs.idxs, function(idxs) {
     eigenWeightedMean(y[idxs,], center=center, scale=scale,
-                      uncenter=uncenter, unscale=unscale)$score
+                      uncenter=uncenter, unscale=unscale, weights=weights,
+                      normalize=normalize, all.x=y)$score
   })
 
   out <- t(scores)

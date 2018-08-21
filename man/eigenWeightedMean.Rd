@@ -71,10 +71,18 @@ specific geneset score is higher than the aggregate control-geneset score.
 Genes used for the control set can either be randomly sampled from the
 rows of the \code{all.x} expression matrix (when \code{normalize = TRUE}), or
 explicitly specified by a row-identifier character vectore passed to the
-\code{normalize} parameter.
+\code{normalize} parameter. In both cases, the code prefers to select a
+random-control geneset to be of equal size as \code{nrow(x)}. If that's not
+possible, we use as many genes as we can get.
 
 Note that normalization requires an expression matrix to be passed into
 the \code{all.x} parameter, whose columns match 1:1 to the columns in \code{x}.
+Calling \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} with \code{method = "ewm", normalize = TRUE}
+handles this transparently.
+
+This idea to implement this method of normalizatition was inspried from
+the \code{ctrl.score} normalization found in Seurat's
+\code{\link[Seurat:AddModuleScore]{Seurat::AddModuleScore()}} function.
 }
 
 \examples{

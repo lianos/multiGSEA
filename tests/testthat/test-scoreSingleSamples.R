@@ -77,3 +77,11 @@ test_that("eigenWeightedMean with equal weights can be same as zScore", {
   expect_equal(ewm.z$score, zs$score)
   expect_is(all.equal(ewm.pc1$score, zs$score), 'character')
 })
+
+test_that("normalization works in eigenWeightedMean", {
+  unorm <- scoreSingleSamples(gdb, vm, method = "ewm", normalize = FALSE)
+  norm <- scoreSingleSamples(gdb, vm, method = "ewm", normalize = TRUE)
+  expect_true(all(unorm$score >= norm$score))
+  expect_true(all(unorm$score >= 0))
+  expect_true(any(norm$score < 0))
+})

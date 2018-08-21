@@ -1,25 +1,59 @@
 ##' Single sample gene set score by a weighted average of the genes in geneset
 ##'
-##' Weights for the genes in \code{x} are calculated by the percent of which
-##' they contribute to the principal component indicated by \code{eigengene}.
+##' Weights for the genes in `x` are calculated by the percent of which
+##' they contribute to the principal component indicated by `eigengene`.
 ##'
-##' You will generally want the rows of the gene x sample matrix \code{x} to
-##' be z-transformed. If it is not already, ensure that \code{center} and
-##' \code{scale} are set to \code{TRUE}.
+##' You will generally want the rows of the gene x sample matrix ``x` to
+##' be z-transformed. If it is not already, ensure that `center` and
+##' `scale` are set to `TRUE`.
 ##'
-##' When uncenter and/or unscale are \code{FALSE}, it means that the scores
+##' When uncenter and/or unscale are `FALSE`, it means that the scores
 ##' should be applied on the centered or scaled values, respectively.
 ##'
+##' @section Normalization:
+##' Scores can be normalized against a set of control genes. This results in
+##' negative and postiive sample scores. Positive scores are ones where the
+##' specific geneset score is higher than the aggregate control-geneset score.
+##'
+##' Genes used for the control set can either be randomly sampled from the
+##' rows of the `all.x` expression matrix (when `normalize = TRUE`), or
+##' explicitly specified by a row-identifier character vectore passed to the
+##' `normalize` parameter. In both cases, the code prefers to select a
+##' random-control geneset to be of equal size as `nrow(x)`. If that's not
+##' possible, we use as many genes as we can get.
+##'
+##' Note that normalization requires an expression matrix to be passed into
+##' the `all.x` parameter, whose columns match 1:1 to the columns in `x`.
+##' Calling [scoreSingleSamples()] with `method = "ewm", normalize = TRUE`
+##' handles this transparently.
+##'
+##' This idea to implement this method of normalizatition was inspried from
+##' the `ctrl.score` normalization found in Seurat's
+##' [Seurat::AddModuleScore()] function.
+##'
+##' @md
 ##' @export
 ##' @importFrom stats weighted.mean
 ##' @inheritParams gsdScore
 ##' @seealso scoreSingleSamples
+##'
 ##' @param eigengene the PC used to extract the gene weights from
 ##' @param weights a user can pass in a prespecified set of waits using a named
-##'   numeric vector. The names must be a superset of \code{rownames(x)}. If
-##'   this is \code{NULL}, we calculate the "eigenweights".
+##'   numeric vector. The names must be a superset of `rownames(x)`. If
+##'   this is `NULL`, we calculate the "eigenweights".
+##' @param normalize If `TRUE`, each score is normalized to a randomly
+##'   selected geneset score. The size of the randomly selected geneset is
+##'   the same as the corresponding geneset. This only works with the "ewm"
+##'   method when unscale and uncenter are `TRUE`. By default, this is
+##'   set to `FALSE`, and normalization does not happen. Instead of
+##'   passing in `TRUE`, the user can pass in a vector of gene names
+##'   (identifiers) to be considered for random geneset creation. If no
+##'   genes are provided, then all genes in `y` are fair game.
+##' @param all.x if the user is trying to normalize these scores, an expression
+##'   matrix that has superset of the control genes needs to be provided, where
+##'   the columns of `all.x` must correspond to this in `x`.
 ##' @return A list of useful transformation information. The caller is likely
-##'   most interested in the \code{$score} vector, but other bits related to
+##'   most interested in the `$score` vector, but other bits related to
 ##'   the SVD/PCA decomposition are included for the ride.
 ##' @examples
 ##' vm <- exampleExpressionSet(do.voom=TRUE)
@@ -35,8 +69,10 @@
 ##' all.equal(s2, scores) ## should be TRUE
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
-                              weights=NULL, ...) {
+                              weights=NULL, normalize = FALSE, all.x = NULL,
+                              ...) {
   x <- as_matrix(x)
+  do.norm <- isTRUE(normalize) || (is.character(normalize) && length(normalize))
 
   if (is.numeric(weights)) {
     if (length(weights) == 1) {
@@ -56,6 +92,35 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
     xx <- x
   }
   res[['score']] <- apply(xx, 2, weighted.mean, res[['weights']])
+
+  if (do.norm) {
+    all.x <- try(as_matrix(all.x), silent = TRUE)
+    if (!is.matrix(all.x)) {
+      stop("`all.x` needs to be an expression matrix to normalize scores")
+    }
+    if (!isTRUE(all.equal(colnames(x), colnames(all.x)))) {
+      stop("Must have 1:1 match for columns between `x` and `all.x`")
+    }
+    if (!(uncenter && unscale)) {
+      warning("Normalization only works when uncenter & unscale are TRUE, ",
+              "skipping normalization ...")
+    } else {
+      if (!is.character(normalize)) {
+        normalize <- rownames(all.x)
+      }
+      normalize <- intersect(normalize, rownames(all.x))
+      if (length(normalize) < nrow(x)) {
+        warning(length(normalize) - nrow(x), " too few genes in all.x to use ",
+                "for normalization: only using ", length(normalize), " genes")
+      } else {
+        normalize <- sample(normalize, nrow(x))
+      }
+      norm.x <- all.x[normalize,,drop = FALSE]
+      norm.x <- colMeans(norm.x)
+      res[["score"]] <- res[["score"]] - norm.x
+    }
+  }
+
   res
 }
 
@@ -131,6 +196,8 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 ##' released GSDecon package by Jason Hackney}
 ##'
 ##' @export
+##' @importFrom irlba svdr
+##'
 ##' @param x An expression matrix of genes x samples. When using this to score
 ##'   geneset activity, you want to reduce the rows of \code{x} to be only the
 ##'   genes from the given gene set.
@@ -159,7 +226,8 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 ##'            setNames(score, sample))
 ##' all.equal(s2, scores) ## should be TRUE
 gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
-                     uncenter=center, unscale=scale, retx=FALSE, ...) {
+                     uncenter=center, unscale=scale, retx=FALSE, ...,
+                     .use_irlba = FALSE) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
   x <- as_matrix(x)
@@ -168,7 +236,12 @@ gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
   cnt <- attributes(xs)$"scaled:center"
   scl <- attributes(xs)$"scaled:scale"
 
-  s <- svd(xs)
+  if (.use_irlba) {
+    s <- svdr(x, k = min(eigengene, nrow(x), ncol(x)))
+  } else {
+    s <- svd(xs)
+  }
+
   newD <- s$d
   newD[-eigengene] <- 0
   s$D <- diag(newD)
