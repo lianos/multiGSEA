@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.11.1
+Version: 0.11.2
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Genentech", role = c("cph", "fnd")),
@@ -23,6 +23,7 @@ Imports:
     GSEABase,
     GSVA,
     data.table (>= 1.10.4),
+    irlba,
     magrittr,
     Matrix,
     matrixStats,
@@ -64,6 +65,7 @@ Collate:
     'aaa.R'
     'cache-utils.R'
     'calculateIndividualLogFC.R'
+    'create-housekeeping-sigs.R'
     'validateInputs.R'
     'do.camera.R'
     'do.cameraPR.R'
@@ -78,20 +80,21 @@ Collate:
     'do.romer.R'
     'do.svdGeneSetTest.R'
     'geneSetSummaryByGenes.R'
+    'get-housekeeping.R'
+    'get-msigdb.R'
+    'get-panther.R'
+    'get-reactome.R'
     'gsea-helpers.R'
-    'msigdb-broad.R'
     'multiGSEA.R'
     'package.R'
-    'panther.R'
     'plots-corplot.R'
     'plots-interactive.R'
     'plots-mgheatmap.R'
-    'reactome.R'
     'scoreSingleSamples.R'
     'single-sample-scoring-methods.R'
     'testing-helpers.R'
     'utilities.R'
     'volcano_plot.R'
     'zzz.R'
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0
 biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq

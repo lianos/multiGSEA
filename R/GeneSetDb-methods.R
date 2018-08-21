@@ -766,7 +766,6 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
       stop(sprintf("Invalid value used to update %s,%s", xcoll, xname))
     }
   }
-
   ## update or replace
   if (!is.list(value)) {
     value <- list(value)
@@ -786,7 +785,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
     x@collectionMetadata <- setkeyv(rbind(x@collectionMetadata, add.me),
                                     key(x@collectionMetadata))
   } else {
-    x@collectionMetadata$value[idx] <- value
+    x@collectionMetadata$value[[idx]] <- value
   }
   x
 }
