@@ -12,11 +12,12 @@ resultNames(x)
 result(x, name, stats.only = FALSE, rank.by = c("pval", "t", "logFC"),
   add.suffix = FALSE, as.dt = FALSE)
 
-results(x, names = resultNames(x), stats.only = TRUE, rank.by = c("pval",
-  "logFC", "t"), add.suffix = length(names) > 1L, as.dt = FALSE)
+results(x, names = resultNames(x), stats.only = TRUE,
+  rank.by = c("pval", "logFC", "t"), add.suffix = length(names) > 1L,
+  as.dt = FALSE)
 
-tabulateResults(x, names = resultNames(x), max.p = 0.2, p.col = c("padj",
-  "padj.by.collection", "pval"), as.dt = FALSE)
+tabulateResults(x, names = resultNames(x), max.p = 0.2,
+  p.col = c("padj", "padj.by.collection", "pval"), as.dt = FALSE)
 }
 \arguments{
 \item{x}{MultiGSEAResult}

@@ -5,7 +5,8 @@
 \title{Single sample gene set score by a weighted average of the genes in geneset}
 \usage{
 eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE, weights = NULL, ...)
+  uncenter = center, unscale = scale, retx = FALSE, weights = NULL,
+  normalize = FALSE, all.x = NULL, ...)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score
@@ -31,24 +32,51 @@ variables.}
 \item{weights}{a user can pass in a prespecified set of waits using a named
 numeric vector. The names must be a superset of \code{rownames(x)}. If
 this is \code{NULL}, we calculate the "eigenweights".}
+
+\item{normalize}{If \code{TRUE}, each score is normalized to a randomly
+selected geneset score. The size of the randomly selected geneset is
+the same as the corresponding geneset. This only works with the "ewm"
+method when unscale and uncenter are \code{TRUE}. By default, this is
+set to \code{FALSE}, and normalization does not happen. Instead of
+passing in \code{TRUE}, the user can pass in a vector of gene names
+(identifiers) to be considered for random geneset creation. If no
+genes are provided, then all genes in \code{y} are fair game.}
+
+\item{all.x}{if the user is trying to normalize these scores, an expression
+matrix that has superset of the control genes needs to be provided, where
+the columns of \code{all.x} must correspond to this in \code{x}.}
 }
 \value{
 A list of useful transformation information. The caller is likely
-  most interested in the \code{$score} vector, but other bits related to
-  the SVD/PCA decomposition are included for the ride.
+most interested in the \code{$score} vector, but other bits related to
+the SVD/PCA decomposition are included for the ride.
 }
 \description{
 Weights for the genes in \code{x} are calculated by the percent of which
 they contribute to the principal component indicated by \code{eigengene}.
 }
 \details{
-You will generally want the rows of the gene x sample matrix \code{x} to
-be z-transformed. If it is not already, ensure that \code{center} and
-\code{scale} are set to \code{TRUE}.
+You will generally want the rows of the gene x sample matrix ``x\code{to be z-transformed. If it is not already, ensure that}center` and
+`scale` are set to `TRUE`.
 
 When uncenter and/or unscale are \code{FALSE}, it means that the scores
 should be applied on the centered or scaled values, respectively.
 }
+\section{Normalization}{
+
+Scores can be normalized against a set of control genes. This results in
+negative and postiive sample scores. Positive scores are ones where the
+specific geneset score is higher than the aggregate control-geneset score.
+
+Genes used for the control set can either be randomly sampled from the
+rows of the \code{all.x} expression matrix (when \code{normalize = TRUE}), or
+explicitly specified by a row-identifier character vectore passed to the
+\code{normalize} parameter.
+
+Note that normalization requires an expression matrix to be passed into
+the \code{all.x} parameter, whose columns match 1:1 to the columns in \code{x}.
+}
+
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- conform(getMSigGeneSetDb('h'), vm)

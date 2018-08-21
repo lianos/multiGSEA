@@ -6,9 +6,10 @@
 \usage{
 volcanoPlot(x, stats = "dge", xaxis = "logFC", yaxis = "pval", idx,
   xtfrm = base::identity, ytfrm = function(vals) -log10(vals),
-  xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis), highlight = NULL,
-  horiz_lines = c(padj = 0.1), xhex = NULL, yhex = NULL, width = NULL,
-  height = NULL, shiny_source = "mgvolcano", ggtheme = theme_bw(), ...)
+  xlab = xaxis, ylab = sprintf("-log10(\%s)", yaxis),
+  highlight = NULL, horiz_lines = c(padj = 0.1), xhex = NULL,
+  yhex = NULL, width = NULL, height = NULL,
+  shiny_source = "mgvolcano", ggtheme = theme_bw(), ...)
 }
 \arguments{
 \item{highlight}{A vector of featureIds to highlight, or a GeneSetDb

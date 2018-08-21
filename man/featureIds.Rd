@@ -14,8 +14,8 @@ featureIds(x, i, j, value = c("featureId", "x.id", "x.idx"),
 \S4method{featureIds}{GeneSetDb}(x, i, j, value = c("featureId", "x.id",
   "x.idx"), active.only = is.conformed(x), ...)
 
-\S4method{featureIds}{MultiGSEAResult}(x, i, j, value = c("featureId", "x.id",
-  "x.idx"), active.only = TRUE, ...)
+\S4method{featureIds}{MultiGSEAResult}(x, i, j, value = c("featureId",
+  "x.id", "x.idx"), active.only = TRUE, ...)
 }
 \arguments{
 \item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or

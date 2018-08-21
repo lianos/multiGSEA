@@ -4,7 +4,8 @@
 \alias{all.equal.GeneSetDb}
 \title{Checks equality (feature parity) between GeneSetDb objects}
 \usage{
-\method{all.equal}{GeneSetDb}(target, current, features.only = FALSE, ...)
+\method{all.equal}{GeneSetDb}(target, current, features.only = FALSE,
+  ...)
 }
 \arguments{
 \item{target}{The reference \code{GeneSetDb} to compare against}

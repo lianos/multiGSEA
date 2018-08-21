@@ -7,8 +7,8 @@
 mgheatmap(x, gdb = NULL, col = NULL, aggregate.by = c("none", "ewm",
   "zscore"), split = TRUE, scores = NULL, name = NULL,
   rm.collection.prefix = TRUE, rm.dups = FALSE, recenter = TRUE,
-  rescale = FALSE, rename.rows = NULL, zlim = NULL, transpose = FALSE,
-  ...)
+  rescale = FALSE, rename.rows = NULL, zlim = NULL,
+  transpose = FALSE, ...)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -85,9 +85,6 @@ be swapped out for \code{x}'s rownames
 \item If \code{rename.rows} is a two-column data.frame, the first column is assumed
 to be \code{rownames(x)} and the second is what you want to rename it to.
 }
-
-[[rename.rows]: R:[rename.rows
-[[rename.rows]: R:[rename.rows
 }
 
 \examples{

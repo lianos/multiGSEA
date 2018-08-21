@@ -6,8 +6,8 @@
 \usage{
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
-  treat.lfc = NULL, confint = TRUE, with.fit = FALSE, use.qlf = TRUE,
-  ..., as.dt = FALSE)
+  treat.lfc = NULL, confint = TRUE, with.fit = FALSE,
+  use.qlf = TRUE, ..., as.dt = FALSE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not

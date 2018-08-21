@@ -4,9 +4,9 @@
 \alias{do.logFC}
 \title{Worker function that is never really called within a multiGSEA pipeline}
 \usage{
-\method{do}{logFC}(gsd, x, design, contrast = ncol(design), outdir = NULL,
-  use.cache = TRUE, logFC = NULL, robust.fit = FALSE,
-  robust.eBayes = FALSE, ...)
+\method{do}{logFC}(gsd, x, design, contrast = ncol(design),
+  outdir = NULL, use.cache = TRUE, logFC = NULL,
+  robust.fit = FALSE, robust.eBayes = FALSE, ...)
 }
 \description{
 This is a "pass through" function. The caller asks for \code{method="logFC"}

@@ -4,8 +4,8 @@
 \alias{hyperGeometricTest}
 \title{Perform Hypergeometric Enrichment tests across a GeneSetDb.}
 \usage{
-hyperGeometricTest(gsd, selected, universe, direction = c("over", "under"),
-  do.conform = TRUE, as.dt = FALSE)
+hyperGeometricTest(gsd, selected, universe, direction = c("over",
+  "under"), do.conform = TRUE, as.dt = FALSE)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}

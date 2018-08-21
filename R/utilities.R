@@ -121,8 +121,12 @@ as_matrix <- function(y) {
       stop("`logcounts` assay missing from SingleCellExperiment")
     }
     y <- SummarizedExperiment::assay(y, "logcounts")
+  } else if (is(y, "Matrix")) {
+    y <- Matrix::as.matrix(y)
   }
-  stopifnot(is.matrix(y) && is.numeric(y))
+  stopifnot(
+    (is.matrix(y) && is.numeric(y)) || (is(y, "Matrix") && is(y, "Mnumeric"))
+  )
   y
 }
 

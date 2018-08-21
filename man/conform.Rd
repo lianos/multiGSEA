@@ -12,8 +12,9 @@ conform(x, ...)
 
 unconform(x, ...)
 
-\S4method{conform}{GeneSetDb}(x, target, unique.by = c("none", "mean", "var"),
-  min.gs.size = 2L, max.gs.size = Inf, match.tolerance = 0.25, ...)
+\S4method{conform}{GeneSetDb}(x, target, unique.by = c("none", "mean",
+  "var"), min.gs.size = 2L, max.gs.size = Inf,
+  match.tolerance = 0.25, ...)
 
 is.conformed(x, to)
 }

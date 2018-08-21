@@ -10,8 +10,8 @@
 geneSetSummaryByGenes(x, features, with.features = TRUE,
   feature.rename = NULL, ...)
 
-\S4method{geneSetSummaryByGenes}{GeneSetDb}(x, features, with.features = TRUE,
-  feature.rename = NULL, ..., as.dt = FALSE)
+\S4method{geneSetSummaryByGenes}{GeneSetDb}(x, features,
+  with.features = TRUE, feature.rename = NULL, ..., as.dt = FALSE)
 
 \S4method{geneSetSummaryByGenes}{MultiGSEAResult}(x, features,
   with.features = TRUE, feature.rename = NULL, method = NULL,

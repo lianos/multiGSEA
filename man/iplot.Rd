@@ -8,7 +8,8 @@
 iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
   with.legend = TRUE, with.data = FALSE, shiny_source = "mggenes",
-  width = NULL, height = NULL, ggtheme = theme_bw(), trim = 0.005, ...)
+  width = NULL, height = NULL, ggtheme = theme_bw(), trim = 0.005,
+  ...)
 
 iplot.density.plotly(x, y, j, value, main, dat, with.legend = TRUE,
   with.points = TRUE, with.data = FALSE, shiny_source = "mggenes",

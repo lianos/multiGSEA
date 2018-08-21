@@ -5,7 +5,8 @@
 \title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
 scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
-  drop.sd = 1e-04, verbose = FALSE, ..., as.dt = FALSE)
+  drop.sd = 1e-04, verbose = FALSE, recenter = FALSE,
+  rescale = FALSE, normalize = FALSE, ..., as.dt = FALSE)
 }
 \arguments{
 \item{gdb}{A GeneSetDb}
@@ -21,6 +22,11 @@ data.frame? Defaults to \code{FALSE}.}
 that is less than this value will be dropped.}
 
 \item{verbose}{make some noise? Defaults to \code{FALSE}.}
+
+\item{recenter, rescale}{If \code{TRUE}, the scores computed by each method
+are centered and scaled using the \code{scale} function. These variables
+correspond to the \code{center} and \code{scale} parameters in the
+\code{scale} function. Defaults to \code{FALSE}.}
 
 \item{...}{these parameters are passed down into the the individual single
 sample scoring funcitons to customize them further.}

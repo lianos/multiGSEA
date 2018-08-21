@@ -8,9 +8,9 @@
 \alias{as.list.GeneSetDb}
 \title{Convert a GeneSetDb to other formats.}
 \usage{
-\method{as.data.frame}{GeneSetDb}(x, row.names = NULL, optional = FALSE,
-  value = c("featureId", "x.id", "x.idx"), active.only = is.conformed(x),
-  ...)
+\method{as.data.frame}{GeneSetDb}(x, row.names = NULL,
+  optional = FALSE, value = c("featureId", "x.id", "x.idx"),
+  active.only = is.conformed(x), ...)
 
 \method{as.list}{GeneSetDb}(x, value = c("featureId", "x.id", "x.idx"),
   active.only = is.conformed(x), nested = FALSE, ...)
