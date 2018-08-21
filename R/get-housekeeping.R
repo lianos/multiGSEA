@@ -56,10 +56,10 @@ qiagen.url.fn <- function(species = c("human", "mouse")) {
     catno <- c(housekeeping = "PAMM-000Z")
   }
 
-  url.fn <- function(x, y) {
-    if (y %in% names(catno)) {
+  url.fn <- function(collection, name) {
+    if (name %in% names(catno)) {
       url <- paste0("https://www.qiagen.com/us/shop/pcr/primer-sets",
-                    "/rt2-profiler-pcr-arrays/?catno=", catno[y],
+                    "/rt2-profiler-pcr-arrays/?catno=", catno[name],
                     "#geneglobe")
     } else {
       url <- paste0("https://www.qiagen.com/us/shop/pcr/",
@@ -69,6 +69,6 @@ qiagen.url.fn <- function(species = c("human", "mouse")) {
     url
   }
 
-  function(x, y) "http://www.qiagen.com"
+  url.fn
 }
 

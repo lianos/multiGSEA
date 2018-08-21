@@ -65,7 +65,6 @@ Collate:
     'aaa.R'
     'cache-utils.R'
     'calculateIndividualLogFC.R'
-    'create-housekeeping-sigs.R'
     'validateInputs.R'
     'do.camera.R'
     'do.cameraPR.R'
