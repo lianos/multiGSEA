@@ -106,30 +106,6 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     ncol(X) > 1L,
     !any(is.na(X)))
 
-  if (!is.null(rename.rows)) {
-    # stopifnot(is.character(rename.rows), length(rename.rows) == 1L)
-    if (is.character(rename.rows)) {
-      if (is(x, "DGEList")) {
-        mdf <- x$genes
-      } else if (is(x, "eSet")) {
-        mdf <- Biobase::fData(x)
-      } else if (is(x, "SummarizedExperiment")) {
-        mdf <- as.data.frame(SummarizedExperiment::mcols(x))
-      }
-      rename <- mdf[[rename.rows]]
-      if (!is.character(rename)) {
-        stop("rename.rows column (", rename.rows, ") is not a character ",
-             "metadata for x")
-      }
-      rename.rows <- data.frame(rn = rownames(x), rename = rename,
-                                stringsAsFactors = FALSE)
-    }
-    stopifnot(
-      is.data.frame(rename.rows),
-      ncol(rename.rows) == 2L,
-      is.character(rename.rows[[2L]]))
-  }
-
   if (is.null(scores)) {
     aggregate.by <- match.arg(aggregate.by)
   } else {
