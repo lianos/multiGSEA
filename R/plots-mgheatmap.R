@@ -5,10 +5,12 @@
 #' samples.
 #'
 #' @section Renaming Heatmap Rows:
-#' You might want to rename the rows of the heatmap
-#' "on the way out". For instance, `x` might be a `DGEList` whose
-#' `rownames()` are gene identifieres, but you want the rownames of the
-#' heatmap to gene symbols. You can perform this renaming using the
+#' There are occasions where you might want to rename the rows of the heatmap
+#' "on the way out".
+#'
+#' If you are plotting a **gene-level** heatmap (ie. `aggregate.by == "none"``)
+#' and the `rownames()` are gene identifieres, but you want the rownames of the
+#' heatmap to be gene symbols. You can perform this renaming using the
 #' `rename.rows` parameter.
 #'
 #' * If `rename.rows` is `NULL`, then nothing is done.
@@ -19,6 +21,12 @@
 #'   be swapped out for `x`'s rownames
 #' * If `rename.rows` is a two-column data.frame, the first column is assumed
 #'   to be `rownames(x)` and the second is what you want to rename it to.
+#'
+#' Maybe you are aggregating the expression scores into geneset scores, and
+#' you don't want the rownames of the heatmap to be `collection;name` (or just
+#' `name` when `rm.collection.prefx = TRUE`), you can pass in a two column
+#' `data.frame`, where the first column is `collection;name` and the second
+#' is the name you want to rename that to.
 #'
 #' @md
 #' @export
@@ -48,12 +56,9 @@
 #' @param rescale do you want to standardize the row variance to one on the
 #'   values of the heatmap matrix prior to calling
 #'   [ComplexHeatmap::Heatmap()]?
-#' @param rename.rows defaults to `NULL`, which induces no action. A `string`
-#'   can be specified which will do a 'smart lookup' on meta information on the
-#'   rows of `x` to swap out that column for the rownames of `x` (ie. from a
-#'   `DGEList$genes` or `fData(ExpressionSet)`. A two-column data.frame can
-#'   also be provided where the first column is assumed to be `rownames(x)` and
-#'   the second is the renamed stuff.
+#' @param rename.rows defaults to `NULL`, which induces no action. Specifying
+#'   a paramter here assumes you want to rename the rows of the heatmap.
+#'   Please refer to the "Renaming Rows" section for details.
 #' @param zlim A `length(zlim) == 2` numeric vector that defines the min and max
 #'   values from `x` for the `colorRamp2` call. If the heatmap that is being
 #'   drawn is "0-centered"-ish, then this defines the real values of the
@@ -65,7 +70,7 @@
 #' @return A `Heatmap` object.
 #'
 #' @examples
-#'
+#' library(ComplexHeatmap)
 #' vm <- exampleExpressionSet()
 #' gdb <- exampleGeneSetDb()
 #' col.anno <- ComplexHeatmap::HeatmapAnnotation(
@@ -76,6 +81,14 @@
 #' mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
 #'                  top_annotation = col.anno, show_column_names = FALSE,
 #'                  column_title = "Gene Set Activity in BRCA subset")
+#'
+#' # Maybe you want the rownames of the matrix to use spaces instead of "_"
+#' rr <- geneSets(gdb)[, "name", drop = FALSE]
+#' rr$newname <- gsub("_", " ", rr$name)
+#' mg2 <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+#'                  top_annotation = col.anno, show_column_names = FALSE,
+#'                  column_title = "Gene Set Activity in BRCA subset",
+#'                  rename.rows = rr)
 mgheatmap <- function(x, gdb = NULL, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
                       split=TRUE, scores=NULL,
@@ -219,18 +232,33 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
 
   H <- do.call(ComplexHeatmap::Heatmap, hm.args)
 
-  if (is.data.frame(rename.rows)) {
-    xref <- match(rownames(H@matrix), rename.rows[[1L]])
-    vals <- rename.rows[[2L]][xref]
-    isna <- is.na(vals) | nchar(vals) == 0L
-    if (any(isna)) {
-      msg <- sprintf("%d (%.2f%%) of rownames could not be renamed",
-                     sum(isna), mean(isna))
-      vals[isna] <- rownames(H@matrix)[isna]
+  if (!is.null(rename.rows)) {
+    has.meta <- is(x, "DGEList") ||
+      is(x, "EList") ||
+      is(x, "SummarizedExperiment") ||
+      is(x, "eSet")
+    is.string <- is.character(rename.rows) && length(rename.rows) == 1L
+    if (aggregate.by == "none") {
+      if (has.meta && is.string) {
+        rr <- rename_rows(x, rename.rows)
+      } else {
+        rr <- rename_rows(H@matrix, rename.rows)
+      }
+      rownames(H@matrix) <- rownames(rr)
+    } else {
+      if (!(is.data.frame(rename.rows) && ncol(rename.rows) == 2)) {
+        warning("rename.rows parameter must be a 2 column data.frame when ",
+                "aggregate.by != 'none'", immediate. = TRUE)
+      } else {
+        if (rm.collection.prefix && any(grepl(";", rename.rows[[1]]))) {
+          rr <- rename.rows
+          rr[[1L]] <- sub("^.*;;?", "", rename.rows[[1L]])
+          rename.rows <- rbind(rename.rows, rr)
+        }
+        H@matrix <- rename_rows(H@matrix, rename.rows)
+      }
     }
-    rownames(H@matrix) <- vals
   }
-
   H
 }
 

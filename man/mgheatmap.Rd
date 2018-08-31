@@ -42,12 +42,9 @@ prior to calling \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}
 values of the heatmap matrix prior to calling
 \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}?}
 
-\item{rename.rows}{defaults to \code{NULL}, which induces no action. A \code{string}
-can be specified which will do a 'smart lookup' on meta information on the
-rows of \code{x} to swap out that column for the rownames of \code{x} (ie. from a
-\code{DGEList$genes} or \code{fData(ExpressionSet)}. A two-column data.frame can
-also be provided where the first column is assumed to be \code{rownames(x)} and
-the second is the renamed stuff.}
+\item{rename.rows}{defaults to \code{NULL}, which induces no action. Specifying
+a paramter here assumes you want to rename the rows of the heatmap.
+Please refer to the "Renaming Rows" section for details.}
 
 \item{zlim}{A \code{length(zlim) == 2} numeric vector that defines the min and max
 values from \code{x} for the \code{colorRamp2} call. If the heatmap that is being
@@ -70,11 +67,10 @@ samples.
 }
 \section{Renaming Heatmap Rows}{
 
-You might want to rename the rows of the heatmap
-"on the way out". For instance, \code{x} might be a \code{DGEList} whose
-\code{rownames()} are gene identifieres, but you want the rownames of the
-heatmap to gene symbols. You can perform this renaming using the
-\code{rename.rows} parameter.
+There are occasions where you might want to rename the rows of the heatmap
+"on the way out".
+
+If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the}rownames()\code{are gene identifieres, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
 \itemize{
 \item If \code{rename.rows} is \code{NULL}, then nothing is done.
 \item If \code{rename.rows} is a \code{string}, then we assume that \code{x} has an associated
@@ -85,10 +81,16 @@ be swapped out for \code{x}'s rownames
 \item If \code{rename.rows} is a two-column data.frame, the first column is assumed
 to be \code{rownames(x)} and the second is what you want to rename it to.
 }
+
+Maybe you are aggregating the expression scores into geneset scores, and
+you don't want the rownames of the heatmap to be \code{collection;name} (or just
+\code{name} when \code{rm.collection.prefx = TRUE}), you can pass in a two column
+\code{data.frame}, where the first column is \code{collection;name} and the second
+is the name you want to rename that to.
 }
 
 \examples{
-
+library(ComplexHeatmap)
 vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
 col.anno <- ComplexHeatmap::HeatmapAnnotation(
@@ -99,4 +101,12 @@ col.anno <- ComplexHeatmap::HeatmapAnnotation(
 mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
                  top_annotation = col.anno, show_column_names = FALSE,
                  column_title = "Gene Set Activity in BRCA subset")
+
+# Maybe you want the rownames of the matrix to use spaces instead of "_"
+rr <- geneSets(gdb)[, "name", drop = FALSE]
+rr$newname <- gsub("_", " ", rr$name)
+mg2 <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+                 top_annotation = col.anno, show_column_names = FALSE,
+                 column_title = "Gene Set Activity in BRCA subset",
+                 rename.rows = rr)
 }

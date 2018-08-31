@@ -24,3 +24,8 @@ For instance, have a SummarizedExperiment, DGEList, matrix, etc. that have
 ensembl id rowname`single cell experiment with ENSGID rownames that you
 want to convert to symbols? Now you can.
 }
+\details{
+The rownames that can't successfully remapped will keep their old names.
+This function should also guarantee that the rows of the incoming matrix
+are the same as the outgoing one.
+}
