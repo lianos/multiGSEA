@@ -55,7 +55,7 @@ Suggests:
     webshot
 Remotes: 
     r-lib/covr,
-    lianos/GeneSetDb.MSigDB.Hsapiens.v61
+    lianos/GeneSetDb.MSigDB.Hsapiens.v61,
     lianos/GeneSetDb.MSigDB.Mmusculus.v61
 VignetteBuilder: knitr
 License: MIT + file LICENSE
