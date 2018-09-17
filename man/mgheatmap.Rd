@@ -67,8 +67,8 @@ samples.
 }
 \section{Renaming Heatmap Rows}{
 
-There are occasions where you might want to rename the rows of the heatmap
-"on the way out".
+This function leverages \code{\link[=rename_rows]{rename_rows()}} so that you can better customize the
+output of your heatmaps by tweaking its rownames.
 
 If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the}rownames()\code{are gene identifieres, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
 \itemize{
@@ -83,10 +83,11 @@ to be \code{rownames(x)} and the second is what you want to rename it to.
 }
 
 Maybe you are aggregating the expression scores into geneset scores, and
-you don't want the rownames of the heatmap to be \code{collection;name} (or just
+you don't want the rownames of the heatmap to be \code{collection;;name} (or just
 \code{name} when \code{rm.collection.prefx = TRUE}), you can pass in a two column
 \code{data.frame}, where the first column is \code{collection;name} and the second
-is the name you want to rename that to.
+is the name you want to rename that to. There is an example of this in
+the "Examples" section here.
 }
 
 \examples{

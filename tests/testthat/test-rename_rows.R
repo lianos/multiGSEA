@@ -28,11 +28,12 @@ test_that("rename_rows works from custom data.frame", {
   expect_equal(rownames(vms), ifelse(remapped, vm$genes$symbol, rownames(vm)))
 
   # Big remap data.frame
-  vmsmall <- vm[sample(nrow(vm), 5),]
-  remap2 <- vm$genes[, c("entrez_id", "symbol")]
+  vm.nona <- vm[!is.na(vm$genes$symbol),]
+  vmsmall <- vm.nona[sample(nrow(vm.nona), 5),]
+  remap2 <- vm.nona$genes[, c("entrez_id", "symbol")]
   vmss <- rename_rows(vmsmall, remap2)
 
   # Guarantee same order
-  expect_equal(vmss$E[,1], vmss$E[,1], check.attributes = FALSE)
+  expect_equal(vmsmall$E[,1], vmss$E[,1], check.attributes = FALSE)
   expect_equal(rownames(vmss), vmsmall$genes$symbol)
 })

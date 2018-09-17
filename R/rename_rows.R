@@ -1,8 +1,10 @@
-#' When you have an object with rownames, and you want to swap them by lookup.
+#' Smartly/easily rename the rows of an object.
 #'
-#' For instance, have a SummarizedExperiment, DGEList, matrix, etc. that have
-#' ensembl id rowname`single cell experiment with ENSGID rownames that you
-#' want to convert to symbols? Now you can.
+#' The most common usecase for this is when you have a SummarizedExperiment,
+#' DGEList, matrix, etc. that is "rownamed" by some gene idnetifiers (ensembl,
+#' entrez, etc) that you want to "easily" convert to be rownamed by symbols.
+#' And perhaps the most common use-case for this, again, would be able to
+#' easily change rownames of a heatmap to symbols.
 #'
 #' The rownames that can't successfully remapped will keep their old names.
 #' This function should also guarantee that the rows of the incoming matrix
@@ -11,120 +13,123 @@
 #' @export
 #'
 #' @param x an object to whose rows need renaming
-#' @param rename.rows an objec to help with the renaming.
-#'   * A character vector where length(rename.rows) == nrow(x). Every row in
+#' @param xref an object to help with the renaming.
+#'   * A character vector where length(xref) == nrow(x). Every row in
 #'     x should correspond to the renamed value in the same position in
-#'     rename.rows
+#'     xref
 #'   * If x is a DGEList, SummarizedExperiment, etc. this can be a string.
-#'     In this case, this mus be a column in the fData/rowData/etc. The
-#'     values in that column will be the new
+#'     In this case, the string must name a column in the data container's
+#'     fData-like data.frame. The values in that column will be the new
+#'     candidate rownames for the object.
 #'   * A two column data.frame. The first column has entries in rownames(x),
 #'     and the second column is the value to rename it to.
+#' @examples
+#' eset <- exampleExpressionSet(do.voom = FALSE)
+#' ess <- rename_rows(eset, "symbol")
 #'
-rename_rows <- function(x, rename.rows, ...) {
+#' vm <- exampleExpressionSet(do.voom = TRUE)
+#' vms <- rename_rows(vm, "symbol")
+rename_rows <- function(x, xref, ...) {
   UseMethod("rename_rows", x)
 }
 
-.rename_rows.df <- function(x, rename.rows, rowmeta.df = NULL, ...) {
+#' Returns a two-column data.frame with rownames. The rownames are entriex from
+#' x, first should be the same, and the second column is the value that x
+#' should be renamed to.
+#'
+#' @noRd
+.rename_rows.df <- function(x, xref = NULL, rowmeta.df = NULL, ...) {
   stopifnot(is.character(x))
-  if (is.data.frame(rowmeta.df)) {
-    stopifnot(nrow(rowmeta.df) >= length(x))
-  }
-
-  if (is.character(rename.rows)) {
-    if (length(rename.rows) == 1L && is.data.frame(rowmeta.df)) {
-      rename.rows <- rowmeta.df[[rename.rows]]
-    }
-    if (length(rename.rows) != length(x)) {
-      stop("rename.rows needs to be a character vector as long as nrow(x)")
-    }
-    rename.rows <- data.frame(oldnames = x, newnames = rename.rows,
+  if (!is.data.frame(xref)) {
+    stopifnot(
+      is.character(xref),
+      length(xref) == length(x))
+    xref <- data.frame(from = x, to = xref,
                               stringsAsFactors = FALSE)
   }
-
+  if (is(xref, "tbl") || is(xref, "data.table")) {
+    xref <- as.data.frame(xref, stringsAsFactors = FALSE)
+  }
   stopifnot(
-    is.data.frame(rename.rows),
-    ncol(rename.rows) == 2,
-    is.character(rename.rows[[1]]), is.character(rename.rows[[2]]))
-  # in case we got a tibble
-  rename.rows <- as.data.frame(rename.rows, stringsAsFactors = FALSE)
+    is.data.frame(xref),
+    ncol(xref) == 2,
+    is.character(xref[[1]]), is.character(xref[[2]]))
 
   # If there is NA in rename_to column, use the value from first column
-  rename.rows[[2]] <- ifelse(is.na(rename.rows[[2]]),
-                             rename.rows[[1]], rename.rows[[2]])
-  missed.x <- setdiff(x, rename.rows[[1]])
+  xref[[2]] <- ifelse(is.na(xref[[2]]), xref[[1]], xref[[2]])
+
+  # Are there entries in x that don't appear in first colum of xref? If so,
+  # we expand `xref` to include these entries and have them "remap" to identity
+  missed.x <- setdiff(x, xref[[1]])
   if (length(missed.x)) {
     add.me <- data.frame(old = missed.x, new = missed.x)
-    colnames(add.me) <- colnames(rename.rows)
-    rename.rows <- rbind(rename.rows, add.me)
+    colnames(add.me) <- colnames(xref)
+    xref <- rbind(xref, add.me)
   }
-  out <- rename.rows[!duplicated(rename.rows[[1]]),,drop = FALSE]
+  out <- xref[!duplicated(xref[[1]]),,drop = FALSE]
+  # If there are duplicated values in the entries that x can be translated to,
+  # then those renamed entries will remap x to itself
   out[[2]] <- ifelse(duplicated(out[[2]]), out[[1]], out[[2]])
   rownames(out) <- out[[1]]
   out[x,,drop=FALSE]
 }
 
 #' @export
-rename_rows.default <- function(x, rename.rows = NULL, rowmeta.df = NULL, ...) {
-  if (is.null(rename.rows)) return(x)
-  if (length(dim(x)) != 2) stop("This thing isn't 2d-subsetable")
-  rename.rows <- .rename_rows.df(rownames(x), rename.rows, rowmeta.df, ...)
-  if (is.matrix(x)) {
-    out <- x[rownames(rename.rows),,drop = FALSE]
-  } else {
-    out <- x[rownames(rename.rows),]
+rename_rows.default <- function(x, xref = NULL, ...) {
+  if (is.null(xref)) {
+    warning("No `xref` provided, returning object unchanged", immediate. = TRUE)
+    return(x)
   }
-  rownames(out) <- rename.rows[[2L]]
+  rn <- rownames(x)
+  if (is.null(rn)) {
+    warning("`x` has no rownames, returning as is", immediate. = TRUE)
+    return(x)
+  }
+  if (length(dim(x)) != 2L) {
+    stop("The input object isn't 2d-subsetable")
+  }
+  xref <- .rename_rows.df(rownames(x), xref, ...)
+  if (!isTRUE(all.equal(rn, rownames(xref)))) {
+    stop("rownames of input object doesn't match rownames of lookup")
+  }
+  if (is.matrix(x)) {
+    out <- x[rownames(xref),,drop = FALSE]
+  } else {
+    out <- x[rownames(xref),]
+  }
+  rownames(out) <- xref[[2L]]
+  out
+}
+
+.rename_rows.bioc <- function(x, xref = NULL, ...) {
+  if (is.null(xref)) return(x)
+  if (is.character(xref) && length(xref) == 1L) {
+    xref <- data.frame(from = rownames(x),
+                       to = fdata(x)[[xref]],
+                       stringsAsFactors = FALSE)
+  }
+  out <- rename_rows.default(x, xref = xref, ...)
+  rownames(fdata(out)) <- rownames(out)
   out
 }
 
 
 #' @export
-rename_rows.EList <- function(x, rename.rows = NULL, ...) {
-  if (is.null(rename.rows)) return(x)
-  # rename.rows <- .rename_rows.df(rownames(x), rename.rows, ...)
-  #
-  # out <- x[rownames(rename.rows),,drop = FALSE]
-  # rownames(out) <- rename.rows$newnames
-  # out
-  out <- NextMethod(rowmeta.df = x$genes, ...)
-  # rownames of genes isn't updated
-  rownames(out$genes) <- rownames(out)
-  out
+rename_rows.EList <- function(x, xref = NULL, ...) {
+  .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
-rename_rows.DGEList <- function(x, rename.rows = NULL, ...) {
-  if (is.null(rename.rows)) return(x)
-  # rename.rows <- .rename_rows.df(rownames(x), rename.rows, ...)
-  #
-  # out <- x[rownames(rename.rows),,drop = FALSE]
-  # rownames(out) <- rename.rows$newnames
-  # out
-  out <- NextMethod(rowmeta.df = x$genes, ...)
-  # rownames of genes isn't updated
-  rownames(out$genes) <- rownames(out)
-  out
+rename_rows.DGEList <- function(x, xref = NULL, ...) {
+  .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
-rename_rows.SummarizedExperiment <- function(x, rename.rows, ...) {
-  if (is.null(rename.rows)) return(x)
-  ns <- requireNamespace("SummarizedExperiment")
-  # rename.rows <- .rename_rows.df(rownames(x), rename.rows, ...)
-  # out <- x[rownames(rename.rows),,drop = FALSE]
-  # rownames(out) <- rename.rows$newnames
-  # out
-  NextMethod(rowmeta.df = as.data.frame(rowData(x)), ...)
+rename_rows.SummarizedExperiment <- function(x, xref, ...) {
+  .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
-rename_rows.eSet <- function(x, rename.rows, ...) {
-  if (is.null(rename.rows)) return(x)
-  ns <- requireNamespace("Biobaset")
-  # rename.rows <- .rename_rows.df(rownames(x), rename.rows, ...)
-  # out <- x[rownames(rename.rows),,drop = FALSE]
-  # rownames(out) <- rename.rows$newnames
-  # out
-  NextMethod(rowmeta.df = Biobase::fData(x), ...)
+rename_rows.eSet <- function(x, xref, ...) {
+  .rename_rows.bioc(x, xref, ...)
 }

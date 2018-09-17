@@ -5,8 +5,8 @@
 #' samples.
 #'
 #' @section Renaming Heatmap Rows:
-#' There are occasions where you might want to rename the rows of the heatmap
-#' "on the way out".
+#' This function leverages [rename_rows()] so that you can better customize the
+#' output of your heatmaps by tweaking its rownames.
 #'
 #' If you are plotting a **gene-level** heatmap (ie. `aggregate.by == "none"``)
 #' and the `rownames()` are gene identifieres, but you want the rownames of the
@@ -23,10 +23,11 @@
 #'   to be `rownames(x)` and the second is what you want to rename it to.
 #'
 #' Maybe you are aggregating the expression scores into geneset scores, and
-#' you don't want the rownames of the heatmap to be `collection;name` (or just
+#' you don't want the rownames of the heatmap to be `collection;;name` (or just
 #' `name` when `rm.collection.prefx = TRUE`), you can pass in a two column
 #' `data.frame`, where the first column is `collection;name` and the second
-#' is the name you want to rename that to.
+#' is the name you want to rename that to. There is an example of this in
+#' the "Examples" section here.
 #'
 #' @md
 #' @export
@@ -240,7 +241,14 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     is.string <- is.character(rename.rows) && length(rename.rows) == 1L
     if (aggregate.by == "none") {
       if (has.meta && is.string) {
-        rr <- rename_rows(x, rename.rows)
+        metadf <- fdata(x, as.df = TRUE)
+        metadf <- data.frame(rn = rownames(x), to = metadf[[rename.rows]],
+                             stringsAsFactors = FALSE)
+        if (!is.null(metadf$to)) {
+          rr <- rename_rows(H@matrix, rename.rows, rowmeta.df = metadf)
+        } else {
+          warning("rename.rows column not found in metadata for x")
+        }
       } else {
         rr <- rename_rows(H@matrix, rename.rows)
       }

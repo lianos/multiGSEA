@@ -2,30 +2,40 @@
 % Please edit documentation in R/rename_rows.R
 \name{rename_rows}
 \alias{rename_rows}
-\title{When you have an object with rownames, and you want to swap them by lookup.}
+\title{Smartly/easily rename the rows of an object.}
 \usage{
-rename_rows(x, rename.rows, ...)
+rename_rows(x, xref, ...)
 }
 \arguments{
 \item{x}{an object to whose rows need renaming}
 
-\item{rename.rows}{an objec to help with the renaming.
-* A character vector where length(rename.rows) == nrow(x). Every row in
+\item{xref}{an object to help with the renaming.
+* A character vector where length(xref) == nrow(x). Every row in
   x should correspond to the renamed value in the same position in
-  rename.rows
+  xref
 * If x is a DGEList, SummarizedExperiment, etc. this can be a string.
-  In this case, this mus be a column in the fData/rowData/etc. The
-  values in that column will be the new
+  In this case, the string must name a column in the data container's
+  fData-like data.frame. The values in that column will be the new
+  candidate rownames for the object.
 * A two column data.frame. The first column has entries in rownames(x),
   and the second column is the value to rename it to.}
 }
 \description{
-For instance, have a SummarizedExperiment, DGEList, matrix, etc. that have
-ensembl id rowname`single cell experiment with ENSGID rownames that you
-want to convert to symbols? Now you can.
+The most common usecase for this is when you have a SummarizedExperiment,
+DGEList, matrix, etc. that is "rownamed" by some gene idnetifiers (ensembl,
+entrez, etc) that you want to "easily" convert to be rownamed by symbols.
+And perhaps the most common use-case for this, again, would be able to
+easily change rownames of a heatmap to symbols.
 }
 \details{
 The rownames that can't successfully remapped will keep their old names.
 This function should also guarantee that the rows of the incoming matrix
 are the same as the outgoing one.
+}
+\examples{
+eset <- exampleExpressionSet(do.voom = FALSE)
+ess <- rename_rows(eset, "symbol")
+
+vm <- exampleExpressionSet(do.voom = TRUE)
+vms <- rename_rows(vm, "symbol")
 }
