@@ -99,9 +99,11 @@ library(magrittr)
 library(reshape2)
 library(dplyr)
 library(ggplot2)
-theme_set(theme_bw())
 library(ComplexHeatmap)
 library(circlize)
+library(edgeR)
+
+theme_set(theme_bw())
 ```
 
 <div class="note">
@@ -527,17 +529,13 @@ and draw a heatmap of their expression.
 gs.sub <- geneSets(gdb.sub)
 gdb.2 <- gdb.sub[geneSets(gdb.sub)$name %in% head(gs.sub$name, 2)]
 
-## Setting a colorRamp that becomes fully saturated at low numbers (1.2)
-## to exacerbate the differences between groups.
-hcols <- circlize::colorRamp2(c(-1.2, 0, 1.2), 
-                              c('#1F294E', 'white', '#6E0F11'))
-
 col.anno <- HeatmapAnnotation(
   vm.bh$targets[, 'PAM50subtype', drop=FALSE],
   col=list(PAM50subtype=c(Basal="gray", Her2="black")))
-mgheatmap(vm.bh, gdb.2, col=hcols, aggregate.by="none", split=TRUE,
+
+mgheatmap(vm.bh, gdb.2, aggregate.by="none", split=TRUE,
           show_row_names=FALSE, show_column_names=FALSE,
-          top_annotation=col.anno)
+          top_annotation=col.anno, zlim = c(-1.2, 1.2))
 ```
 
 ### Gene set-based heatmap
@@ -549,19 +547,19 @@ geneset.
 Let's see what the simple 2-geneset version of the heatmap above looks like:
 
 ```{r gshm2, fig.height = 2.5, fig.width = 8}
-mgheatmap(vm.bh, gdb.2, col=hcols, aggregate.by="ewm", split=FALSE,
+mgheatmap(vm.bh, gdb.2, aggregate.by="ewm", split=FALSE,
           show_row_names=TRUE, show_column_names=FALSE,
-          top_annotation=col.anno)
+          top_annotation=col.anno, zlim = c(-1.2, 1.2))
 ```
 
 Plotted in this way, we can now show the activity of a greater number of
 genesets
 
 ```{r gshm-all, fig.height = 6, fig.width = 8}
-mgheatmap(vm.bh, gdb.sub, col=hcols,
+mgheatmap(vm.bh, gdb.sub, 
           aggregate.by='ewm', split=TRUE,
           show_row_names=TRUE, show_column_names=FALSE,
-          top_annotation=col.anno)
+          top_annotation=col.anno, zlim = c(-1.2, 1.2))
 ```
 
 # The GeneSetDb Class
@@ -777,6 +775,22 @@ This functionality is not ready for this release, but it's just a note to keep
 the user aware of some future development of the package. For the
 time being, the user is required to manually map the feautreIds in their
 expression matrix to be concordant with the ones found in the `GeneSetDb`.
+
+**In the meantime**, a `rename_rows` convenience function is provided here
+to easily rename the rows of our expression container to different values.
+For instance, to rename this is how you might rename the rows of your assay
+container to use symbols:
+
+```{r}
+vm <- exampleExpressionSet()
+vms <- rename_rows(vm, "symbol")
+head(cbind(rownames(vm), rownames(vms)))
+```
+
+We grabbed the `symbol` column from `vm$genes` and "smartly" renamed the rows
+of `vm` with the values there. Refer to the `?rename_rows` man page for more
+details. This, of course, still requires you to manually fetch and map
+identifiers, but still ...
 
 # Customizing Analyses
 

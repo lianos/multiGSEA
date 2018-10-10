@@ -88,22 +88,44 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 }
 
 
-##' Converts an expression container like object to a matrix for analysis
-##'
-##' This function is not exported. It will convert various expression-like
-##' containers into a a matrix of values for use in GSEA or single-sample based
-##' scoring methods.
-##'
-##' There's nothing too fancy here. Keep in mind, however, that if \code{y}
-##' is something that typically stores counts (a \code{DGEList} or
-##' \code{DESeqDataSet}), then it is transformed into a matrix of values
-##' on the log scale.
-##'
-##' @param y an object to convert into an expression matrix for use in various
-##'   internal gene set based methods
-##' @return a matrix of values to use downstream of internal gene set based
-##'   methods.
-as_matrix <- function(y) {
+#' Converts an expression container like object to a matrix for analysis
+#'
+#' This converts various expression-like containers into a a matrix of values
+#' for use in GSEA or single-sample based scoring methods.
+#'
+#' There's nothing too fancy here. Keep in mind, however, that if `y`
+#' is something that typically stores counts (a `DGEList`) or
+#' `DESeqDataSet`, then it is transformed into a matrix of values
+#' on the log scale.
+#'
+#' This function is intentionally not exported.
+#'
+#' @noRd
+#' @md
+#'
+#' @param y an object to convert into an expression matrix for use in various
+#'   internal gene set based methods
+#' @param gdb optional `GeneSetDb`. If this is provided, the rows of `y`
+#'   are first filtered to include only the rows that are enumerated as
+#'   features in this `GeneSetDb`.
+#' @param calc.norm.factors If `TRUE` (default) and `y` is a `DESeqDataSet`,
+#'   TMM normfactors are computed for the counts so the matrix we returned
+#'   are cpms scaled using TMM normalization.
+#' @return a matrix of values to use downstream of internal gene set based
+#'   methods.
+as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE) {
+  if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
+  if (is(y, "SummarizedExperiment")) {
+    if (!requireNamespace("SummarizedExperiment")) {
+      stop("SummarizedExperiment package required to work on a SE")
+    }
+  }
+  if (is(y, "DESeqDataSet") && calc.norm.factors) {
+    y <- edgeR::DGEList(SummarizedExperiment::assay(y))
+    y <- edgeR::calcNormFactors(y)
+  }
+
+
   if (is.vector(y)) {
     y <- t(t(y)) ## column vectorization that sets names to rownames
   } else if (is(y, 'EList')) {
@@ -112,18 +134,26 @@ as_matrix <- function(y) {
     y <- cpm(y, prior.count=5, log=TRUE)
   } else if (is(y, 'eSet')) {
     y <- Biobase::exprs(y)
-  } else if (is(y, 'DESeqDataSet')) {
-    y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
+  # } else if (is(y, 'DESeqDataSet')) {
+  #   y <- cpm(y, prior.count=5, log=TRUE)
+  #   y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
   } else if (is.data.frame(y)) {
     y <- as.matrix(y)
   } else if (is(y, "SingleCellExperiment")) {
-    if (!"logcounts" %in% assayNames(y)) {
+    if (!"logcounts" %in% SummarizedExperiment::assayNames(y)) {
       stop("`logcounts` assay missing from SingleCellExperiment")
     }
     y <- SummarizedExperiment::assay(y, "logcounts")
   } else if (is(y, "Matrix")) {
-    y <- Matrix::as.matrix(y)
+    # y <- Matrix::as.matrix(y)
+    y <- y
   }
+
+  if (!is.null(gdb)) {
+    keep <- rownames(y) %in% featureIds(gdb, active.only FALSE)
+    y <- y[keep,,drop = FALSE]
+  }
+
   stopifnot(
     (is.matrix(y) && is.numeric(y)) || (is(y, "Matrix") && is(y, "Mnumeric"))
   )

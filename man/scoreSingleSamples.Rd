@@ -13,7 +13,9 @@ scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
 
 \item{y}{An expression matrix to score genesets against}
 
-\item{methods}{A character vector of methods to score samples by}
+\item{methods}{A character vector that enumerates the scoring methods you
+want to run over the samples. Please reference the "Single Sample Scoring
+Methods" section for more information.}
 
 \item{as.matrix}{Return results as a list of matrices instead of a melted
 data.frame? Defaults to \code{FALSE}.}
@@ -23,10 +25,7 @@ that is less than this value will be dropped.}
 
 \item{verbose}{make some noise? Defaults to \code{FALSE}.}
 
-\item{recenter, rescale}{If \code{TRUE}, the scores computed by each method
-are centered and scaled using the \code{scale} function. These variables
-correspond to the \code{center} and \code{scale} parameters in the
-\code{scale} function. Defaults to \code{FALSE}.}
+\item{recenter, rescale}{If \code{TRUE``, the scores computed by each method are centered and scaled using the }scale\code{function. These variables correspond to the}center\code{and}scale\code{parameters in the}scale\code{function. Defaults to}FALSE`.}
 
 \item{...}{these parameters are passed down into the the individual single
 sample scoring funcitons to customize them further.}
@@ -37,47 +36,19 @@ to keep this object as a \code{data.table}}
 }
 \value{
 A long data.frame with sample,method,score values per row. If
-  \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
-  and as many columns as \code{ncol(x)}
+\code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
+and as many columns as \code{ncol(x)}
 }
 \description{
 It is common to assess the activity of a gene set in a given sample. There
 are many ways to do that, and this method is analogous to the
-\code{\link{multiGSEA}} function in that it enables the user to run a
-multitude of single-sample-gene-set-scoring algorithms over a target
-expression matrix using a \code{\link{GeneSetDb}} object.
+\code{\link[=multiGSEA]{multiGSEA()}} function in that it enables the user to run a multitude of
+single-sample-gene-set-scoring algorithms over a target expression matrix
+using a \code{\link[=GeneSetDb]{GeneSetDb()}} object.
 }
 \details{
 Please refer to the "Generating Single Sample Gene Set Scores" of the
 multiGSEA vignette for further exposition.
-
-The following \code{methods} are currenly provided.
-
-\describe{
-  \item{ewm}{
-    The \code{\link{eigenWeightedMean}} calculates the fraction each gene contributes
-    to a pre-specified principal component. These contributions acts as
-    weights over each gene, which are then used in a simple weighted mean
-    calculation over all the genes in the geneset per sample. This is
-    similar, in spirit, to the svd/gsdecon method ("gsd")}
-  \item{gsd}{
-    This method was first introduced by Jason Hackney in
-    \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
-    refer to the \code{\link{gsdScore}} function for more information.}
-  \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
-  \item{zscore}{
-    The features in the expression matrix are rowwise z transformed. The
-    gene set level score is then calculated by adding up the zscores for
-    the genes in the gene set, then dividing that number by either the
-    the size (or its sqaure root (default)) of the gene set.}
-  \item{mean}{
-    Simply take the mean of the values from the expression matrix that are
-    in teh gene set. Right or wrong, sometimes you just want the mean
-    without transforming the data.
-  }
-  \item{gsva}{The gsva method of GSVA package}
-  \item{plage}{Using "plage" as implemented in the GSVA package}
-}
 }
 \examples{
 library(reshape2)

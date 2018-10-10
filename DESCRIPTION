@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.11.3
+Version: 0.11.5
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Genentech", role = c("cph", "fnd")),
@@ -18,6 +18,8 @@ Imports:
     Biobase (>= 2.24.0),
     circlize,
     ComplexHeatmap,
+    DelayedMatrixStats,
+    limma, 
     edgeR (>= 3.18.1),
     ggplot2 (>= 2.2.0),
     GSEABase,

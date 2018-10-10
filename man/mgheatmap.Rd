@@ -70,7 +70,7 @@ samples.
 This function leverages \code{\link[=rename_rows]{rename_rows()}} so that you can better customize the
 output of your heatmaps by tweaking its rownames.
 
-If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the}rownames()\code{are gene identifieres, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
+If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the }rownames()\code{are gene identifieres, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
 \itemize{
 \item If \code{rename.rows} is \code{NULL}, then nothing is done.
 \item If \code{rename.rows} is a \code{string}, then we assume that \code{x} has an associated

@@ -111,12 +111,9 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   list(x=x, design=design, contrast=contrast, is.full.design=is.matrix(design))
 }
 
-##' Checkes that there are no NAs in x
+#' Checkes that there are no NAs in x
 na.check <- function(x) {
-  if (is(x, 'DGEList')) x <- x$counts
-  if (is(x, 'EList')) x <- x$E
-  if (is(x, 'ExpressionSet')) x <- Biobase::exprs(x)
-  if (is(x, 'SummarizedExperiment')) x <- SummarizedExperiment::assay(x)
+  x <- as_matrix(x, calc.norm.factors = FALSE)
   if (any(is.na(x))) {
     stop("No NA's allowed in x")
   }

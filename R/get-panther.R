@@ -101,7 +101,7 @@ getPantherPathways <- function(p.db, org.db) {
 }
 
 getPantherGOSLIM <- function(p.db, org.db) {
-  if (!require("GO.db")) {
+  if (!requireNamespace("GO.db")) {
     stop("GO.db is required for this functionality")
   }
   aselect <- getFromNamespace('select', 'AnnotationDbi')

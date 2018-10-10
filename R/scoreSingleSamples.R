@@ -1,78 +1,77 @@
-##' Generates single sample gene set scores across a datasets by many methods
-##'
-##' It is common to assess the activity of a gene set in a given sample. There
-##' are many ways to do that, and this method is analogous to the
-##' \code{\link{multiGSEA}} function in that it enables the user to run a
-##' multitude of single-sample-gene-set-scoring algorithms over a target
-##' expression matrix using a \code{\link{GeneSetDb}} object.
-##'
-##' Please refer to the "Generating Single Sample Gene Set Scores" of the
-##' multiGSEA vignette for further exposition.
-##'
-##' The following \code{methods} are currenly provided.
-##'
-##' \describe{
-##'   \item{ewm}{
-##'     The \code{\link{eigenWeightedMean}} calculates the fraction each gene contributes
-##'     to a pre-specified principal component. These contributions acts as
-##'     weights over each gene, which are then used in a simple weighted mean
-##'     calculation over all the genes in the geneset per sample. This is
-##'     similar, in spirit, to the svd/gsdecon method ("gsd")}
-##'   \item{gsd}{
-##'     This method was first introduced by Jason Hackney in
-##'     \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please
-##'     refer to the \code{\link{gsdScore}} function for more information.}
-##'   \item{ssgsea}{Using ssGSEA as implemented in the GSVA package}
-##'   \item{zscore}{
-##'     The features in the expression matrix are rowwise z transformed. The
-##'     gene set level score is then calculated by adding up the zscores for
-##'     the genes in the gene set, then dividing that number by either the
-##'     the size (or its sqaure root (default)) of the gene set.}
-##'   \item{mean}{
-##'     Simply take the mean of the values from the expression matrix that are
-##'     in teh gene set. Right or wrong, sometimes you just want the mean
-##'     without transforming the data.
-##'   }
-##'   \item{gsva}{The gsva method of GSVA package}
-##'   \item{plage}{Using "plage" as implemented in the GSVA package}
-##' }
-##'
-##' @export
-##' @importFrom matrixStats rowSds
-##'
-##' @param gdb A GeneSetDb
-##' @param y An expression matrix to score genesets against
-##' @param methods A character vector of methods to score samples by
-##' @param as.matrix Return results as a list of matrices instead of a melted
-##'   data.frame? Defaults to \code{FALSE}.
-##' @param drop.sd Genes with a standard deviation across columns in \code{y}
-##'   that is less than this value will be dropped.
-##' @param verbose make some noise? Defaults to \code{FALSE}.
-##' @param recenter,rescale If \code{TRUE}, the scores computed by each method
-##'   are centered and scaled using the \code{scale} function. These variables
-##'   correspond to the \code{center} and \code{scale} parameters in the
-##'   \code{scale} function. Defaults to \code{FALSE}.
-##' @param ... these parameters are passed down into the the individual single
-##'   sample scoring funcitons to customize them further.
-##' @template asdt-param
-##' @return A long data.frame with sample,method,score values per row. If
-##'   \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
-##'   and as many columns as \code{ncol(x)}
-##'
-##' @examples
-##' library(reshape2)
-##' gdb <- exampleGeneSetDb()
-##' vm <- exampleExpressionSet()
-##' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
-##'                              uncenter=FALSE, unscale=FALSE,
-##'                              ssgsea.norm=TRUE)
-##' sw <- dcast(scores, name + sample ~ method, value.var='score')
-##' corplot(sw[, c("ewm", "ssgsea", "zscore")],
-##'         title='Single Sample Score Comparison')
+#' Generates single sample gene set scores across a datasets by many methods
+#'
+#' It is common to assess the activity of a gene set in a given sample. There
+#' are many ways to do that, and this method is analogous to the
+#' [multiGSEA()] function in that it enables the user to run a multitude of
+#' single-sample-gene-set-scoring algorithms over a target expression matrix
+#' using a [GeneSetDb()] object.
+#'
+#' Please refer to the "Generating Single Sample Gene Set Scores" of the
+#' multiGSEA vignette for further exposition.
+#'
+#' @section Single Sample Scoring Methods:
+#' The following `methods` are currenly provided.
+#'
+#' * ewm: The [eigenWeightedMean()] calculates the fraction each gene
+#'    contributes to a pre-specified principal component. These contributions
+#'    acts as weights over each gene, which are then used in a simple weighted
+#'    mean calculation over all the genes in the geneset per sample. This is
+#'    similar, in spirit, to the svd/gsdecon method ("gsd")}
+#' * gsd: This method was first introduced by Jason Hackney in
+#'    [doi:10.1038/ng.3520](https://doi.org/10.1038/ng.3520). Please refer to
+#'    the [gsdScore()] function for more information.
+#' * ssgsea: Using ssGSEA as implemented in the GSVA package.
+#' * zscore: The features in the expression matrix are rowwise z transformed.
+#'    The gene set level score is then calculated by adding up the zscores for
+#'    the genes in the gene set, then dividing that number by either the the
+#'    size (or its sqaure root (default)) of the gene set.
+#' * mean: Simply take the mean of the values from the expression matrix that
+#'    are in teh gene set. Right or wrong, sometimes you just want the mean
+#'    without transforming the data.
+#' * gsva: The gsva method of GSVA package.
+#' * plage: Using "plage" as implemented in the GSVA package
+#'
+#' @md
+#' @export
+#' @importFrom DelayedMatrixStats rowSds
+#' @param gdb A GeneSetDb
+#' @param y An expression matrix to score genesets against
+#' @param methods A character vector that enumerates the scoring methods you
+#'   want to run over the samples. Please reference the "Single Sample Scoring
+#'   Methods" section for more information.
+#' @param as.matrix Return results as a list of matrices instead of a melted
+#'   data.frame? Defaults to `FALSE`.
+#' @param drop.sd Genes with a standard deviation across columns in \code{y}
+#'   that is less than this value will be dropped.
+#' @param verbose make some noise? Defaults to `FALSE`.
+#' @param recenter,rescale If `TRUE``, the scores computed by each method
+#'   are centered and scaled using the `scale` function. These variables
+#'   correspond to the `center` and `scale` parameters in the
+#'   `scale` function. Defaults to `FALSE`.
+#' @param ... these parameters are passed down into the the individual single
+#'   sample scoring funcitons to customize them further.
+#' @template asdt-param
+#' @return A long data.frame with sample,method,score values per row. If
+#'   `as.matrix=TRUE`, a matrix with as many rows as `geneSets(gdb)`
+#'   and as many columns as `ncol(x)`
+#'
+#' @examples
+#' library(reshape2)
+#' gdb <- exampleGeneSetDb()
+#' vm <- exampleExpressionSet()
+#' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
+#'                              uncenter=FALSE, unscale=FALSE,
+#'                              ssgsea.norm=TRUE)
+#' sw <- dcast(scores, name + sample ~ method, value.var='score')
+#' corplot(sw[, c("ewm", "ssgsea", "zscore")],
+#'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
                                drop.sd=1e-4, verbose=FALSE, recenter = FALSE,
                                rescale = FALSE, ..., as.dt=FALSE) {
   methods <- tolower(methods)
+  if (as.matrix && length(methods) > 1L) {
+    stop("Can only score with one method if returning a matrix")
+  }
   bad.methods <- setdiff(methods, names(gs.score.map))
   if (length(bad.methods)) {
     stop("Uknown geneset scoring methods: ",
@@ -82,13 +81,18 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
   }
   ## TODO: Enable dispatch on whatever `method`s user asks for
   stopifnot(is(gdb, 'GeneSetDb'))
-  y <- as_matrix(y)
+  gdb <- conform(gdb, y, ...)
+  y.all <- as_matrix(y, gdb) # subsets y down to features in gdb
+  if (is(y.all, "sparseMatrix")) {
+    # Can't get everything to be transparent with sparse matrics just yet
+    # If you are scoring single cell data with a gdb that covers a large
+    # proportion of your feature space, you might be sorry right about now.
+    y.all <- as.matrix(y.all)
+  }
 
-  ## Removing genes that have almost-zero std.dev across the dataset.
-  ## sds <- apply(y, 1, sd, na.rm=TRUE)
-  sds <- rowSds(y)
+  sds <- DelayedMatrixStats::rowSds(y.all)
+
   sd0 <- sds < drop.sd
-  y.all <- y
   y <- y.all[!sd0,,drop=FALSE]
   if (any(sd0)) {
     warning(sum(sd0), " row(s) removed from expression object (y) due to 0sd")
@@ -229,6 +233,10 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
                                        parallel.sz=4, ssgsea.norm=FALSE,
                                        gs.idxs=NULL, ...) {
   # idxs <- .xformGdbForGSVA(gdb, y)
+  warning("The current version of scoreSingleSamples produces *minor* ",
+          "differences in GSVA-based single sample gene set scores.\n",
+          "https://github.com/lianos/multiGSEA/issues/10",
+          immediate. = TRUE)
   if (is.null(gs.idxs)) {
     gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
   }
