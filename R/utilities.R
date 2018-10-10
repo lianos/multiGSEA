@@ -150,7 +150,7 @@ as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE) {
   }
 
   if (!is.null(gdb)) {
-    keep <- rownames(y) %in% featureIds(gdb, active.only FALSE)
+    keep <- rownames(y) %in% featureIds(gdb, active.only = FALSE)
     y <- y[keep,,drop = FALSE]
   }
 
