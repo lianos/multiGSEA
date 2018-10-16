@@ -1,5 +1,6 @@
 library("multiGSEA")
 library("testthat")
+library("data.table")
 
 test_check("multiGSEA")
 

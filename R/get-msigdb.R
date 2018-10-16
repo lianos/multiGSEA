@@ -48,8 +48,8 @@
 ##' @param version the version of the MSigDB database to use.
 ##' @return a \code{GeneSetDb} object
 getMSigGeneSetDb <- function(collection, species='human',
-                             id.type = c("entrez", "ensembl"), with.kegg=FALSE,
-                             species.specific=FALSE,
+                             id.type = c("entrez", "ensembl", "symbol"),
+                             with.kegg=FALSE, species.specific=FALSE,
                              version=.msigdb.version.current) {
   species <- resolve.species(species)
   version <- match.arg(version, names(.msigdb.collections))
@@ -79,7 +79,12 @@ getMSigGeneSetDb <- function(collection, species='human',
   if (length(pkg.dir) == 0L) {
     stop("GeneSetDb.* package not installed: ", pkg)
   }
-  # fn <- paste0(sub('\\.v61', paste0(id.type, "-", pkg.version, pkg), '.rds'))
+
+  use.symbols <- id.type == "symbol"
+  if (use.symbols) {
+    id.type <- "entrez" # this is the primary identifiers MSigDB provides
+  }
+
   fn <- sub('\\.v61', paste0("-", id.type, ".", pkg.version, ".rds"), pkg)
   fn <- file.path(pkg.dir, 'extdata', fn)
 
@@ -106,8 +111,26 @@ getMSigGeneSetDb <- function(collection, species='human',
     out <- subset.GeneSetDb(out, keep)
   }
 
+  # Note: this functionality should really use the featureIdMap cross
+  # referencing that you haven't made  yet.
+  if (use.symbols) {
+    out@db[[id.type]] <- out@db[["featureId"]]
+    out@db[["featureId"]] <- out@db[["symbol"]]
+    # Sometimes identifiers can't be mapped to symbols, ie. the symbol is NA
+    # or different identifier map to the same symbol, so we handle that here.
+    out@db <- out@db[!is.na(featureId)]
+    out@db <- unique(out@db, by = c("collection", "name", "featureId"))
+    # clean up ou@table be ensuring that N is correct
+    new.N <- out@db[, list(N = .N), by = c("collection", "name")]
+    out@table <- out@table[new.N]
+    out@table[, N := i.N]
+    out@table[, i.N := NULL]
+    out@collectionMetadata <- out@collectionMetadata[collection %in% out@table$collection]
+  }
+
   # NOTE: remove count collectionMetadata
   out@collectionMetadata <- out@collectionMetadata[name != "count"]
+
   out
 }
 
