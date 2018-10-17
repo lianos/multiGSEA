@@ -18,15 +18,12 @@ branches:
     - develop
 
 r_binary_packages:
-  - circlize
-  - ComplexHeatmap
   - ggplot2
   - data.table
   - irlba
   - magrittr
   - Matrix
   - matrixStats
-  - methods
   - plotly
   - reshape2
   - viridis
