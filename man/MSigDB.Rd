@@ -5,7 +5,7 @@
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
 getMSigGeneSetDb(collection, species = "human", id.type = c("entrez",
-  "ensembl"), with.kegg = FALSE, species.specific = FALSE,
+  "ensembl", "symbol"), with.kegg = FALSE, species.specific = FALSE,
   version = .msigdb.version.current)
 }
 \arguments{

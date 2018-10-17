@@ -61,16 +61,16 @@ its the latter, then this call simply delegates to the internal
 }
 \examples{
 gdb <- exampleGeneSetDb()
-featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
-featureIds(gdb, 'c2')
-featureIds(gdb)
+fids.gs <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+fids.c2 <- featureIds(gdb, 'c2')
+fids.all <- featureIds(gdb)
 
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- conform(gdb, vm)
 ## fewer than before
-featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+fids.gs2 <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
 ## same as before
-featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
+fids.gs3 <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
 ## returned as row indices into vm
-featureIds(gdb, 'c2', value='x.idx')
+fids.idxs <- featureIds(gdb, 'c2', value='x.idx')
 }

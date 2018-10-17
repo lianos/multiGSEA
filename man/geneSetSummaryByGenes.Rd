@@ -48,7 +48,7 @@ vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- conform(exampleGeneSetDb(), vm)
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 features <- c("55839", "8522", "29087")
-(gsm.hit <- geneSetSummaryByGenes(gdb, features))
-(gsm.fid <- geneSetSummaryByGenes(mg, features, feature.rename=NULL))
-(gsm.sym <- geneSetSummaryByGenes(mg, features, feature.rename='symbol'))##'
+gsm.hit <- geneSetSummaryByGenes(gdb, features)
+gsm.fid <- geneSetSummaryByGenes(mg, features, feature.rename=NULL)
+gsm.sym <- geneSetSummaryByGenes(mg, features, feature.rename='symbol')
 }

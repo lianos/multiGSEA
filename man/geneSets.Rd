@@ -31,5 +31,5 @@ Fetch the active (or all) gene sets from a GeneSetDb or MultiGSEAResult
 }
 \examples{
 gdb <- exampleGeneSetDb()
-(gs <- geneSets(gdb))
+gs <- geneSets(gdb)
 }
