@@ -41,18 +41,18 @@
 ##'
 ##' @examples
 ##' gdb <- exampleGeneSetDb()
-##' featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
-##' featureIds(gdb, 'c2')
-##' featureIds(gdb)
+##' fids.gs <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+##' fids.c2 <- featureIds(gdb, 'c2')
+##' fids.all <- featureIds(gdb)
 ##'
 ##' vm <- exampleExpressionSet(do.voom=TRUE)
 ##' gdb <- conform(gdb, vm)
 ##' ## fewer than before
-##' featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
+##' fids.gs2 <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY')
 ##' ## same as before
-##' featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
+##' fids.gs3 <- featureIds(gdb, 'c2', 'BIOCARTA_AGPCR_PATHWAY', active.only=FALSE)
 ##' ## returned as row indices into vm
-##' featureIds(gdb, 'c2', value='x.idx')
+##' fids.idxs <- featureIds(gdb, 'c2', value='x.idx')
 setGeneric("featureIds", signature="x",
 function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
          active.only=is.conformed(x), ...) {
@@ -263,7 +263,7 @@ setGeneric("geneSet", signature="x", function(x, i, j, ...) {
 ##'
 ##' @examples
 ##' gdb <- exampleGeneSetDb()
-##' (gs <- geneSets(gdb))
+##' gs <- geneSets(gdb)
 setGeneric("geneSets", function(x, ...) standardGeneric('geneSets'))
 
 
@@ -295,9 +295,9 @@ setGeneric("geneSets", function(x, ...) standardGeneric('geneSets'))
 ##' gdb <- conform(exampleGeneSetDb(), vm)
 ##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 ##' features <- c("55839", "8522", "29087")
-##' (gsm.hit <- geneSetSummaryByGenes(gdb, features))
-##' (gsm.fid <- geneSetSummaryByGenes(mg, features, feature.rename=NULL))
-##' (gsm.sym <- geneSetSummaryByGenes(mg, features, feature.rename='symbol'))##'
+##' gsm.hit <- geneSetSummaryByGenes(gdb, features)
+##' gsm.fid <- geneSetSummaryByGenes(mg, features, feature.rename=NULL)
+##' gsm.sym <- geneSetSummaryByGenes(mg, features, feature.rename='symbol')
 setGeneric("geneSetSummaryByGenes", signature=c("x"),
            function(x, features, with.features=TRUE, feature.rename=NULL, ...)
              standardGeneric("geneSetSummaryByGenes"))
