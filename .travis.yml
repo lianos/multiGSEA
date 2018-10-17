@@ -1,12 +1,66 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 # and https://github.com/craigcitro/r-travis/wiki
-
+#
+# I am adding bioc_packages to see if they are (hopefully) cached somewhere?
+#
+# Modeling this after the waldronlab/MultiAssayExperiment/.travis.yml
 language: R
 sudo: false
 cache: packages
+
 r:
-  - bioc-release
+  - bioc-devel
+
+branches:
+  only:
+    - master
+    - develop
+
+r_binary_packages:
+  - circlize
+  - ComplexHeatmap
+  - ggplot2
+  - data.table
+  - irlba
+  - magrittr
+  - Matrix
+  - matrixStats
+  - methods
+  - plotly
+  - reshape2
+  - viridis
+  - dplyr
+  - dtplyr
+  - KernSmooth
+  - knitr
+  - statmod
+  - testthat
+  - webshot
+
+bioc_packages:
+  - BiocGenerics
+  - BiocParallel
+  - Biobase
+  - ComplexHeatmap
+  - DelayedMatrixStats
+  - limma
+  - edgeR
+  - GSEABase
+  - GSVA
+  - AnnotationDbi
+  - BiocStyle
+  - DESeq2
+  - fgsea
+  - GO.db
+  - goseq
+  - org.Hs.eg.db
+  - org.Mm.eg.db
+  - PANTHER.db
+  - reactome.db
+  - SummarizedExperiment
+
 r_github_packages:
   - r-lib/covr
+
 after_success:
   - Rscript -e "covr::codecov()"
