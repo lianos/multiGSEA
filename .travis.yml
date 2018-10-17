@@ -4,8 +4,9 @@
 # I am adding bioc_packages to see if they are (hopefully) cached somewhere?
 #
 # Modeling this after the waldronlab/MultiAssayExperiment/.travis.yml
-language: R
-sudo: false
+language: r
+dist: trusty
+sudo: required
 cache: packages
 
 r:
