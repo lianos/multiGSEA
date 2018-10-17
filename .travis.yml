@@ -29,7 +29,6 @@ r_binary_packages:
   - viridis
   - dplyr
   - dtplyr
-  - KernSmooth
   - knitr
   - statmod
   - testthat
