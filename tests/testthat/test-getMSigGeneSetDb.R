@@ -39,6 +39,13 @@ test_that("Specifying id.type = 'symbol' keeps GeneSetDb honest", {
 
     # symbols in smap should be same as the original GeneSetDb
     has.symbol <- xmap[!is.na(symbol)]
+    # Note that in mouse, some ids are mapped to, ie.
+    # entrez_id 67118 is mapped to both 3110001I22Rik and Bfar.
+    # Let's remove these for this test.
+    multi.id <- has.symbol$featureId[duplicated(has.symbol$featureId)]
+    has.symbol <- xmap[!is.na(symbol) & !featureId %in% multi.id]
+    multi.map <- subset(has.symbol, featureId %in% multi.id)
+
     expect_equal(has.symbol$symbol, has.symbol$i.symbol)
   }
 })
