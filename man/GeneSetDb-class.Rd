@@ -156,7 +156,7 @@ gdb.df <- GeneSetDb(gs.df)
 ## list of ids
 gs.df$key <- encode_gskey(gs.df)
 gs.list <- split(gs.df$featureId, gs.df$key)
-gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'
+gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs')
 
 ## A list of lists, where the top level list splits the collections.
 ## The name of the collection in the GeneSetDb is taken from this top level
