@@ -3,6 +3,15 @@
 #
 # I am adding bioc_packages to see if they are (hopefully) cached somewhere?
 #
+# Timing: Total time is 47 mins(!)
+#
+#   * ~ 6 minutes to get to the stage where we are building bioconductor
+#   * ~ 20 minutes (1220 seconds) to build bioc and dependencies
+#   * ~ 1.5 mins to build multiGSEA
+#   * ~ 11 mins to run R CMD check
+#
+# packages
+#
 # Modeling this after the waldronlab/MultiAssayExperiment/.travis.yml
 language: r
 dist: trusty
@@ -34,6 +43,84 @@ r_binary_packages:
   - statmod
   - testthat
   - webshot
+  - RcppArmadillo
+  - RSQLite
+  - hms
+  - progress
+  - formatR
+  - bitops
+  - bit
+  - prettyunits
+  - backports
+  - checkmate
+  - rstudioapi
+  - lambda.r
+  - futile.options
+  - shape
+  - rjson
+  - RCurl
+  - bit64
+  - blob
+  - memoise
+  - xfun
+  - tinytex
+  - rprojroot
+  - Formula
+  - latticeExtra
+  - acepack
+  - htmlTable
+  - futile.logger
+  - snow
+  - GetoptLong
+  - GlobalOptions
+  - locfit
+  - XML
+  - shinythemes
+  - bookdown
+  - rmarkdown
+  - BioocManager
+  - Hmisc
+  - fastmatch
+  - BiasedUrn
+# Bioconductor package require these, too
+# - progress
+# - formatR
+# - bitops
+# - bit
+# - prettyunits
+# - backports
+# - checkmate
+# - rstudioapi
+# - lambda.r
+# - futile.options
+# - shape
+# - rjson
+# - RCurl
+# - bit64
+# - blob
+# - memoise
+# - xfun
+# - tinytex
+# - rprojroot
+# - Formula
+# - latticeExtra
+# - acepack
+# - htmlTable
+# - futile.logger
+# - snow
+# - GetoptLong
+# - GlobalOptions
+# - locfit
+# - XML
+# - shinythemes
+# - bookdown
+# - rmarkdown
+# - BioocManager
+# - Hmisc
+# - fastmatch
+# - BiasedUrn
+# - circlize (no r-cran-circlize on trusty)
+
 
 bioc_packages:
   - BiocGenerics
