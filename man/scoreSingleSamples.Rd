@@ -25,7 +25,10 @@ that is less than this value will be dropped.}
 
 \item{verbose}{make some noise? Defaults to \code{FALSE}.}
 
-\item{recenter, rescale}{If \code{TRUE``, the scores computed by each method are centered and scaled using the }scale\code{function. These variables correspond to the}center\code{and}scale\code{parameters in the}scale\code{function. Defaults to}FALSE`.}
+\item{recenter, rescale}{If \code{TRUE}, the scores computed by each method
+are centered and scaled using the \code{scale} function. These variables
+correspond to the \code{center} and \code{scale} parameters in the
+\code{scale} function. Defaults to \code{FALSE}.}
 
 \item{...}{these parameters are passed down into the the individual single
 sample scoring funcitons to customize them further.}

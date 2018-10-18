@@ -43,7 +43,7 @@
 #' @param drop.sd Genes with a standard deviation across columns in \code{y}
 #'   that is less than this value will be dropped.
 #' @param verbose make some noise? Defaults to `FALSE`.
-#' @param recenter,rescale If `TRUE``, the scores computed by each method
+#' @param recenter,rescale If `TRUE`, the scores computed by each method
 #'   are centered and scaled using the `scale` function. These variables
 #'   correspond to the `center` and `scale` parameters in the
 #'   `scale` function. Defaults to `FALSE`.
