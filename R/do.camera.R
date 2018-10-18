@@ -1,28 +1,26 @@
-##' @include validateInputs.R
+#' @include validateInputs.R
 NULL
 
 validate.inputs.camera <- .validate.inputs.full.design
 validate.x.camera <- validate.X
 
-##' Worker function to run camera from within a multiGSEA pipeline
-##'
-##' @description
-##' camera as originally implemented tends to be very conservative, this is
-##' due to the intra-geneset correlation that it originally estimates from
-##' the data. It has been argued that this is hard to estimate and becomes
-##' very conservative for experiments with small N.
-##'
-##' As a result, an \code{inter.gene.cor} parameter was introduced to camera
-##' in limma v3.24.14, and as of Bioc3.3, its value is set to 0.01 by default
-##' instead of letting camera approximate it from the data.
-##'
-##' For the original discussion around this topic, please refer to the following
-##' thread in the bioconductor support forum:
-##'
-##' \url{https://support.bioconductor.org/p/70005/#70195}
-##'
-##' \strong{This function is not meant to be called directly, it should only be
-##' called internally within \code{multiGSEA}}
+#' Worker function to run camera from within a multiGSEA pipeline
+#'
+#' @description
+#' camera as originally implemented tends to be very conservative, this is
+#' due to the intra-geneset correlation that it originally estimates from
+#' the data. It has been argued that this is hard to estimate and becomes
+#' very conservative for experiments with small N.
+#'
+#' As a result, an `inter.gene.cor` parameter was introduced to camera
+#' in limma v3.24.14, and as of Bioc3.3, its value is set to 0.01 by default
+#' instead of letting camera approximate it from the data.
+#'
+#' For the original discussion around this topic, please refer to the following
+#' thread in the bioconductor support forum:
+#' https://support.bioconductor.org/p/70005/#70195
+#'
+#' @noRd
 do.camera <- function(gsd, x, design, contrast=ncol(design),
                       gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                       ...) {

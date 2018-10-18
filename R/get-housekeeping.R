@@ -47,6 +47,7 @@ getHousekeepingGeneSetDb <- function(species=c("human", "mouse"),
                         "Qiagen RT2 Profiler (Housekeeping) PCR Arrays")
 }
 
+#' @noRd
 qiagen.url.fn <- function(species = c("human", "mouse")) {
   species <- match.arg(species)
 

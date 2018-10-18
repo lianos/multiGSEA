@@ -1,5 +1,14 @@
-##' @importFrom GSEABase EntrezIdentifier
-##' @export
+#' Retrieve annotations from reactome.db
+#'
+#' @importFrom GSEABase EntrezIdentifier
+#' @export
+#'
+#' @param species the species to get pathay information for
+#' @param rm.species.prefix pathways are provided with species prefixes from
+#'   `reactome.db`, when `TRUE` (default), these are stripped from the gene set
+#'   names.
+#' @param id.type `"entrez"` or `"ensembl"`
+#' @return a reactome GeneSetDb object
 getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
                                  id.type = c("entrez", "ensembl")) {
   id.type <- match.arg(id.type)

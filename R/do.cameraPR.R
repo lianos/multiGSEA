@@ -1,6 +1,7 @@
 validate.inputs.cameraPR <- .validate.inputs.preranked
 validate.x.cameraPR <- validate.X
 
+#' @noRd
 do.cameraPR <- function(gsd, x, design, contrast=ncol(design),
                         score.by=c('t', 'logFC', 'pval'), logFC=NULL,
                         gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),

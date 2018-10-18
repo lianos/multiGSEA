@@ -56,9 +56,3 @@ bioc_packages:
   - PANTHER.db
   - reactome.db
   - SummarizedExperiment
-
-r_github_packages:
-  - r-lib/covr
-
-after_success:
-  - Rscript -e "covr::codecov()"

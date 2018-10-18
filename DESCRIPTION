@@ -37,7 +37,6 @@ Suggests:
     AnnotationDbi,
     BiocStyle,
     DESeq2,
-    covr,
     dplyr,
     dtplyr,
     GeneSetDb.MSigDB.Hsapiens.v61,
@@ -56,7 +55,6 @@ Suggests:
     testthat,
     webshot
 Remotes: 
-    r-lib/covr,
     lianos/GeneSetDb.MSigDB.Hsapiens.v61,
     lianos/GeneSetDb.MSigDB.Mmusculus.v61
 VignetteBuilder: knitr
@@ -105,4 +103,5 @@ Collate:
     'volcano_plot.R'
     'zzz.R'
 RoxygenNote: 6.1.0
+Roxygen: list(markdown = TRUE)
 biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq

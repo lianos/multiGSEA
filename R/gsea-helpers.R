@@ -1,16 +1,16 @@
-##' Z-tranfsorm a vector of pvalues
-##'
-##' These values are useful for heatmap plotting.
-##' TODO: Implement ztransformPvalues
-##'
-##' @export
-##'
-##' @param x \code{numeric} vector of pvalues
-##' @param logFC \code{numeric} vector as long as \code{x} that indicates the
-##'   sign of the shift. This does not have to be the actual logFC of the
-##'   geneset, as it is merely transformed to its \code{sign}
-##' @param alternative were these obtained from a two-sided or one-sided test?
-##' @return \code{numeric} vector of the ztransformed pvalues in \code{x}
+#' Z-tranfsorm a vector of pvalues
+#'
+#' These values are useful for heatmap plotting.
+#' TODO: Implement ztransformPvalues
+#'
+#' @export
+#'
+#' @param x `numeric` vector of pvalues
+#' @param logFC `numeric` vector as long as `x` that indicates the
+#'   sign of the shift. This does not have to be the actual logFC of the
+#'   geneset, as it is merely transformed to its `sign`.
+#' @param alternative were these obtained from a two-sided or one-sided test?
+#' @return `numeric` vector of the ztransformed pvalues in `x`.
 ztransformPvalues <- function(x, logFC,
                               alternative=c('two.sided', 'less', 'greater')) {
   alternative <- match.arg(alternative)
@@ -28,5 +28,4 @@ ztransformPvalues <- function(x, logFC,
   ## scale : -2 to +2 is not interesting: white
   ##
   ## qnorm(p/2) or qnorm(1-(p/2))
-
 }

@@ -5,48 +5,54 @@
   'v6.1'=c(paste0('c', 1:7), 'h'))
 .msigdb.version.current <- tail(names(.msigdb.collections), 1L)
 
-##' Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.
-##'
-##' @description
-##' This provides versioned genesets from gene set collections defined in
-##' \href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive
-##' to keep the latest version of MSigDB available via this function.
-##' The current version provided is v6.1.
-##'
-##' Although the primariy identifiers used in MSigDB are human entrez IDs, we
-##' also include gene symbols, and mouse versions of each gene set (except c1)
-##' that were created from simple orthology mapping via biomaRt.
-##'
-##' We also include metadata at the geneset level by adding extra columns
-##' to the \code{geneSets(gdb)} data.frame. "subcategory" may be most useful
-##' for GO gene sets, eg. CC vs BP vs MF, and "organism" defines the organism in
-##' which the geneset was derived from ("Homo sapiens" or "Mus musculus").
-##'
-##' Note that this function by default will exclude the KEGG genesets from the
-##' MSigDB c2 collection. Set \code{with.kegg=TRUE} to include them. It is the
-##' end user's responsibility to ensure that they are appropriately adhering
-##' to the licensing restricions of the genesets provided herein.
-##'
-##' Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
-##' package (data files from AnnotationHub) to be installed/accessible.
-##'
-##' @export
-##' @rdname MSigDB
-##' @param collection character vector specifying the collections you want
-##'   (c1, c2, ..., c7, h)
-##' @param species human or mouse?
-##' @param with.kegg The Broad distributes the latest versions of the KEGG
-##'   genesets as part of the c2 collection. These genesets come with a
-##'   restricted license, so by default we do not return them as part of the
-##'   GeneSetDb. To include the KEGG gene sets when asking for the c2
-##'   collection, set this flag to \code{TRUE}.
-##' @param species.specific Many of the genesets defined in MSigDB are annotated
-##'   with the organism from which the experiment was conducted and which the
-##'   geneset was extracted from. If this is set to \code{TRUE}, then only
-##'   gene sets that match \code{species} will be included. Default is
-##'   \code{FALSE}.
-##' @param version the version of the MSigDB database to use.
-##' @return a \code{GeneSetDb} object
+#' Fetches a `GeneSetDb` from geneset collections defined in MSigDB.
+#'
+#' @description
+#' This provides versioned genesets from gene set collections defined in
+#' [MSigDB](http://software.broadinstitute.org/gsea/msigdb). We strive to keep
+#' the latest version of MSigDB available via this function. The current version
+#' provided is v6.1.
+#'
+#' Although the primariy identifiers used in MSigDB are human entrez IDs, we
+#' also include gene symbols, and mouse versions of each gene set (except c1)
+#' that were created from simple orthology mapping via biomaRt.
+#'
+#' We also include metadata at the geneset level by adding extra columns
+#' to the `geneSets(gdb)` data.frame. "subcategory" may be most useful
+#' for GO gene sets, eg. CC vs BP vs MF, and "organism" defines the organism in
+#' which the geneset was derived from ("Homo sapiens" or "Mus musculus").
+#'
+#' Note that this function by default will exclude the KEGG genesets from the
+#' MSigDB c2 collection. Set `with.kegg = TRUE` to include them. It is the
+#' end user's responsibility to ensure that they are appropriately adhering
+#' to the licensing restricions of the genesets provided herein.
+#'
+#' Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
+#' package (data files from AnnotationHub) to be installed/accessible.
+#'
+#' @export
+#' @rdname MSigDB
+#'
+#' @param collection character vector specifying the collections you want
+#'   (c1, c2, ..., c7, h)
+#' @param species human or mouse?
+#' @param with.kegg The Broad distributes the latest versions of the KEGG
+#'   genesets as part of the c2 collection. These genesets come with a
+#'   restricted license, so by default we do not return them as part of the
+#'   GeneSetDb. To include the KEGG gene sets when asking for the c2
+#'   collection, set this flag to `TRUE`.
+#' @param species.specific Many of the genesets defined in MSigDB are annotated
+#'   with the organism from which the experiment was conducted and which the
+#'   geneset was extracted from. If this is set to `TRUE`, then only
+#'   gene sets that match `species` will be included. Default is
+#'   `FALSE`.
+#' @param version the version of the MSigDB database to use.
+#' @return a `GeneSetDb` object
+#' \dontrun{
+#'   gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
+#'   gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
+#'   gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")
+#' }
 getMSigGeneSetDb <- function(collection, species='human',
                              id.type = c("entrez", "ensembl", "symbol"),
                              with.kegg=FALSE, species.specific=FALSE,
@@ -134,6 +140,7 @@ getMSigGeneSetDb <- function(collection, species='human',
   out
 }
 
+#' @noRd
 resolve.species <- function(x) {
   stopifnot(is.character(x) && length(character) == 1L)
   xx <- tolower(x)
@@ -152,3 +159,4 @@ resolve.species <- function(x) {
   }
   out
 }
+n

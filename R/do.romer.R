@@ -24,13 +24,14 @@ validate.x.romer <- function(x) {
 
 ##' Worker function to run romer from within a multiGSEA pipeline
 ##'
-##' @description
-##' Note that romer works on a DGEList or a "normal" EList, ie. it has not
-##' been updated to work with an \code{EList} with a \code{$weights} matrix,
-##' and therefore doesn't work with a voom'd dataset.
-##'
-##' \strong{This function is not meant to be called directly, it should only be
-##' called internally within \code{multiGSEA}}
+#' Note that romer works on a DGEList or a "normal" EList, ie. it has not
+#' been updated to work with an \code{EList} with a \code{$weights} matrix,
+#' and therefore doesn't work with a voom'd dataset.
+#'
+#' **This function is not meant to be called directly.** It should only be
+#' called internally within [multiGSEA()].
+#'
+#' @noRd
 do.romer <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                      ...) {
@@ -53,7 +54,7 @@ do.romer <- function(gsd, x, design, contrast=ncol(design),
   setattr(res, 'rawresult', TRUE)
 }
 
-## this Mixed column becomes the pval
+# this Mixed column becomes the pval
 mgres.romer <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, 'rawresult'))) return(res)
   ## check gsnames matches to geneSets()

@@ -1,25 +1,28 @@
-##' @include validateInputs.R
+#' @include validateInputs.R
 NULL
 
 validate.inputs.fgsea <- .validate.inputs.preranked
 validate.x.fgsea <- validate.X
 
-##' Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea
-##'
-##' Techinically this doesn't require a full design to run, but it proves
-##' expedient for a quick turnaround.
-##'
-##' Note that fgsea isn't added to import or suggests because rescomp's
-##' compiler can't handle this yet.
-##'
-##' fgsea expects the pathways to be describes as a list of character vectors
-##' where the vectors are gene ids, and the names of the pre-ranked vector
-##' correspond to those IDs
-##'
-##' @param gsd The \code{\link{GeneSetDb}} for analysis
-##' @inheritParams calculateIndividualLogFC
-##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
-##' @return A data.table of fgsea results.
+#' Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea
+#'
+#' Techinically this doesn't require a full design to run, but it proves
+#' expedient for a quick turnaround.
+#'
+#' Note that fgsea isn't added to import or suggests because rescomp's
+#' compiler can't handle this yet.
+#'
+#' fgsea expects the pathways to be describes as a list of character vectors
+#' where the vectors are gene ids, and the names of the pre-ranked vector
+#' correspond to those IDs
+#'
+#' **This function is not meant to be called directly.** It should only be
+#' called internally within [multiGSEA()].
+#'
+#' @param gsd The [GeneSetDb()] for analysis
+#' @inheritParams calculateIndividualLogFC
+#' @param ... arguments to pass down into [calculateIndividualLogFC()]
+#' @return A data.table of fgsea results.
 do.fgsea <- function(gsd, x, design, contrast=ncol(design),
                      minSize=15, maxSize=15, nperm=10000, gseaParam=1,
                      score.by=c('t', 'logFC', 'pval'), logFC=NULL,

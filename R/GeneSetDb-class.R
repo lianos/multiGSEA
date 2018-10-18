@@ -1,155 +1,142 @@
-##' Creates a GeneSetDb from a variety of different types of inputs.
-##'
-##' @description
-##' The GeneSetDb class serves the same purpose as the
-##' \code{GSEABase::GeneSetCollection} class does: it acts as a centralized
-##' object to hold collections of Gene Sets. The reason for its existence is
-##' because there are things that I wanted to know about my gene set
-##' collections that weren't easily inferred from what is essentially a
-##' "list of GeneSets" that is the \code{GeneSetCollection} class.
-##'
-##' Gene Sets are internally represented by a \code{data.table} in "a tidy"
-##' format, where we minimally require non \code{NA} values for the following
-##' three \code{character} columns:
-##'
-##' \enumerate{
-##'   \item{collection}
-##'   \item{name}
-##'   \item{featureId}
-##' }
-##'
-##' The (\code{collection}, \code{name}) compound key is the primary key of
-##' a gene set. There will be as many entries with the same
-##' (\code{collection}, \code{name}) as there are genes/features in that set.
-##'
-##' The \code{GeneSetDb} tracks metadata about genesets at \emph{the collection}
-##' level. This means that we assume that all of the \code{featureId}'s used
-##' within a collection use the same type of feature identifier (such as
-##' a \code{GSEABase::EntrezIdentifier()}), were defined in the same organism,
-##' etc.
-##'
-##' \strong{Please refer to the "GeneSetDb" section of the vignette for more
-##' details regarding the construction and querying of a \code{GeneSetDb}
-##' object.}
-##'
-##' @section GeneSetDb Construction:
-##'
-##' The \code{GeneSetDb} constructor is sufficiently flexible enough to create
-##' a \code{GeneSetDb} object from a variety of formats that are commonly used
-##' in the bioconductor echosystem, such as:
-##'
-##' \enumerate{
-##'   \item{GSEABase::GeneSetCollection}{
-##'     If you've already got a \code{GeneSetCollection} on your hands, you can
-##'     simply pass it to the \code{GeneSetDb} constructor.
-##'   }
-##'   \item{list of ids}{
-##'     This format is commonly used to define gene sets in the edgeR/limma
-##'     universe for testing with camera, roast, romer, etc. The names of
-##'     the list items are the gene set names, and their values are a character
-##'     vector of gene identifiers. When it's a single list of lists, you must
-##'     provide a value for \code{collectionName}. You can embed multiple
-##'     collections of gene sets by having a three-deep list-of-lists-of-ids.
-##'     The top level list define the different collections, the second level
-##'     are the genesets, and the third level are the feature identifiers for
-##'     each gene set. See the examples for clarification.
-##'   }
-##'   \item{data.frame-like object}{
-##'     To keep track of your own custom gene sets, you have probably realized
-##'     the importance of maintaing your own sanity, and likely have gene sets
-##'     organized in a table like object that has something like
-##'     the \code{collection}, \code{name}, and \code{featureId} required for
-##'     a \code{GeneSetDb}. Simply rename the appropriate columns to the ones
-##'     prescribed here, and pass that into the constructor. Any other
-##'     additional columns (symbol, perhaps(?)) in the table will be copied
-##'     into the \code{GeneSetDb}.
-##'   }
-##' }
-##'
-##' @section Interrogating a GeneSetDb:
-##'
-##' You might wonder what gene sets are defined in a \code{GeneSetDb}: see
-##' the \code{\link{geneSets}} function.
-##'
-##' Curious about what features are defined in your \code{GeneSetDb}? See
-##' the \code{\link{featureIds}} function.
-##'
-##' Want the details of a particular gene set? Try the \code{\link{geneSet}}
-##' function. This will return a \code{data.frame} of the gene set definition.
-##' Calling \code{\link{geneSet}} on a \code{\link{MultiGSEAResult}} will
-##' return the same \code{data.frame} along with the differential expression
-##' statistics for the individual members of the geneSet across the contrast
-##' that was tested in the \code{\link{multiGSEA}} call that created the
-##' \code{\link{MultiGSEAResult}}.
-##'
-##' @section GeneSetDb manipulation:
-##'
-##' You can subset a GeneSetDb to include a subset of genesets defined in it.
-##' To do this, you need to provide an indexing vector that is as long as
-##' \code{length(gdb)}, ie. the number of gene sets defined in GeneSetDb. You
-##' can construct such a vector by performing your boolean logic over the
-##' \code{geneSets(gdb)} table.
-##'
-##' Look at the Examples section to see how this works, where we take the
-##' MSIgDB c7 collection (aka. "ImmuneSigDB") and only keep gene sets that
-##' were defined in experiments from mouse.
-##'
-##' @rdname GeneSetDb-class
-##' @aliases GeneSetDb
-##' @export
-##' @seealso \code{\link{conversion}}
-##' @param x A \code{GeneSetCollection}, a "two deep" list of either
-##'   \code{GeneSetCollection}s or lists of character vectors, which are
-##'   the gene identifers. The "two deep" list represents the different
-##'   collections (top level) at the top level, and each such list is a named
-##'   list itself, which represents the gene sets in the given collection.
-##' @param featureIdMap A data.frame with  2 character columns. The first
-##'   column is the ids of the genes (features) used to identify the genes in
-##'   \code{gene.sets}, the second second column are IDs that this should be
-##'   mapped to. Useful for testing probelevel microarray data to gene level
-##'   geneset information.
-##' @param collectionName If \code{x} represents a singular collection, ie.
-##'   a single \code{GeneSetCollection} or a "one deep" (named (by geneset))
-##'   list of genesets, then this parameter provides the name for the
-##'   collection. If \code{x} is multiple collections, this can be character
-##'   vector of same length with the names. In all cases, if a collection name
-##'   can't be defined from this, then collections will be named anonymously.
-##'   If a value is passed here, it will overide any names stored in the list of
-##'   \code{x}.
-##'
-##' @examples
-##' ## exampleGeneSetDF provides gene set definitions in "long form". We show
-##' ## how this can easily turned into a GeneSetDb from this form, or convert
-##' ## it to other forms (list of features, or list of list of features) to
-##' ## do the same.
-##' gs.df <- exampleGeneSetDF()
-##' (gdb.df <- GeneSetDb(gs.df))
-##'
-##' ## list of ids
-##' gs.df$key <- encode_gskey(gs.df)
-##' gs.list <- split(gs.df$featureId, gs.df$key)
-##' (gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'))
-##'
-##' ## A list of lists, where the top level list splits the collections.
-##' ## The name of the collection in the GeneSetDb is taken from this top level
-##' ## hierarchy
-##' gs.lol <- as.list(gdb.df, nested=TRUE) ## examine this list-of lists
-##' (gdb.lol <- GeneSetDb(gs.lol)) ## note that collection is set propperly
-##'
-##' ## GeneSetDb Interrogation
-##' (gsets <- geneSets(gdb.df))
-##' (nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells'))
-##' (fids <- featureIds(gdb.df))
-##'
-##' ## GeneSetDb Manipulation
-##' ## Subset ImmuneSigDB down to only gene sets defined from mouse
-##' idb <- getMSigGeneSetDb('c7', 'mouse')
-##' igs <- geneSets(idb)
-##' table(igs$organism)
-##' ## Homo sapiens Mus musculus
-##' ##         1888         2984
-##' idb.mm <- idb[igs$organism == 'Mus musculus']
-##' length(idb.mm) ## 2984
+#' Creates a GeneSetDb from a variety of different types of inputs.
+#'
+#' @description
+#' The GeneSetDb class serves the same purpose as the
+#' [GSEABase::GeneSetCollection()] class does: it acts as a centralized
+#' object to hold collections of Gene Sets. The reason for its existence is
+#' because there are things that I wanted to know about my gene set
+#' collections that weren't easily inferred from what is essentially a
+#' "list of GeneSets" that is the `GeneSetCollection` class.
+#'
+#' Gene Sets are internally represented by a `data.table` in "a tidy"
+#' format, where we minimally require non `NA` values for the following
+#' three `character` columns:
+#'
+#' * collection
+#' * name
+#' * featureId
+#'
+#' The (`collection`, `name`) compound key is the primary key of a gene set.
+#' There will be as many entries with the same (`collection`, `name`) as there
+#' are genes/features in that set.
+#'
+#' The `GeneSetDb` tracks metadata about genesets at **the collection**
+#' level. This means that we assume that all of the `featureId`'s used
+#' within a collection use the same type of feature identifier (such as
+#' a [GSEABase::EntrezIdentifier()], were defined in the same organism,
+#' etc.
+#'
+#' **Please refer to the "GeneSetDb" section of the vignette** for more
+#' details regarding the construction and querying of a `GeneSetDb` object.
+#'
+#' @section GeneSetDb Construction:
+#'
+#' The `GeneSetDb()` constructor is sufficiently flexible enough to create
+#' a `GeneSetDb` object from a variety of formats that are commonly used
+#' in the bioconductor echosystem, such as:
+#'
+#' * [GSEABase::GeneSetCollection()]: If you already have a `GeneSetCollection`
+#'   on your hands, you can simply pass it to the `GeneSetDb()` constructor.
+#' * list of ids: This format is commonly used to define gene sets in the
+#'   edgeR/limma universe for testing with camera, roast, romer, etc. The names
+#'   of the list items are the gene set names, and their values are a character
+#'   vector of gene identifiers. When it's a single list of lists, you must
+#'   provide a value for `collectionName`. You can embed multiple
+#'   collections of gene sets by having a three-deep list-of-lists-of-ids.
+#'   The top level list define the different collections, the second level
+#'   are the genesets, and the third level are the feature identifiers for
+#'   each gene set. See the examples for clarification.
+#' * a `data.frame`-like object: To keep track of your own custom gene sets, you
+#'   have probably realized the importance of maintaing your own sanity, and
+#'   likely have gene sets organized in a table like object that has something
+#'   like the `collection`, `name`, and `featureId` required for a `GeneSetDb`.
+#'   Simply rename the appropriate columns to the ones prescribed here, and pass
+#'   that into the constructor. Any other additional columns (symbol, direction,
+#'   etc.) will be copied into the \code{GeneSetDb}.
+#'
+#' @section Interrogating a GeneSetDb:
+#'
+#' You might wonder what gene sets are defined in a `GeneSetDb`: see
+#' the [geneSets()] function.
+#'
+#' Curious about what features are defined in your `GeneSetDb`? See
+#' the [featureIds()] function.
+#'
+#' Want the details of a particular gene set? Try the [geneSet()] function.
+#' This will return a `data.frame` of the gene set definition. Calling
+#' [geneSet()] on a [MultiGSEAResult()] will return the same `data.frame` along
+#' with the differential expression statistics for the individual members of the
+#' geneSet across the contrast that was tested in the [multiGSEA()] call that
+#' created the [MultiGSEAResult()].
+#'
+#' @section GeneSetDb manipulation:
+#'
+#' You can subset a GeneSetDb to include a subset of genesets defined in it.
+#' To do this, you need to provide an indexing vector that is as long as
+#' `length(gdb)`, ie. the number of gene sets defined in GeneSetDb. You
+#' can construct such a vector by performing your boolean logic over the
+#' `geneSets(gdb)` table.
+#'
+#' Look at the Examples section to see how this works, where we take the
+#' MSIgDB c7 collection (aka. "ImmuneSigDB") and only keep gene sets that
+#' were defined in experiments from mouse.
+#'
+#' @rdname GeneSetDb-class
+#' @aliases GeneSetDb
+#' @export
+#' @seealso `?conversion`
+#' @param x A `GeneSetCollection`, a "two deep" list of either
+#'   `GeneSetCollection`s or lists of character vectors, which are
+#'   the gene identifers. The "two deep" list represents the different
+#'   collections (top level) at the top level, and each such list is a named
+#'   list itself, which represents the gene sets in the given collection.
+#' @param featureIdMap A data.frame with  2 character columns. The first
+#'   column is the ids of the genes (features) used to identify the genes in
+#'   `gene.sets`, the second second column are IDs that this should be mapped
+#'   to. Useful for testing probelevel microarray data to gene level gene set
+#'   information.
+#' @param collectionName If `x` represents a singular collection, ie.
+#'   a single `GeneSetCollection` or a "one deep" (named (by geneset))
+#'   list of genesets, then this parameter provides the name for the
+#'   collection. If `x` is multiple collections, this can be character
+#'   vector of same length with the names. In all cases, if a collection name
+#'   can't be defined from this, then collections will be named anonymously.
+#'   If a value is passed here, it will overide any names stored in the list of
+#'   `x`.
+#'
+#' @examples
+#' ## exampleGeneSetDF provides gene set definitions in "long form". We show
+#' ## how this can easily turned into a GeneSetDb from this form, or convert
+#' ## it to other forms (list of features, or list of list of features) to
+#' ## do the same.
+#' gs.df <- exampleGeneSetDF()
+#' gdb.df <- GeneSetDb(gs.df)
+#'
+#' ## list of ids
+#' gs.df$key <- encode_gskey(gs.df)
+#' gs.list <- split(gs.df$featureId, gs.df$key)
+#' gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'
+#'
+#' ## A list of lists, where the top level list splits the collections.
+#' ## The name of the collection in the GeneSetDb is taken from this top level
+#' ## hierarchy
+#' gs.lol <- as.list(gdb.df, nested=TRUE) ## examine this list-of lists
+#' gdb.lol <- GeneSetDb(gs.lol) ## note that collection is set propperly
+#'
+#' ## GeneSetDb Interrogation
+#' gsets <- geneSets(gdb.df)
+#' nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells')
+#' fids <- featureIds(gdb.df)
+#'
+#' ## GeneSetDb Manipulation
+#' ## Subset ImmuneSigDB down to only gene sets defined from mouse
+#' idb <- getMSigGeneSetDb('c7', 'mouse')
+#' igs <- geneSets(idb)
+#' table(igs$organism)
+#' ## Homo sapiens Mus musculus
+#' ##         1888         2984
+#' idb.mm <- idb[igs$organism == 'Mus musculus']
+#' length(idb.mm) ## 2984
 GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb <- if (is(x, 'GeneSetCollection')) {
     GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
@@ -171,6 +158,7 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb
 }
 
+#' @noRd
 GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   stopifnot(is.data.frame(x) && nrow(x) > 0)
   proto <- new("GeneSetDb")
@@ -253,6 +241,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   gdb
 }
 
+#' @noRd
 GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   if (!is.list(x) || length(x) == 0L) {
     stop("A non-empty list is required for this function")
@@ -316,7 +305,8 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   out
 }
 
-##' @importFrom GSEABase setName geneIds geneIdType
+#' @noRd
+#' @importFrom GSEABase setName geneIds geneIdType
 GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
                                                  collectionName=names(x)) {
   stopifnot(is.list(x))
@@ -349,6 +339,7 @@ GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
 }
 
 
+#' @noRd
 GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
                                         collectionName='anon_collection') {
   stopifnot(is.character(collectionName) && length(collectionName) == 1)
@@ -362,6 +353,8 @@ setAs("GeneSetCollection", "GeneSetDb", function(from) {
 
 
 ## Constructor Helper Functions ------------------------------------------------
+
+#' @noRd
 init.gsd.db.from.list.of.lists <- function(x) {
   proto <-.GeneSetDb()
   ## Ensure x is list of list of geneset features
@@ -384,6 +377,7 @@ init.gsd.db.from.list.of.lists <- function(x) {
   db
 }
 
+#' @noRd
 init.gsd.table.from.db <- function(db) {
   proto <- .GeneSetDb()
   out <- db[, list(active=FALSE, N=.N, n=NA_integer_), by=c('collection', 'name')]
@@ -454,24 +448,21 @@ setValidity("GeneSetDb", function(object) {
   TRUE
 })
 
-##' Checks validaty of collectionMetadata of a GeneSetDb
-##'
-##' This function is for internal use only
-##'
-##' The following assertions are tested:
-##' \itemize{
-##'   \item{All collection,name entries are unique}
-##'   \item{All collections have a url_function}
-##'   \item{
-##'     The collections that are listed in collectionMetadata have >= 1 defined
-##'     genesets in \code{geneSets(object)}
-##'   }
-##' }
-##'
-##' @rdname validateCollectionMetadata
-##' @param object A \code{GeneSetDb}
-##' @return TRUE if the collectionMetadata is kosher, otherwise a character
-##'   vector of errors.
+#' Checks validaty of collectionMetadata of a GeneSetDb
+#'
+#' This function is for internal use only
+#'
+#' The following assertions are tested:
+#'
+#' * All (collection,name) entries are unique.
+#' * All collections have a url_function.
+#' * The collections that are listed in collectionMetadata have >= 1 defined
+#'   genesets in `geneSets(object)`
+#'
+#' @noRd
+#' @param object A \code{GeneSetDb}
+#' @return TRUE if the collectionMetadata is kosher, otherwise a character
+#'   vector of errors.
 .validateCollectionMetadata <- function(object) {
   ## ---------------------------------------------------------------------------
   ## Check the collectionMetadata bits
@@ -551,10 +542,12 @@ setValidity("GeneSetDb", function(object) {
 ## Helper functions to enable setting up of the GeneSetDb
 
 
+#' @noRd
 is.single.list.of.feature.vectors <- function(x) {
   is.list(x) && all(sapply(x, is.character))
 }
 
+#' @noRd
 validate.gene.sets.input <- function(gene.sets) {
   ## Did the user only enter a single list of character vectors? We need to
   ## change this into a list of lists
@@ -590,4 +583,3 @@ validate.gene.sets.input <- function(gene.sets) {
   }
   gene.sets
 }
-

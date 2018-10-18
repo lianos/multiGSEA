@@ -1,13 +1,15 @@
-##' @include validateInputs.R
+#' @include validateInputs.R
 NULL
 
 validate.inputs.roast <- .validate.inputs.full.design
 validate.x.roast <- validate.X
 
-##' Worker function to run roast from within a multiGSEA pipeline
-##'
-##' \strong{This function is not meant to be called directly, it should only be
-##' called internally within \code{multiGSEA}}
+#' Worker function to run roast from within a multiGSEA pipeline
+#'
+#' **This function is not meant to be called directly.** It should only be
+#' called internally within [multiGSEA()].
+#'
+#' @noRd
 do.roast <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))
@@ -35,6 +37,7 @@ do.roast <- function(gsd, x, design, contrast=ncol(design),
   setattr(res, 'rawresult', TRUE)
 }
 
+#' @noRd
 mgres.roast <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, 'rawresult'))) return(res)
   out <- cbind(geneSets(gsd, as.dt=TRUE)[, list(collection, name)], setDT(res))

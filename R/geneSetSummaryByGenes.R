@@ -1,11 +1,11 @@
-## The geneSetSummaryByGenes function (and its utility helper funcionts) are
-## too hairy to separate, so putting them here. I especially don't intend the
-## rename.feature.columns function, in particular, to be reused.
-##
-## Although the code looks hairy, note that there are unit tests in
-## test-geneSetSummaryByGenes.R
+# The geneSetSummaryByGenes function (and its utility helper funcionts) are
+# too hairy to separate, so putting them here. I especially don't intend the
+# rename.feature.columns function, in particular, to be reused.
+#
+# Although the code looks hairy, note that there are unit tests in
+# test-geneSetSummaryByGenes.R
 
-##' @rdname geneSetSummaryByGenes
+#' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="GeneSetDb"),
 function(x, features, with.features=TRUE, feature.rename=NULL, ...,
          as.dt=FALSE) {
@@ -62,7 +62,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
   out
 })
 
-##' @rdname geneSetSummaryByGenes
+#' @rdname geneSetSummaryByGenes
 setMethod("geneSetSummaryByGenes", c(x="MultiGSEAResult"),
 function(x, features, with.features=TRUE, feature.rename=NULL,
          method=NULL, max.p=0.3, p.col=c('padj', 'padj.by.collection', 'pval'),
@@ -148,16 +148,18 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
   res
 })
 
-# utility function. accepts a pivoted geneset <-> feature table, and renames
-# the columns associated with features in gdb. if feature.names is NULL, then
-# the column names are prefixed with 'featureId_' to avoid column names that
-# are numbers.
-#
-# columns in `out` are identified as features by virtue of them matching values
-# returned from `featureids(gdb)`
-#
-# when an internal function calls this with feature.rename=FALSE, then no
-# rename will happen at all.
+#' utility function. accepts a pivoted geneset <-> feature table, and renames
+#' the columns associated with features in gdb. if feature.names is NULL, then
+#' the column names are prefixed with 'featureId_' to avoid column names that
+#' are numbers.
+#'
+#' columns in `out` are identified as features by virtue of them matching values
+#' returned from `featureids(gdb)`
+#'
+#' when an internal function calls this with feature.rename=FALSE, then no
+#' rename will happen at all.
+#'
+#' @noRd
 rename.feature.columns <- function(x, gdb, feature.rename=NULL) {
   stopifnot(is.data.table(x))
   stopifnot(is(gdb, "GeneSetDb"))

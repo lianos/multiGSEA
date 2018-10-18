@@ -1,33 +1,33 @@
-##' Get pathways/GOslim information from PANTHER.db Biocondcutor package.
-##'
-##' @description
-##' This is a convience function that orchestrates the PANTHER.db package to
-##' return GeneSetDb objects for either pathway or GOslim information for
-##' human or mouse.
-##'
-##' Note that for some reason the \code{PANTHER.db} package needs to be
-##' installed in a user-writable package location for this to work properly.
-##' If you see an error like \code{Error in resqlite_send_query ... attempt to
-##' write a readonly database}, this is the problem. Please install another
-##' version of the \code{PANTHER.db} package in a user-writable directory using
-##' \code{\link[BiocInstaller]{biocLite}}.
-##'
-##' @section GOSLIM:
-##' \href{http://geneontology.org/page/go-slim-and-subset-guide}{GO Slims} are
-##' "cut down" versions of the GO ontology that contain a subset of the terms in
-##' the whole GO.
-##'
-##' PANTHER provides their own set of
-##' \href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
-##' it's not clear how often these get updated.
-##'
-##' @rdname getPantherGeneSetDb
-##' @export
-##' @importFrom GSEABase EntrezIdentifier
-##' @param type "pathway" or, "goslim"
-##' @param species "human" or "mouse"
-##'
-##' @return A wired up GeneSetDb
+#' Get pathways/GOslim information from PANTHER.db Biocondcutor package.
+#'
+#' @description
+#' This is a convience function that orchestrates the PANTHER.db package to
+#' return GeneSetDb objects for either pathway or GOslim information for
+#' human or mouse.
+#'
+#' Note that for some reason the `PANTHER.db` package needs to be
+#' installed in a user-writable package location for this to work properly.
+#' If you see an error like "Error in resqlite_send_query ... attempt to
+#' write a readonly database", this is the problem. Please install another
+#' version of the `PANTHER.db` package in a user-writable directory using
+#' [BiocManager::install()].
+#'
+#' @section GOSLIM:
+#' [GO Slims](http://geneontology.org/page/go-slim-and-subset-guide) are
+#' "cut down" versions of the GO ontology that contain a subset of the terms in
+#' the whole GO.
+#'
+#' PANTHER provides their own set of
+#' [GO slims](http://www.pantherdb.org/panther/ontologies.jsp), although
+#' it's not clear how often these get updated.
+#'
+#' @rdname getPantherGeneSetDb
+#' @export
+#' @importFrom GSEABase EntrezIdentifier
+#' @param type "pathway" or, "goslim"
+#' @param species "human" or "mouse"
+#'
+#' @return A wired up GeneSetDb
 getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
                                 species=c('human', 'mouse')) {
   species <- match.arg(species)
@@ -64,12 +64,13 @@ getPantherGeneSetDb <- function(type=c('pathway', 'goslim'),
   out
 }
 
-##' @rdname getPantherGeneSetDb
-##' @export
+#' @rdname getPantherGeneSetDb
+#' @export
 getGOslimGeneSetDb <- function(species=c('human', 'mouse')) {
   getPantherGeneSetDb('goslim', species)
 }
 
+#' @noRd
 getPantherPathways <- function(p.db, org.db) {
   aselect <- getFromNamespace('select', 'AnnotationDbi')
   p.all <- aselect(p.db, AnnotationDbi::keys(p.db, keytype="PATHWAY_ID"),
@@ -100,6 +101,7 @@ getPantherPathways <- function(p.db, org.db) {
   gdb
 }
 
+#' @noRd
 getPantherGOSLIM <- function(p.db, org.db) {
   if (!requireNamespace("GO.db")) {
     stop("GO.db is required for this functionality")

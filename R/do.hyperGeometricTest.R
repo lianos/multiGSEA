@@ -1,26 +1,26 @@
-##' @include validateInputs.R
+#' @include validateInputs.R
 NULL
 
 validate.inputs.hyperGeometricTest <- .validate.inputs.full.design
 validate.x.hyperGeometricTest <- validate.X
 
-##' Performs a hypergeometric test for significance of gene set membership.
-##'
-##' Genes are selected for testing against each geneset by virture of them
-##' passing a maximum FDR and minimum log fold change as perscribed by the
-##' \code{min.logFC} and \code{max.padj} parameters, respectfully.
-##'
-##' Note that we are intentionally adding a hyperG.selected column by reference
-##' so that this information is kicked back to the caller multiGSEA function
-##' and included in downstream reporting.
-##'
-##' @param gsd The \code{\link{GeneSetDb}} for analysis
-##' @param x The expression object
-##' @param design Experimental design
-##' @param contrast The contrast to test
-##' @param direction Same as direction in \code{GOstats}
-##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
-##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
+#' Performs a hypergeometric test for significance of gene set membership.
+#'
+#' Genes are selected for testing against each geneset by virture of them
+#' passing a maximum FDR and minimum log fold change as perscribed by the
+#' `min.logFC` and `max.padj` parameters, respectfully.
+#'
+#' Note that we are intentionally adding a hyperG.selected column by reference
+#' so that this information is kicked back to the caller multiGSEA function
+#' and included in downstream reporting.
+#'
+#' @param gsd The [GeneSetDb()] for analysis
+#' @param x The expression object
+#' @param design Experimental design
+#' @param contrast The contrast to test
+#' @param direction Same as direction in `GOstats`
+#' @param logFC The logFC data.table from `calculateIndividualLogFC`
+#' @param ... arguments to pass down into `calculateIndividualLogFC`
 do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
                                   direction=c('over', 'under'),
                                   use.treat=FALSE,
@@ -50,21 +50,21 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
 
 mgres.hyperGeometricTest <- function(res, gsd, ...) res
 
-##' Perform Hypergeometric Enrichment tests across a GeneSetDb.
-##'
-##' @export
-##'
-##' @param gsd The \code{GeneSetDb} object to run tests against
-##' @param selected The ids of the selected features
-##' @param universe The ids of the universe
-##' @param direction Same as direction in \code{GOstats}
-##' @param do.conform By default \code{TRUE}: does some gymnastics to conform
-##'   the \code{gsd} to the \code{universe} vector. This should neber be set
-##'   to \code{FALSE}, but this parameter is here so that when this function
-##'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
-##'   reconform the \code{GeneSetDb} object, because it has already been done.
-##' @template asdt-param
-##' @return A \code{data.table} of results
+#' Perform Hypergeometric Enrichment tests across a GeneSetDb.
+#'
+#' @export
+#'
+#' @param gsd The [GeneSetDb()] object to run tests against
+#' @param selected The ids of the selected features
+#' @param universe The ids of the universe
+#' @param direction Same as direction in `GOstats`
+#' @param do.conform By default `TRUE`: does some gymnastics to conform
+#'   the `gsd` to the `universe` vector. This should neber be set to `FALSE`,
+#'   but this parameter is here so that when this function is called from the
+#'   [multiGSEA()] codepath, we do not have to reconform the [GeneSetDb()]
+#'   object, because it has already been done.
+#' @template asdt-param
+#' @return A `data.frame` of results
 hyperGeometricTest <- function(gsd, selected, universe,
                                direction=c('over', 'under'),
                                do.conform=TRUE, as.dt=FALSE) {

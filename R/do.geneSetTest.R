@@ -4,12 +4,12 @@ NULL
 validate.inputs.geneSetTest <- .validate.inputs.logFC.only
 validate.x.geneSetTest <- validate.X
 
-##' Worker function to run geneSetTest from within a multiGSEA pipeline
-##'
-##' @description
-##'
-##' \strong{This function is not meant to be called directly, it should only be
-##' called internally within \code{multiGSEA}}
+#' Worker function to run geneSetTest from within a multiGSEA pipeline
+#'
+#' **This function is not meant to be called directly.** It should only be
+#' called internally within [multiGSEA()].
+#'
+#' @noRd
 do.geneSetTest <- function(gsd, x, design, contrast=ncol(design),
                            score.by=c('t', 'logFC', 'pval'), logFC=NULL,
                            gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),

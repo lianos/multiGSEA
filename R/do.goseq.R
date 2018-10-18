@@ -1,7 +1,8 @@
-## Note: I won't implement limma::goana since they do not accept their own
-##       universe. The methodology in goseq is equivalent except for minor
-##       detail when low number of DE genes (cf ?goana)
-##' @include validateInputs.R
+# Note: I won't implement limma::goana since they do not accept their own
+#       universe. The methodology in goseq is equivalent except for minor
+#       detail when low number of DE genes (cf ?goana)
+
+#' @include validateInputs.R
 NULL
 
 validate.x.goseq <- validate.X
@@ -26,48 +27,51 @@ validate.inputs.goseq <- function(x, design, contrast, feature.bias, ...) {
   return(errs)
 }
 
-##' Performs goseq analysis significance of gene set membership.
-##'
-##' Genes are selected for testing against each geneset by virture of them
-##' passing a maximum FDR and minimum log fold change as perscribed by the
-##' \code{min.logFC} and \code{max.padj} parameters, respectfully.
-##'
-##' Note that we are intentionally adding a hyperG.selected column by reference
-##' so that this information is kicked back to the caller multiGSEA function
-##' and included in downstream reporting.
-##'
-##' @param gsd The \code{\link{GeneSetDb}} for analysis
-##' @param x The expression object
-##' @param design Experimental design
-##' @param contrast The contrast to test
-##' @param feature.bias a named vector as long as \code{nrow(x)} that has the
-##'   "bias" information for the features/genes tested (ie. vector of gene
-##'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
-##'   The caller MUST provide this. The goseq package provides a
-##'   \code{\link[goseq]{getlength}} function which facilitates getting default
-##'   values for these if you do not have the correct values used in your
-##'   analysis. If there is no way for you to get this information, then use
-##'   \code{method='hyperGeometricTest'}.
-##' @param method The method to use to calculate the unbiased category
-##'   enrichment scores
-##' @param repcnt Number of random samples to be calculated when random sampling
-##'   is used. Ignored unless \code{method="Sampling"}.
-##' @param use_genes_without_cat A boolean to indicate whether genes without a
-##'   categorie should still be used. For example, a large number of gene may
-##'   have no GO term annotated. If this option is set to FALSE, those genes
-##'   will be ignored in the calculation of p-values (default behaviour). If
-##'   this option is set to TRUE, then these genes will count towards the total
-##'   number of genes outside the category being tested.
-##' @param direction Same as direction in \code{GOstats}
-##' @param plot.fit To plot (or not) the bias in selected genes vs.
-##'   \code{feature.bias}.
-##' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
-##' @param ... arguments to pass down into \code{calculateIndividualLogFC}
-##' @return A data.table of goseq results. The "pval" column here refers to
-##'   pval.over, for simplicity in other places. If \code{split.updown=TRUE},
-##'   a list of data.table's are returned named 'goseq', 'goseq.up', and
-##'   'goseq.down' which are the results of running goseq three independent
-##'   times.
+#' Performs goseq analysis significance of gene set membership.
+#'
+#' Genes are selected for testing against each geneset by virture of them
+#' passing a maximum FDR and minimum log fold change as perscribed by the
+#' `min.logFC` and `max.padj` parameters, respectfully.
+#'
+#' Note that we are intentionally adding a hyperG.selected column by reference
+#' so that this information is kicked back to the caller multiGSEA function
+#' and included in downstream reporting.
+#'
+#' **This function is not meant to be called directly.** It should only be
+#' called internally within [multiGSEA()].
+#'
+#' @param gsd The \code{\link{GeneSetDb}} for analysis
+#' @param x The expression object
+#' @param design Experimental design
+#' @param contrast The contrast to test
+#' @param feature.bias a named vector as long as \code{nrow(x)} that has the
+#'   "bias" information for the features/genes tested (ie. vector of gene
+#'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+#'   The caller MUST provide this. The goseq package provides a
+#'   \code{\link[goseq]{getlength}} function which facilitates getting default
+#'   values for these if you do not have the correct values used in your
+#'   analysis. If there is no way for you to get this information, then use
+#'   \code{method='hyperGeometricTest'}.
+#' @param method The method to use to calculate the unbiased category
+#'   enrichment scores
+#' @param repcnt Number of random samples to be calculated when random sampling
+#'   is used. Ignored unless \code{method="Sampling"}.
+#' @param use_genes_without_cat A boolean to indicate whether genes without a
+#'   categorie should still be used. For example, a large number of gene may
+#'   have no GO term annotated. If this option is set to FALSE, those genes
+#'   will be ignored in the calculation of p-values (default behaviour). If
+#'   this option is set to TRUE, then these genes will count towards the total
+#'   number of genes outside the category being tested.
+#' @param direction Same as direction in \code{GOstats}
+#' @param plot.fit To plot (or not) the bias in selected genes vs.
+#'   \code{feature.bias}.
+#' @param logFC The logFC data.table from \code{calculateIndividualLogFC}
+#' @param ... arguments to pass down into \code{calculateIndividualLogFC}
+#' @return A data.table of goseq results. The "pval" column here refers to
+#'   pval.over, for simplicity in other places. If \code{split.updown=TRUE},
+#'   a list of data.table's are returned named 'goseq', 'goseq.up', and
+#'   'goseq.down' which are the results of running goseq three independent
+#'   times.
 do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      feature.bias,
                      method="Wallenius",
@@ -117,51 +121,51 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
   out
 }
 
-##' Perform goseq Enrichment tests across a GeneSetDb.
-##'
-##' Note that we do not import things from goseq directly, and only load
-##' it if this function is fired. I can't figure out a way to selectively
-##' import functions from the goseq package without it having to load its
-##' dependencies, which take a long time -- and I don't want loading multiGSEA
-##' to take a long time. So, the goseq package has moved to Suggests and then
-##' is loaded within this function when necessary.
-##'
-##' @export
-##'
-##' @param gsd The \code{GeneSetDb} object to run tests against
-##' @param selected The ids of the selected features
-##' @param universe The ids of the universe
-##' @param feature.bias a named vector as long as \code{nrow(x)} that has the
-##'   "bias" information for the features/genes tested (ie. vector of gene
-##'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
-##'   If this is not provided, all feature lengths are set to 1 (no bias).
-##'   The goseq package provides a \code{\link[goseq]{getlength}} function which
-##'   facilitates getting default values for these if you do not have the
-##'   correct values used in your analysis.
-##' @param method The method to use to calculate the unbiased category
-##'   enrichment scores
-##' @param repcnt Number of random samples to be calculated when random sampling
-##'   is used. Ignored unless \code{method="Sampling"}.
-##' @param use_genes_without_cat A boolean to indicate whether genes without a
-##'   categorie should still be used. For example, a large number of gene may
-##'   have no GO term annotated. If this option is set to FALSE, those genes
-##'   will be ignored in the calculation of p-values (default behaviour). If
-##'   this option is set to TRUE, then these genes will count towards the total
-##'   number of genes outside the category being tested.
-##' @param do.conform By default \code{TRUE}: does some gymnastics to conform
-##'   the \code{gsd} to the \code{universe} vector. This should neber be set
-##'   to \code{FALSE}, but this parameter is here so that when this function
-##'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
-##'   reconform the \code{GeneSetDb} object, because it has already been done.
-##' @param active.only If \code{TRUE}, only "active" genesets are used
-##' @param value The featureId types to extract from \code{gsd}
-##' @param .pipelined If this is being external to a multiGSEA pipeline, then
-##'   some additional cleanup of columns name output will be done. Otherwise
-##'   the column renaming and post processing is left to the do.goseq caller
-##'   (Default: \code{FALSE}).
-##' @return A \code{data.table} of results, similar to goseq output. The output
-##'   from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
-##'   an attribue named \code{"pwf"}.
+#' Perform goseq Enrichment tests across a GeneSetDb.
+#'
+#' Note that we do not import things from goseq directly, and only load
+#' it if this function is fired. I can't figure out a way to selectively
+#' import functions from the goseq package without it having to load its
+#' dependencies, which take a long time -- and I don't want loading multiGSEA
+#' to take a long time. So, the goseq package has moved to Suggests and then
+#' is loaded within this function when necessary.
+#'
+#' @export
+#'
+#' @param gsd The `GeneSetDb` object to run tests against
+#' @param selected The ids of the selected features
+#' @param universe The ids of the universe
+#' @param feature.bias a named vector as long as `nrow(x)` that has the
+#'   "bias" information for the features/genes tested (ie. vector of gene
+#'   lengths). \code{names(feature.bias)} should equal \code{rownames(x)}.
+#'   If this is not provided, all feature lengths are set to 1 (no bias).
+#'   The goseq package provides a \code{\link[goseq]{getlength}} function which
+#'   facilitates getting default values for these if you do not have the
+#'   correct values used in your analysis.
+#' @param method The method to use to calculate the unbiased category
+#'   enrichment scores
+#' @param repcnt Number of random samples to be calculated when random sampling
+#'   is used. Ignored unless \code{method="Sampling"}.
+#' @param use_genes_without_cat A boolean to indicate whether genes without a
+#'   categorie should still be used. For example, a large number of gene may
+#'   have no GO term annotated. If this option is set to FALSE, those genes
+#'   will be ignored in the calculation of p-values (default behaviour). If
+#'   this option is set to TRUE, then these genes will count towards the total
+#'   number of genes outside the category being tested.
+#' @param do.conform By default \code{TRUE}: does some gymnastics to conform
+#'   the \code{gsd} to the \code{universe} vector. This should neber be set
+#'   to \code{FALSE}, but this parameter is here so that when this function
+#'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
+#'   reconform the \code{GeneSetDb} object, because it has already been done.
+#' @param active.only If \code{TRUE}, only "active" genesets are used
+#' @param value The featureId types to extract from \code{gsd}
+#' @param .pipelined If this is being external to a multiGSEA pipeline, then
+#'   some additional cleanup of columns name output will be done. Otherwise
+#'   the column renaming and post processing is left to the do.goseq caller
+#'   (Default: \code{FALSE}).
+#' @return A \code{data.table} of results, similar to goseq output. The output
+#'   from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
+#'   an attribue named \code{"pwf"}.
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
