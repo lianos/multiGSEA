@@ -71,56 +71,20 @@ r_binary_packages:
   - htmlTable
   - futile.logger
   - snow
-  - GetoptLong
-  - GlobalOptions
   - locfit
   - XML
   - shinythemes
-  - bookdown
   - rmarkdown
-  - BioocManager
   - Hmisc
   - fastmatch
   - BiasedUrn
-# Bioconductor package require these, too
-# - progress
-# - formatR
-# - bitops
-# - bit
-# - prettyunits
-# - backports
-# - checkmate
-# - rstudioapi
-# - lambda.r
-# - futile.options
-# - shape
-# - rjson
-# - RCurl
-# - bit64
-# - blob
-# - memoise
-# - xfun
-# - tinytex
-# - rprojroot
-# - Formula
-# - latticeExtra
-# - acepack
-# - htmlTable
-# - futile.logger
-# - snow
-# - GetoptLong
-# - GlobalOptions
-# - locfit
-# - XML
-# - shinythemes
-# - bookdown
-# - rmarkdown
-# - BioocManager
-# - Hmisc
-# - fastmatch
-# - BiasedUrn
-# - circlize (no r-cran-circlize on trusty)
-
+# These r-cran-packages are not available for install, so they will be installed
+# manually during the bioc installation.
+#  - circlize
+#  - GetoptLong
+#  - GlobalOptions
+#  - bookdown
+#  - BioocManager
 
 bioc_packages:
   - BiocGenerics

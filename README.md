@@ -5,8 +5,10 @@
 
 [![Build
 Status](https://travis-ci.org/lianos/multiGSEA.svg?branch=develop)](https://travis-ci.org/lianos/multiGSEA)
-[![Coverage
-status](https://codecov.io/gh/lianos/multiGSEA/branch/master/graph/badge.svg)](https://codecov.io/github/lianos/multiGSEA?branch=master)
+
+<!--
+[![Coverage status](https://codecov.io/gh/lianos/multiGSEA/branch/master/graph/badge.svg)](https://codecov.io/github/lianos/multiGSEA?branch=master)
+-->
 
 The `multiGSEA` package was built to facilitate the use of gene sets in
 the analysis of high throughput genomics data (primarily RNA-seq).
