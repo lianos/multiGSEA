@@ -68,14 +68,12 @@ r_binary_packages:
   - Formula
   - latticeExtra
   - acepack
-  - htmlTable
   - futile.logger
   - snow
   - locfit
   - XML
   - shinythemes
   - rmarkdown
-  - Hmisc
   - fastmatch
   - BiasedUrn
 # These r-cran-packages are not available for install, so they will be installed
@@ -85,6 +83,8 @@ r_binary_packages:
 #  - GlobalOptions
 #  - bookdown
 #  - BioocManager
+#  - Hmisc (depends on r-recommended and r-cran-nnet which won't be installed)
+#  - htmlTable (depends on r-recommended)
 
 bioc_packages:
   - BiocGenerics
