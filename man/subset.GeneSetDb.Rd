@@ -29,5 +29,5 @@ See Issue #12 (https://github.com/lianos/multiGSEA/issues/12)
 \examples{
 gdb.all <- exampleGeneSetDb()
 gs <- geneSets(gdb.all)
-gdb <- gdb.all[gs$collection \%in\% c("c2", "c7")]]
+gdb <- gdb.all[gs$collection \%in\% c("c2", "c7")]
 }
