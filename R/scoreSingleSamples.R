@@ -220,7 +220,7 @@ do.scoreSingleSamples.mean <- function(gdb, y, gs.idxs=NULL, ...) {
 #' @importFrom GSVA gsva
 #' @noRd
 do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
-                                       parallel.sz=4, ssgsea.norm=FALSE,
+                                       parallel.sz=1, ssgsea.norm=FALSE,
                                        gs.idxs=NULL, ...) {
   # idxs <- .xformGdbForGSVA(gdb, y)
   warning("The current version of scoreSingleSamples produces *minor* ",

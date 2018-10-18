@@ -449,7 +449,7 @@ function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
 #' @examples
 #' gdb.all <- exampleGeneSetDb()
 #' gs <- geneSets(gdb.all)
-#' gdb <- gdb.all[gs$collection %in% c("c2", "c7")]]
+#' gdb <- gdb.all[gs$collection %in% c("c2", "c7")]
 subset.GeneSetDb <- function(x, keep) {
   stopifnot(is(x, 'GeneSetDb'))
   if (all(keep == FALSE)) {
