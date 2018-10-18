@@ -1,72 +1,72 @@
-##' Single sample gene set score by a weighted average of the genes in geneset
-##'
-##' Weights for the genes in `x` are calculated by the percent of which
-##' they contribute to the principal component indicated by `eigengene`.
-##'
-##' You will generally want the rows of the gene x sample matrix ``x` to
-##' be z-transformed. If it is not already, ensure that `center` and
-##' `scale` are set to `TRUE`.
-##'
-##' When uncenter and/or unscale are `FALSE`, it means that the scores
-##' should be applied on the centered or scaled values, respectively.
-##'
-##' @section Normalization:
-##' Scores can be normalized against a set of control genes. This results in
-##' negative and postiive sample scores. Positive scores are ones where the
-##' specific geneset score is higher than the aggregate control-geneset score.
-##'
-##' Genes used for the control set can either be randomly sampled from the
-##' rows of the `all.x` expression matrix (when `normalize = TRUE`), or
-##' explicitly specified by a row-identifier character vectore passed to the
-##' `normalize` parameter. In both cases, the code prefers to select a
-##' random-control geneset to be of equal size as `nrow(x)`. If that's not
-##' possible, we use as many genes as we can get.
-##'
-##' Note that normalization requires an expression matrix to be passed into
-##' the `all.x` parameter, whose columns match 1:1 to the columns in `x`.
-##' Calling [scoreSingleSamples()] with `method = "ewm", normalize = TRUE`
-##' handles this transparently.
-##'
-##' This idea to implement this method of normalizatition was inspried from
-##' the `ctrl.score` normalization found in Seurat's
-##' [Seurat::AddModuleScore()] function.
-##'
-##' @md
-##' @export
-##' @importFrom stats weighted.mean
-##' @inheritParams gsdScore
-##' @seealso scoreSingleSamples
-##'
-##' @param eigengene the PC used to extract the gene weights from
-##' @param weights a user can pass in a prespecified set of waits using a named
-##'   numeric vector. The names must be a superset of `rownames(x)`. If
-##'   this is `NULL`, we calculate the "eigenweights".
-##' @param normalize If `TRUE`, each score is normalized to a randomly
-##'   selected geneset score. The size of the randomly selected geneset is
-##'   the same as the corresponding geneset. This only works with the "ewm"
-##'   method when unscale and uncenter are `TRUE`. By default, this is
-##'   set to `FALSE`, and normalization does not happen. Instead of
-##'   passing in `TRUE`, the user can pass in a vector of gene names
-##'   (identifiers) to be considered for random geneset creation. If no
-##'   genes are provided, then all genes in `y` are fair game.
-##' @param all.x if the user is trying to normalize these scores, an expression
-##'   matrix that has superset of the control genes needs to be provided, where
-##'   the columns of `all.x` must correspond to this in `x`.
-##' @return A list of useful transformation information. The caller is likely
-##'   most interested in the `$score` vector, but other bits related to
-##'   the SVD/PCA decomposition are included for the ride.
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- conform(getMSigGeneSetDb('h'), vm)
-##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
-##'                        value='x.idx')
-##' scores <- eigenWeightedMean(vm[features,])$score
-##'
-##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
-##' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
-##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+#' Single sample gene set score by a weighted average of the genes in geneset
+#'
+#' Weights for the genes in `x` are calculated by the percent of which
+#' they contribute to the principal component indicated by `eigengene`.
+#'
+#' You will generally want the rows of the gene x sample matrix ``x` to
+#' be z-transformed. If it is not already, ensure that `center` and
+#' `scale` are set to `TRUE`.
+#'
+#' When uncenter and/or unscale are `FALSE`, it means that the scores
+#' should be applied on the centered or scaled values, respectively.
+#'
+#' @section Normalization:
+#' Scores can be normalized against a set of control genes. This results in
+#' negative and postiive sample scores. Positive scores are ones where the
+#' specific geneset score is higher than the aggregate control-geneset score.
+#'
+#' Genes used for the control set can either be randomly sampled from the
+#' rows of the `all.x` expression matrix (when `normalize = TRUE`), or
+#' explicitly specified by a row-identifier character vectore passed to the
+#' `normalize` parameter. In both cases, the code prefers to select a
+#' random-control geneset to be of equal size as `nrow(x)`. If that's not
+#' possible, we use as many genes as we can get.
+#'
+#' Note that normalization requires an expression matrix to be passed into
+#' the `all.x` parameter, whose columns match 1:1 to the columns in `x`.
+#' Calling [scoreSingleSamples()] with `method = "ewm", normalize = TRUE`
+#' handles this transparently.
+#'
+#' This idea to implement this method of normalizatition was inspried from
+#' the `ctrl.score` normalization found in Seurat's
+#' [Seurat::AddModuleScore()] function.
+#'
+#' @md
+#' @export
+#' @importFrom stats weighted.mean
+#' @inheritParams gsdScore
+#' @seealso scoreSingleSamples
+#'
+#' @param eigengene the PC used to extract the gene weights from
+#' @param weights a user can pass in a prespecified set of waits using a named
+#'   numeric vector. The names must be a superset of `rownames(x)`. If
+#'   this is `NULL`, we calculate the "eigenweights".
+#' @param normalize If `TRUE`, each score is normalized to a randomly
+#'   selected geneset score. The size of the randomly selected geneset is
+#'   the same as the corresponding geneset. This only works with the "ewm"
+#'   method when unscale and uncenter are `TRUE`. By default, this is
+#'   set to `FALSE`, and normalization does not happen. Instead of
+#'   passing in `TRUE`, the user can pass in a vector of gene names
+#'   (identifiers) to be considered for random geneset creation. If no
+#'   genes are provided, then all genes in `y` are fair game.
+#' @param all.x if the user is trying to normalize these scores, an expression
+#'   matrix that has superset of the control genes needs to be provided, where
+#'   the columns of `all.x` must correspond to this in `x`.
+#' @return A list of useful transformation information. The caller is likely
+#'   most interested in the `$score` vector, but other bits related to
+#'   the SVD/PCA decomposition are included for the ride.
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#'                        value='x.idx')
+#' scores <- eigenWeightedMean(vm[features,])$score
+#'
+#' ## Use scoreSingleSamples to facilitate scoring of all gene sets
+#' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
+#' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 ##'            setNames(score, sample))
-##' all.equal(s2, scores) ## should be TRUE
+#' all.equal(s2, scores) ## should be TRUE
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
                               weights=NULL, normalize = FALSE, all.x = NULL,
@@ -124,24 +124,24 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
   res
 }
 
-##' Calculate single sample geneset score by average z-score method
-##'
-##' @export
-##' @param x gene x sample matrix
-##' @param summary sqrt or mean
-##' @param trim calculate trimmed mean?
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- conform(getMSigGeneSetDb('h'), vm)
-##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
-##'                        value='x.idx')
-##' scores <- zScore(vm[features,])$score
-##'
-##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
-##' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
-##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-##'            setNames(score, sample))
-##' all.equal(s2, scores) ## should be TRUE
+#' Calculate single sample geneset score by average z-score method
+#'
+#' @export
+#' @param x gene x sample matrix
+#' @param summary sqrt or mean
+#' @param trim calculate trimmed mean?
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#'                        value='x.idx')
+#' scores <- zScore(vm[features,])$score
+#'
+#' ## Use scoreSingleSamples to facilitate scoring of all gene sets
+#' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
+#' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+#'            setNames(score, sample))
+#' all.equal(s2, scores) ## should be TRUE
 zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   x <- as_matrix(x)
   summary <- match.arg(summary)
@@ -164,67 +164,67 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   out
 }
 
-##' Single sample geneset score using SVD based eigengene value per sample.
-##'
-##' @description
-##' This method was developed by Jason Hackney and first introduced in the
-##' following paper \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}.
-##' It produces a single sample gene set score in values that are in
-##' "expression space," the innards of which mimic something quite similar
-##' to an eigengene based score.
-##'
-##' To easily use this method to score a number of gene setes across an
-##' experiment, you'll want to have the \code{\link{scoreSingleSamples}} method
-##' drive this function via specifying \code{"svd"} as one of the
-##' \code{methods}.
-##'
-##' @details
-##' The difference between this method vs the eigengene score is that the SVD is
-##' used to calculate the eigengene. The vector of eigengenes (one score per
-##' sample) is then multiplied through by the SVD's left matrix. This produces a
-##' matrix which we then take the colSums of to get back to a single sample
-##' score for the geneset.
-##'
-##' Why do all of that? You get data that is back "in expression space" and we
-##' also run around the problem of sign of the eigenvector. The scores you get
-##' are very similar to average zscores of the genes per sample, where the
-##' average is weighted by the degree to which each gene contributes to the
-##' principal component chosen by \code{eigengene}, as implemented in the
-##' \code{\link{eigenWeightedMean}} function.
-##'
-##' \emph{The core functionality provided here is taken from the soon to be
-##' released GSDecon package by Jason Hackney}
-##'
-##' @export
-##' @importFrom irlba svdr
-##'
-##' @param x An expression matrix of genes x samples. When using this to score
-##'   geneset activity, you want to reduce the rows of \code{x} to be only the
-##'   genes from the given gene set.
-##' @param eigengene the "eigengene" you want to get the score for. only accepts
-##'   a single value for now.
-##' @param center,scale center and/or scale data before scoring?
-##' @param uncenter,unscale uncenter and unscale the data data on the way out?
-##'   Defaults to the respective values of \code{center} and \code{scale}
-##' @param retx Works the same as `retx` from \code{\link[stats]{prcomp}}. If
-##'   \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
-##'   variables.
-##' @return A list of useful transformation information. The caller is likely
-##'   most interested in the \code{$score} vector, but other bits related to
-##'   the SVD/PCA decomposition are included for the ride.
-##'
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- conform(getMSigGeneSetDb('h'), vm)
-##' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
-##'                        value='x.idx')
-##' scores <- gsdScore(vm[features,])$score
-##'
-##' ## Use scoreSingleSamples to facilitate scoring of all gene sets
-##' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
-##' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-##'            setNames(score, sample))
-##' all.equal(s2, scores) ## should be TRUE
+#' Single sample geneset score using SVD based eigengene value per sample.
+#'
+#' @description
+#' This method was developed by Jason Hackney and first introduced in the
+#' following paper [doi:10.1038/ng.3520](https://doi.org/10.1038/ng.3520).
+#' It produces a single sample gene set score in values that are in
+#' "expression space," the innards of which mimic something quite similar
+#' to an eigengene based score.
+#'
+#' To easily use this method to score a number of gene setes across an
+#' experiment, you'll want to have the [scoreSingleSamples()] method
+#' drive this function via specifying `"svd"` as one of the
+#' `methods`.
+#'
+#' @details
+#' The difference between this method vs the eigengene score is that the SVD is
+#' used to calculate the eigengene. The vector of eigengenes (one score per
+#' sample) is then multiplied through by the SVD's left matrix. This produces a
+#' matrix which we then take the colSums of to get back to a single sample
+#' score for the geneset.
+#'
+#' Why do all of that? You get data that is back "in expression space" and we
+#' also run around the problem of sign of the eigenvector. The scores you get
+#' are very similar to average zscores of the genes per sample, where the
+#' average is weighted by the degree to which each gene contributes to the
+#' principal component chosen by `eigengene`, as implemented in the
+#' [eigenWeightedMean()] function.
+#'
+#' *The core functionality provided here is taken from the soon to be
+#' released GSDecon package by Jason Hackney*
+#'
+#' @export
+#' @importFrom irlba svdr
+#'
+#' @param x An expression matrix of genes x samples. When using this to score
+#'   geneset activity, you want to reduce the rows of \code{x} to be only the
+#'   genes from the given gene set.
+#' @param eigengene the "eigengene" you want to get the score for. only accepts
+#'   a single value for now.
+#' @param center,scale center and/or scale data before scoring?
+#' @param uncenter,unscale uncenter and unscale the data data on the way out?
+#'   Defaults to the respective values of \code{center} and \code{scale}
+#' @param retx Works the same as `retx` from \code{\link[stats]{prcomp}}. If
+#'   \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
+#'   variables.
+#' @return A list of useful transformation information. The caller is likely
+#'   most interested in the \code{$score} vector, but other bits related to
+#'   the SVD/PCA decomposition are included for the ride.
+#'
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#'                        value='x.idx')
+#' scores <- gsdScore(vm[features,])$score
+#'
+#' ## Use scoreSingleSamples to facilitate scoring of all gene sets
+#' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
+#' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
+#'            setNames(score, sample))
+#' all.equal(s2, scores) ## should be TRUE
 gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                      uncenter=center, unscale=scale, retx=FALSE, ...,
                      .use_irlba = FALSE) {

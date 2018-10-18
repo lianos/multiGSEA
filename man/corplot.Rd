@@ -10,7 +10,7 @@ corplot(E, title, cluster = FALSE, col.point = "#00000066",
 \arguments{
 \item{E}{the matrix used to plot a pairs correlation plot. The vectors used
 to assess all pairwise correlation should be \emph{in the columns} of the
-matrixl.}
+matrix.}
 
 \item{title}{The title of the plot}
 
@@ -33,12 +33,12 @@ named different from that..
 }
 \details{
 TODO: Add with.signature parameter to allow a box to plot the signature
-  score of all genes in E.
+score of all genes in E.
 }
 \examples{
 x <- matrix(rnorm(1000), ncol=5)
 corplot(x)
 }
 \seealso{
-\url{http://cran.r-project.org/package=corrplot}
+The \href{http://cran.r-project.org/package=corrplot}{corrplot} package
 }

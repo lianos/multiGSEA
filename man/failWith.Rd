@@ -15,15 +15,20 @@ failWith(default = NULL, expr, frame = parent.frame(),
 \item{frame}{the frame to evaluate the expression in}
 
 \item{message}{the error message to display if \code{expr} fails. Deafults
-to \code{geterrmessage()}}
+to \code{\link[base:geterrmessage]{base::geterrmessage()}}}
 
-\item{silent}{if \code{TRUE}, sends the error message to \code{msg}}
+\item{silent}{if \code{TRUE}, sends the error message to \code{\link[=msg]{msg()}}}
 
 \item{file}{where msg sends the message}
 }
 \value{
-the result of \code{expr} if successful, otherwis \code{default}
+the result of \code{expr} if successful, otherwise \code{default} value.
 }
 \description{
-Utility function to try and fail with grace.
+Inspired from one of Hadley's functions (in plyr or something?)
+}
+\examples{
+\dontrun{
+failWith(NULL, stop("no error, just NULL"))
+}
 }

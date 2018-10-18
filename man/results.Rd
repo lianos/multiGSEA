@@ -36,7 +36,7 @@ trimmed t-statistics of the these features (\code{"t"}).}
 
 \item{add.suffix}{If \code{TRUE}, adds \code{.name} as a suffix to the
 columns of the \code{method}-specific statistics returned, ie. the
-\code{pval} column from the \code{camera} result will be turned to
+\code{pval} column from the \code{"camera"} result will be turned to
 \code{pval.camera}.}
 
 \item{names}{The results you want to cbind together for the output, will
@@ -46,7 +46,7 @@ default to all of them.}
 
 \item{p.col}{use padj or padj.by.collection?}
 
-\item{x}{A \code{\link{MultiGSEAResult}} object.}
+\item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object.}
 
 \item{names}{the names of the GSEA methods to be reported. By default,
 this function will display results for all methods.}
@@ -55,7 +55,7 @@ this function will display results for all methods.}
 a data.table with the results from the requested method.
 
 a data.table that summarizes the significant results per method
-  per collection for the GSEA that was run
+per collection for the GSEA that was run
 }
 \description{
 The \code{resultNames}, \code{result}, and \code{results} functions enable
@@ -63,26 +63,27 @@ you to explore the results of the analysis run with \code{\link{multiGSEA}}.
 
 The results that are stored within a \code{MultiGSEAResult} object have a
 more or less 1:1 mapping with the values passed as \code{methods}, parameter
-of the \code{\link{multiGSEA}} call.
+of the \code{\link[=multiGSEA]{multiGSEA()}} call.
 
+Generates a table to indicate the number of genesets per collection that
+pass a given FDR. The table provides separate groups of rows for each of
+the \code{methods} run in the \code{\link[=multiGSEA]{multiGSEA()}} call that generated that
+generated \code{x}.
+}
+\details{
 The product of an indivdual GSEA is consumed by the corresponding
 \code{do.<METHOD>} function and converted into a data.table of results that
 is internally stored.
 
-Use the \code{resultNames} function to identify which results are available
-for interrogation. The \code{result} function returns the statistics of
-one individual result, and the \code{results} function combines the results
+Use the \code{resultNames()} function to identify which results are available
+for interrogation. The \code{result()} function returns the statistics of
+one individual result, and the \code{results()} function combines the results
 from the specified methods into an arbitrarily wide data.table with
 \code{method}-suffixed column names.
 
-Use the \code{tabulateResults} function to create a summary table that
+Use the \code{tabulateResults()} function to create a summary table that
 tallies the number of significant genesets per collection, per method at
 the specified FDR thresholds.
-
-Generates a table to indicate the number of genesets per collection that
-pass a given FDR. The table provides separate groups of rows for each of
-the \code{methods} run in the \code{\link{multiGSEA}} call that generated
-that generated \code{x}
 }
 \examples{
 ## Refer to the examples in ?multiGSEA

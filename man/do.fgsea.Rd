@@ -10,21 +10,23 @@
   gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"), ...)
 }
 \arguments{
-\item{gsd}{The \code{\link{GeneSetDb}} for analysis}
+\item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} for analysis}
 
 \item{x}{The expression object. This can be 1 column matrix if you are not
-running any analysis, and this function essentially is just a "pass through"}
+running any analysis, and this function essentially is just a
+"pass through"}
 
 \item{design}{The design matrix for the experiment}
 
 \item{contrast}{The contrast you want to test and provide stats for. By
 default this tests the last column of the \code{design} matrix. If you
 want to test a custom contrast, this can be a contrast vector, which
-means that it should be as long as \code{ncol(design)} and it most-often
-sum to one. In the future, the user will be able to specify a range of
-coefficients over \code{design} to perform an ANOVA analysis.}
+means that it should be as long as \code{ncol(design)} and it most-often sum to
+one. In the future, the user will be able to specify a range of
+coefficients over \code{design} to perform an ANOVA analysis, cf.
+Issue #11 (https://github.com/lianos/multiGSEA/issues/11).}
 
-\item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
+\item{...}{arguments to pass down into \code{\link[=calculateIndividualLogFC]{calculateIndividualLogFC()}}}
 }
 \value{
 A data.table of fgsea results.
@@ -40,4 +42,7 @@ compiler can't handle this yet.
 fgsea expects the pathways to be describes as a list of character vectors
 where the vectors are gene ids, and the names of the pre-ranked vector
 correspond to those IDs
+
+\strong{This function is not meant to be called directly.} It should only be
+called internally within \code{\link[=multiGSEA]{multiGSEA()}}.
 }

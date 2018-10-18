@@ -8,14 +8,14 @@ expression object.}
 logFC(x, as.dt = FALSE)
 }
 \arguments{
-\item{x}{A \code{MultiGSEAResult}}
+\item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}}}
 
 \item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
 this funciton returns will be set to a data.frame. Set this to \code{TRUE}
 to keep this object as a \code{data.table}}
 }
 \value{
-The log fold change \code{data.table}
+The log fold change `data.table``
 }
 \description{
 Extract the individual fold changes statistics for elements in the

@@ -8,7 +8,7 @@ geneSetsStats(x, feature.min.logFC = 1, feature.max.padj = 0.1,
   trim = 0.1, as.dt = FALSE)
 }
 \arguments{
-\item{x}{A \code{multiGSEAResult} object}
+\item{x}{A \code{MultiGSEAResult} object}
 
 \item{feature.min.logFC}{used with \code{feature.max.padj} to identify
 the individual features that are to be considered differentially
@@ -23,42 +23,28 @@ expressed.}
 }
 \value{
 A data.table with statistics at the gene set level across the
-  prescribed contrast run on \code{x}. These statistics are independent
-  of any particular GSEA method, but rather summarize aggregate shifts
-  of the gene sets individual features. The columns included in the output
-  are summarized below:
-
-  \describe{
-    \item{n.sig}{
-      The number of individual features whose abs(logFC) and padj thersholds
-      satisfy the criteria of the \code{feature.min.logFC} and
-      \code{feature.max.padj} parameters of the original
-      \code{\link{multiGSEA}} call
-    }
-    \item{n.neutral}{
-      The number of individual features whose abs(logFC) and padj thersholds
-      do not satisfy the \code{feature.*} criteria named above.
-    }
-    \item{n.up, n.down}{
-      The number of individual features with logFC > 0 or logFC < 0,
-      respectively, irrespective of the \code{feature.*} thresholds
-      referenced above.
-    }
-    \item{n.sig.up, n.sig.down}{
-      The number of individual features that pass the \code{feature.*}
-      thresholds and have logFC > 0 or logFC < 0, respectively.
-    }
-    \item{mean.logFC, mean.logFC.trim}{
-      The mean (or trimmed mean) of the individual logFC estimates for the
-      features in the gene set. The amount of trim is specified in the
-      \code{trim} parameter of the \code{\link{multiGSEA}} call.
-    }
-    \item{mean.t, mean.t.trim}{
-      The mean (or trimmed mean) of the individual t-statistics for the
-      features in the gene sets. These are \code{NA} if the input expression
-      object was a \code{DGEList}.
-    }
-  }
+prescribed contrast run on \code{x}. These statistics are independent
+of any particular GSEA method, but rather summarize aggregate shifts
+of the gene sets individual features. The columns included in the output
+are summarized below:
+\itemize{
+\item \code{n.sig}: The number of individual features whose \code{abs(logFC)} and padj
+thersholds satisfy the criteria of the \code{feature.min.logFC} and
+\code{feature.max.padj} parameters of the original \code{\link[=multiGSEA]{multiGSEA()}} call
+\item \code{n.neutral}: The number of individual features whose abs(logFC) and padj
+thersholds do not satisfy the \code{feature.*} criteria named above.
+\item \code{n.up, n.down}: The number of individual features with \code{logFC > 0} or
+\code{logFC < 0}, respectively, irrespective of the \code{feature.*} thresholds
+referenced above.
+\item \code{n.sig.up, n.sig.down}: The number of individual features that pass the
+\code{feature.*} thresholds and have logFC > 0 or logFC < 0, respectively.
+\item \code{mean.logFC, mean.logFC.trim}: The mean (or trimmed mean) of the individual
+logFC estimates for the features in the gene set. The amount of trim is
+specified in the \code{trim} parameter of the \code{\link[=multiGSEA]{multiGSEA()}} call.
+\item \code{mean.t, mean.t.trim}: The mean (or trimmed mean) of the individual
+t-statistics for the features in the gene sets. These are \code{NA} if the input
+expression object was a \code{DGEList}.
+}
 }
 \description{
 This function calculates the number of genes that move up/down for the

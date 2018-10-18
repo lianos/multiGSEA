@@ -7,20 +7,27 @@
 \method{subset}{GeneSetDb}(x, keep)
 }
 \arguments{
-\item{x}{\code{GeneSetDb}}
+\item{x}{a \code{\link[=GeneSetDb]{GeneSetDb()}}}
 
-\item{keep}{logical vector as long as
-\code{nrow(geneSets(x, active.only=FALSE))}}
+\item{keep}{logical vector as long as \code{nrow(geneSets(x, active.only=FALSE)}}
 }
 \value{
 a \code{GeneSetDb} that has only the results for the specified
-  genesets.
+genesets.
 }
 \description{
 This is a utility function that is called by \code{[.GeneSetDb} and is not
 exported because it is not meant for external use.
 }
 \details{
-DEBUG: If `keep` is all FALSE, this will explode. What does an empty
+DEBUG: If \code{keep} is all FALSE, this will explode. What does an empty
 GeneSetDb look like, anyway? Something ...
+
+We want to support a better, more fluent subsetting of GeneSetDb objects.
+See Issue #12 (https://github.com/lianos/multiGSEA/issues/12)
+}
+\examples{
+gdb.all <- exampleGeneSetDb()
+gs <- geneSets(gdb.all)
+gdb <- gdb.all[gs$collection \%in\% c("c2", "c7")]]
 }

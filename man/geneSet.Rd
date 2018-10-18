@@ -17,8 +17,8 @@ geneSet(x, i, j, ...)
   with.feature.map = FALSE, ..., as.dt = FALSE)
 }
 \arguments{
-\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
-a \code{MultiGSEAResult}.}
+\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or a
+\code{MultiGSEAResult}.}
 
 \item{i}{The collection,name compound key identifier of the gene set}
 
@@ -27,10 +27,10 @@ a \code{MultiGSEAResult}.}
 \item{...}{passed down to inner functinos}
 
 \item{active.only}{only look for gene sets that are "active"? Defaults to
-\code{TRUE} if \code{x} is conformed to a target expression object, else
-\code{FALSE}. See \code{\link{conform}} for further details.}
+\code{TRUE} if \code{x} is conformed to a target expression object, else \code{FALSE}.
+\code{\link[=conform]{conform()}} for further details.}
 
-\item{with.feature.map}{If \code{TRUE}, then deatils of the feature mapping
+\item{with.feature.map}{If \code{TRUE}, then details of the feature mapping
 from the original featureId space to the target feature space are included
 (default: \code{FALSE}).}
 
@@ -39,17 +39,17 @@ this funciton returns will be set to a data.frame. Set this to \code{TRUE}
 to keep this object as a \code{data.table}}
 }
 \value{
-a data.(frame|table) of gene set information. If \code{x} is a
-  \code{MultiGSEAResult} object, then differential expression statistics
-  are added as columns to this result.
+a \code{data.(frame|table)} of gene set information. If \code{x} is a
+\code{MultiGSEAResult} object, then differential expression statistics
+are added as columns to this result.
 }
 \description{
-Gene sets inside a \code{GeneSetDb} are indexed by their collection,name
+Gene sets inside a \code{\link[=GeneSetDb]{GeneSetDb()}} are indexed by their collection,name
 compound key. There is no special class to represent an individual gene set.
 Instead, gene sets are returned as a data.frame, the rows of which enumerate
 the features that belong to them.
 
-When \code{x} is a \code{\link{MultiGSEAResult}}, this function will append
+When \code{x} is a \code{\link[=MultiGSEAResult]{MultiGSEAResult()}}, this function will append
 the differential expression statistics for the individual features generated
 across the contrast that defined \code{x}.
 }

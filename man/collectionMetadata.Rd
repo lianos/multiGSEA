@@ -55,14 +55,13 @@ addCollectionMetadata(x, xcoll, xname, value, validate.value.fn = NULL,
 \code{GeneSetDb} already, and this will fail because something is
 deeply wrong with the world}
 
-\item{x}{\code{GeneSetDb}}
+\item{x}{\code{\link[=GeneSetDb]{GeneSetDb()}}}
 }
 \value{
 A character vector of URLs for each of the genesets identified by
-  \code{i, j}. \code{NA} is returned for genesets \code{i,j} that are not
-  found in \code{x}.
+\code{i, j}. \code{NA} is returned for genesets \code{i,j} that are not found in \code{x}.
 
-The updated \code{GeneSetDb}
+The updated \code{GeneSetDb}.
 }
 \description{
 The design of the GeneSetDb is such that we assume that groups of gene sets
@@ -73,15 +72,15 @@ level.
 
 Types of metadata being referred to could be things like the organism
 that a batch of gene sets were defined in, the type of feature identifiers
-that a collection of gene sets are using (ie. \code{EntrezIdentifier}),
+that a collection of gene sets are using (ie. \code{\link[GSEABase:EntrezIdentifier]{GSEABase::EntrezIdentifier()}})
 or a URL pattern that combines the collection,name compound key that one
 can browse to in order to find out more information about the gene set.
 
 There are explicit helper functions that set and get these aforementioned
-metadata, namely \code{org}, \code{featureIdType},
-\code{geneSetCollectionURLfunction}, and \code{geneSetURL}. Aribtrary
+metadata, namely \code{\link[=org]{org()}}, \code{\link[=featureIdType]{featureIdType()}},
+\code{\link[=geneSetCollectionURLfunction]{geneSetCollectionURLfunction()}}, and \code{\link[=geneSetURL]{geneSetURL()}}. Aribtrary
 metadata can be stored at the collection level using the
-\code{addCollectionMetadata} function. More details are provided below.
+\code{\link[=addCollectionMetadata]{addCollectionMetadata()}} function. More details are provided below.
 }
 \section{Gene Set URLs}{
 
@@ -89,21 +88,18 @@ metadata can be stored at the collection level using the
 A URL function can be defined per collection that takes the collection,name
 compound key and generates a URL for the gene set that the user can browse
 to for futher information. For instance, the
-\code{geneSetCollectionURLfunction} for the MSigDB collections are defined
-like so:
-
-\preformatted{
-  url.fn <- function(collection, name) {
-    url <- 'http://www.broadinstitute.org/gsea/msigdb/cards/%s.html'
-    sprintf(url, name)
-  }
-  gdb <- getMSigGeneSetDb('h')
-  geneSetCollectionURLfunction(gdb, 'h') <- url.fn
+\code{\link[=geneSetCollectionURLfunction]{geneSetCollectionURLfunction()}} for the MSigDB collections are defined
+like so:\preformatted{url.fn <- function(collection, name) {
+  url <- 'http://www.broadinstitute.org/gsea/msigdb/cards/\%s.html'
+  sprintf(url, name)
+}
+gdb <- getMSigGeneSetDb('h')
+geneSetCollectionURLfunction(gdb, 'h') <- url.fn
 }
 
 In this way, a call to \code{geneSetURL(gdb, 'h', 'HALLMARK_ANGIOGENESIS')}
 will return
-\url{http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html}.
+http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html.
 
 This function is vectorized over \code{i} and \code{j}
 }
@@ -116,13 +112,10 @@ be of the same type. Most often you'll probably be working with Entrez
 identifiers, simply because that's what most of the annotations work with.
 
 As such, you'd define that your collection uses geneset identifiers like
-so:
-
-\preformatted{
-  gdb <- getMSigGeneSetDb('h')
-  featureIdType(gdb, 'h') <- EntrezIdentifier()
-  ## or, equivalently (but you don't want to use this)
-  gdb <- addCollectionMetadata(gdb, 'h', 'id_type', EntrezIdentifier())
+so:\preformatted{gdb <- getMSigGeneSetDb('h')
+featureIdType(gdb, 'h') <- EntrezIdentifier()
+## or, equivalently (but you don't want to use this)
+gdb <- addCollectionMetadata(gdb, 'h', 'id_type', EntrezIdentifier())
 }
 }
 
@@ -130,11 +123,8 @@ so:
 
 
 You're going to want to keep track of the organism the experiments were run
-in that were used to define this collection of gene sets.
-
-\preformatted{
-  gdb <- getMSigGeneSetDb('h')
-  org(gdb, 'h') <- 'Homo_sapiens'
+in that were used to define this collection of gene sets.\preformatted{gdb <- getMSigGeneSetDb('h')
+org(gdb, 'h') <- 'Homo_sapiens'
 }
 }
 
@@ -144,14 +134,11 @@ in that were used to define this collection of gene sets.
 Adds arbitrary metadata to a gene set collection of a GeneSetDb
 
 Note that this is not a replacement method! You must catch the returned
-object to keep the one with the updated `collectionMetadata`. Although this
+object to keep the one with the updated \code{collectionMetadata}. Although this
 function is exported, I imagine this being used mostly through predefined
 replace methods that use this as a utility function, such as the replacement
-methods for \code{\link{org}}, and \code{\link{featureIdType}}.
-
-\preformatted{
-  gdb <- getMSigGeneSetDb('h')
-  gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
+methods for \code{\link[=org]{org()}}, and \code{\link[=featureIdType]{featureIdType()}}.\preformatted{gdb <- getMSigGeneSetDb('h')
+gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
 }
 }
 

@@ -22,7 +22,9 @@ as a threshold such that values less than this will be hexbinned.}
 be hexbinned.}
 }
 \description{
-Create an interactive volcano plot
+Convenience function to create volcano plots from differents types of
+objects we generate in this package. This is mostly used by the
+\emph{multiGSEA.shiny} package.
 }
 \examples{
 mg <- exampleMultiGSEAResult()

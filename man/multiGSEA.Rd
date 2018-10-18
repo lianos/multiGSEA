@@ -10,8 +10,7 @@ multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
   .parallel = FALSE, BPPARAM = bpparam())
 }
 \arguments{
-\item{gsd}{The \code{\link{GeneSetDb}} that defines the gene sets of
-interest.}
+\item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} that defines the gene sets of interest.}
 
 \item{x}{An ExpressoinSet-like object}
 
@@ -19,10 +18,9 @@ interest.}
 
 \item{contrast}{The contrast of interest to analyze. This can be a column
 name of \code{design}, or a contrast vector which performs "coefficient
-arithmetic" over the columns of \code{design}. The \code{design} and
-\code{contrast} parameters are interpreted in \emph{exactly} the same
-way as the same parameters in limma's \code{\link[limma]{camera}} and
-\code{\link[limma]{roast}} methods.}
+arithmetic" over the columns of \code{design}. The \code{design} and \code{contrast}
+parameters are interpreted in \emph{exactly} the same way as the same parameters
+in limma's \code{\link[limma:camera]{limma::camera()}} and \code{\link[limma:roast]{limma::roast()}} methods.}
 
 \item{methods}{A character vector indicating the GSEA methods you want to
 run. Refer to the GSEA Methods section for more details.
@@ -35,9 +33,9 @@ gene-level differential expression analysis?}
 \item{feature.min.logFC}{The minimum logFC required for an individual
 feature (not geneset) to be considered differentialy expressed. Used in
 conjunction with \code{feature.max.padj} primarily for summarization
-of genesets (by \code{\link{geneSetsStats}}), but can also be
-used by GSEA methods that require differential expression calls at the
-individual feature level, like \code{\link{goseq}}}
+of genesets (by \code{\link[=geneSetsStats]{geneSetsStats()}}, but can also be used by GSEA methods
+that require differential expression calls at the individual feature level,
+like \code{\link[=goseq]{goseq()}}.}
 
 \item{feature.max.padj}{The maximum adjusted pvalue used to consider an
 individual feature (not geneset) to be differentially expressed. Used in
@@ -45,29 +43,29 @@ conjunction with \code{feature.min.logFC}.}
 
 \item{trim}{The amount to trim when calculated trimmed \code{t} and
 \code{logFC} statistics for each geneset. This is passed down to the
-\code{\link{geneSetsStats}} function.}
+\code{\link[=geneSetsStats]{geneSetsStats()}} function.}
 
 \item{verbose}{make some noise during execution?}
 
 \item{...}{The arguments are passed down into
-\code{\link{calculateIndividualLogFC}} and the various geneset analysis
-functions.}
+\code{\link[=calculateIndividualLogFC]{calculateIndividualLogFC()}} and the various geneset analysis functions.}
 
 \item{.parallel}{by default, \code{.parallel=FALSE} runs each GSEA in a
 serial manner. If \code{.parallel=TRUE}, the GSEA execution loop is
-parallelized using \code{BiocParallel}. Note that you might want to remove
-unnecessary large objects from your workspace when this is \code{TRUE}
+parallelized using the \emph{BiocParallel} package. Note that you might want to
+remove unnecessary large objects from your workspace when this is \code{TRUE}
 because R will likely want to copy them down into your worker threads.}
 
-\item{BPPARAM}{a \code{\link[BiocParallel]{BatchJobsParam}} passed down to
-\code{\link[BiocParallel]{bplapply}}. If not specified, the already
-registerd \code{\link[BiocParallel]{BatchJobsParam}} will be used.
-If \code{.parallel=FALSE}, this parameter is explicitly ignored and
-replaced with a \code{\link[BiocParallel]{SerialParam}} object.}
+\item{BPPARAM}{a \emph{BiocParallel} parameter definition, like one generated from
+\code{\link[BiocParallel:MulticoreParam()]{BiocParallel::MulticoreParam()()}}, or \code{\link[BiocParallel:BatchtoolsParam]{BiocParallel::BatchtoolsParam()}},
+for instance, which is passed down to \link{BiocParallel}::bplapply()]. If not
+specified and \code{.parallel = TRUE}, then the \code{\link[BiocParallel:bpparam]{BiocParallel::bpparam()}} object
+will be used. If \code{.parallel = FALSE}, this parameter is explicitly ignored
+and replaced with a \link{BiocParallel}::SerialParam()] object.}
 }
 \value{
-A \code{\link{MultiGSEAResult}} which holds the results of all the
-  analyses specified in \code{methods}.
+A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} which holds the results of all the analyses
+specified in the \code{methods} parameter.
 }
 \description{
 multiGSEA is wrapper function that delegates GSEA analyses to different
@@ -79,36 +77,33 @@ arguments down through the \code{...} of this wrapper function.
 \details{
 The bulk of the GSEA methods currently available in this package come from
 edgeR/limma, however others are included (and are being added), as well.
-\emph{GSEA Methods} and \emph{GSEA Method Parameterization} sections for
-more details.
+\emph{GSEA Methods} and \emph{GSEA Method Parameterization} sections for more details.
 
 In addition to performing GSEA, this function also internally orchestrates
 a differential expression analysis, which can be tweaked by identifying
-the parameters in the \code{\link{calculateIndividualLogFC}} function, and
+the parameters in the \code{\link[=calculateIndividualLogFC]{calculateIndividualLogFC()}} function, and
 passing them down through \code{...} here. The results of the differential
-expression analysis (ie. the \code{"topTable"}) are accessible by calling
-the \code{logFC} function on the \code{\link{MultiGSEAResult}} object
-returned from this function call.
+expression analysis (ie. the \code{\link[limma:topTable]{limma::topTable()}}) are accessible by calling
+the \code{\link[=logFC]{logFC()}} function on the \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object returned from this
+function call.
 
-\emph{Please Note}: be sure to cite the original GSEA method when using
-results generated from it.
+\strong{Please Note}: be sure to cite the original GSEA method when using
+results generated from this function.
 }
 \section{GSEA Methods}{
 
-
 You can choose the methods you want to run over your contrast using the
 \code{methods}, parameter. The currently available methods are:
-
-\enumerate{
-  \item \code{\link[limma]{camera}(*)}
-  \item \code{\link[limma]{cameraPR}}
-  \item \code{\link[limma]{roast}(*)}
-  \item \code{\link[limma]{fry}(*)}
-  \item \code{\link[limma]{romer}(*)}
-  \item \code{\link[limma]{geneSetTest}}
-  \item \code{\link{goseq}}
-  \item \code{\link{hyperGeometricTest}}
-  \item \code{\link[fgsea]{fgsea}}
+\itemize{
+\item \code{"camera"}: from \code{\link[limma:camera]{limma::camera()}} (*)
+\item \code{"cameraPR"}: from \code{\link[limma:cameraPR]{limma::cameraPR()}}
+\item \code{"roast"}: from \code{\link[limma:roast]{limma::roast()}} (*)
+\item \code{"fry"}: from \code{\link[limma:fry]{limma::fry()}} (*)
+\item \code{"romer"}: from \code{\link[limma:romer]{limma::romer()}} (*)
+\item \code{"geneSetTest"}: from \code{\link[limma:geneSetTest]{limma::geneSetTest()}}
+\item \code{"goseq"}: from \code{\link[goseq:goseq]{goseq::goseq()}}
+\item \code{"hyperGeometricTest"}
+\item \code{"fgsea"}: from \code{\link[fgsea:fgsea]{fgsea::fgsea()}}
 }
 
 Methods annotated with a \code{(*)} indicate that these methods require
@@ -125,9 +120,12 @@ log-fold-changes, depending on the value provided in the \code{score.by}
 parameter.
 
 The worker functions that execute these GSEA methods are functions named
-\code{do.METHOD}. These functions are not meant to be executed directly,
-by the suer, but you can find help on them via \code{?do.goseq}, or
-\code{?do.camera}, for example.
+\code{do.METHOD} within this package. These functions are not meant to be executed
+directly by the user, and are therefore not exported. Look at the respective
+method's help page (ie. if you are running \code{"camera"}, look at the
+\code{\link[limma:camera]{limma::camera()}} help page for full details. The formal parameters that
+these methods take can be passed to them via the \code{...} in this \code{multiGSEA()}
+function.
 }
 
 \section{GSEA Method Parameterization}{
@@ -140,7 +138,7 @@ defined. The \code{multiGSEA} call simply has to pass these parameters down
 into the \code{...} parameters here. The \code{multiGSEA} function will then
 pass these along to their worker functions.
 
-\emph{What happens when two different GSEA methods have parameters with the
+\strong{What happens when two different GSEA methods have parameters with the
 same name?}
 
 Unfortunately you currently cannot provide different values for these
@@ -153,26 +151,26 @@ even these can be compared against each other.
 \section{Differential Gene Expression}{
 
 
-When the \code{multiGSEA} call is given an expression matrix, design, and
+When the \code{multiGSEA()} call is given an expression matrix, design, and
 contrast, it will also internally orchestrate a gene level differential
 expression analysis. Depending on the type of expression object passed in
 via \code{x}, this function will guess on the best method to use for this
 analysis.
 
 If \code{x} is a \code{DGEList}, then ensure that you have already called
-\code{\link[edgeR]{estimateDisp}} on \code{x} and edgeR's quasilikelihood
-framework will be used, otherwise we'll use limma (note that \code{x} can
-be a "voom"d \code{EList}).
+\code{\link[edgeR:estimateDisp]{edgeR::estimateDisp()}} on \code{x} and edgeR's quasilikelihood framework will be
+used, otherwise we'll use limma (note that \code{x} can be an \code{EList} run through
+\code{voom()}, \code{voomWithQuailityWeights()}, or when where you have leveraged
+limma's \code{\link[limma:duplicateCorrelation]{limma::duplicateCorrelation()}} functionality, even.
 
 The parameters of this differential expression analysis can also be
-customized. Please refer to the \code{\link{calculateIndividualLogFC}}
-function for more information. The multiGSEA \code{use.treat},
-\code{feature.min.logFC}, \code{feature.max.padj}, as well as the \code{...}
-parameters are passed down to that funciton.
+customized. Please refer to the \code{\link[=calculateIndividualLogFC]{calculateIndividualLogFC()}} function for
+more information. The multiGSEA \code{use.treat}, \code{feature.min.logFC},
+\code{feature.max.padj}, as well as the \code{...} parameters are passed down to that
+funciton.
 }
 
 \examples{
-
 vm <- exampleExpressionSet(do.voom=TRUE)
 gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor',

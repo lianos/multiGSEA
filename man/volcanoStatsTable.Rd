@@ -28,16 +28,20 @@ by default, because this is how we most often plot the y-axis.}
 }
 \value{
 a \code{data.frame} with \code{.xv}, \code{.xy}, \code{.xvt} and
-  \code{.xvy} columns that represent the xvalues, yvalues, transformed
-  xvalues, and transformed yvalues, respectively
+\code{.xvy} columns that represent the xvalues, yvalues, transformed
+xvalues, and transformed yvalues, respectively
 }
 \description{
 You can, in theory, create a volcano plot from a number of different parts
-of a \code{MultiGSEAResult} object. Most often you want to create a volcano
+of a \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object. Most often you want to create a volcano
 plot from the differential expressino results, but you could imagine
 building a volcan plot where each point is a geneset. In this case, you
 would extract the pvalues from the method you like in the
-\code{MultiGSEAResult} object using the \code{stats} parameter.
+\code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object using the \code{stats} parameter.
+}
+\details{
+Like the \code{\link[=volcanoPlot]{volcanoPlot()}} function, this is mostly used by the
+\emph{multiGSEA.shiny} package.
 }
 \examples{
 mg <- exampleMultiGSEAResult()

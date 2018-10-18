@@ -9,7 +9,7 @@
   feature.min.logFC = 1, feature.max.padj = 0.1, logFC = NULL, ...)
 }
 \arguments{
-\item{gsd}{The \code{\link{GeneSetDb}} for analysis}
+\item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} for analysis}
 
 \item{x}{The expression object}
 

@@ -6,6 +6,15 @@
 \usage{
 multiGSEA.methods(names.only = TRUE)
 }
+\arguments{
+\item{names.only}{if \code{TRUE} (default), only returns the names of the methods,
+otherwise also returns meta information about the methods, such as the
+package it is found in.}
+}
+\value{
+a character vector of GSEA names, or a list of metadata for each
+method.
+}
 \description{
 Lists the supported GSEA methods by multiGSEA
 }

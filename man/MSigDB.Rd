@@ -30,12 +30,17 @@ gene sets that match \code{species} will be included. Default is
 }
 \value{
 a \code{GeneSetDb} object
+\dontrun{
+  gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
+  gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
+  gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")
+}
 }
 \description{
 This provides versioned genesets from gene set collections defined in
-\href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive
-to keep the latest version of MSigDB available via this function.
-The current version provided is v6.1.
+\href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive to keep
+the latest version of MSigDB available via this function. The current version
+provided is v6.1.
 
 Although the primariy identifiers used in MSigDB are human entrez IDs, we
 also include gene symbols, and mouse versions of each gene set (except c1)
@@ -47,7 +52,7 @@ for GO gene sets, eg. CC vs BP vs MF, and "organism" defines the organism in
 which the geneset was derived from ("Homo sapiens" or "Mus musculus").
 
 Note that this function by default will exclude the KEGG genesets from the
-MSigDB c2 collection. Set \code{with.kegg=TRUE} to include them. It is the
+MSigDB c2 collection. Set \code{with.kegg = TRUE} to include them. It is the
 end user's responsibility to ensure that they are appropriately adhering
 to the licensing restricions of the genesets provided herein.
 

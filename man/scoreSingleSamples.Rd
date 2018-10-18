@@ -50,6 +50,31 @@ using a \code{\link[=GeneSetDb]{GeneSetDb()}} object.
 Please refer to the "Generating Single Sample Gene Set Scores" of the
 multiGSEA vignette for further exposition.
 }
+\section{Single Sample Scoring Methods}{
+
+The following \code{methods} are currenly provided.
+\itemize{
+\item \code{"ewm"}: The \code{\link[=eigenWeightedMean]{eigenWeightedMean()}} calculates the fraction each gene
+contributes to a pre-specified principal component. These contributions
+act as weights over each gene, which are then used in a simple weighted
+mean calculation over all the genes in the geneset per sample. This is
+similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)
+\item \code{"gsd"}: This method was first introduced by Jason Hackney in
+\href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please refer to
+the \code{\link[=gsdScore]{gsdScore()}} function for more information.
+\item \code{"ssgsea"}: Using ssGSEA as implemented in the GSVA package.
+\item \code{"zscore"}: The features in the expression matrix are rowwise z transformed.
+The gene set level score is then calculated by adding up the zscores for
+the genes in the gene set, then dividing that number by either the the
+size (or its sqaure root (default)) of the gene set.
+\item \code{"mean"}: Simply take the mean of the values from the expression matrix
+that are in the gene set. Right or wrong, sometimes you just want the mean
+without transforming the data.
+\item \code{"gsva"}: The gsva method of GSVA package.
+\item \code{"plage"}: Using "plage" as implemented in the GSVA package
+}
+}
+
 \examples{
 library(reshape2)
 gdb <- exampleGeneSetDb()

@@ -11,7 +11,6 @@ Description: Provides a unified interface to orchestrate a plethora of GSEA
     methods over a contrast of interest as well as single sample gene set
     scoring methods. This package also provides robust interactive tools to
     explore GSEA results.
-Depends:
 Imports:
     BiocGenerics,
     BiocParallel,
@@ -69,7 +68,6 @@ Collate:
     'MultiGSEAResult-methods.R'
     'aaa.R'
     'bioc-accessors.R'
-    'cache-utils.R'
     'calculateIndividualLogFC.R'
     'validateInputs.R'
     'do.camera.R'
@@ -80,7 +78,6 @@ Collate:
     'do.goseq.R'
     'do.hyperGeometricTest.R'
     'do.logFC.R'
-    'do.npGSEA.R'
     'do.roast.R'
     'do.romer.R'
     'do.svdGeneSetTest.R'

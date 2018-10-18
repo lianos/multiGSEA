@@ -7,7 +7,7 @@
 hasGeneSetCollection(x, collection, as.error = FALSE)
 }
 \arguments{
-\item{x}{A \code{GeneSetDb}}
+\item{x}{A \code{\link[=GeneSetDb]{GeneSetDb()}}}
 
 \item{collection}{character vector of name(s) of the collections to query}
 

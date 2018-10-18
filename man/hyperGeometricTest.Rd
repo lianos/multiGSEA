@@ -8,7 +8,7 @@ hyperGeometricTest(gsd, selected, universe, direction = c("over",
   "under"), do.conform = TRUE, as.dt = FALSE)
 }
 \arguments{
-\item{gsd}{The \code{GeneSetDb} object to run tests against}
+\item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} object to run tests against}
 
 \item{selected}{The ids of the selected features}
 
@@ -17,17 +17,17 @@ hyperGeometricTest(gsd, selected, universe, direction = c("over",
 \item{direction}{Same as direction in \code{GOstats}}
 
 \item{do.conform}{By default \code{TRUE}: does some gymnastics to conform
-the \code{gsd} to the \code{universe} vector. This should neber be set
-to \code{FALSE}, but this parameter is here so that when this function
-is called from the \code{\link{multiGSEA}} codepath, we do not have to
-reconform the \code{GeneSetDb} object, because it has already been done.}
+the \code{gsd} to the \code{universe} vector. This should neber be set to \code{FALSE},
+but this parameter is here so that when this function is called from the
+\code{\link[=multiGSEA]{multiGSEA()}} codepath, we do not have to reconform the \code{\link[=GeneSetDb]{GeneSetDb()}}
+object, because it has already been done.}
 
 \item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
 this funciton returns will be set to a data.frame. Set this to \code{TRUE}
 to keep this object as a \code{data.table}}
 }
 \value{
-A \code{data.table} of results
+A \code{data.frame} of results
 }
 \description{
 Perform Hypergeometric Enrichment tests across a GeneSetDb.

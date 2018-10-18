@@ -1,7 +1,8 @@
-# Makes MultiGSEAResult objects compatible with old GNE multiGSEA Explorer App
-#
-# This is not documented or exported on purpose and will be removed in the near
-# future without warning, so: don't use it.
+#' Makes MultiGSEAResult objects compatible with old GNE multiGSEA Explorer App
+#'
+#' This is not documented or exported on purpose and will be removed in the near
+#' future without warning, so: don't use it.
+#' @noRd
 downgradeObject <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
   x@results <- sapply(names(x@results), function(res) {
@@ -11,25 +12,25 @@ downgradeObject <- function(x) {
   x
 }
 
-##' Fetches the GeneSetDb from MultiGSEAResult
-##'
-##' @export
-##'
-##' @rdname MultiGSEAResult-utilities
-##' @param x \code{MultiGSEAResult}
-##' @return The \code{GeneSetDb}
-##'
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
-##' geneSetDb(mg)
+#' Fetches the GeneSetDb from MultiGSEAResult
+#'
+#' @export
+#'
+#' @rdname MultiGSEAResult-utilities
+#' @param x \code{MultiGSEAResult}
+#' @return The \code{GeneSetDb}
+#'
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- exampleGeneSetDb()
+#' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+#' geneSetDb(mg)
 geneSetDb <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
   x@gsd
 }
 
-##' @rdname geneSet
+#' @rdname geneSet
 setMethod("geneSet", c(x="MultiGSEAResult"),
 function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
          as.dt=FALSE) {
@@ -60,8 +61,8 @@ function(x, ..., as.dt=FALSE) {
   geneSets(geneSetDb(x), active.only=TRUE, as.dt=as.dt)
 })
 
-## Here's your chance to vectorize this. Once that's done push this code down
-## into geneSetUrl,GeneSetDb
+# Here's your chance to vectorize this. Once that's done push this code down
+# into geneSetUrl,GeneSetDb
 setMethod("geneSetURL", c(x="MultiGSEAResult"), function(x, i, j, ...) {
   geneSetURL(geneSetDb(x), i, j, ...)
 })
@@ -71,7 +72,7 @@ function(x, i, ...) {
   geneSetCollectionURLfunction(geneSetDb(x), i, ...)
 })
 
-##' @rdname featureIds
+#' @rdname featureIds
 setMethod("featureIds", c(x="MultiGSEAResult"),
 function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
          active.only=TRUE, ...) {
@@ -83,69 +84,54 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
   featureIds(geneSetDb(x), i, j, value=value, active.only=TRUE, ...)
 })
 
-##' Summarizes useful statistics per gene set from a MultiGSEAResult
-##'
-##' This function calculates the number of genes that move up/down for the
-##' given contrasts, as well as mean and trimmed mean of the logFC and
-##' t-statistics. Note that the statistics calculated and returned here are
-##' purely a function of the statistics generated at the gene-level stage
-##' of the analysis.
-##'
-##' @export
-##'
-##' @param x A \code{multiGSEAResult} object
-##' @param feature.min.logFC used with \code{feature.max.padj} to identify
-##'   the individual features that are to be considered differentially
-##'   expressed.
-##' @param feature.max.padj used with \code{feature.min.logFC} to identify
-##'   the individual features that are to be considered differentially
-##'   expressed.
-##' @param trim The amount to trim when calculated trimmed \code{t} and
-##'   \code{logFC} statistics for each geneset.
-##'
-##' @return A data.table with statistics at the gene set level across the
-##'   prescribed contrast run on \code{x}. These statistics are independent
-##'   of any particular GSEA method, but rather summarize aggregate shifts
-##'   of the gene sets individual features. The columns included in the output
-##'   are summarized below:
-##'
-##'   \describe{
-##'     \item{n.sig}{
-##'       The number of individual features whose abs(logFC) and padj thersholds
-##'       satisfy the criteria of the \code{feature.min.logFC} and
-##'       \code{feature.max.padj} parameters of the original
-##'       \code{\link{multiGSEA}} call
-##'     }
-##'     \item{n.neutral}{
-##'       The number of individual features whose abs(logFC) and padj thersholds
-##'       do not satisfy the \code{feature.*} criteria named above.
-##'     }
-##'     \item{n.up, n.down}{
-##'       The number of individual features with logFC > 0 or logFC < 0,
-##'       respectively, irrespective of the \code{feature.*} thresholds
-##'       referenced above.
-##'     }
-##'     \item{n.sig.up, n.sig.down}{
-##'       The number of individual features that pass the \code{feature.*}
-##'       thresholds and have logFC > 0 or logFC < 0, respectively.
-##'     }
-##'     \item{mean.logFC, mean.logFC.trim}{
-##'       The mean (or trimmed mean) of the individual logFC estimates for the
-##'       features in the gene set. The amount of trim is specified in the
-##'       \code{trim} parameter of the \code{\link{multiGSEA}} call.
-##'     }
-##'     \item{mean.t, mean.t.trim}{
-##'       The mean (or trimmed mean) of the individual t-statistics for the
-##'       features in the gene sets. These are \code{NA} if the input expression
-##'       object was a \code{DGEList}.
-##'     }
-##'   }
-##'
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
-##' head(geneSetsStats(mg))
+#' Summarizes useful statistics per gene set from a MultiGSEAResult
+#'
+#' This function calculates the number of genes that move up/down for the
+#' given contrasts, as well as mean and trimmed mean of the logFC and
+#' t-statistics. Note that the statistics calculated and returned here are
+#' purely a function of the statistics generated at the gene-level stage
+#' of the analysis.
+#'
+#' @export
+#'
+#' @param x A `MultiGSEAResult` object
+#' @param feature.min.logFC used with `feature.max.padj` to identify
+#'   the individual features that are to be considered differentially
+#'   expressed.
+#' @param feature.max.padj used with `feature.min.logFC` to identify
+#'   the individual features that are to be considered differentially
+#'   expressed.
+#' @param trim The amount to trim when calculated trimmed `t` and
+#'   `logFC` statistics for each geneset.
+#'
+#' @return A data.table with statistics at the gene set level across the
+#'   prescribed contrast run on `x`. These statistics are independent
+#'   of any particular GSEA method, but rather summarize aggregate shifts
+#'   of the gene sets individual features. The columns included in the output
+#'   are summarized below:
+#'
+#' * `n.sig`: The number of individual features whose `abs(logFC)` and padj
+#'    thersholds satisfy the criteria of the `feature.min.logFC` and
+#'    `feature.max.padj` parameters of the original [multiGSEA()] call
+#' * `n.neutral`: The number of individual features whose abs(logFC) and padj
+#'    thersholds do not satisfy the `feature.*` criteria named above.
+#' * `n.up, n.down`: The number of individual features with `logFC > 0` or
+#'   `logFC < 0`, respectively, irrespective of the `feature.*` thresholds
+#'    referenced above.
+#' * `n.sig.up, n.sig.down`: The number of individual features that pass the
+#'   `feature.*` thresholds and have logFC > 0 or logFC < 0, respectively.
+#' * `mean.logFC, mean.logFC.trim`: The mean (or trimmed mean) of the individual
+#'   logFC estimates for the features in the gene set. The amount of trim is
+#'   specified in the `trim` parameter of the [multiGSEA()] call.
+#' * `mean.t, mean.t.trim`: The mean (or trimmed mean) of the individual
+#'   t-statistics for the features in the gene sets. These are `NA` if the input
+#'   expression object was a `DGEList`.
+#'
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- exampleGeneSetDb()
+#' mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
+#' head(geneSetsStats(mg))
 geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
                           trim=0.10, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
@@ -187,19 +173,19 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
   out
 }
 
-##' Extract the individual fold changes statistics for elements in the
-##' expression object.
-##'
-##' @export
-##' @param x A \code{MultiGSEAResult}
-##' @template asdt-param
-##' @return The log fold change \code{data.table}
-##'
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
-##' lfc <- logFC(mg)
+#' Extract the individual fold changes statistics for elements in the
+#' expression object.
+#'
+#' @export
+#' @param x A [MultiGSEAResult()]
+#' @template asdt-param
+#' @return The log fold change `data.table``
+#'
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- exampleGeneSetDb()
+#' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
+#' lfc <- logFC(mg)
 logFC <- function(x, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   out <- x@logFC
@@ -207,7 +193,9 @@ logFC <- function(x, as.dt=FALSE) {
   out
 }
 
-## Helper function: returns method names that were not run on a MultiGSEAResult
+#' Helper funtion: returns method names that were not run on a MultiGSEAResult
+#'
+#' @noRd
 invalidMethods <- function(x, names, as.error=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   stopifnot(is.character(names))
@@ -221,59 +209,60 @@ invalidMethods <- function(x, names, as.error=FALSE) {
   bad.names
 }
 
-##' Interrogate the results of a multiGSEA analysis stored in a MultiGSEAResult
-##'
-##' @description
-##' The \code{resultNames}, \code{result}, and \code{results} functions enable
-##' you to explore the results of the analysis run with \code{\link{multiGSEA}}.
-##'
-##' The results that are stored within a \code{MultiGSEAResult} object have a
-##' more or less 1:1 mapping with the values passed as \code{methods}, parameter
-##' of the \code{\link{multiGSEA}} call.
-##'
-##' The product of an indivdual GSEA is consumed by the corresponding
-##' \code{do.<METHOD>} function and converted into a data.table of results that
-##' is internally stored.
-##'
-##' Use the \code{resultNames} function to identify which results are available
-##' for interrogation. The \code{result} function returns the statistics of
-##' one individual result, and the \code{results} function combines the results
-##' from the specified methods into an arbitrarily wide data.table with
-##' \code{method}-suffixed column names.
-##'
-##' Use the \code{tabulateResults} function to create a summary table that
-##' tallies the number of significant genesets per collection, per method at
-##' the specified FDR thresholds.
-##'
-##' @export
-##' @rdname results
-##'
-##' @examples
-##' ## Refer to the examples in ?multiGSEA
+#' Interrogate the results of a multiGSEA analysis stored in a MultiGSEAResult
+#'
+#' @description
+#' The `resultNames`, `result`, and `results` functions enable
+#' you to explore the results of the analysis run with \code{\link{multiGSEA}}.
+#'
+#' The results that are stored within a `MultiGSEAResult` object have a
+#' more or less 1:1 mapping with the values passed as `methods`, parameter
+#' of the [multiGSEA()] call.
+#'
+#' @details
+#' The product of an indivdual GSEA is consumed by the corresponding
+#' `do.<METHOD>` function and converted into a data.table of results that
+#' is internally stored.
+#'
+#' Use the `resultNames()` function to identify which results are available
+#' for interrogation. The `result()` function returns the statistics of
+#' one individual result, and the `results()` function combines the results
+#' from the specified methods into an arbitrarily wide data.table with
+#' `method`-suffixed column names.
+#'
+#' Use the `tabulateResults()` function to create a summary table that
+#' tallies the number of significant genesets per collection, per method at
+#' the specified FDR thresholds.
+#'
+#' @export
+#' @rdname results
+#'
+#' @examples
+#' ## Refer to the examples in ?multiGSEA
 resultNames <- function(x) {
   stopifnot(is(x, 'MultiGSEAResult'))
   names(x@results)
 }
 
-##' @export
-##' @rdname results
-##'
-##' @param x MultiGSEAResult
-##' @param name the names of the results desired
-##' @param stats.only logical, set to \code{FALSE} if you want to return all
-##'   (column-wise) data for each result. By default only the pvalues,
-##'   adjusted pvalues, and rank are returned.
-##' @param rank.by the statistic to use to append a \code{rank} column for the
-##'   geneset result. By default we rank by pvalue calculated by the GSEA
-##'   method. You can rank the results based on the trimmed mean of the logFC's
-##'   calculated for all of the features in the geneset (\code{"logFC"}), or the
-##'   trimmed t-statistics of the these features (\code{"t"}).
-##' @param add.suffix If \code{TRUE}, adds \code{.name} as a suffix to the
-##'   columns of the \code{method}-specific statistics returned, ie. the
-##'   \code{pval} column from the \code{camera} result will be turned to
-##'   \code{pval.camera}.
-##'
-##' @return a data.table with the results from the requested method.
+#' @export
+#' @rdname results
+#'
+#' @param x MultiGSEAResult
+#' @param name the names of the results desired
+#' @param stats.only logical, set to `FALSE` if you want to return all
+#'   (column-wise) data for each result. By default only the pvalues,
+#'   adjusted pvalues, and rank are returned.
+#' @param rank.by the statistic to use to append a `rank` column for the
+#'   geneset result. By default we rank by pvalue calculated by the GSEA
+#'   method. You can rank the results based on the trimmed mean of the logFC's
+#'   calculated for all of the features in the geneset (`"logFC"`), or the
+#'   trimmed t-statistics of the these features (`"t"`).
+#' @param add.suffix If `TRUE`, adds `.name` as a suffix to the
+#'   columns of the `method`-specific statistics returned, ie. the
+#'   `pval` column from the `"camera"` result will be turned to
+#'   `pval.camera`.
+#'
+#' @return a data.table with the results from the requested method.
 result <- function(x, name, stats.only=FALSE,
                    rank.by=c('pval', 't', 'logFC'),
                    add.suffix=FALSE, as.dt=FALSE) {
@@ -359,11 +348,11 @@ result <- function(x, name, stats.only=FALSE,
   out
 }
 
-##' @export
-##' @rdname results
-##'
-##' @param names The results you want to cbind together for the output, will
-##'   default to all of them.
+#' @export
+#' @rdname results
+#'
+#' @param names The results you want to cbind together for the output, will
+#'   default to all of them.
 results <- function(x, names=resultNames(x), stats.only=TRUE,
                     rank.by=c('pval', 'logFC', 't'),
                     add.suffix=length(names) > 1L, as.dt=FALSE) {
@@ -401,24 +390,24 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
   out
 }
 
-##' Summary of geneset level results at a specified FDR
-##'
-##' Generates a table to indicate the number of genesets per collection that
-##' pass a given FDR. The table provides separate groups of rows for each of
-##' the \code{methods} run in the \code{\link{multiGSEA}} call that generated
-##' that generated \code{x}
-##'
-##' @export
-##' @rdname results
-##'
-##' @param x A \code{\link{MultiGSEAResult}} object.
-##' @param names the names of the GSEA methods to be reported. By default,
-##'   this function will display results for all methods.
-##' @param max.p The maximum padj value to consider a result significant
-##' @param p.col use padj or padj.by.collection?
-##'
-##' @return a data.table that summarizes the significant results per method
-##'   per collection for the GSEA that was run
+#' Summary of geneset level results at a specified FDR
+#'
+#' Generates a table to indicate the number of genesets per collection that
+#' pass a given FDR. The table provides separate groups of rows for each of
+#' the `methods` run in the [multiGSEA()] call that generated that
+#' generated `x`.
+#'
+#' @export
+#' @rdname results
+#'
+#' @param x A [MultiGSEAResult()] object.
+#' @param names the names of the GSEA methods to be reported. By default,
+#'   this function will display results for all methods.
+#' @param max.p The maximum padj value to consider a result significant
+#' @param p.col use padj or padj.by.collection?
+#'
+#' @return a data.table that summarizes the significant results per method
+#'   per collection for the GSEA that was run
 tabulateResults <- function(x, names=resultNames(x), max.p=0.20,
                             p.col=c('padj', 'padj.by.collection', 'pval'),
                             as.dt=FALSE) {
@@ -464,23 +453,23 @@ setMethod("show", "MultiGSEAResult", function(object) {
   cat("\n")
 })
 
-##' Assembles a matrix of nominal or adjusted pvalues from a multiGSEA result
-##'
-##' You might want a matrix of pvalues (or FDRs) for the gene sets across all
-##' GSEA methods you tried. I think I did, once, so here it is.
-##'
-##' @export
-##' @param x The output from multiGSEA
-##' @param names the entries from \code{resultNames(x)} that you want to include
-##'   in the matrix. By default we take all of them.
-##' @param pval Are we testing pvalues or adjusted pvalues?
-##' @return A matrix of the desired pvalues for all genesets
-##'
-##' @examples
-##' vm <- exampleExpressionSet(do.voom=TRUE)
-##' gdb <- exampleGeneSetDb()
-##' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
-##' pm <- p.matrix(mg)
+#' Assembles a matrix of nominal or adjusted pvalues from a multiGSEA result
+#'
+#' You might want a matrix of pvalues (or FDRs) for the gene sets across all
+#' GSEA methods you tried. I think I did, once, so here it is.
+#'
+#' @export
+#' @param x A [MultiGSEAResult()] object.
+#' @param names the entries from `resultNames(x)` that you want to include
+#'   in the matrix. By default we take all of them.
+#' @param pval Are we testing pvalues or adjusted pvalues?
+#' @return A matrix of the desired pvalues for all genesets
+#'
+#' @examples
+#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' gdb <- exampleGeneSetDb()
+#' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+#' pm <- p.matrix(mg)
 p.matrix <- function(x, names=resultNames(x),
                      pcol=c('padj', 'padj.by.collection', 'pval')) {
   stopifnot(is(x, 'MultiGSEAResult'))

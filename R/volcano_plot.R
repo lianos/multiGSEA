@@ -3,21 +3,25 @@
   'MultiGSEAResult',
   'data.frame')
 
-##' Create an interactive volcano plot
-##'
-##' @export
-##'
-##' @param xhex The raw \code{.xv} (not \code{xtfrm(.xv)}) value that acts
-##'   as a threshold such that values less than this will be hexbinned.
-##' @param yhex the \code{.yvt} value threshold. Vaues less than this will
-##'   be hexbinned.
-##' @param highlight A vector of featureIds to highlight, or a GeneSetDb
-##'   that we can extract the featureIds from for this purpose.
-##'
-##' @examples
-##' mg <- exampleMultiGSEAResult()
-##' volcanoPlot(mg)
-##' volcanoPlot(mg, xhex=1, yhex=0.05)
+#' Create an interactive volcano plot
+#'
+#' Convenience function to create volcano plots from differents types of
+#' objects we generate in this package. This is mostly used by the
+#' *multiGSEA.shiny* package.
+#'
+#' @export
+#'
+#' @param xhex The raw `.xv` (not `xtfrm(.xv)`) value that acts
+#'   as a threshold such that values less than this will be hexbinned.
+#' @param yhex the `.yvt` value threshold. Vaues less than this will
+#'   be hexbinned.
+#' @param highlight A vector of featureIds to highlight, or a GeneSetDb
+#'   that we can extract the featureIds from for this purpose.
+#'
+#' @examples
+#' mg <- exampleMultiGSEAResult()
+#' volcanoPlot(mg)
+#' volcanoPlot(mg, xhex=1, yhex=0.05)
 volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
                         xtfrm=base::identity,
                         ytfrm=function(vals) -log10(vals),
@@ -137,6 +141,7 @@ volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   config(p, collaborate=FALSE, displaylogo=FALSE)
 }
 
+#' @noRd
 mg_add_points <- function(gg, dat, color='black') {
   if (is.null(dat) || nrow(dat) == 0) {
     return(gg)
@@ -161,21 +166,23 @@ mg_add_points <- function(gg, dat, color='black') {
   gg
 }
 
-##' Get the approximate nominal pvalue for a target qvalue given the
-##' distribution of adjusted pvalues from the nominal ones.
-##'
-##' This is not an exported function, so you shouldn't be using this. This is
-##' used in the volcano plot code to identify the value on the y-axis of a
-##' nominal pvalues that a given corrected pvalue (FDR) lands at.
-##'
-##' @param target the FDR value you are trying to find on the nominal pvalue
-##'   space (y-axis). This is a value on the FDR scale
-##' @param pvals the distribution of nominal pvalues
-##' @param padjs the adjusted pvalues from \code{pvals}
-##' @param thresh how close padj has to be in padjs to get its nominal
-##'   counterpart
-##' @return numeric answer, or NA if can't find nominal pvalue within given
-##'   threshold for padjs
+#' Get the approximate nominal pvalue for a target qvalue given the
+#' distribution of adjusted pvalues from the nominal ones.
+#'
+#' This is not an exported function, so you shouldn't be using this. This is
+#' used in the volcano plot code to identify the value on the y-axis of a
+#' nominal pvalues that a given corrected pvalue (FDR) lands at.
+#'
+#' @noRd
+#'
+#' @param target the FDR value you are trying to find on the nominal pvalue
+#'   space (y-axis). This is a value on the FDR scale
+#' @param pvals the distribution of nominal pvalues
+#' @param padjs the adjusted pvalues from `pvals`
+#' @param thresh how close padj has to be in padjs to get its nominal
+#'   counterpart
+#' @return numeric answer, or NA if can't find nominal pvalue within given
+#'   threshold for padjs
 approx.target.from.transformed <- function(target, orig, xformed,
                                            thresh=1e-2) {
   xdiffs <- abs(xformed - target)
@@ -191,6 +198,7 @@ approx.target.from.transformed <- function(target, orig, xformed,
   out
 }
 
+#' @noRd
 extract.genes <- function(x, ...) {
   stopifnot(is.character(x) || is(x, 'GeneSetDb') || is(x, 'MultiGSEAResult'))
   if (is.character(x)) {
@@ -199,6 +207,7 @@ extract.genes <- function(x, ...) {
   featureIds(x)
 }
 
+#' @noRd
 volcano.source.type <- function(x) {
   is.valid <- sapply(.volcano.sources, function(src) is(x, src))
   if (sum(is.valid) != 1L) {
@@ -207,36 +216,39 @@ volcano.source.type <- function(x) {
   .volcano.sources[is.valid]
 }
 
-##' Extracts x and y axis values from objects to create input for volcano plot
-##'
-##' You can, in theory, create a volcano plot from a number of different parts
-##' of a \code{MultiGSEAResult} object. Most often you want to create a volcano
-##' plot from the differential expressino results, but you could imagine
-##' building a volcan plot where each point is a geneset. In this case, you
-##' would extract the pvalues from the method you like in the
-##' \code{MultiGSEAResult} object using the \code{stats} parameter.
-##'
-##' @export
-##'
-##' @param x A \code{MultiGSEAResult} object, or a \code{data.frame}
-##' @param stats One of \code{"dge"} or \code{resultNames(x)}
-##' @param xaxis,yaxis the column of the the provided (or extracted)
-##'   \code{data.frame} to use for the xaxis and yaxis of the volcano
-##' @param idx The column of the \code{data.frame} to use as the identifier
-##'   for the element in the row. You probably don't want to mess with this
-##' @param xtfrm A function that transforms the \code{xaxis} column to an
-##'   appropriate scale for the x-axis. This is the \code{identity} function
-##'   by default, because most often the logFC is plotted as is.
-##' @param ytfrm A function that transforms the \code{yaxis} column to an
-##'   appropriate scale for the y-axis. This is the \code{-log10(yval)} function
-##'   by default, because this is how we most often plot the y-axis.
-##' @return a \code{data.frame} with \code{.xv}, \code{.xy}, \code{.xvt} and
-##'   \code{.xvy} columns that represent the xvalues, yvalues, transformed
-##'   xvalues, and transformed yvalues, respectively
-##' @examples
-##' mg <- exampleMultiGSEAResult()
-##' v.dge <- volcanoStatsTable(mg)
-##' v.camera <- volcanoStatsTable(mg, 'camera')
+#' Extracts x and y axis values from objects to create input for volcano plot
+#'
+#' You can, in theory, create a volcano plot from a number of different parts
+#' of a [MultiGSEAResult()] object. Most often you want to create a volcano
+#' plot from the differential expressino results, but you could imagine
+#' building a volcan plot where each point is a geneset. In this case, you
+#' would extract the pvalues from the method you like in the
+#' [MultiGSEAResult()] object using the `stats` parameter.
+#'
+#' Like the [volcanoPlot()] function, this is mostly used by the
+#' *multiGSEA.shiny* package.
+#'
+#' @export
+#'
+#' @param x A \code{MultiGSEAResult} object, or a \code{data.frame}
+#' @param stats One of \code{"dge"} or \code{resultNames(x)}
+#' @param xaxis,yaxis the column of the the provided (or extracted)
+#'   \code{data.frame} to use for the xaxis and yaxis of the volcano
+#' @param idx The column of the \code{data.frame} to use as the identifier
+#'   for the element in the row. You probably don't want to mess with this
+#' @param xtfrm A function that transforms the \code{xaxis} column to an
+#'   appropriate scale for the x-axis. This is the \code{identity} function
+#'   by default, because most often the logFC is plotted as is.
+#' @param ytfrm A function that transforms the \code{yaxis} column to an
+#'   appropriate scale for the y-axis. This is the \code{-log10(yval)} function
+#'   by default, because this is how we most often plot the y-axis.
+#' @return a \code{data.frame} with \code{.xv}, \code{.xy}, \code{.xvt} and
+#'   \code{.xvy} columns that represent the xvalues, yvalues, transformed
+#'   xvalues, and transformed yvalues, respectively
+#' @examples
+#' mg <- exampleMultiGSEAResult()
+#' v.dge <- volcanoStatsTable(mg)
+#' v.camera <- volcanoStatsTable(mg, 'camera')
 volcanoStatsTable <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
                              idx='idx',
                              xtfrm=identity,

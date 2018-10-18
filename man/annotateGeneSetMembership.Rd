@@ -9,23 +9,22 @@ annotateGeneSetMembership(x, gdb, x.ids = NULL, ...)
 \arguments{
 \item{x}{A data.frame with genes/features in rows}
 
-\item{gdb}{A \code{GeneSetDb} object with geneset membership}
+\item{gdb}{A \code{\link[=GeneSetDb]{GeneSetDb()}} object with geneset membership}
 
 \item{x.ids}{The name of the column in \code{x} that holds the feautre
 id's in \code{x} that match the featureId's in \code{gdb}, or a vector
 of id's to use for each row in \code{x} that represent these.}
 
-\item{...}{parameters passed down into \code{\link{incidenceMatrix}}}
+\item{...}{parameters passed down into \code{\link[=incidenceMatrix]{incidenceMatrix()}}}
 }
 \value{
 Returns the original \code{x} with additional columns: each is a
-  logical vector that indicates membership for genesets defined in
-  \code{gdb}.
+logical vector that indicates membership for genesets defined in
+\code{gdb}.
 }
 \description{
 This is helpful when you don't have a monsterly sized GeneSetDb. There will
-be as many new columns added to \code{x} as there are active genesets in
-\code{gdb}.
+be as many new columns added to \code{x} as there are active genesets in \code{gdb}.
 }
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
@@ -35,5 +34,5 @@ lfc <- logFC(mg)
 annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
 
 ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
-(angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`))
+angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`)
 }

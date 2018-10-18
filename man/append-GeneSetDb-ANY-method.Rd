@@ -8,9 +8,9 @@
 \S4method{append}{GeneSetDb,ANY}(x, values, after = NA)
 }
 \arguments{
-\item{x}{A \code{GeneSetDb} object}
+\item{x}{A \code{\link[=GeneSetDb]{GeneSetDb()}} object}
 
-\item{values}{A \code{GeneSetDb} object}
+\item{values}{A \code{\link[=GeneSetDb]{GeneSetDb()}} object}
 
 \item{after}{not used}
 }

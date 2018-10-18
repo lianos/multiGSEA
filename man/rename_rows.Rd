@@ -10,15 +10,17 @@ rename_rows(x, xref, ...)
 \item{x}{an object to whose rows need renaming}
 
 \item{xref}{an object to help with the renaming.
-* A character vector where length(xref) == nrow(x). Every row in
-  x should correspond to the renamed value in the same position in
-  xref
-* If x is a DGEList, SummarizedExperiment, etc. this can be a string.
-  In this case, the string must name a column in the data container's
-  fData-like data.frame. The values in that column will be the new
-  candidate rownames for the object.
-* A two column data.frame. The first column has entries in rownames(x),
-  and the second column is the value to rename it to.}
+\itemize{
+\item A character vector where length(xref) == nrow(x). Every row in
+x should correspond to the renamed value in the same position in
+xref
+\item If x is a DGEList, SummarizedExperiment, etc. this can be a string.
+In this case, the string must name a column in the data container's
+fData-like data.frame. The values in that column will be the new
+candidate rownames for the object.
+\item A two column data.frame. The first column has entries in rownames(x),
+and the second column is the value to rename it to.
+}}
 }
 \description{
 The most common usecase for this is when you have a SummarizedExperiment,

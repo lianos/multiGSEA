@@ -101,6 +101,7 @@ rename_rows.default <- function(x, xref = NULL, ...) {
   out
 }
 
+#' @noRd
 .rename_rows.bioc <- function(x, xref = NULL, ...) {
   if (is.null(xref)) return(x)
   if (is.character(xref) && length(xref) == 1L) {
@@ -115,21 +116,25 @@ rename_rows.default <- function(x, xref = NULL, ...) {
 
 
 #' @export
+#' @noRd
 rename_rows.EList <- function(x, xref = NULL, ...) {
   .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
+#' @noRd
 rename_rows.DGEList <- function(x, xref = NULL, ...) {
   .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
+#' @noRd
 rename_rows.SummarizedExperiment <- function(x, xref, ...) {
   .rename_rows.bioc(x, xref, ...)
 }
 
 #' @export
+#' @noRd
 rename_rows.eSet <- function(x, xref, ...) {
   .rename_rows.bioc(x, xref, ...)
 }

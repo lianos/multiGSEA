@@ -25,10 +25,10 @@ human or mouse.
 
 Note that for some reason the \code{PANTHER.db} package needs to be
 installed in a user-writable package location for this to work properly.
-If you see an error like \code{Error in resqlite_send_query ... attempt to
-write a readonly database}, this is the problem. Please install another
+If you see an error like "Error in resqlite_send_query ... attempt to
+write a readonly database", this is the problem. Please install another
 version of the \code{PANTHER.db} package in a user-writable directory using
-\code{\link[BiocInstaller]{biocLite}}.
+\code{\link[BiocManager:install]{BiocManager::install()}}.
 }
 \section{GOSLIM}{
 
@@ -37,7 +37,7 @@ version of the \code{PANTHER.db} package in a user-writable directory using
 the whole GO.
 
 PANTHER provides their own set of
-\href{GO slims}{http://www.pantherdb.org/panther/ontologies.jsp}, although
+\href{http://www.pantherdb.org/panther/ontologies.jsp}{GO slims}, although
 it's not clear how often these get updated.
 }
 

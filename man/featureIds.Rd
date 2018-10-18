@@ -18,29 +18,29 @@ featureIds(x, i, j, value = c("featureId", "x.id", "x.idx"),
   "x.id", "x.idx"), active.only = TRUE, ...)
 }
 \arguments{
-\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
-a \code{MultiGSEAResult}.}
+\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or a
+\code{MultiGSEAResult}.}
 
 \item{i, j}{The collection,name compound key identifier of the gene set}
 
 \item{value}{What form do you want the id's in?
-\describe{
-  \item{featureId}{the IDs used in the original geneset definitions}
-  \item{x.id}{the ids of the features as they are used in the expression
-        object}
-  \item{x.idx}{The integer index into the expresion object \code{x} that
-        the GeneSetDb has been conformed to.}
+\itemize{
+\item \code{"featureId"}: the IDs used in the original geneset definitions
+\item \code{"x.id"}: the ids of the features as they are used in the expression
+object.
+\item \code{"x.idx"}: The integer index into the expresion object \code{x} that the
+`GeneSetDb`` has been conformed to.
 }}
 
 \item{active.only}{only look for gene sets that are "active"? Defaults to
-\code{TRUE} if \code{x} is conformed to a target expression object, else
-\code{FALSE}. See \code{\link{conform}} for further details.}
+\code{TRUE} if \code{x} is conformed to a target expression object, else \code{FALSE}.
+\code{\link[=conform]{conform()}} for further details.}
 }
 \value{
 A vector of identifiers (or indexes into an expression object,
-  depending on the \code{value} argument) for the features in the specified
-  geneset. NA is returned if the geneset is not "active" (ie. listed in
-  geneSets(x))
+depending on the \code{value} argument) for the features in the specified
+geneset. \code{NA} is returned if the geneset is not "active" (ie. listed in
+\code{\link[=geneSets]{geneSets()}})
 }
 \description{
 Gene sets are defined by the unique compound key consisting of their
@@ -53,11 +53,10 @@ If the GeneSetDb \code{x} has been conformed to an expression object this
 will default to return only the featureId's that are matched to the target
 expression object, and they will be returned using the same identifiers that
 the target expression object uses. To change this behavior, tweak the values
-for the \code{activee.only} and \code{value} parameters, respectively.
+for the \code{active.only} and \code{value} parameters, respectively.
 
-\code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If
-its the latter, then this call simply delegates to the internal
-\code{GeneSetDb}.
+\code{x} can be either a \code{GeneSetDb} or a \code{MultiGSEAResult}. If its the latter,
+then this call simply delegates to the internal \code{GeneSetDb}.
 }
 \examples{
 gdb <- exampleGeneSetDb()

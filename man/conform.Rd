@@ -5,6 +5,7 @@
 \alias{conform}
 \alias{unconform}
 \alias{conform,GeneSetDb-method}
+\alias{unconform,GeneSetDb-method}
 \alias{is.conformed}
 \title{(Re)-map geneset IDs to the rows in an expression object.}
 \usage{
@@ -15,6 +16,8 @@ unconform(x, ...)
 \S4method{conform}{GeneSetDb}(x, target, unique.by = c("none", "mean",
   "var"), min.gs.size = 2L, max.gs.size = Inf,
   match.tolerance = 0.25, ...)
+
+\S4method{unconform}{GeneSetDb}(x, ...)
 
 is.conformed(x, to)
 }
@@ -35,13 +38,13 @@ in the genesets, this is a means to pick the single row for that ID}
 \item{max.gs.size}{Ensure that the genesets that make their way to the
 \code{GeneSetDb@table} are smaller than this size}
 
-\item{match.tolerance}{Numeric value between [0,1]. If the fraction of
+\item{match.tolerance}{Numeric value between \link{0,1}. If the fraction of
 \code{featureId}s used in \code{x} that match \code{rownames(y)} is below
 this number, a warning will be fired.}
 }
 \value{
-A \code{GeneSetDb} that has been matched/conformed to an expression
-  object target (\code{y})
+A  \code{\link[=GeneSetDb]{GeneSetDb()}} that has been matched/conformed to an expression
+object target \code{y}.
 }
 \description{
 \code{conform}-ing, a \code{GeneSetDb} to a target expression
@@ -61,13 +64,11 @@ downstream gene set operations.
 }
 \section{Related Functions}{
 
-\enumerate{
-  \item{\code{unconform}}{Resets the conformation mapping.}
-  \item{\code{is.conformed}}{
-    If \code{to} is missing, looks for evidence if \code{coform} has
-    been called (at all) on \code{x}. If \code{to} is provided, specifically
-    checks that \code{x} has been conformed to the target object \code{to}.
-  }
+\itemize{
+\item \code{\link[=unconform]{unconform()}}: Resets the conformation mapping.
+\item \code{\link[=is.conformed]{is.conformed()}}: If \code{to} is missing, looks for evidence that \code{conform} has
+been called (at all) on \code{x}. If \code{to} is provided, specifically checks that
+\code{x} has been conformed to the target object \code{to}.
 }
 }
 

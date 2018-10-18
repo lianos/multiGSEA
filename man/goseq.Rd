@@ -54,8 +54,8 @@ the column renaming and post processing is left to the do.goseq caller
 }
 \value{
 A \code{data.table} of results, similar to goseq output. The output
-  from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
-  an attribue named \code{"pwf"}.
+from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
+an attribue named \code{"pwf"}.
 }
 \description{
 Note that we do not import things from goseq directly, and only load

@@ -12,12 +12,12 @@ geneSets(x, ...)
   as.dt = FALSE)
 }
 \arguments{
-\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or
-a \code{MultiGSEAResult}.}
+\item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or a
+\code{MultiGSEAResult}.}
 
 \item{active.only}{only look for gene sets that are "active"? Defaults to
-\code{TRUE} if \code{x} is conformed to a target expression object, else
-\code{FALSE}. See \code{\link{conform}} for further details.}
+\code{TRUE} if \code{x} is conformed to a target expression object, else \code{FALSE}.
+\code{\link[=conform]{conform()}} for further details.}
 
 \item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
 this funciton returns will be set to a data.frame. Set this to \code{TRUE}

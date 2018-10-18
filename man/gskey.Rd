@@ -18,3 +18,8 @@ a data.frame with (collection,name) columns
 The "key" form often comes out as rownames to matrices and such, or
 particularly for sending genesets down into wrapped methods, like do.camera.
 }
+\examples{
+gdf <- exampleGeneSetDF()
+gskeys <- encode_gskey(gdf)
+gscols <- split_gskey(gskeys)
+}

@@ -33,8 +33,8 @@ match the ids in the geneset.}
 }
 \value{
 A list of lists of entrezIDs when \code{as == 'lol'}, or
-  a list of integers into the rows of \code{exampleExpressionSet}
-  for the genes in the given geneset.
+a list of integers into the rows of \code{exampleExpressionSet}
+for the genes in the given geneset.
 }
 \description{
 We provide examplar expression data (counts or voomed) as well as exemplar
@@ -43,9 +43,9 @@ gene sets in different forms.
 \section{exampleExpressionSet}{
 
 The expression data is a subset of the TCGA BRCA indication. Calling
-\code{exampleExpressionSet} will load either \code{limma} or \code{Biobase}
-into the calling environment so that the user can manipulate the object
-that is returned.
+\code{exampleExpressionSet(do.voom = TRUE)} will return a voomed \code{EList} version
+of the data. When \code{do.voom = FALSE}, you will get an ExpressoinSet with
+counts in the \code{exprs()} (in retrospect, this should have returned a DGEList)
 }
 
 \section{exampleGeneSets}{
@@ -62,6 +62,6 @@ Returns gene sets as a \code{GeneSetDb} object
 \section{exampleGeneSetDF}{
 
 Returns a data.frame of gene set definitions. A data.frame of this form
-can be passed into the \code{GeneSetDb} contructor.
+can be passed into the \code{GeneSetDb()} contructor.
 }
 

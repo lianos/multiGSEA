@@ -989,19 +989,18 @@ all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
 #'   but not many other tools accept gene set definitions in this format.
 #' * `as.list(gdb)`: A named list of feature identifiers. This is the format
 #'   that many of the limma gene set testing methods use
-#' * `as(gdb, 'GeneSetCollection')`: Convert to a
+#' * `as(gdb, "GeneSetCollection")`: Convert to a
 #'   [GSEABase::GeneSetCollection()] object.
 #'
 #' @details
-#' The `as.*` functions accept a `value` parameter which indicates
-#' the type of IDs you want to export in the conversion. The following choices
-#' are available:
+#' The `as.*` functions accept a `value` parameter which indicates the type of
+#' IDs you want to export in the conversion:
 #'
 #' * `"featureId"`: The ID used as originally entered into the `GeneSetDb`.
-#' * `"x.idx"`: Only valid if the GeneSetDb `x` has been `conform`}-ed to an
+#' * `"x.idx"`: Only valid if the GeneSetDb `x` has been `conform`-ed to an
 #'   expession container. This option will export the features as the integer
 #'   rows of the expression container.
-#' * `"x.id"`: Only valid if the GeneSetDb `x` has been \code{conform}-ed. The
+#' * `"x.id"`: Only valid if the GeneSetDb `x` has been `conform`-ed. The
 #'   target expression container might use feature identifiers that are
 #'   different than what is in the GeneSetDb. If an active featureMap is
 #'   set on the GeneSetDb, this will convert the original feature identifiers

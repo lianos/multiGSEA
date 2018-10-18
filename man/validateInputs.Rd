@@ -23,21 +23,20 @@ have it in this package for dev/testing purposes.}
 for}
 }
 \value{
-A list with "normalized" versions of \code{$x}, \code{$design}, and
-  \code{$contrast} for downstream use.
+A list with "normalized" versions of \code{$x}, \code{$design}, and \code{$contrast}
+for downstream use.
 }
 \description{
-Checks to ensure that the values for \code{x}, \code{design}, and
-\code{contrast} are appropriate for the GSEA \code{methods} being used. If
-they are kosher, then "normalized" versions of these objects are returned in
-an (aptly) named list, otheerwise an error is thrown.
+Checks to ensure that the values for \code{x}, \code{design}, and \code{contrast} are
+appropriate for the GSEA \code{methods} being used. If they are kosher, then
+"normalized" versions of these objects are returned in an (aptly) named list,
+otheerwise an error is thrown.
 }
 \details{
 This function is strange in that we both want to verify the objects, and
 return them in some canonical form, so it is normal for the caller to then
-use the values for \code{x}, \code{design}, and \code{contrast} that are
-returned from this call, and not the original values for these objects
-themselves
+use the values for \code{x}, \code{design}, and \code{contrast} that are returned from this
+call, and not the original values for these objects themselves
 
 I know that the validation/checking logic is a bit painful (and repetitive)
 here. I will (perhaps) clean that up some day.

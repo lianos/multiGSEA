@@ -21,5 +21,6 @@ If there already are defined meta values for the columns of \code{meta} in \code
 these will be updated with the values in \code{meta}.
 }
 \details{
-TODO: this should be a setReplaceMethod
+TODO: this should be a setReplaceMethod, Issue #13
+https://github.com/lianos/multiGSEA/issues/13
 }

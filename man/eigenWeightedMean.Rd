@@ -25,7 +25,7 @@ Defaults to the respective values of \code{center} and \code{scale}}
 \item{unscale}{uncenter and unscale the data data on the way out?
 Defaults to the respective values of \code{center} and \code{scale}}
 
-\item{retx}{Works the same as `retx` from \code{\link[stats]{prcomp}}. If
+\item{retx}{Works the same as \code{retx} from \code{\link[stats]{prcomp}}. If
 \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
 variables.}
 

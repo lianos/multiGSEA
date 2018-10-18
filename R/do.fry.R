@@ -13,10 +13,10 @@ validate.x.fry <- function(x) {
 
 #' Worker function to run fry from within a multiGSEA pipeline
 #'
-#' @noRd
-#'
 #' **This function is not meant to be called directly.** It should only be
 #' called internally within [multiGSEA()].
+#'
+#' @noRd
 do.fry <- function(gsd, x, design, contrast=ncol(design),
                    gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'), ...) {
   ## This function was defined in limma v3.23.13 in April 2015

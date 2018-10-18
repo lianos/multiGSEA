@@ -13,8 +13,8 @@ hasGeneSet(x, collection, name, as.error = FALSE)
 
 \item{name}{character indicating the name of the geneset}
 
-\item{as.error}{If \code{TRUE}, a test for the existance of the geneset
-will throw an error if the geneset does not exist}
+\item{as.error}{If \code{TRUE}, a test for the existance of the geneset will throw
+an error if the geneset does not exist}
 }
 \value{
 logical indicating whether or not the geneset is defined.

@@ -11,25 +11,27 @@ calculateIndividualLogFC(x, design, contrast = ncol(design),
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
-running any analysis, and this function essentially is just a "pass through"}
+running any analysis, and this function essentially is just a
+"pass through"}
 
 \item{design}{The design matrix for the experiment}
 
 \item{contrast}{The contrast you want to test and provide stats for. By
 default this tests the last column of the \code{design} matrix. If you
 want to test a custom contrast, this can be a contrast vector, which
-means that it should be as long as \code{ncol(design)} and it most-often
-sum to one. In the future, the user will be able to specify a range of
-coefficients over \code{design} to perform an ANOVA analysis.}
+means that it should be as long as \code{ncol(design)} and it most-often sum to
+one. In the future, the user will be able to specify a range of
+coefficients over \code{design} to perform an ANOVA analysis, cf.
+Issue #11 (https://github.com/lianos/multiGSEA/issues/11).}
 
-\item{robust.fit}{The value of the \code{robust} parameter to pass down to
-the \code{\link[limma]{lmFit}} function. Defaults to \code{FALSE}.}
+\item{robust.fit}{The value of the \code{robust} parameter to pass down to the
+\code{\link[limma:lmFit]{limma::lmFit()}} function. Defaults to \code{FALSE}.}
 
-\item{robust.eBayes}{The value of the \code{robust} parameter to pass down
-to the \code{\link[limma]{eBayes}} function.}
+\item{robust.eBayes}{The value of the \code{robust} parameter to pass down to
+the limma::eBayes()] function.}
 
-\item{trend.eBayes}{The value of the \code{trend} parameter to pass down to
-the \code{\link[limma]{eBayes}} function.}
+\item{trend.eBayes}{The value of the \code{trend} parameter to pass down to the
+\code{\link[limma:eBayes]{limma::eBayes()}} function.}
 
 \item{treat.lfc}{If this is numeric, this activates limma's "treat"
 functionality and tests for differential expression against this
@@ -48,14 +50,15 @@ framework for analysis, otherwise uses glmFit/glmTest.}
 \item{...}{parameters passed down into the relevant limma/edgeR based
 functions.}
 
-\item{as.dt}{Return the result as a \code{data.table}? Defaults to
-\code{FALSE}.}
+\item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
+this funciton returns will be set to a data.frame. Set this to \code{TRUE}
+to keep this object as a \code{data.table}}
 }
 \value{
 If \code{with.fit == FALSE} (the default) a \code{data.table} of
-  logFC statistics for the contrast under test. Otherwise, a list is
-  returned with \code{$result} containing the logFC statistics, and
-  \code{$fit} has the limma fit for the data/design/contrast under test.
+logFC statistics for the contrast under test. Otherwise, a list is
+returned with \code{$result} containing the logFC statistics, and
+\code{$fit} has the limma fit for the data/design/contrast under test.
 }
 \description{
 Utility function to run limma differential expression analysis
@@ -66,11 +69,10 @@ expression analyses. If the \code{x} object is a \code{DGEList} the
 analysis will be performed using edgeR's quasi-likelihood framework,
 otherwise limma will be used for all other scenarios.
 
-If \code{x} is a \code{DGEList} we require that \code{estimateDisp} has
-already been called. If you prefer to analyze rnaseq data using voom,
-be sure that \code{x} is the object that has been returned from a
-call to \code{\link[limma]{voom}} (or
-\code{\link[limma]{voomWithQualityWeights}}.
+If \code{x} is a \code{\link[edgeR:DGEList]{edgeR::DGEList()}} we require that \code{\link[edgeR:estimateDisp]{edgeR::estimateDisp()}} has
+already been called. If you prefer to analyze rnaseq data using voom, be sure
+that \code{x} is the object that has been returned from a call to \code{\link[limma:voom]{limma::voom()}}
+(or \code{\link[limma:voomWithQualityWeights]{limma::voomWithQualityWeights()}}.
 
 The documentation here is speaking the language of a "limma" analysis,
 however for each parameter, there is an analagous function/parameter that

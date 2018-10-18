@@ -29,7 +29,6 @@
 #' is the name you want to rename that to. There is an example of this in
 #' the "Examples" section here.
 #'
-#' @md
 #' @export
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap
@@ -269,26 +268,3 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
   }
   H
 }
-
-# mgheatmap <- function(x, ...) {
-#   ## I'm not a bad person, I just want to keep this S3 so end users can
-#   ## use the data.frame results in dplyr chains.
-#   UseMethod("mgheatmap")
-# }
-#
-# mgheatmap.sss_frame <- function(x, col=NULL, aggregate.by=x$method[1L],
-#                                 split=TRUE, name=NULL,
-#                                 rm.collection.prefix=TRUE, recenter=TRUE,
-#                                 rescale=TRUE, ...) {
-#   stopifnot(
-#     is.character(aggregate.by),
-#     length(aggregate.by) == 1L,
-#     aggregate.by %in% x$method)
-#
-#   x$key <- encode_gskey(x)
-#   xs <- subset(x, method == aggregate.by)
-#   X <- acast(xs, key ~ sample, value.var="score")
-#   mgheatmap(X, )
-# }
-#
-# mgheatmap.default <- function()

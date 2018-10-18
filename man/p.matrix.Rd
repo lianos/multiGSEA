@@ -8,7 +8,7 @@ p.matrix(x, names = resultNames(x), pcol = c("padj",
   "padj.by.collection", "pval"))
 }
 \arguments{
-\item{x}{The output from multiGSEA}
+\item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object.}
 
 \item{names}{the entries from \code{resultNames(x)} that you want to include
 in the matrix. By default we take all of them.}

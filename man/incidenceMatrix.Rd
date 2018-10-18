@@ -7,17 +7,17 @@
 incidenceMatrix(x, y, ...)
 }
 \arguments{
-\item{x}{A \code{GeneSetDb}}
+\item{x}{A \code{\link[=GeneSetDb]{GeneSetDb()}}}
 
 \item{y}{(optional) A target (expression) object \code{x} is (or can be)
 conformed to}
 
-\item{...}{parameters passed down into \code{\link{conform}}.}
+\item{...}{parameters passed down into \code{\link[=conform]{conform()}}.}
 }
 \value{
 incidence matrix with nrows = number of genesets and columns are
-  featureIDs. If \code{y} is passed in, the columns of the returned value
-  match the rows of \code{y}.
+featureIDs. If \code{y} is passed in, the columns of the returned value
+match the rows of \code{y}.
 }
 \description{
 Generates an inidcator matrix to indicate membership of genes (columns)

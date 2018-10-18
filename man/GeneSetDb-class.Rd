@@ -18,9 +18,9 @@ list itself, which represents the gene sets in the given collection.}
 
 \item{featureIdMap}{A data.frame with  2 character columns. The first
 column is the ids of the genes (features) used to identify the genes in
-\code{gene.sets}, the second second column are IDs that this should be
-mapped to. Useful for testing probelevel microarray data to gene level
-geneset information.}
+\code{gene.sets}, the second second column are IDs that this should be mapped
+to. Useful for testing probelevel microarray data to gene level gene set
+information.}
 
 \item{collectionName}{If \code{x} represents a singular collection, ie.
 a single \code{GeneSetCollection} or a "one deep" (named (by geneset))
@@ -37,7 +37,7 @@ Please refer to the multiGSEA vignette (\code{vignette("multiGSEA")}),
 description of the sematnics of this central data object.
 
 The GeneSetDb class serves the same purpose as the
-\code{GSEABase::GeneSetCollection} class does: it acts as a centralized
+\code{\link[GSEABase:GeneSetCollection]{GSEABase::GeneSetCollection()}} class does: it acts as a centralized
 object to hold collections of Gene Sets. The reason for its existence is
 because there are things that I wanted to know about my gene set
 collections that weren't easily inferred from what is essentially a
@@ -46,26 +46,24 @@ collections that weren't easily inferred from what is essentially a
 Gene Sets are internally represented by a \code{data.table} in "a tidy"
 format, where we minimally require non \code{NA} values for the following
 three \code{character} columns:
-
-\enumerate{
-  \item{collection}
-  \item{name}
-  \item{featureId}
+\itemize{
+\item collection
+\item name
+\item featureId
 }
 
-The (\code{collection}, \code{name}) compound key is the primary key of
-a gene set. There will be as many entries with the same
-(\code{collection}, \code{name}) as there are genes/features in that set.
+The (\code{collection}, \code{name}) compound key is the primary key of a gene set.
+There will be as many entries with the same (\code{collection}, \code{name}) as there
+are genes/features in that set.
 
-The \code{GeneSetDb} tracks metadata about genesets at \emph{the collection}
+The \code{GeneSetDb} tracks metadata about genesets at \strong{the collection}
 level. This means that we assume that all of the \code{featureId}'s used
 within a collection use the same type of feature identifier (such as
-a \code{GSEABase::EntrezIdentifier()}), were defined in the same organism,
+a \code{\link[GSEABase:EntrezIdentifier]{GSEABase::EntrezIdentifier()}}, were defined in the same organism,
 etc.
 
-\strong{Please refer to the "GeneSetDb" section of the vignette for more
-details regarding the construction and querying of a \code{GeneSetDb}
-object.}
+\strong{Please refer to the "GeneSetDb" section of the vignette} for more
+details regarding the construction and querying of a \code{GeneSetDb} object.
 }
 \section{Slots}{
 
@@ -73,7 +71,7 @@ object.}
 \item{\code{table}}{The "gene set table": a data.table with geneset information,
 one row per gene set. Columns include collection, name, N, and n. The end
 user can add more columns to this data.table as desired. The actual
-feature IDs are computed on the fly by doing a db[J(group, id)]}
+feature IDs are computed on the fly by doing a \code{db[J(group, id)]}}
 
 \item{\code{db}}{A \code{data.table} to hold all of the original geneset id
 information that was used to construct this \code{GeneSetDb}.}
@@ -91,36 +89,28 @@ to more information about that geneset, etc.}
 \section{GeneSetDb Construction}{
 
 
-The \code{GeneSetDb} constructor is sufficiently flexible enough to create
+The \code{GeneSetDb()} constructor is sufficiently flexible enough to create
 a \code{GeneSetDb} object from a variety of formats that are commonly used
 in the bioconductor echosystem, such as:
-
-\enumerate{
-  \item{GSEABase::GeneSetCollection}{
-    If you've already got a \code{GeneSetCollection} on your hands, you can
-    simply pass it to the \code{GeneSetDb} constructor.
-  }
-  \item{list of ids}{
-    This format is commonly used to define gene sets in the edgeR/limma
-    universe for testing with camera, roast, romer, etc. The names of
-    the list items are the gene set names, and their values are a character
-    vector of gene identifiers. When it's a single list of lists, you must
-    provide a value for \code{collectionName}. You can embed multiple
-    collections of gene sets by having a three-deep list-of-lists-of-ids.
-    The top level list define the different collections, the second level
-    are the genesets, and the third level are the feature identifiers for
-    each gene set. See the examples for clarification.
-  }
-  \item{data.frame-like object}{
-    To keep track of your own custom gene sets, you have probably realized
-    the importance of maintaing your own sanity, and likely have gene sets
-    organized in a table like object that has something like
-    the \code{collection}, \code{name}, and \code{featureId} required for
-    a \code{GeneSetDb}. Simply rename the appropriate columns to the ones
-    prescribed here, and pass that into the constructor. Any other
-    additional columns (symbol, perhaps(?)) in the table will be copied
-    into the \code{GeneSetDb}.
-  }
+\itemize{
+\item \code{\link[GSEABase:GeneSetCollection]{GSEABase::GeneSetCollection()}}: If you already have a \code{GeneSetCollection}
+on your hands, you can simply pass it to the \code{GeneSetDb()} constructor.
+\item list of ids: This format is commonly used to define gene sets in the
+edgeR/limma universe for testing with camera, roast, romer, etc. The names
+of the list items are the gene set names, and their values are a character
+vector of gene identifiers. When it's a single list of lists, you must
+provide a value for \code{collectionName}. You can embed multiple
+collections of gene sets by having a three-deep list-of-lists-of-ids.
+The top level list define the different collections, the second level
+are the genesets, and the third level are the feature identifiers for
+each gene set. See the examples for clarification.
+\item a \code{data.frame}-like object: To keep track of your own custom gene sets, you
+have probably realized the importance of maintaing your own sanity, and
+likely have gene sets organized in a table like object that has something
+like the \code{collection}, \code{name}, and \code{featureId} required for a \code{GeneSetDb}.
+Simply rename the appropriate columns to the ones prescribed here, and pass
+that into the constructor. Any other additional columns (symbol, direction,
+etc.) will be copied into the \code{GeneSetDb}.
 }
 }
 
@@ -128,18 +118,17 @@ in the bioconductor echosystem, such as:
 
 
 You might wonder what gene sets are defined in a \code{GeneSetDb}: see
-the \code{\link{geneSets}} function.
+the \code{\link[=geneSets]{geneSets()}} function.
 
 Curious about what features are defined in your \code{GeneSetDb}? See
-the \code{\link{featureIds}} function.
+the \code{\link[=featureIds]{featureIds()}} function.
 
-Want the details of a particular gene set? Try the \code{\link{geneSet}}
-function. This will return a \code{data.frame} of the gene set definition.
-Calling \code{\link{geneSet}} on a \code{\link{MultiGSEAResult}} will
-return the same \code{data.frame} along with the differential expression
-statistics for the individual members of the geneSet across the contrast
-that was tested in the \code{\link{multiGSEA}} call that created the
-\code{\link{MultiGSEAResult}}.
+Want the details of a particular gene set? Try the \code{\link[=geneSet]{geneSet()}} function.
+This will return a \code{data.frame} of the gene set definition. Calling
+\code{\link[=geneSet]{geneSet()}} on a \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} will return the same \code{data.frame} along
+with the differential expression statistics for the individual members of the
+geneSet across the contrast that was tested in the \code{\link[=multiGSEA]{multiGSEA()}} call that
+created the \code{\link[=MultiGSEAResult]{MultiGSEAResult()}}.
 }
 
 \section{GeneSetDb manipulation}{
@@ -162,23 +151,23 @@ were defined in experiments from mouse.
 ## it to other forms (list of features, or list of list of features) to
 ## do the same.
 gs.df <- exampleGeneSetDF()
-(gdb.df <- GeneSetDb(gs.df))
+gdb.df <- GeneSetDb(gs.df)
 
 ## list of ids
 gs.df$key <- encode_gskey(gs.df)
 gs.list <- split(gs.df$featureId, gs.df$key)
-(gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'))
+gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs'
 
 ## A list of lists, where the top level list splits the collections.
 ## The name of the collection in the GeneSetDb is taken from this top level
 ## hierarchy
 gs.lol <- as.list(gdb.df, nested=TRUE) ## examine this list-of lists
-(gdb.lol <- GeneSetDb(gs.lol)) ## note that collection is set propperly
+gdb.lol <- GeneSetDb(gs.lol) ## note that collection is set propperly
 
 ## GeneSetDb Interrogation
-(gsets <- geneSets(gdb.df))
-(nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells'))
-(fids <- featureIds(gdb.df))
+gsets <- geneSets(gdb.df)
+nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells')
+fids <- featureIds(gdb.df)
 
 ## GeneSetDb Manipulation
 ## Subset ImmuneSigDB down to only gene sets defined from mouse
@@ -191,5 +180,5 @@ idb.mm <- idb[igs$organism == 'Mus musculus']
 length(idb.mm) ## 2984
 }
 \seealso{
-\code{\link{conversion}}
+\code{?conversion}
 }

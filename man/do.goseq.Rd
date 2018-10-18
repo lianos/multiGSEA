@@ -53,10 +53,10 @@ number of genes outside the category being tested.}
 }
 \value{
 A data.table of goseq results. The "pval" column here refers to
-  pval.over, for simplicity in other places. If \code{split.updown=TRUE},
-  a list of data.table's are returned named 'goseq', 'goseq.up', and
-  'goseq.down' which are the results of running goseq three independent
-  times.
+pval.over, for simplicity in other places. If \code{split.updown=TRUE},
+a list of data.table's are returned named 'goseq', 'goseq.up', and
+'goseq.down' which are the results of running goseq three independent
+times.
 }
 \description{
 Genes are selected for testing against each geneset by virture of them
@@ -67,4 +67,7 @@ passing a maximum FDR and minimum log fold change as perscribed by the
 Note that we are intentionally adding a hyperG.selected column by reference
 so that this information is kicked back to the caller multiGSEA function
 and included in downstream reporting.
+
+\strong{This function is not meant to be called directly.} It should only be
+called internally within \code{\link[=multiGSEA]{multiGSEA()}}.
 }

@@ -1,3 +1,4 @@
+#' @noRd
 extract_preranked_stats <- function(x, design, contrast, robust.fit=FALSE,
                                     robust.eBayes=FALSE, logFC=NULL,
                                     score.by=c('t', 'logFC', 'pval'), ...) {
@@ -33,14 +34,18 @@ extract_preranked_stats <- function(x, design, contrast, robust.fit=FALSE,
   stats[rownames(x)]
 }
 
-##' Converts collection,name combination to key for geneset
-##'
-##' The "key" form often comes out as rownames to matrices and such, or
-##' particularly for sending genesets down into wrapped methods, like do.camera.
-##'
-##' @export
-##' @rdname gskey
-##' @return a character vector
+#' Converts collection,name combination to key for geneset
+#'
+#' The "key" form often comes out as rownames to matrices and such, or
+#' particularly for sending genesets down into wrapped methods, like do.camera.
+#'
+#' @export
+#' @rdname gskey
+#' @return a character vector
+#' @examples
+#' gdf <- exampleGeneSetDF()
+#' gskeys <- encode_gskey(gdf)
+#' gscols <- split_gskey(gskeys)
 encode_gskey <- function(x, y, sep=";;") {
   if (is.data.frame(x)) {
     stopifnot(
@@ -55,11 +60,11 @@ encode_gskey <- function(x, y, sep=";;") {
   paste(x, y, sep=sep)
 }
 
-##' Splits collection,name combinations to collection,name data.frames
-##'
-##' @export
-##' @rdname gskey
-##' @return a data.frame with (collection,name) columns
+#' Splits collection,name combinations to collection,name data.frames
+#'
+#' @export
+#' @rdname gskey
+#' @return a data.frame with (collection,name) columns
 split_gskey <- function(x, sep=";;") {
   stopifnot(all(grepl(sep, x)))
   data.frame(
@@ -68,10 +73,13 @@ split_gskey <- function(x, sep=";;") {
     stringsAsFactors=FALSE)
 }
 
-## Helper function to extract a vector of "pre-ranked" stats for a GSEA. This
-## can come from: (1) a user provided vector; (2) the logFCs or t-stats of
-## an internal call to calculalateIndividualLogFCs from a "full design"ed
-## matrix
+#' Helper function to extract a vector of "pre-ranked" stats for a GSEA.
+#'
+#' This can come from: (1) a user provided vector; (2) the logFCs or t-stats of
+#' an internal call to calculalateIndividualLogFCs from a "full design"ed
+#' matrix
+#'
+#' @noRd
 generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
                                      score.by=c('t', 'logFC', 'pval')) {
   if (!is.null(logFC)) {
@@ -101,7 +109,6 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 #' This function is intentionally not exported.
 #'
 #' @noRd
-#' @md
 #'
 #' @param y an object to convert into an expression matrix for use in various
 #'   internal gene set based methods
@@ -160,49 +167,55 @@ as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE) {
   y
 }
 
-##' Reads in a semi-annotated genelist (one symbol per line)
-##'
-##' Often we are given a list of gene names, and the symbols provided are not
-##' the official HGNC ones. In these cases (when small enough) I will replace
-##' the symbol provided by the official one, and leave the submitted symbol
-##' there after a comment character ("#"). This just strips the stuff after
-##' the comment character to provide only the offiical symbols.
-##'
-##' @export
-##' @param fn the path to the gene list file
-##' @return character vector of gene names.
+#' Reads in a semi-annotated genelist (one symbol per line)
+#'
+#' Often we are given a list of gene names, and the symbols provided are not
+#' the official HGNC ones. In these cases (when small enough) I will replace
+#' the symbol provided by the official one, and leave the submitted symbol
+#' there after a comment character ("#"). This just strips the stuff after
+#' the comment character to provide only the offiical symbols.
+#'
+#' @noRd
+#' @param fn the path to the gene list file
+#' @return character vector of gene names.
 readGeneSymbols <- function(fn) {
   out <- readLines(fn)
   sub(' +#.*', '', out)
 }
 
+#' @noRd
 isSingleCharacter <- function(x, allow.na=FALSE) {
   is.character(x) && length(x) == 1L && (!is.na(x) || allow.na)
 }
 
+#' @noRd
 isSingleInteger <- function(x, allow.na=FALSE) {
   is.integer(x) && length(x) == 1L && (!is.na(x) || allow.na)
 }
 
+#' @noRd
 isSingleNumeric <- function(x, allow.na=FALSE) {
   is.numeric(x) && length(x) == 1L && (!is.na(x) || allow.na)
 }
 
+#' @noRd
 isSingleLogical <- function(x, allow.na=FALSE) {
   is.logical(x) && length(x) == 1L && (!is.na(x) || allow.na)
 }
 
-##' Check a data.table vs a reference data.table
-##'
-##' This function ensures that a \code{data.table} \code{x} has a superset of
-##' columns of a reference table \code{ref}, and that both tables are keyed by
-##' the same columns.
-##'
-##' @param x A \code{data.table} you want to be validated
-##' @param ref The \code{data.table} to use as the reference/model data.table
-##'
-##' @return \code{TRUE} if all things check out, otherwise a character vector
-##'   indicating what the problems were.
+#' Check a data.table vs a reference data.table
+#'
+#' This function ensures that a \code{data.table} \code{x} has a superset of
+#' columns of a reference table \code{ref}, and that both tables are keyed by
+#' the same columns.
+#'
+#' @noRd
+#'
+#' @param x A `data.table` you want to be validated
+#' @param ref `data.table` to use as the reference/model data.table
+#'
+#' @return `TRUE` if all things check out, otherwise a character vector
+#'   indicating what the problems were.
 check.dt <- function(x, ref) {
   if (!is.data.table(x)) {
     stop("Input is not a data.table")
@@ -224,67 +237,38 @@ check.dt <- function(x, ref) {
   TRUE
 }
 
-## -----------------------------------------------------------------------------
-## File Utilities
-
-##' Utility function to determine if paths listed are real directories
-##'
-##' @param ... character vectors containing file paths. Tilde-expansion is
-##' done: see 'path.expand'.
-##'
-##' @return A logical vector indicating whether or not the queried directories
-##' exist.
-dir.exists <- function(...) {
-  sapply(file.info(...)$isdir, isTRUE)
-}
-
-##' Checks that the directory provided is writable by the current user.
-##'
-##' This works by testing to put a temporary file into an already existing
-##' directory
-##'
-##' @param path The path to a directory to check.
-##'
-##' @return \code{logical}, \code{TRUE} if \code{path} is writable by the
-##' current user, otherise \code{FALSE}
-dir.writable <- function(path) {
-  if (!dir.exists(path)) {
-    stop("The directory provided does not exist: ", path)
-  }
-  tmp.fn <- tempfile(tmpdir=path, fileext='.test.tmp')
-  on.exit({
-    if (file.exists(tmp.fn)) unlink(tmp.fn)
-  })
-
-  tryCatch({
-    suppressWarnings(writeLines('test', tmp.fn))
-    TRUE
-  }, error=function(e) FALSE)
-}
 
 ## Random Utilitis -------------------------------------------------------------
-##' Utility function to cat a message to stderr (by default)
-##'
-##' @export
-##' @param ... pieces of the message
-##' @param file where to send the message. Defaults to \code{stderr()}
+
+#' Utility function to cat a message to stderr (by default)
+#'
+#' @export
+#' @param ... pieces of the message
+#' @param file where to send the message. Defaults to \code{stderr()}
 msg <- function(..., file=stderr()) {
   cat(paste(rep('-', 80), collapse=''), '\n', file=file)
   cat(..., '\n', file=file)
   cat(paste(rep('-', 80), collapse=''), '\n', file=file)
 }
 
-##' Utility function to try and fail with grace.
-##'
-##' @export
-##' @param default the value to return if \code{expr} fails
-##' @param expr the expression to take a shot at
-##' @param frame the frame to evaluate the expression in
-##' @param message the error message to display if \code{expr} fails. Deafults
-##'   to \code{geterrmessage()}
-##' @param silent if \code{TRUE}, sends the error message to \code{msg}
-##' @param file where msg sends the message
-##' @return the result of \code{expr} if successful, otherwis \code{default}
+#' Utility function to try and fail with grace.
+#'
+#' Inspired from one of Hadley's functions (in plyr or something?)
+#'
+#' @export
+#'
+#' @param default the value to return if `expr` fails
+#' @param expr the expression to take a shot at
+#' @param frame the frame to evaluate the expression in
+#' @param message the error message to display if `expr` fails. Deafults
+#'   to [base::geterrmessage()]
+#' @param silent if `TRUE`, sends the error message to [msg()]
+#' @param file where msg sends the message
+#' @return the result of `expr` if successful, otherwise `default` value.
+#' @examples
+#' \dontrun{
+#' failWith(NULL, stop("no error, just NULL"))
+#' }
 failWith <- function(default=NULL, expr, frame=parent.frame(),
                      message=geterrmessage(), silent=FALSE, file=stderr()) {
   tryCatch(eval(expr, frame), error=function(e) {

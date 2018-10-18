@@ -14,7 +14,7 @@ subsetByFeatures(x, features, value = c("featureId", "x.id", "x.idx"),
 }
 \value{
 A subset of \code{x} which contains only the geneSets that contain
-  features found in \code{featureIds}
+features found in \code{featureIds}
 }
 \description{
 Subset a GeneSetDb to only include geneSets with specified features.

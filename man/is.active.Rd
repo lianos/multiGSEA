@@ -7,15 +7,15 @@
 is.active(x, i, j)
 }
 \arguments{
-\item{x}{\code{GeneSetDb}}
+\item{x}{\code{\link[=GeneSetDb]{GeneSetDb()}}}
 
 \item{i}{collection of geneset(s)}
 
-\item{j}{name of geneset(s) (must be same length as \code{i})}
+\item{j}{name of geneset(s) (must be same length as \code{i}.}
 }
 \value{
 logical indicating if geneset is active. throws an error if
-  any requested geneset does not exist in \code{x}.
+any requested geneset does not exist in \code{x}.
 }
 \description{
 Returns the \code{active} status of genesets, which are specified by

@@ -21,14 +21,14 @@ a single value for now.}
 \item{uncenter, unscale}{uncenter and unscale the data data on the way out?
 Defaults to the respective values of \code{center} and \code{scale}}
 
-\item{retx}{Works the same as `retx` from \code{\link[stats]{prcomp}}. If
+\item{retx}{Works the same as \code{retx} from \code{\link[stats]{prcomp}}. If
 \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
 variables.}
 }
 \value{
 A list of useful transformation information. The caller is likely
-  most interested in the \code{$score} vector, but other bits related to
-  the SVD/PCA decomposition are included for the ride.
+most interested in the \code{$score} vector, but other bits related to
+the SVD/PCA decomposition are included for the ride.
 }
 \description{
 This method was developed by Jason Hackney and first introduced in the
@@ -38,7 +38,7 @@ It produces a single sample gene set score in values that are in
 to an eigengene based score.
 
 To easily use this method to score a number of gene setes across an
-experiment, you'll want to have the \code{\link{scoreSingleSamples}} method
+experiment, you'll want to have the \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} method
 drive this function via specifying \code{"svd"} as one of the
 \code{methods}.
 }
@@ -54,7 +54,7 @@ also run around the problem of sign of the eigenvector. The scores you get
 are very similar to average zscores of the genes per sample, where the
 average is weighted by the degree to which each gene contributes to the
 principal component chosen by \code{eigengene}, as implemented in the
-\code{\link{eigenWeightedMean}} function.
+\code{\link[=eigenWeightedMean]{eigenWeightedMean()}} function.
 
 \emph{The core functionality provided here is taken from the soon to be
 released GSDecon package by Jason Hackney}

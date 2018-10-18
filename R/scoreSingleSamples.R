@@ -12,26 +12,25 @@
 #' @section Single Sample Scoring Methods:
 #' The following `methods` are currenly provided.
 #'
-#' * ewm: The [eigenWeightedMean()] calculates the fraction each gene
+#' * `"ewm"`: The [eigenWeightedMean()] calculates the fraction each gene
 #'    contributes to a pre-specified principal component. These contributions
-#'    acts as weights over each gene, which are then used in a simple weighted
+#'    act as weights over each gene, which are then used in a simple weighted
 #'    mean calculation over all the genes in the geneset per sample. This is
-#'    similar, in spirit, to the svd/gsdecon method ("gsd")}
-#' * gsd: This method was first introduced by Jason Hackney in
+#'    similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)
+#' * `"gsd"`: This method was first introduced by Jason Hackney in
 #'    [doi:10.1038/ng.3520](https://doi.org/10.1038/ng.3520). Please refer to
 #'    the [gsdScore()] function for more information.
-#' * ssgsea: Using ssGSEA as implemented in the GSVA package.
-#' * zscore: The features in the expression matrix are rowwise z transformed.
+#' * `"ssgsea"`: Using ssGSEA as implemented in the GSVA package.
+#' * `"zscore"`: The features in the expression matrix are rowwise z transformed.
 #'    The gene set level score is then calculated by adding up the zscores for
 #'    the genes in the gene set, then dividing that number by either the the
 #'    size (or its sqaure root (default)) of the gene set.
-#' * mean: Simply take the mean of the values from the expression matrix that
-#'    are in teh gene set. Right or wrong, sometimes you just want the mean
+#' * `"mean"`: Simply take the mean of the values from the expression matrix
+#'    that are in the gene set. Right or wrong, sometimes you just want the mean
 #'    without transforming the data.
-#' * gsva: The gsva method of GSVA package.
-#' * plage: Using "plage" as implemented in the GSVA package
+#' * `"gsva"`: The gsva method of GSVA package.
+#' * `"plage"`: Using "plage" as implemented in the GSVA package
 #'
-#' @md
 #' @export
 #' @importFrom DelayedMatrixStats rowSds
 #' @param gdb A GeneSetDb
@@ -142,25 +141,14 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
   scores
 }
 
-# The \code{singleSampleScores} function is the same as
-# \code{scoreSingleSamples}, but switches the order of the first two arguments
-# for easier piping.
-#
-# @rdname scoreSingleSamples
-# @export
-# @inheritParams scoreSingleSamples
-# singleSampleScores <- function(y, gdb, methods='ssgsea', as.matrix=FALSE,
-#                                drop.sd=1e-4, verbose=FALSE, ...) {
-#   scoreSingleSamples(gdb, y, methods=methods, as.matrix=as.matrix,
-#                      drop.sd=drop.sd, verbose=verbose, ...)
-# }
-
-##' Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
-##'
-##' @param gdb \code{GeneSetDb} used for scoring
-##' @param scores The \code{matrix} of geneset scores returned from the various
-##'   \code{do.scoreSingleSamples.*} methods.
-##' @param a melted \code{data.table} of scores
+#' Melts the geneset matrix scores from the do.scoreSingleSamples.* methods
+#'
+#' @noRd
+#'
+#' @param gdb A [GeneSetDb()] used for scoring
+#' @param scores The `matrix` of geneset scores returned from the various
+#'   `do.scoreSingleSamples.*` methods.
+#' @param a melted `data.table` of scores
 melt.gs.scores <- function(gdb, scores) {
   out <- cbind(geneSets(gdb, as.dt=TRUE)[, list(collection, name, n)], scores)
   out <- data.table::melt.data.table(out, c('collection', 'name', 'n'),
@@ -169,13 +157,11 @@ melt.gs.scores <- function(gdb, scores) {
   out[, sample := as.character(sample)]
 }
 
-## Default to sqrt in denominator of zscores to stabilize the variance of
-## the mean:
-##
-## Lee, E., et al. Inferring pathway activity toward precise disease
-## classification. PLoS Comput. Biol. 4, e1000217 (2008).
-##
-##
+#' @noRd
+#'
+#' @param zsummary use `"sqrt"` in denominator of zscores to stabilize the
+#' variance of the mean, cf. Lee, E., et al. Inferring pathway activity toward
+#' precise disease classification. PLoS Comput. Biol. 4, e1000217 (2008).
 do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
                                          trim=0.10, gs.idxs=NULL, do.scale=TRUE,
                                          ...) {
@@ -211,14 +197,17 @@ do.scoreSingleSamples.zscore <- function(gdb, y, zsummary=c('mean', 'sqrt'),
   scores
 }
 
-## Just take the average of the raw scores from the expression matrix
-##
-## Right or wrong, sometimes you want this (most often you want mean Z, though)
+#' Just take the average of the raw scores from the expression matrix
+#'
+#' Right or wrong, sometimes you want this (most often you want mean Z, though)
+#'
+#' @noRd
 do.scoreSingleSamples.mean <- function(gdb, y, gs.idxs=NULL, ...) {
   do.scoreSingleSamples.zscore(gdb, y, zsummary='mean',
                                trim=0, gs.idxs=gs.idxs, do.scale=FALSE)
 }
 
+#' @noRd
 .xformGdbForGSVA <- function(gdb, y) {
   stopifnot(is.conformed(gdb, y))
   stopifnot(is.matrix(y))
@@ -228,7 +217,8 @@ do.scoreSingleSamples.mean <- function(gdb, y, gs.idxs=NULL, ...) {
   out
 }
 
-##' @importFrom GSVA gsva
+#' @importFrom GSVA gsva
+#' @noRd
 do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
                                        parallel.sz=4, ssgsea.norm=FALSE,
                                        gs.idxs=NULL, ...) {
@@ -255,18 +245,18 @@ do.scoreSingleSamples.gsva <- function(gdb, y, method, as.matrix=FALSE,
   gres
 }
 
-##' Normalize a vector of ssGSEA scores in the ssGSEA way.
-##'
-##' ssGSEA normalization (as implemented in GSVA (ssgsea.norm)) normalizes the
-##' individual scores based on ALL scores calculated across samples AND
-##' genesets. It does NOTE normalize the scores within each geneset
-##' independantly of the others.
-##'
-##' @export
-##' @param x a \code{numeric} vector of ssGSEA scores for a single signature
-##' @param bounds the maximum and minimum scores obvserved used to normalize
-##'   against.
-##' @return normalized \code{numeric} vector of \code{x}
+#' Normalize a vector of ssGSEA scores in the ssGSEA way.
+#'
+#' ssGSEA normalization (as implemented in GSVA (ssgsea.norm)) normalizes the
+#' individual scores based on ALL scores calculated across samples AND
+#' genesets. It does NOTE normalize the scores within each geneset
+#' independantly of the others.
+#'
+#' @export
+#' @param x a `numeric` vector of ssGSEA scores for a single signature
+#' @param bounds the maximum and minimum scores obvserved used to normalize
+#'   against.
+#' @return normalized \code{numeric} vector of \code{x}
 ssGSEA.normalize <- function(x, bounds=range(x)) {
   ## apply(es, 2, function(x, es) x / (range(es)[2] - range(es)[1]), es)
   stopifnot(length(bounds) == 2L)
@@ -276,7 +266,9 @@ ssGSEA.normalize <- function(x, bounds=range(x)) {
   x / (max.b - min.b)
 }
 
-## A no dependency call to GSDecon-like eigengene scoring
+#' A no dependency call to GSDecon-like eigengene scoring
+#'
+#' @noRd
 do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
                                       scale=TRUE, uncenter=center,
                                       unscale=scale, gs.idxs=NULL, ...) {
@@ -298,6 +290,7 @@ do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   out
 }
 
+#' @noRd
 do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
                                                     center=TRUE, scale=TRUE,
                                                     uncenter=center,
@@ -325,6 +318,7 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
   out
 }
 
+#' @noRd
 gs.score.map <- list(
   zscore=do.scoreSingleSamples.zscore,
   gsva=do.scoreSingleSamples.gsva,

@@ -12,12 +12,12 @@ ztransformPvalues(x, logFC, alternative = c("two.sided", "less",
 
 \item{logFC}{\code{numeric} vector as long as \code{x} that indicates the
 sign of the shift. This does not have to be the actual logFC of the
-geneset, as it is merely transformed to its \code{sign}}
+geneset, as it is merely transformed to its \code{sign}.}
 
 \item{alternative}{were these obtained from a two-sided or one-sided test?}
 }
 \value{
-\code{numeric} vector of the ztransformed pvalues in \code{x}
+\code{numeric} vector of the ztransformed pvalues in \code{x}.
 }
 \description{
 These values are useful for heatmap plotting.
