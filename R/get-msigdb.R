@@ -132,6 +132,10 @@ getMSigGeneSetDb <- function(collection, species='human',
     out@table[, N := i.N]
     out@table[, i.N := NULL]
     out@collectionMetadata <- out@collectionMetadata[collection %in% out@table$collection]
+    fmap <- out@db[, list(featureId = featureId, x.id = featureId, x.idx = NA_integer_)]
+    fmap <- unique(fmap, by = "featureId")
+    setkeyv(fmap, "featureId")
+    out@featureIdMap <- fmap
   }
 
   # NOTE: remove count collectionMetadata

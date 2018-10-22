@@ -5,7 +5,9 @@ test_that("Specifying id.type = 'symbol' keeps GeneSetDb honest", {
 
   for (s in species) {
     gdbo <- getMSigGeneSetDb(c("h", "c7"), species = s, id.type = "entrez")
+
     gdbs <- getMSigGeneSetDb(c("h", "c7"), species = s, id.type = "symbol")
+    expect_true(validObject(gdbs))
 
     gso <- geneSets(gdbo, as.dt = TRUE)
     gss <- geneSets(gdbs, as.dt = TRUE)
