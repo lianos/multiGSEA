@@ -3,7 +3,8 @@
 .datatable.aware <- TRUE
 
 # valid types of objects that can be used for "Expression" (x)'s
-.valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment')
+.valid.x <- c('matrix', 'eSet', 'EList', 'DGEList', 'SummarizedExperiment',
+              'Matrix')
 
 #' Lists the supported GSEA methods by multiGSEA
 #'

@@ -112,9 +112,9 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
   if (unique.by != 'none') {
     stop("`unique.by` must be 'none' for now")
   }
-  if (min.gs.size == 1) {
-    stop("Doing GSEA with 1 gene doesn't really make sense, does it?")
-  }
+  # if (min.gs.size == 1) {
+  #   stop("Doing GSEA with 1 gene doesn't really make sense, does it?")
+  # }
   if (max.gs.size < min.gs.size) {
     stop("max.gs.size must be larger than min.gs.size")
   }

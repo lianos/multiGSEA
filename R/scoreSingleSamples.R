@@ -280,7 +280,7 @@ do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
   }
 
   scores <- lapply(gs.idxs, function(idxs) {
-    gsdScore(y[idxs,], center=center, scale=scale, uncenter=uncenter,
+    gsdScore(y[idxs,,drop = FALSE], center=center, scale=scale, uncenter=uncenter,
              unscale=unscale)
   })
 
@@ -307,7 +307,7 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
   }
 
   scores <- sapply(gs.idxs, function(idxs) {
-    eigenWeightedMean(y[idxs,], center=center, scale=scale,
+    eigenWeightedMean(y[idxs,,drop = FALSE], center=center, scale=scale,
                       uncenter=uncenter, unscale=unscale, weights=weights,
                       normalize=normalize, all.x=y)$score
   })

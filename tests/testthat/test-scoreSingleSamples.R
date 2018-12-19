@@ -10,6 +10,14 @@ suppressPackageStartupMessages({
 vm <- exampleExpressionSet()
 gdb <- getMSigGeneSetDb('h')
 
+test_that("scoreSingleSamples can use genesets of size n = 1 and value is gene", {
+  genes <- c(GZMA = "3001", PRF1 = "5551", TGFB1 = "7040")
+  lol <- list(a = genes[1], b = genes[1:2], c = genes[1:3])
+  gdbx <- GeneSetDb(lol, collectionName = "custom")
+  scores <- scoreSingleSamples(gdbx, vm, min.gs.size = 1, as.matrix = TRUE)
+  expect_equal(scores["custom;;a",], vm$E[genes[1],])
+})
+
 test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 
   E <- vm$E

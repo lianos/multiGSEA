@@ -91,7 +91,7 @@
 #'                  rename.rows = rr)
 mgheatmap <- function(x, gdb = NULL, col=NULL,
                       aggregate.by=c('none', 'ewm', 'zscore'),
-                      split=TRUE, scores=NULL,
+                      split=TRUE, scores=NULL, gs.order = NULL,
                       name=NULL, rm.collection.prefix=TRUE,
                       rm.dups=FALSE, recenter=TRUE, rescale=FALSE,
                       rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
@@ -132,7 +132,13 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
   gdbc.df <- as.data.frame(gdbc) ## keep only genes that matched in gdb.df
   gdbc.df$key <- encode_gskey(gdbc.df)
 
-  if (aggregate.by != 'none') {
+  if (aggregate.by == "none") {
+    ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
+    # We may have a sparse matrix at this point, turning it to dense for now,
+    # but need to fix.
+    X <- X[ridx,,drop=FALSE]
+    split <- if (split) gdbc.df$key else NULL
+  } else {
     if (is.null(scores)) {
       X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
     } else {
@@ -144,13 +150,10 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
 
-  if (aggregate.by == 'none') {
-    ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
-    X <- X[ridx,,drop=FALSE]
-    split <- if (split) gdbc.df$key else NULL
-  }
-
   if (recenter || rescale) {
+    if (is(X, "sparseMatrix")) {
+      X <- as.matrix(X)
+    }
     X <- t(scale(t(X), center=recenter, scale=rescale))
     isna <- which(is.na(X), arr.ind = TRUE)
     if (nrow(isna) > 0L) {
@@ -244,7 +247,7 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
         metadf <- data.frame(rn = rownames(x), to = metadf[[rename.rows]],
                              stringsAsFactors = FALSE)
         if (!is.null(metadf$to)) {
-          rr <- rename_rows(H@matrix, rename.rows, rowmeta.df = metadf)
+          rr <- rename_rows(H@matrix, xref = metadf)
         } else {
           warning("rename.rows column not found in metadata for x")
         }

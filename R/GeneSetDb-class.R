@@ -138,7 +138,9 @@
 #' idb.mm <- idb[igs$organism == 'Mus musculus']
 #' length(idb.mm) ## 2984
 GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
-  gdb <- if (is(x, 'GeneSetCollection')) {
+  gdb <- if (is(x, "GeneSetDb")) {
+    x
+  } else if (is(x, 'GeneSetCollection')) {
     GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
   } else if (is(x, 'data.frame')) {
     GeneSetDb.data.frame(x, featureIdMap, collectionName)

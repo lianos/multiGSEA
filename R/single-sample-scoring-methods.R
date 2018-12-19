@@ -237,14 +237,19 @@ gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
   scl <- attributes(xs)$"scaled:scale"
 
   if (.use_irlba) {
-    s <- svdr(x, k = min(eigengene, nrow(x), ncol(x)))
+    s <- svdr(xs, k = min(eigengene, nrow(x), ncol(x)))
   } else {
     s <- svd(xs)
   }
 
   newD <- s$d
   newD[-eigengene] <- 0
-  s$D <- diag(newD)
+
+  if (length(s$d) == 1L) {
+    s$D <- matrix(s$d, nrow = 1L, ncol = 1L)
+  } else {
+    s$D <- diag(newD)
+  }
 
   egene <- s$u %*% s$D %*% t(s$v)
 
