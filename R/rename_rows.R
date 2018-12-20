@@ -44,34 +44,35 @@ rename_rows <- function(x, xref, ...) {
     stopifnot(
       is.character(xref),
       length(xref) == length(x))
-    xref <- data.frame(from = x, to = xref,
-                              stringsAsFactors = FALSE)
+    xref <- data.frame(from = x, to = xref, stringsAsFactors = FALSE)
   }
   if (is(xref, "tbl") || is(xref, "data.table")) {
     xref <- as.data.frame(xref, stringsAsFactors = FALSE)
   }
   stopifnot(
     is.data.frame(xref),
-    ncol(xref) == 2,
-    is.character(xref[[1]]), is.character(xref[[2]]))
+    ncol(xref) == 2L,
+    is.character(xref[[1L]]), is.character(xref[[2L]]))
 
   # If there is NA in rename_to column, use the value from first column
-  xref[[2]] <- ifelse(is.na(xref[[2]]), xref[[1]], xref[[2]])
+  xref[[2L]] <- ifelse(is.na(xref[[2L]]), xref[[1L]], xref[[2L]])
 
   # Are there entries in x that don't appear in first colum of xref? If so,
   # we expand `xref` to include these entries and have them "remap" to identity
-  missed.x <- setdiff(x, xref[[1]])
+  missed.x <- setdiff(x, xref[[1L]])
   if (length(missed.x)) {
     add.me <- data.frame(old = missed.x, new = missed.x)
     colnames(add.me) <- colnames(xref)
     xref <- rbind(xref, add.me)
   }
-  out <- xref[!duplicated(xref[[1]]),,drop = FALSE]
+
+  # Remove ambiguity in remapping process. If the same original ID can be
+  # remapped to several other ones, then only one will be picked.
+  out <- xref[!duplicated(xref[[1L]]),,drop = FALSE]
   # If there are duplicated values in the entries that x can be translated to,
   # then those renamed entries will remap x to itself
-  out[[2]] <- ifelse(duplicated(out[[2]]), out[[1]], out[[2]])
-  rownames(out) <- out[[1]]
-  out[x,,drop=FALSE]
+  out[[2L]] <- ifelse(duplicated(out[[2L]]), out[[1L]], out[[2L]])
+  out
 }
 
 #' @export
@@ -89,16 +90,13 @@ rename_rows.default <- function(x, xref = NULL, ...) {
     stop("The input object isn't 2d-subsetable")
   }
   xref <- .rename_rows.df(rownames(x), xref, ...)
-  if (!isTRUE(all.equal(rn, rownames(xref)))) {
-    stop("rownames of input object doesn't match rownames of lookup")
+  nomatch <- setdiff(rn, xref[[1L]])
+  if (length(nomatch)) {
+    stop(length(nomatch), " rownames do not have a lookup to use in renaming")
   }
-  if (is.matrix(x)) {
-    out <- x[rownames(xref),,drop = FALSE]
-  } else {
-    out <- x[rownames(xref),]
-  }
-  rownames(out) <- xref[[2L]]
-  out
+  lookup <- match(rn, xref[[1L]])
+  rownames(x) <- xref[[2L]][lookup]
+  x
 }
 
 #' @noRd
