@@ -2,11 +2,11 @@
 #' @import limma
 #' @import reshape2
 #' @import data.table
-#' @import Biobase
 #' @import methods
 #' @import ggplot2
 #' @import plotly
 #' @import magrittr
+#' @import checkmate
 #' @importFrom circlize colorRamp2
 #' @importFrom utils packageVersion getFromNamespace head tail write.csv
 #' @importFrom stats setNames p.adjust model.matrix density filter phyper quantile runif

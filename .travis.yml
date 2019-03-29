@@ -3,7 +3,7 @@
 #
 # I am adding bioc_packages to see if they are (hopefully) cached somewhere?
 #
-# Timing: Total time is 47 mins(!)
+# Timing: Total time is 46 mins(!)
 #
 #   * ~ 6 minutes to get to the stage where we are building bioconductor
 #   * ~ 20 minutes (1220 seconds) to build bioc and dependencies

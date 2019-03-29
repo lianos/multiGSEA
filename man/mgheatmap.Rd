@@ -5,10 +5,10 @@
 \title{Creates a "geneset smart" ComplexHeatmap::Heatmap}
 \usage{
 mgheatmap(x, gdb = NULL, col = NULL, aggregate.by = c("none", "ewm",
-  "zscore"), split = TRUE, scores = NULL, name = NULL,
-  rm.collection.prefix = TRUE, rm.dups = FALSE, recenter = TRUE,
-  rescale = FALSE, rename.rows = NULL, zlim = NULL,
-  transpose = FALSE, ...)
+  "zscore"), split = TRUE, scores = NULL, gs.order = NULL,
+  name = NULL, rm.collection.prefix = TRUE, rm.dups = FALSE,
+  recenter = TRUE, rescale = FALSE, rename.rows = NULL,
+  zlim = NULL, transpose = FALSE, ...)
 }
 \arguments{
 \item{x}{the data matrix}

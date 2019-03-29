@@ -188,16 +188,16 @@ disp.estimated <- function(x) {
       return(errs)
     }
 
-    if (length(contrast) != ncol(design)) {
+    if (length(contrast) < 1 || length(contrast) > ncol(design)) {
       errs$illegal.contrast.length <- TRUE
       return(errs)
     }
 
-    if (abs(sum(contrast)) > 1e-5) {
-      warning("Sum of contrast vector != 0", immediate.=TRUE)
-      # errs$sum.contrast.not0 <- TRUE
-      # return(errs)
-    }
+    # if (abs(sum(contrast)) > 1e-5) {
+    #   warning("Sum of contrast vector != 0", immediate.=TRUE)
+    #   # errs$sum.contrast.not0 <- TRUE
+    #   # return(errs)
+    # }
   }
 
   if (ret.err.only || length(errs)) errs else contrast

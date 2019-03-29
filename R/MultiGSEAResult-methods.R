@@ -140,12 +140,20 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
   annotate.lfc <- !missing(feature.min.logFC) ||
     !missing(feature.max.padj) ||
     !all(c('significant', 'direction') %in% names(lfc))
+
+  is.ttest <- "logFC" %in% names(lfc)
   if (annotate.lfc) {
     lfc <- within(lfc, {
-      significant <- abs(logFC) >= feature.min.logFC &
-        !is.na(padj) &
-        padj <= feature.max.padj
-      direction <- ifelse(logFC > 0, 'up', 'down')
+      if (is.ttest) {
+        significant <- abs(logFC) >= feature.min.logFC &
+          !is.na(padj) &
+          padj <= feature.max.padj
+        direction <- ifelse(logFC > 0, 'up', 'down')
+      } else {
+        # This is an ANOVA
+        significant <- !is.na(padj) & padj <= feature.max.padj
+        direction <- rep("ambiguous", length(padj))
+      }
     })
   }
 
@@ -156,16 +164,27 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
     fids <- featureIds(x, .BY[[1L]], .BY[[2L]])
     stats <- lfc[fids, on='featureId']
     up <- stats$direction == 'up'
-    down <- !up
+    down <- stats$direction == "down"
     is.sig <- stats$significant
     t.nona <- stats$t[!is.na(stats$t)]
+    if (is.ttest) {
+      mean.logFC <- mean(stats$logFC, na.rm=TRUE)
+      mean.logFC.trim <- mean(stats$logFC, na.rm=TRUE, trim=trim)
+      mean.t <- mean(stats$t, na.rm=TRUE)
+      mean.t.trim <- mean(stats$t, na.rm=TRUE, trim=trim)
+    } else {
+      mean.logFC <- rep(NA_real_, .N)
+      mean.logFC.trim <- rep(NA_real_, .N)
+      mean.t <- rep(NA_real_, .N)
+      mean.t.trim <- rep(NA_real_, .N)
+    }
     list(n.sig=sum(is.sig), n.neutral=sum(!is.sig),
          n.up=sum(up), n.down=sum(down),
          n.sig.up=sum(up & is.sig), n.sig.down=(sum(down & is.sig)),
-         mean.logFC=mean(stats$logFC, na.rm=TRUE),
-         mean.logFC.trim=mean(stats$logFC, na.rm=TRUE, trim=trim),
-         mean.t=mean(stats$t, na.rm=TRUE),
-         mean.t.trim=mean(stats$t, na.rm=TRUE, trim=trim))
+         mean.logFC=mean.logFC,
+         mean.logFC.trim=mean.logFC.trim,
+         mean.t=mean.t,
+         mean.t.trim=mean.t.trim)
   }, by=do.by]
   setkeyv(out, do.by)
 
@@ -286,21 +305,23 @@ result <- function(x, name, stats.only=FALSE,
   out <- copy(gs)
 
   res <- local({
-    ## The <name> of the GSEA methods should not have a "." in them. If there
-    ## is a ".", we take this to mean (for now) some modification of the
-    ## method named up to that dot, for instatnce "goseq.up" is "goseq" method.
-    ## We can have other "."s appear in the future. For instance, someone might
-    ## want to run camera twice with different values for inter.gene.cor. In
-    ## this case, one "name" could be "camera.igc01" or something. This part
-    ## isn't formal, and will be more formalized (and changed) in a future
-    ## release.
+    # The <name> of the GSEA methods should not have a "." in them. If there
+    # is a ".", we take this to mean (for now) some modification of the
+    # method named up to that dot, for instatnce "goseq.up" is "goseq" method.
+    # We can have other "."s appear in the future. For instance, someone might
+    # want to run camera twice with different values for inter.gene.cor. In
+    # this case, one "name" could be "camera.igc01" or something. This part
+    # isn't formal, and will be more formalized (and changed) in a future
+    # release.
     fnname <- sub("\\..*$", "", name)
     fnname <- paste0('mgres.', fnname)
     fnfetch <- getFunction(fnname)
     r <- fnfetch(x@results[[name]], geneSetDb(x))
-    kosher <- all.equal(
-      out[, key(out), with=FALSE],
-      r[, key(out), with=FALSE])[1L]
+    kosher <- isTRUE(
+      all.equal(
+        out[, key(out), with = FALSE],
+        r[, key(out), with = FALSE],
+        check.attributes = FALSE))
     if (!isTRUE(kosher)) {
       stop("Unexpected geneset ordering in `", name, "` result")
     }

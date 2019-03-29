@@ -1,3 +1,19 @@
+#' Utility function to ensure order of genesets in cached list used in do.*
+#' methods matches the active genesets extracted from the GeneSetDb used to run
+#' multiGSEA
+#'
+#' @noRd
+.gsdlist_conforms_to_gsd <- function(gs.idxs, gsd, active.only = TRUE, ...) {
+  gsets <- geneSets(gsd, active.only = active.only, as.dt = TRUE)
+  name.match <- all.equal(
+    sub(".*;;", "", names(gs.idxs)),
+    gsets[["name"]])
+  coll.match <- all.equal(
+    sub(";;.*", "", names(gs.idxs)),
+    gsets[["collection"]])
+  isTRUE(name.match) && isTRUE(coll.match)
+}
+
 #' @noRd
 extract_preranked_stats <- function(x, design, contrast, robust.fit=FALSE,
                                     robust.eBayes=FALSE, logFC=NULL,

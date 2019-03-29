@@ -28,9 +28,9 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   gsva.ex <- GSVA::gsva(E, lol, method='gsva', parallel.sz=4, verbose=FALSE)
 
   set.seed(0xBEEF)
-  gsva.mg <- scoreSingleSamples(gdb, E, methods='gsva', as.matrix=TRUE)
-
-  # expect_equal(gsva.mg, gsva.ex, info='GSVA,gsva', tolerance = 0.01)
+  gsva.mg <- expect_warning({
+    scoreSingleSamples(gdb, E, methods='gsva', as.matrix=TRUE)
+  }, "GSVA")
 
   # Can't figure out why these aren't exact just yet! I suspect the genes
   # that make it through the gsva filtering step might be alterd a bit?
@@ -45,7 +45,10 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   # gsva.mg.melt <- scoreSingleSamples(gdb, E, methods='gsva',
   #                               verbose=FALSE, melted=TRUE)
   plage.ex <- gsva(E, lol, method='plage', parallel.sz=4, verbose=FALSE)
-  plage.mg <- scoreSingleSamples(gdb, E, methods='plage', as.matrix=TRUE)
+  plage.mg <- expect_warning({
+    scoreSingleSamples(gdb, E, methods='plage', as.matrix=TRUE)
+  }, "GSVA")
+
   # expect_equal(plage.mg, plage.ex,info='GSVA,gsva')
   cors <- sapply(1:ncol(gsva.mg), function(i) {
     round(cor(gsva.mg[, i], gsva.ex[,i], method = "spearman"), 2)
@@ -60,8 +63,10 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=4,
                    verbose=FALSE)
   set.seed(0xBEEF)
-  gsvar.mg <- scoreSingleSamples(gdb, counts, method='gsva', kcdf='Poisson',
-                                 as.matrix=TRUE)
+  gsvar.mg <- expect_warning({
+    scoreSingleSamples(gdb, counts, method='gsva', kcdf='Poisson',
+                       as.matrix=TRUE)
+  }, "GSVA")
   # expect_equal(gsvar.mg, gsvar.ex, info='GSVA,gsva RNAseq',
   #              tolerance = sqrt(.Machine$double.eps))
   cors <- sapply(1:ncol(gsvar.mg), function(i) {
@@ -72,7 +77,9 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 })
 
 test_that("multiple 'melted' scores are returned in a long data.frame", {
-  scores <- scoreSingleSamples(gdb, vm$E, methods=c('svd', 'ssgsea'))
+  scores <- expect_warning({
+    scoreSingleSamples(gdb, vm$E, methods=c('svd', 'ssgsea'))
+  }, "GSVA")
   expect_is(scores, 'data.frame')
   expect_true(setequal(c('svd', 'ssgsea'), scores$method))
   n.samples <- ncol(vm)
@@ -81,21 +88,29 @@ test_that("multiple 'melted' scores are returned in a long data.frame", {
 })
 
 test_that("ssGSEA.normalize returns same normalization as GSVA", {
-  scores <- scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
-                               verbose=FALSE)
+  scores <- expect_warning({
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+                       verbose=FALSE)
+  }, "GSVA")
   my.norm <- ssGSEA.normalize(scores$score)
-  ssgsea.norm <- scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
-                                    ssgsea.norm=TRUE)
+  ssgsea.norm <- expect_warning({
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+                       ssgsea.norm=TRUE)
+  }, "GSVA")
   expect_equal(my.norm, ssgsea.norm$score)
 })
 
 test_that("ssGSEA (raw) scores are not affected by samples included in test", {
   some <- sample(ncol(vm), 10)
-  scores.all <- scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
-                                   verbose=FALSE)
-  scores.some <- scoreSingleSamples(gdb, vm$E[, some],
-                                    methods='ssgsea', parallel.sz=4,
-                                    verbose=FALSE)
+  scores.all <- expect_warning({
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+                       verbose=FALSE)
+  }, "GSVA")
+  scores.some <- expect_warning({
+    scoreSingleSamples(gdb, vm$E[, some],
+                       methods='ssgsea', parallel.sz=4,
+                       verbose=FALSE)
+  }, "GSVA")
   scores <- merge(scores.all, scores.some, suffixes=c('.all', '.some'),
                   by=c('collection', 'name', 'sample'))
   expect_equal(scores$scores.all, scores$scores.some)

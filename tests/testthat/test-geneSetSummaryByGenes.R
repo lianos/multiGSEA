@@ -8,10 +8,10 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
 
   res <- geneSetSummaryByGenes(gdb, features, with.features=TRUE)
 
-  ## 1. Ensure that geneset <-> geneset membership is legit. We do this by
-  ##    manipulating the result into a long form data.table that looks like
-  ##    what is stored in a GeneSetDb@db. We then filter the gdb.sub@db
-  ##    table to only include the queried features, then compare the two.
+  # 1. Ensure that geneset <-> geneset membership is legit. We do this by
+  #    manipulating the result into a long form data.table that looks like
+  #    what is stored in a GeneSetDb@db. We then filter the gdb.sub@db
+  #    table to only include the queried features, then compare the two.
   gdb.sub <- subsetByFeatures(gdb, features)
   db.expect <- gdb.sub@db %>%
     copy %>%
@@ -51,7 +51,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
     dplyr::select(featureId, logFC) %>%
     dplyr::filter(featureId %in% features) %>%
     dplyr::arrange(featureId)
-  expect_equal(lfc, lfc.ex)
+  expect_equal(lfc, lfc.ex, check.attributes = FALSE)
 
   ## check that symbol remapping works, too
   res.s <- geneSetSummaryByGenes(mg, features, with.features=TRUE,
@@ -65,9 +65,10 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
   expect_true(all(lfc.ex$renamed %in% colnames(res.s)))
 
   lfc.s <- res.s %>%
-    dplyr::select_(.dots=lfc.ex$renamed) %>%
-    as.matrix %>%
-    melt %>%
+    as.data.frame() %>%
+    dplyr::select(!!lfc.ex$renamed) %>%
+    as.matrix() %>%
+    melt() %>%
     dplyr::transmute(renamed=as.character(Var2), logFC=value) %>%
     dplyr::filter(logFC != 0) %>%
     dplyr::distinct(renamed, .keep_all=TRUE) %>%
@@ -77,7 +78,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
 
 test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets", {
   set.seed(0xBEEF)
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet(do.voom = TRUE)
   gdb <- exampleGeneSetDb()
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
   p.thresh <- 0.20
@@ -92,11 +93,3 @@ test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets"
   expect_true(all(res.sig$name %in% res.all$name))
   expect_true(all(res.sig$name %in% camera.sig$name))
 })
-
-if (FALSE) {
-  fn <- '~/web/rutz/BAP1/johnnycache/multiGSEA-NGS429-joint-nointeraction.rds'
-  mg <- readRDS(fn)
-  fids <- sample(featureIds(mg), 10)
-  fids <- c(Jag1='16449', Pdgfa='18590', App='11820', Vcan='13003', Nrp1='18186')
-  s <- geneSetSummaryByGenes(mg, fids, feature.rename='symbol')
-}

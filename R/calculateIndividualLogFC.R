@@ -65,15 +65,36 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   do.contrast <- !is.vector(x) &&
     ncol(x) > 1L &&
     !is.null(design) &&
-    length(contrast) > 1L
-  if (do.contrast) {
-    if (length(contrast) != ncol(design)) {
-      stop("Invalid contrast vector, must be as long as columns in design")
+    length(contrast) == ncol(design)
+
+  if (is.vector(x)) {
+    # this is a preranked vector
+    x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
+  }
+
+  if (ncol(x) == 1L) {
+    # The user passed in a vector of statistics. Only a very few number of
+    # GSEA methods support this, but they are useful (fgsea and cameraPR). We
+    # make the output of this look like a "DGE" data.table
+    out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
+                      pval=NA_real_, padj=NA_real_, confint=NA_real_,
+                      featureId=rownames(x))
+    fit <- NULL
+    test_type <- "preranked"
+  } else if (do.contrast) {
+    test_type <- "ttest"
+    assert_matrix(design, nrows = ncol(x))
+    assert_numeric(contrast, len = ncol(design))
+  } else {
+    # Testing a coefficient, or multiple coefficients (anova)
+    assert_matrix(design, nrows = ncol(x))
+    if (is.character(contrast)) {
+      assert_choice(contrast, colnames(design))
+      contrast <- match(contrast, colnames(design))
     }
-  } else if (!is.null(design) && !is.null(contrast) &&
-             length(contrast) != 1 &&
-             contrast > 0 && contrast <= ncol(design)) {
-    stop("Illegal coefficient to test in design")
+    assert_integerish(contrast, lower = 1, upper = ncol(design),
+                      min.len = 1L, max.len = ncol(design) - 1L)
+    test_type <- if (length(contrast) == 1L) "ttest" else "anova"
   }
 
   use.treat <- FALSE
@@ -83,9 +104,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   }
 
   if (is(x, 'DGEList')) {
-    ## We default to using the quasi-likelihood piepline with edgeR with
-    ## robust fitting. Setting robust=TRUE here should be roughly equivalent
-    ## to eBayes(..., robust=TRUE) in the limma world.
+    # We default to using the quasi-likelihood piepline with edgeR with
+    # robust fitting. Setting robust=TRUE here should be roughly equivalent
+    # to eBayes(..., robust=TRUE) in the limma world.
     if (!disp.estimated(x)) {
       stop("Dispersions not estimated, need to run estimateDisp first")
     }
@@ -94,7 +115,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     } else {
       fit <- glmFit(x, design)
     }
-    if (use.treat) {
+    if (use.treat && test_type == "ttest") {
       if (do.contrast) {
         tt <- glmTreat(fit, contrast=contrast, lfc=treat.lfc)
       } else {
@@ -113,40 +134,37 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     setnames(tt, c('logCPM', 'PValue', 'FDR'), c('AveExpr', 'pval', 'padj'))
     out <- tt
   } else if (ncol(x) > 1L) {
-    ## If x is matrix-like but not a DGEList, we assume you are OK to run the
-    ## limma pipeline.
-    fit <- lmFit(x, design, method=if (robust.fit) 'robust' else 'ls', ...)
+    # If x is matrix-like but not a DGEList, we assume you are OK to run the
+    # limma pipeline.
+    fit <- lmFit(x, design, method = if (robust.fit) 'robust' else 'ls', ...)
     if (do.contrast) {
       fit <- contrasts.fit(fit, contrast)
       contrast <- 1L
     }
-    if (use.treat) {
-      fit <- treat(fit, lfc=treat.lfc, robust=robust.eBayes, trend=trend.eBayes)
-      tt <- topTreat(fit, contrast, number=Inf, sort.by='none', confint=confint)
+    if (use.treat && test_type == "ttest") {
+      fit <- treat(fit, lfc = treat.lfc, robust = robust.eBayes,
+                   trend = trend.eBayes)
+      tt <- topTreat(fit, contrast, number = Inf, sort.by = "none",
+                     confint = confint)
     } else {
-      fit <- eBayes(fit, robust=robust.eBayes, trend=trend.eBayes)
-      tt <- topTable(fit, contrast, number=Inf, sort.by='none', confint=confint)
+      fit <- eBayes(fit, robust = robust.eBayes, trend = trend.eBayes)
+      tt <- topTable(fit, contrast, number = Inf, sort.by = "none",
+                     confint = confint)
     }
-    tt <- transform(setDT(tt), featureId=rownames(x))
-    setnames(tt, c('P.Value', 'adj.P.Val'), c('pval', 'padj'))
+    tt <- transform(setDT(tt), featureId = rownames(x))
+    setnames(tt, c("P.Value", "adj.P.Val"), c("pval", "padj"))
     out <- tt
-  } else {
-    ## The user passed in a vector of statistics. Only a very few number of
-    ## GSEA methods support this, but ...
-    out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
-                      pval=NA_real_, padj=NA_real_, confint=NA_real_,
-                      featureId=rownames(x))
-    fit <- NULL
   }
 
-  # x.idx <- ID <- NULL # silence R CMD check NOTEs
   out[, x.idx := 1:nrow(x)]
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
   }
 
-  if (!as.dt) setDF(out)
-  if (with.fit) list(result=out, fit=fit) else out
+  if (!as.dt) out <- setDF(out)
+  if (with.fit) out <- list(result=out, fit=fit)
+  setattr(out, "test_type", test_type)
+  out
 }
 
 #' Checks that a provided table is "similar enough" the the result generated

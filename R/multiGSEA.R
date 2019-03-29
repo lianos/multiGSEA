@@ -156,22 +156,27 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       feature.min.logFC=if (use.treat) log2(1.25) else 1,
                       feature.max.padj=0.10, trim=0.10, verbose=FALSE, ...,
                       .parallel=FALSE, BPPARAM=bpparam()) {
-  if (!is(gsd, 'GeneSetDb')) {
-    if (is(gsd, 'GeneSetCollection') || is(gsd, 'GeneSet')) {
-      stop("A GeneSetDb is required. GeneSetCollections can be can be ",
-           "converted to a GeneSetDb via the GeneSetDb constructor, or a call ",
-           "to as(gene_set_collection, 'GeneSetDb). See ?GeneSetDb for more ",
-           "info")
+  if (!is(gsd, "GeneSetDb")) {
+    if (is(gsd, "GeneSetCollection") || is(gsd, "GeneSet")) {
+      stop("A GeneSetDb is required. GeneSetCollections can be converted to a ",
+           "GeneSetDb via the GeneSetDb constructor, or a call to ",
+           "`as(gene_set_collection, 'GeneSetDb')`. See ?GeneSetDb for more ",
+           "details.")
     }
     stop("GeneSetDb required. Please see `?GeneSetDb` for ways to turn your ",
          "gene sets into a GeneSetDb")
   }
   if (missing(methods) || length(methods) == 0) {
-    methods <- 'logFC'
+    methods <- "logFC"
   }
 
-  ## ---------------------------------------------------------------------------
-  ## Argument sanity checking and input sanitization
+  stopifnot(
+    is.numeric(feature.min.logFC) && length(feature.min.logFC) == 1L,
+    is.numeric(feature.max.padj) && length(feature.max.padj) == 1L,
+    is.numeric(trim) && length(trim) == 1L)
+
+  # ----------------------------------------------------------------------------
+  # Argument sanity checking and input sanitization
   args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
   inputs <- validateInputs(x, design, contrast, methods,
                            require.x.rownames=TRUE, ...)
@@ -184,31 +189,35 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     gsd <- conform(gsd, x, ...)
   }
 
-  ## ---------------------------------------------------------------------------
-  ## Run the analyses
+  # ----------------------------------------------------------------------------
+  # Run the analyses
+
+  # First calculate differential expression statistics, or wrap a pre-ranked
+  # vector into a data.frame returned by an internal dge analysis
   treat.lfc <- if (use.treat) feature.min.logFC else NULL
   logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
                                     treat.lfc=treat.lfc, verbose=verbose, ...,
                                     as.dt=TRUE)
-  logFC <- within(logFC, {
-    significant <- if (use.treat) {
+  test_type <- attr(logFC, "test_type")
+
+  logFC[, significant := {
+    if (test_type == "anova") {
       padj <= feature.max.padj
     } else {
-      abs(logFC) >= feature.min.logFC & padj <= feature.max.padj
+      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
     }
-  })
+  }]
 
+  # the 'logFC' method is just a pass through -- we don't call it if it was
+  # provided
+  methods <- setdiff(methods, "logFC")
 
-  ## the 'logFC' method is just a pass through -- we don't call it if it was
-  ## provided
-  methods <- setdiff(methods, 'logFC')
-
-  ## Let's do this!
+  # Let's do this!
   results <- list()
   if (length(methods) > 0L) {
-    ## I'm being too clever here. The loop that calls the GSEA methods catches
-    ## errors thrown during iteration. I'm putting some code here to eat those
-    ## error so that the other GSEA methods that can finish.
+    # I'm being too clever here. The loop that calls the GSEA methods catches
+    # errors thrown during iteration. I'm putting some code here to eat those
+    # error so that the other GSEA methods that can finish.
     finished <- FALSE
     on.exit({
       if (!finished) {
@@ -219,7 +228,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
     ## Many methods create a geneset to rowname/index vector. Let's run it once
     ## here and pass it along
-    gs.idxs <- as.list(gsd, active.only=TRUE, value='x.idx')
+    gs.idxs <- as.list(gsd, active.only = TRUE, value = "x.idx")
 
     if (!.parallel) {
       BPPARAM <- SerialParam(stop.on.error=FALSE)

@@ -15,6 +15,7 @@ Imports:
     BiocGenerics,
     BiocParallel,
     Biobase (>= 2.24.0),
+    checkmate,
     circlize,
     ComplexHeatmap,
     DelayedMatrixStats,
@@ -99,6 +100,6 @@ Collate:
     'utilities.R'
     'volcano_plot.R'
     'zzz.R'
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq
