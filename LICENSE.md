@@ -1,7 +1,8 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2014-2017 Steve Lianoglou
+Copyright © 2018+ Steve Lianoglou @ Denali Therapeutics
+Copyright © 2014-2017 Steve Lianoglou @ Genentech
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
