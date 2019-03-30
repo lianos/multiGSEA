@@ -44,8 +44,7 @@ gene sets in different forms.
 
 The expression data is a subset of the TCGA BRCA indication. Calling
 \code{exampleExpressionSet(do.voom = TRUE)} will return a voomed \code{EList} version
-of the data. When \code{do.voom = FALSE}, you will get an ExpressoinSet with
-counts in the \code{exprs()} (in retrospect, this should have returned a DGEList)
+of the data. When \code{do.voom = FALSE}, you will get a DGEList of the counts
 }
 
 \section{exampleGeneSets}{

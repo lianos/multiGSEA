@@ -9,14 +9,13 @@
 #' @section exampleExpressionSet:
 #' The expression data is a subset of the TCGA BRCA indication. Calling
 #' `exampleExpressionSet(do.voom = TRUE)` will return a voomed `EList` version
-#' of the data. When `do.voom = FALSE`, you will get an ExpressoinSet with
-#' counts in the `exprs()` (in retrospect, this should have returned a DGEList)
+#' of the data. When `do.voom = FALSE`, you will get a DGEList of the counts
 #'
 #' @rdname examples
 #' @aliases exampleExpressionSet
 #'
 #' @export
-#' @import Biobase
+#' @importFrom limma voom
 #'
 #' @param dataset Character vector indicating what samples wanted, either
 #'   \code{"tumor-vs-normal"} for a tumor vs normal dataset from TCGA, or
@@ -25,45 +24,29 @@
 #'   ExpressionSet of counts.
 exampleExpressionSet <- function(dataset=c('tumor-vs-normal', 'tumor-subtype'),
                                  do.voom=TRUE) {
-  suppressPackageStartupMessages({
-    ## voom is having some issues finding fData if I don't do this, and I don't
-    ## want to waste time debuggin this furthe
-    require('Biobase', character.only=TRUE)
-  })
   dataset <- match.arg(dataset)
-  es.all <- readRDS(system.file('extdata', 'testdata', 'TCGA-BRCA-some.es.rds',
-                                package='multiGSEA'))
+  fn <- system.file("extdata", "testdata", "TCGA-BRCA-some.DGEList.rds",
+                    package = "multiGSEA", mustWork = TRUE)
+  y.all <- readRDS(fn)
 
   # Two samples seem to be outliers:
   axe.samples <- c("TCGA-A2-A3XV-01A-21R-A239-07", "TCGA-A2-A3XU-01A-12R-A22U-07")
-  es.all <- es.all[, !colnames(es.all) %in% axe.samples]
-
-  pData(es.all) <- within(pData(es.all), {
-    Cancer_Status <- factor(as.character(Cancer_Status))
-    PAM50subtype <- factor(as.character(PAM50subtype))
-  })
+  y.all <- y.all[, !colnames(y.all) %in% axe.samples]
 
   if (dataset == 'tumor-vs-normal') {
-    es <- es.all
-    design <- model.matrix(~ Cancer_Status, pData(es))
+    y <- y.all
+    design <- model.matrix(~ Cancer_Status, y$samples)
     colnames(design) <- sub('Cancer_Status', '', colnames(design))
   } else {
-    es <- es.all[, es.all$Cancer_Status == 'tumor']
-    pData(es) <- droplevels(pData(es))
-    design <- model.matrix(~ 0 + PAM50subtype, pData(es))
+    y <- y.all[, y.all$samples$Cancer_Status == 'tumor']
+    y$samples <- droplevels(y$samples)
+    design <- model.matrix(~ 0 + PAM50subtype, y$samples)
     colnames(design) <- sub('PAM50subtype', '', colnames(design))
   }
 
-  out <- es
-  attr(out, 'design') <- design
-  if (do.voom) {
-    ## require('limma', character.only=TRUE)
-    out <- voom(es, design, plot=FALSE)
-    out$genes <- fData(es)
-  } else {
-  }
+  y$design <- design
 
-  out
+  if (do.voom) voom(y, y$design, plot = FALSE) else y
 }
 
 

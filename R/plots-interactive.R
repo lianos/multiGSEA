@@ -68,17 +68,11 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   })
 
   if (type == 'density') {
-    # out <- iplot.density.rbokeh(x, y, j, value, main, dat=dat,
-    #                             with.legend=with.legend, tools=tools,
-    #                             with.data=with.data, ...)
     out <- iplot.density.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
                                 ggtheme=ggtheme, trim=trim, ...)
   } else if (type == 'boxplot') {
-    # out <- iplot.boxplot.rbokeh(x, y, j, value, main, dat=dat,
-    #                             with.legend=with.legend, tools=tools,
-    #                             with.data=with.data, ...)
     out <- iplot.boxplot.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
                                 with.data=with.data, shiny_source=shiny_source,
@@ -99,7 +93,8 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 
 ## plotly ======================================================================
 
-#' @rdname iplot
+#' @noRd
+#' @importFrom plotly add_markers add_lines config layout plot_ly
 iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.points=TRUE,  with.data=FALSE,
                                  shiny_source='mggenes',
@@ -166,7 +161,9 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   config(p, collaborate=FALSE, displaylogo=FALSE)
 }
 
-#' @rdname iplot
+#' @noRd
+#' @importFrom plotly config ggplotly layout plotly_build
+#' @importFrom ggplot2 aes geom_boxplot geom_jitter ggplot
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
                                  with.points=TRUE, with.data=FALSE,
                                  shiny_source='mggenes', height=NULL,
@@ -211,9 +208,12 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   }
 
   ## ggplotly keeps suggesting to use the github/ggplot2
-  p <- suppressMessages(ggplotly(gg, width=width, height=height, tooltip='text')) %>%
-    layout(yaxis=list(title=value), dragmode="select", showlegend = with.legend) %>%
-    plotly_build
+  p <- suppressMessages({
+    ggplotly(gg, width = width, height = height, tooltip = "text")
+  })
+  p <- layout(p, yaxis = list(title=value),
+              dragmode = "select", showlegend = with.legend)
+  p <- plotly_build(p)
 
   p$x$source <- shiny_source
   ## Hacks to hide hover events on boxplots and remove outliers
@@ -222,5 +222,5 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p$x$data[[1]]$marker <- list(opacity=0)
   p$x$data[[2]]$hoverinfo <- 'none'
   p$x$data[[2]]$marker <- list(opacity=0)
-  config(p, collaborate=FALSE, displaylogo=FALSE)
+  config(p, collaborate = FALSE, displaylogo = FALSE)
 }

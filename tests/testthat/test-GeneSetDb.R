@@ -197,23 +197,23 @@ test_that("featureIds(GeneSetDb, i, MISSING) gets all features in a collection",
 })
 
 test_that("conform,GeneSetDb follows row permutation in expression object", {
-  es <- exampleExpressionSet(do.voom=FALSE)
-  es.mixed <- es[sample(nrow(es))]
-  es.sub <- es[sample(nrow(es), 100)]
+  y <- exampleExpressionSet(do.voom=FALSE)
+  y.mixed <- y[sample(nrow(y)),]
+  y.sub <- y[sample(nrow(y), 100),]
 
   gsd <- GeneSetDb(exampleGeneSets())
 
-  gsd.es <- conform(gsd, es)
-  gsd.mixed <- conform(gsd, es.mixed)
+  gsd.es <- conform(gsd, y)
+  gsd.mixed <- conform(gsd, y.mixed)
 
-  ## gsd.sub is super small, so we expect a warning due to not being able to
-  ## match many featureIds to the expression object
+  # gsd.sub is super small, so we expect a warning due to not being able to
+  # match many featureIds to the expression object
   expect_warning({
-    gsd.sub <- conform(gsd, es.sub)
+    gsd.sub <- conform(gsd, y.sub)
   }, "^fraction .* low:", ignore.case=TRUE)
 
-  ## gsd.es and gsd.mixed should have the same features in them but different
-  ## x.id
+  # gsd.es and gsd.mixed should have the same features in them but different
+  # x.id
   expect_equal(geneSets(gsd.es), geneSets(gsd.mixed))
   gt <- geneSets(gsd.es)
   gt.sub <- geneSets(gsd.sub)
@@ -223,16 +223,16 @@ test_that("conform,GeneSetDb follows row permutation in expression object", {
     xid <- gt$name[i]
     n <- gt$n[i]
     label <- sprintf("(%s, %s)", gt$collection[i], gt$name[i])
-    ## The feature IDs of fids.es and fids.mix must be the same
+    # The feature IDs of fids.es and fids.mix must be the same
     fids.es <- featureIds(gsd.es, grp, xid)
     fids.mix <- featureIds(gsd.mixed, grp, xid)
     expect_equal(n, length(fids.es))
     expect_true(setequal(fids.es, fids.mix))
 
-    ## Ensure that the $x.idx's for each match the rownames of the expression
-    ## object
-    es.rn <- rownames(es)[featureIds(gsd.es, grp, xid, 'x.idx')]
-    es.mixed.rn <- rownames(es.mixed)[featureIds(gsd.mixed, grp, xid, 'x.idx')]
+    # Ensure that the $x.idx's for each match the rownames of the expression
+    # object
+    es.rn <- rownames(y)[featureIds(gsd.es, grp, xid, 'x.idx')]
+    es.mixed.rn <- rownames(y.mixed)[featureIds(gsd.mixed, grp, xid, 'x.idx')]
     expect_true(setequal(es.rn, es.mixed.rn), info=label)
     expect_true(setequal(es.rn, fids.es), info=label)
 
@@ -247,9 +247,9 @@ test_that("conform,GeneSetDb follows row permutation in expression object", {
 
       ## check that the rownames of the expression object match the features
       ## returned "by index"
-      es.sub.rn <- rownames(es.sub)[featureIds(gsd.sub, grp, xid, 'x.idx')]
+      es.sub.rn <- rownames(y.sub)[featureIds(gsd.sub, grp, xid, 'x.idx')]
       expect_true(setequal(fids.sub, es.sub.rn),
-                  info=sprintf("gsd.sub: %s,%s", grp, xid))
+                  info = sprintf("gsd.sub: %s,%s", grp, xid))
     }
   }
 })
@@ -276,10 +276,10 @@ test_that("append,GeneSetDb works", {
 })
 
 test_that("gene set metadata kept pre/post conform,GeneSetDb", {
-  es <- exampleExpressionSet(do.voom=FALSE)
+  y <- exampleExpressionSet(do.voom = FALSE)
   gsd <- GeneSetDb(exampleGeneSets())
   gsd@table$metacol <- sample(letters, nrow(gsd@table), replace=TRUE)
-  gsdc <- conform(gsd, es)
+  gsdc <- conform(gsd, y)
 
   gs.o <- geneSets(gsd)
   gs.c <- geneSets(gsdc)
@@ -399,7 +399,7 @@ test_that("conformed & unconformed GeneSetDb,incidenceMatrix is kosher", {
 })
 
 test_that("annotateGeneSetMembership works", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gdb <- GeneSetDb(exampleGeneSets())
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), NULL)
   lfc <- logFC(mg)
@@ -447,7 +447,6 @@ test_that("subsetByFeatures returns correct genesets for features", {
 })
 
 test_that('subset.GeneSetDb ("[".GeneSetDb) creates valid result', {
-  # es <- exampleExpressionSet()
   set.seed(1234)
   gdb <- exampleGeneSetDb()
   keep <- sample(c(TRUE, FALSE), length(gdb), replace=TRUE)

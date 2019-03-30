@@ -1,7 +1,7 @@
 context("geneSetsStats")
 
 test_that("geneSetsStats", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), vm)
 

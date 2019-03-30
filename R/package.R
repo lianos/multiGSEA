@@ -1,10 +1,5 @@
-#' @import edgeR
-#' @import limma
-#' @import reshape2
 #' @import data.table
 #' @import methods
-#' @import ggplot2
-#' @import plotly
 #' @import magrittr
 #' @import checkmate
 #' @importFrom circlize colorRamp2

@@ -16,7 +16,7 @@
 #'   `gdb`.
 #'
 #' @examples
-#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' vm <- exampleExpressionSet()
 #' gdb <- getMSigGeneSetDb('h', 'human')
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 #' lfc <- logFC(mg)
@@ -222,7 +222,7 @@ is.conformed <- function(x, to) {
 #'   match the rows of `y`.
 #'
 #' @examples
-#' vm <- exampleExpressionSet(do.voom=TRUE)
+#' vm <- exampleExpressionSet()
 #' gdb <- getMSigGeneSetDb('h', 'human')
 #' im <- incidenceMatrix(gdb)
 #' imv <- incidenceMatrix(gdb, vm)

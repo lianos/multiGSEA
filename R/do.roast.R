@@ -10,6 +10,8 @@ validate.x.roast <- validate.X
 #' called internally within [multiGSEA()].
 #'
 #' @noRd
+#' @importFrom limma mroast
+#' @importFrom edgeR mroast.DGEList
 do.roast <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'), ...) {
   stopifnot(is.conformed(gsd, x))

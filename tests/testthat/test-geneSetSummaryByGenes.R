@@ -2,7 +2,7 @@ context("geneSetSummaryByGenes")
 
 test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
   set.seed(0xBEEF)
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gdb <- exampleGeneSetDb()
   features <- sample(featureIds(gdb), 10)
 
@@ -31,7 +31,7 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
 
 test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
   set.seed(0xBEEF)
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gdb <- exampleGeneSetDb()
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
   mgdb <- geneSetDb(mg)
@@ -78,7 +78,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
 
 test_that("geneSetSummary,MultiGSEAResult properly filters significant genesets", {
   set.seed(0xBEEF)
-  vm <- exampleExpressionSet(do.voom = TRUE)
+  vm <- exampleExpressionSet()
   gdb <- exampleGeneSetDb()
   mg <- multiGSEA(gdb, vm, vm$design, ncol(vm$design), method='camera')
   p.thresh <- 0.20

@@ -4,7 +4,7 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
   nperm <- 1000
   gseaParam <- 1
 
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gdb <- exampleGeneSetDb()
 
   # Since Bioc 3.5, running fgsea warns about ties in preranked stats

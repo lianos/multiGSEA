@@ -10,6 +10,7 @@ validate.x.geneSetTest <- validate.X
 #' called internally within [multiGSEA()].
 #'
 #' @noRd
+#' @importFrom limma geneSetTest
 do.geneSetTest <- function(gsd, x, design, contrast = ncol(design),
                            score.by = c("t", "logFC", "pval"), logFC = NULL,
                            gs.idxs = NULL, ...) {

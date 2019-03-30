@@ -22,6 +22,8 @@
 #' `logFC` and `t` columns.
 #'
 #' @export
+#' @importFrom limma eBayes contrasts.fit lmFit topTreat topTable treat
+#' @importFrom edgeR glmFit glmLRT glmQLFit glmQLFTest glmTreat topTags
 #'
 #' @param x The expression object. This can be 1 column matrix if you are not
 #'   running any analysis, and this function essentially is just a

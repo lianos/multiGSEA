@@ -21,6 +21,8 @@ validate.x.camera <- validate.X
 #' https://support.bioconductor.org/p/70005/#70195
 #'
 #' @noRd
+#' @importFrom limma camera
+#' @importFrom edgeR camera.DGEList
 do.camera <- function(gsd, x, design, contrast=ncol(design),
                       gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                       ...) {

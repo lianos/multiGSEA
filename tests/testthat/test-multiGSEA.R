@@ -1,7 +1,7 @@
 context("multiGSEA")
 
 test_that("multiGSEA fails on not-full-rank design matrix", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   design <- vm$design
@@ -14,7 +14,7 @@ test_that("multiGSEA fails on not-full-rank design matrix", {
 })
 
 test_that("multiGSEA wrapper generates same results as individual do.*", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 

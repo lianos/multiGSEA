@@ -11,7 +11,7 @@ if (FALSE) {
     library(clusterProfiler)
     data(geneList)
 
-    vm <- exampleExpressionSet(do.voom=TRUE)
+    vm <- exampleExpressionSet()
     gsi <- exampleGeneSets(vm)
     gsl <- exampleGeneSets()
     gsd <- conform(GeneSetDb(gsl), vm)

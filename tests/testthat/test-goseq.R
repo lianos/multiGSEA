@@ -1,7 +1,7 @@
 context("goseq")
 
 test_that("multiGSEA(method='goseq') requires valid feature.bias vector", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
@@ -20,7 +20,7 @@ test_that("multiGSEA(method='goseq') requires valid feature.bias vector", {
 
 
 test_that("internal goseq mimics goseq package", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)
@@ -72,7 +72,7 @@ test_that("internal goseq mimics goseq package", {
 
 
 test_that("goseq hypergeometric pvals close to do.hyperGeometricTest", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   gsd <- conform(gsd, vm)

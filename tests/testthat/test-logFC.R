@@ -1,7 +1,7 @@
 context("Pass-through logFC GSEA method")
 
 test_that("logFC pass through generates expected gene-set stats", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 
@@ -11,7 +11,7 @@ test_that("logFC pass through generates expected gene-set stats", {
 })
 
 test_that("t-stats and logFCs match full design when only stats passed", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 

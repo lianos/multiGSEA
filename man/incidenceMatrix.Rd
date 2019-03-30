@@ -25,7 +25,7 @@ to gene sets (rows). If \code{y} is provided, then the incidence is mapped
 across the entire feature-space of \code{y}.
 }
 \examples{
-vm <- exampleExpressionSet(do.voom=TRUE)
+vm <- exampleExpressionSet()
 gdb <- getMSigGeneSetDb('h', 'human')
 im <- incidenceMatrix(gdb)
 imv <- incidenceMatrix(gdb, vm)

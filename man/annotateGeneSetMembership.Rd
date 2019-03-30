@@ -27,7 +27,7 @@ This is helpful when you don't have a monsterly sized GeneSetDb. There will
 be as many new columns added to \code{x} as there are active genesets in \code{gdb}.
 }
 \examples{
-vm <- exampleExpressionSet(do.voom=TRUE)
+vm <- exampleExpressionSet()
 gdb <- getMSigGeneSetDb('h', 'human')
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 lfc <- logFC(mg)

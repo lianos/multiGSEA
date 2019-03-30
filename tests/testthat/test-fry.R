@@ -1,7 +1,7 @@
 context("fry")
 
 test_that('fry runs equivalently from do.roast vs direct call', {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsi <- exampleGeneSets(vm)
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), vm)
@@ -25,7 +25,7 @@ test_that('fry runs equivalently from do.roast vs direct call', {
 })
 
 test_that("fry runs through multiGSEA wrapper", {
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gsi <- exampleGeneSets(vm)
   gsl <- exampleGeneSets()
   gsd <- conform(GeneSetDb(gsl), vm)

@@ -32,6 +32,8 @@ validate.x.romer <- function(x) {
 #' called internally within [multiGSEA()].
 #'
 #' @noRd
+#' @importFrom limma romer
+#' @importFrom edgeR romer.DGEList
 do.romer <- function(gsd, x, design, contrast=ncol(design),
                      gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                      ...) {

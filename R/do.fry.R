@@ -17,6 +17,8 @@ validate.x.fry <- function(x) {
 #' called internally within [multiGSEA()].
 #'
 #' @noRd
+#' @importFrom limma fry
+#' @importFrom edgeR fry.DGEList
 do.fry <- function(gsd, x, design, contrast=ncol(design),
                    gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'), ...) {
   ## This function was defined in limma v3.23.13 in April 2015

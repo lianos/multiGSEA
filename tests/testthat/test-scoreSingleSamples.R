@@ -56,8 +56,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   expect_true(all(cors >= 0.97))
 
 
-  es <- exampleExpressionSet(do.voom=FALSE)
-  counts <- Biobase::exprs(es)
+  counts <- exampleExpressionSet(do.voom = FALSE)$counts
 
   set.seed(0xBEEF)
   gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=4,

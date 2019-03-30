@@ -2,24 +2,12 @@
 % Please edit documentation in R/plots-interactive.R
 \name{iplot}
 \alias{iplot}
-\alias{iplot.density.plotly}
-\alias{iplot.boxplot.plotly}
 \title{Visualize gene level behavior of genes within a geneset across a contrast.}
 \usage{
 iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
   with.legend = TRUE, with.data = FALSE, shiny_source = "mggenes",
   width = NULL, height = NULL, ggtheme = theme_bw(), trim = 0.005,
-  ...)
-
-iplot.density.plotly(x, y, j, value, main, dat, with.legend = TRUE,
-  with.points = TRUE, with.data = FALSE, shiny_source = "mggenes",
-  legend.pos = c("inside", "outside"), height = NULL, width = NULL,
-  trim = 0.02, square = TRUE, ...)
-
-iplot.boxplot.plotly(x, y, j, value, main, dat, with.legend = TRUE,
-  with.points = TRUE, with.data = FALSE, shiny_source = "mggenes",
-  height = NULL, width = NULL, ggtheme = theme_bw(), trim = 0.02,
   ...)
 }
 \arguments{

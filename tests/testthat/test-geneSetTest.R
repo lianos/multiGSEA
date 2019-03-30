@@ -3,7 +3,7 @@ context("geneSetTest")
 test_that("geneSetTest matches re-implememtation", {
   nsim <- 250
   seed <- 123
-  vm <- exampleExpressionSet(do.voom=TRUE)
+  vm <- exampleExpressionSet()
   gdb <- conform(exampleGeneSetDb(), vm)
 
   stats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design),

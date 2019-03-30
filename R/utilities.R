@@ -125,6 +125,7 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 #' This function is intentionally not exported.
 #'
 #' @noRd
+#' @importFrom edgeR cpm
 #'
 #' @param y an object to convert into an expression matrix for use in various
 #'   internal gene set based methods
@@ -156,10 +157,9 @@ as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE) {
   } else if (is(y, 'DGEList')) {
     y <- cpm(y, prior.count=5, log=TRUE)
   } else if (is(y, 'eSet')) {
-    y <- Biobase::exprs(y)
-  # } else if (is(y, 'DESeqDataSet')) {
-  #   y <- cpm(y, prior.count=5, log=TRUE)
-  #   y <- SummarizedExperiment::assay(DESeq2::normTransform(y, pc=5))
+    ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
+    if (is.null(ns)) stop("Biobase required")
+    y <- ns$exprs(y)
   } else if (is.data.frame(y)) {
     y <- as.matrix(y)
   } else if (is(y, "SingleCellExperiment")) {

@@ -171,7 +171,7 @@ funciton.
 }
 
 \examples{
-vm <- exampleExpressionSet(do.voom=TRUE)
+vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor',
                 methods=c('camera', 'fry'),

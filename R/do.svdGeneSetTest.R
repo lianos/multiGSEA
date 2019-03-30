@@ -21,6 +21,7 @@ validate.x.svdGeneSetTest <- validate.X
 #' called internally within [multiGSEA()].
 #'
 #' @noRd
+#' @importFrom edgeR cpm
 do.svdGeneSetTest <- function(gsd, x, design, contrast=ncol(design),
                               gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
                               trend.eBayes=FALSE, ...) {

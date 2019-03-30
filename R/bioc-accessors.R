@@ -54,28 +54,30 @@ pdata.EList <- function(x, ...) {
 
 # eSet =========================================================================
 fdata.eSet <- function(x, ...) {
-  if (!requireNamespace("Biobase")) stop("Biobase package required")
-  Biobase::fData(x)
+  ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
+  if (is.null(ns)) stop("Biobase required")
+  ns$fData(x)
 }
 
 `fdata<-.eSet` <- function(x, value) {
-  if (!requireNamespace("Biobase")) stop("Biobase package required")
-  # `Biobase::fData<-`(x, value)
-  Biobase::fData(x) <- value
+  ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
+  if (is.null(ns)) stop("Biobase required")
+  x <- ns$`fData<-`(x, value)
   x
 }
 
 pdata.eSet <- function(x, ...) {
-  if (!requireNamespace("Biobase")) stop("Biobase package required")
-  Biobase::pData(x)
+  ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
+  if (is.null(ns)) stop("Biobase required")
+  ns$pData(x)
 }
 
 `pdata<-.eSet` <- function(x, value) {
-  if (!requireNamespace("Biobase")) stop("Biobase package required")
-  Biobase::pData(x) <- value
+  ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
+  if (is.null(ns)) stop("Biobase required")
+  x <- ns$`pData<-`(x, value)
   x
 }
-
 
 # SummarizedExperiment =========================================================
 
