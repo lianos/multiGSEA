@@ -126,7 +126,7 @@ below in a manner that gives us an object that allows us to explore expression
 differences between different subtypes of breast cancer.
 
 ```{r data-setup, eval=!exists('y.all'), results='hide'}
-vm <- exampleExpressionSet(dataset='tumor-subtype', do.voom=TRUE)
+vm <- exampleExpressionSet(dataset = "tumor-subtype", do.voom = TRUE)
 ```
 
 Below you'll find the `$targets` data.frame of the voomed `EList`
@@ -205,7 +205,7 @@ We'll use the `getMSigGeneSetDb` convenience function provided by the
 [pgoslim]: http://www.pantherdb.org/panther/ontologies.jsp
 
 ```{r build-gdb, eval=!exists('gdb')}
-gdb <- getMSigGeneSetDb(c('h', 'c2'), 'human')
+gdb <- getMSigGeneSetDb(c("h", "c2"), "human", id.type = "entrez")
 ```
 
 You can view a table of the gene sets defined inside a `GeneSetDb` (`gdb`)object
@@ -530,11 +530,11 @@ gs.sub <- geneSets(gdb.sub)
 gdb.2 <- gdb.sub[geneSets(gdb.sub)$name %in% head(gs.sub$name, 2)]
 
 col.anno <- HeatmapAnnotation(
-  vm.bh$targets[, 'PAM50subtype', drop=FALSE],
-  col=list(PAM50subtype=c(Basal="gray", Her2="black")))
+  df = vm.bh$targets[, 'PAM50subtype', drop = FALSE],
+  col = list(PAM50subtype = c(Basal = "gray", Her2 = "black")))
 
-mgheatmap(vm.bh, gdb.2, aggregate.by="none", split=TRUE,
-          show_row_names=FALSE, show_column_names=FALSE,
+mgheatmap(vm.bh, gdb.2, aggregate.by = "none", split = TRUE,
+          show_row_names = FALSE, show_column_names = FALSE,
           top_annotation=col.anno, zlim = c(-1.2, 1.2))
 ```
 
