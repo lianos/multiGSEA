@@ -411,7 +411,24 @@ function(x, active.only=is.conformed(x), ... , as.dt=FALSE) {
 #' @rdname geneSet
 setMethod("geneSet", c(x="GeneSetDb"),
 function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
-         as.dt=FALSE) {
+         collection = NULL, name = NULL, as.dt = FALSE) {
+  if (!is.null(collection) && missing(i)) i <- collection
+  if (!is.null(name) && missing(j)) j <- name
+  if (missing(i) && is.null(collection)) {
+    stopifnot(isSingleCharacter(j))
+    gs <- geneSets(x, as.dt = TRUE)[name == j]
+    if (nrow(gs) != 1L) {
+      stop("Cannot resolve geneset using only `name` == `'", j, "'`")
+    }
+    i <- gs[["collection"]]
+  } else if (missing(j) && is.null(name)) {
+    stopifnot(isSingleCharacter(i))
+    gs <- geneSets(x, as.dt = TRUE)[collection == i]
+    if (nrow(gs) != 1L) {
+      stop("Cannot resolve geneset using only `collection` == `'", i, "'`")
+    }
+    j <- gs[["name"]]
+  }
   stopifnot(isSingleCharacter(i), isSingleCharacter(j))
   fids <- featureIds(x, i, j, value='featureId', active.only=active.only, ...)
   info <- geneSets(x, active.only=FALSE, as.dt=TRUE)[list(i, j)]

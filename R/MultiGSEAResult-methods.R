@@ -33,14 +33,14 @@ geneSetDb <- function(x) {
 #' @rdname geneSet
 setMethod("geneSet", c(x="MultiGSEAResult"),
 function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
-         as.dt=FALSE) {
+         collection = NULL, name = NULL, as.dt=FALSE) {
   if (!isTRUE(active.only)) {
     warning("active.only set to TRUE for geneSet,MultiGSEAResult")
     active.only <- TRUE
   }
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
-                ..., as.dt=TRUE)
+                ..., collection = collection, name = name, as.dt=TRUE)
   lfc <- logFC(x, as.dt=TRUE)[list(gs$featureId), on='featureId']
   stopifnot(all(lfc$featureId == gs$featureId))
   lfc$featureId <- NULL
