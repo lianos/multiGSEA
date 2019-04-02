@@ -196,13 +196,22 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
         stopifnot(all(zlim >= 0), all(zlim <= 1))
         fpost <- quantile(X, zlim)
       }
-      breaks <- quantile(X, seq(0, 1, by = 0.25))
-      if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[4L]) {
+      # breaks <- quantile(X, seq(0, 1, by = 0.25))
+      # if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[4L]) {
+      #   stop("Illegal values for zlim")
+      # }
+      # breaks[1] <- fpost[1]
+      # breaks[5] <- fpost[2]
+      # col <- colorRamp2(breaks, viridis::viridis(5))
+
+      # Higher granularity for viridis colorRamp
+      breaks <- quantile(X, seq(0, 1, by = 0.05))
+      if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[20L]) {
         stop("Illegal values for zlim")
       }
       breaks[1] <- fpost[1]
-      breaks[5] <- fpost[2]
-      col <- colorRamp2(breaks, viridis::viridis(5))
+      breaks[21] <- fpost[2]
+      col <- colorRamp2(breaks, viridis::viridis(21))
     }
   }
   stopifnot(is.function(col))
