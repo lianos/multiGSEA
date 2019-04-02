@@ -70,7 +70,7 @@
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
                               weights=NULL, normalize = FALSE, all.x = NULL,
-                              ...) {
+                              ..., .drop.sd = 1e-4) {
   x <- as_matrix(x)
   do.norm <- isTRUE(normalize) || (is.character(normalize) && length(normalize))
 
@@ -83,7 +83,7 @@ eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
   } else {
     pc <- paste0('PC', eigengene)
     res <- gsdScore(x, eigengene, center, scale, uncenter=uncenter,
-                    unscale=unscale, retx=FALSE)
+                    unscale=unscale, retx=FALSE, ..., .drop.sd = .drop.sd)
     res[['weights']] <- setNames(res$factor.contrib[[pc]], rownames(x))
   }
   if (!uncenter || !unscale) {
@@ -197,7 +197,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #'
 #' @export
 #' @importFrom irlba svdr
-#'
+#' @importFrom DelayedMatrixStats rowSds
 #' @param x An expression matrix of genes x samples. When using this to score
 #'   geneset activity, you want to reduce the rows of \code{x} to be only the
 #'   genes from the given gene set.
@@ -209,6 +209,10 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #' @param retx Works the same as `retx` from \code{\link[stats]{prcomp}}. If
 #'   \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
 #'   variables.
+#' @param ... these aren't used in here
+#' @param .drop.sd When zero-sd (non varying) features are scaled, their values
+#'   are `NaN`. When the Features with rowSds < this threshold (default 1e-4) are
+#'   identified, and their scaled values are set to 0.
 #' @return A list of useful transformation information. The caller is likely
 #'   most interested in the \code{$score} vector, but other bits related to
 #'   the SVD/PCA decomposition are included for the ride.
@@ -225,13 +229,45 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 #'            setNames(score, sample))
 #' all.equal(s2, scores) ## should be TRUE
-gsdScore <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
-                     uncenter=center, unscale=scale, retx=FALSE, ...,
-                     .use_irlba = FALSE) {
+gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
+                     uncenter = center, unscale = scale, retx = FALSE, ...,
+                     .use_irlba = FALSE, .drop.sd = 1e-4) {
   eigengene <- as.integer(eigengene)
   stopifnot(!is.na(eigengene) && length(eigengene) == 1L)
   x <- as_matrix(x)
   xs <- t(scale(t(x), center=center, scale=scale))
+
+  # 0sd rows (genes) will deliver NaN's in the scaled matrix. This issue is
+  # handled when we call scoreSingleSamples by removing 0sd rows, but when
+  # this method is called directly, it will throw an error. In this case, we
+  # will add some noise to the 0sd rows and rescale. If we still have problems
+  # we will give up.
+  isnan <- is.nan(xs)
+  if (scale && any(isnan)) {
+    # Just making sure that the NaN entires are coming from rows with 0sd genes
+    sds <- DelayedMatrixStats::rowSds(x)
+    sd0 <- sds < .drop.sd
+    sd0.idx <- which(sd0)
+    if (length(sd0.idx)) {
+      warning("Found NaN's in scaled matrix, replacing scaled values for ",
+              "the ", length(sd0.idx), " features with 0-sd",
+              immediate. = TRUE)
+      xs[sd0.idx,] <- 0
+      more.nan <- is.nan(xs)
+      if (any(more.nan)) {
+        stop("NaN features are found unrealted to 0-sd ... intervene, please")
+      }
+      # I tested adding a small amount of random noise to the features with
+      # 0-sd, figuring that their contributions to the score will be
+      # downweighted to zero and have minimal impact, but setting the scaled
+      # values to 0 and testing seemed to perform slightly better
+    } else {
+      stop("NaN's found in scaled matrix for reasons unrelated to the ",
+           "existence of 0-sd features")
+    }
+  } else if (any(isnan) || any(is.na(xs))) {
+    stop("NaN's or NAs found in expression matrix without scaling")
+  }
 
   cnt <- attributes(xs)$"scaled:center"
   scl <- attributes(xs)$"scaled:scale"

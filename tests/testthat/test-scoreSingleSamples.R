@@ -134,3 +134,30 @@ test_that("normalization works in eigenWeightedMean", {
   expect_true(all(unorm$score >= 0))
   expect_true(any(norm$score < 0))
 })
+
+test_that("eigenWeightedMean can handle 0sd features", {
+  # Added to address Issue #20
+  # https://github.com/lianos/multiGSEA/issues/20
+  gs <- geneSet(conform(gdb, vm), name = "HALLMARK_TGF_BETA_SIGNALING")
+  E.o <- vm$E[gs$featureId,]
+
+  # 0 out low variance genes: these will provide minor contributions to the
+  # geneset score anyway
+  rvars <- matrixStats::rowVars(E.o)
+  rvorder <- order(rvars)
+  nuke.n <- 3
+  zero.idxs <- head(rvorder, nuke.n)
+
+  E.0sd <- E.o
+  # I picked 10 because its contribution to PC1 score is > 0.2
+  E.0sd[zero.idxs,] <- 0
+
+  expected.score <- eigenWeightedMean(E.o)
+  test.score <- expect_warning({
+    eigenWeightedMean(E.0sd, .add_noise = TRUE)
+  }, paste("Found NaN.*", nuke.n, "features with 0-sd"))
+
+  # eigenWeightedMean scoring should be robust to random noise
+  cors <- cor(expected.score$score, test.score$score, method = "spearman")
+  expect_true(cors > 0.99)
+})
