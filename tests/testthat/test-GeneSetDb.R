@@ -37,20 +37,25 @@ test_that("GeneSetDb constructor works with an input data.frame", {
   gdb0 <- GeneSetDb(exampleGeneSets())
   df <- as.data.frame(gdb0)
 
-  ## Adding a fake symbol here, just to see what is the what
+  # Adding a fake symbol here, just to see what is the what
   meta <- data.frame(featureId=unique(df$featureId), stringsAsFactors=FALSE)
   faux <- replicate(nrow(meta),
                     paste(sample(letters, 5, replace=TRUE), collapse=""))
   meta$symbol <- faux
   df.in <- merge(df, meta, by='featureId')
 
-  ## A warning is fired if merging extra columns (symbol, here) hoses something
-  ## in the GeneSetDb, so let's make sure there is no such warning here.
+  # A warning is fired if merging extra columns (symbol, here) hoses something
+  # in the GeneSetDb, so let's make sure there is no such warning here.
   gdb <- GeneSetDb(df.in[sample(nrow(df.in)),]) ## randomize rows for fun
   expect_equal(gdb, gdb0, features.only=TRUE)
 
-  ## Check that the symbol column from df.in was added to gdb@db
+  # Check that the symbol column from df.in was added to gdb@db
   expect_is(gdb@db$symbol, 'character')
+
+  # Constructor works when collection and/or name are factors
+  dff <- transform(df, collection = factor(collection), name = factor(name))
+  gdb2 <- GeneSetDb(dff)
+  expect_equal(gdb2, gdb0)
 })
 
 test_that("gene- and gene-set level metadata data perserved via GeneSetDb.data.frame constructor", {

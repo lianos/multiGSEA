@@ -175,12 +175,16 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
     }
     x[, collection := collectionName]
   }
+
   req.cols <- key(proto@db)
   cols.missed <- setdiff(req.cols, names(x))
   if (length(cols.missed)) {
     stop("The following columns are missing from `x`:\n ",
          paste(cols.missed, collapse=", "))
   }
+
+  if (is.factor(x[["collection"]])) x[, collection := as.character(collection)]
+  if (is.factor(x[["name"]])) x[, name := as.character(name)]
 
   x <- unique(x, by=req.cols)
   lol <- sapply(unique(x[['collection']]), function(col) {
