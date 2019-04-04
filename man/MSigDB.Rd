@@ -30,11 +30,6 @@ gene sets that match \code{species} will be included. Default is
 }
 \value{
 a \code{GeneSetDb} object
-\dontrun{
-  gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
-  gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
-  gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")
-}
 }
 \description{
 This provides versioned genesets from gene set collections defined in
@@ -58,4 +53,11 @@ to the licensing restricions of the genesets provided herein.
 
 Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
 package (data files from AnnotationHub) to be installed/accessible.
+}
+\examples{
+\dontrun{
+  gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
+  gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
+  gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")
+}
 }

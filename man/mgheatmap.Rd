@@ -32,6 +32,15 @@ computed internally. Note that if this is a \code{data.frame} of
 pre-computed scores, the \code{gdb} is largely irrelevant (but still
 required).}
 
+\item{gs.order}{This is experimental, and is here to help order the order
+of the genesets (or genesets collection) in a different way than the
+default. By default, \code{gs.order = NULL} and genesets are enumerated in
+alphabetical in the heatmap. You can pass in a character vector that will
+dictate the order of the genesets displayed in the heatmap. Currently this
+only matches against the \code{"name"} value of the geneset and probably only
+works when \code{split = TRUE}. We will support \code{colleciton,name} tuples soon.
+This can be a superset of the names found in \code{gdb}}
+
 \item{rm.dups}{if \code{aggregate.by == 'none'}, do we remove genes that
 appear in more than one geneset? Defaults to \code{FALSE}}
 
@@ -95,11 +104,11 @@ library(ComplexHeatmap)
 vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
 col.anno <- ComplexHeatmap::HeatmapAnnotation(
-  vm$targets[, c("Cancer_Status", "PAM50subtype")],
+  df = vm$targets[, c("Cancer_Status", "PAM50subtype")],
   col = list(
     Cancer_Status = c(normal = "grey", tumor = "red"),
     PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
-mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+mgh <- mgheatmap(vm, gdb, aggregate.by = "ewm", split=TRUE,
                  top_annotation = col.anno, show_column_names = FALSE,
                  column_title = "Gene Set Activity in BRCA subset")
 

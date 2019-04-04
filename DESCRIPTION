@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.12.3
+Version: 0.12.4
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("cph", "fnd"),
@@ -50,6 +50,7 @@ Suggests:
     org.Mm.eg.db,
     PANTHER.db (>= 1.0.3),
     reactome.db,
+    reshape2,
     SummarizedExperiment,
     statmod,
     testthat,

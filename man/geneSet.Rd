@@ -11,10 +11,12 @@
 geneSet(x, i, j, ...)
 
 \S4method{geneSet}{GeneSetDb}(x, i, j, active.only = is.conformed(x),
-  with.feature.map = FALSE, ..., as.dt = FALSE)
+  with.feature.map = FALSE, ..., collection = NULL, name = NULL,
+  as.dt = FALSE)
 
 \S4method{geneSet}{MultiGSEAResult}(x, i, j, active.only = TRUE,
-  with.feature.map = FALSE, ..., as.dt = FALSE)
+  with.feature.map = FALSE, ..., collection = NULL, name = NULL,
+  as.dt = FALSE)
 }
 \arguments{
 \item{x}{Object to retrieve the gene set from, either a \code{GeneSetDb} or a

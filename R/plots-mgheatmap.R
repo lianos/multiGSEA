@@ -49,6 +49,14 @@
 #'   computed internally. Note that if this is a `data.frame` of
 #'   pre-computed scores, the `gdb` is largely irrelevant (but still
 #'   required).
+#' @param gs.order This is experimental, and is here to help order the order
+#'   of the genesets (or genesets collection) in a different way than the
+#'   default. By default, `gs.order = NULL` and genesets are enumerated in
+#'   alphabetical in the heatmap. You can pass in a character vector that will
+#'   dictate the order of the genesets displayed in the heatmap. Currently this
+#'   only matches against the `"name"` value of the geneset and probably only
+#'   works when `split = TRUE`. We will support `colleciton,name` tuples soon.
+#'   This can be a superset of the names found in `gdb`
 #' @param rm.dups if `aggregate.by == 'none'`, do we remove genes that
 #'   appear in more than one geneset? Defaults to `FALSE`
 #' @param recenter do you want to mean center the rows of the heatmap matrix
@@ -74,11 +82,11 @@
 #' vm <- exampleExpressionSet()
 #' gdb <- exampleGeneSetDb()
 #' col.anno <- ComplexHeatmap::HeatmapAnnotation(
-#'   vm$targets[, c("Cancer_Status", "PAM50subtype")],
+#'   df = vm$targets[, c("Cancer_Status", "PAM50subtype")],
 #'   col = list(
 #'     Cancer_Status = c(normal = "grey", tumor = "red"),
 #'     PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
-#' mgh <- mgheatmap(vm, gdb, aggregate.by='ewm', split=TRUE,
+#' mgh <- mgheatmap(vm, gdb, aggregate.by = "ewm", split=TRUE,
 #'                  top_annotation = col.anno, show_column_names = FALSE,
 #'                  column_title = "Gene Set Activity in BRCA subset")
 #'
@@ -89,11 +97,11 @@
 #'                  top_annotation = col.anno, show_column_names = FALSE,
 #'                  column_title = "Gene Set Activity in BRCA subset",
 #'                  rename.rows = rr)
-mgheatmap <- function(x, gdb = NULL, col=NULL,
-                      aggregate.by=c('none', 'ewm', 'zscore'),
-                      split=TRUE, scores=NULL, gs.order = NULL,
-                      name=NULL, rm.collection.prefix=TRUE,
-                      rm.dups=FALSE, recenter=TRUE, rescale=FALSE,
+mgheatmap <- function(x, gdb = NULL, col = NULL,
+                      aggregate.by = c("none", "ewm", "zscore"),
+                      split = TRUE, scores = NULL, gs.order = NULL,
+                      name = NULL, rm.collection.prefix = TRUE,
+                      rm.dups = FALSE, recenter = TRUE, rescale = FALSE,
                       rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
   X <- as_matrix(x)
 
@@ -101,6 +109,8 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     # make a one geneset GeneSetDb
     faux.gs <- list(allgenes = rownames(x))
     gdb <- GeneSetDb(faux.gs, collectionName = "faux")
+    split <- FALSE
+    gs.order <- NULL
   }
   stopifnot(is(gdb, "GeneSetDb"))
 
@@ -129,7 +139,19 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
   }
 
   gdbc <- suppressWarnings(conform(gdb, X, ...))
-  gdbc.df <- as.data.frame(gdbc) ## keep only genes that matched in gdb.df
+  gdbc.df <- as.data.frame(gdbc) # keep only genes that matched in gdb.df
+
+  # Order genesets in requested (if any) order
+  if (!is.null(gs.order)) {
+    assert_character(gs.order, min.len = 1)
+    gs.order <- unique(c(gs.order, gdbc.df[["name"]]))
+    gs.order <- intersect(gs.order, gdbc.df[["name"]])
+    assert_set_equal(gs.order, gdbc.df[["name"]])
+    name. <- factor(gdbc.df[["name"]], gs.order)
+    gdbc.df <- gdbc.df[order(name.),,drop = FALSE]
+  }
+
+  # Set this up so we can order the data.frame in the way requested by user
   gdbc.df$key <- encode_gskey(gdbc.df)
 
   if (aggregate.by == "none") {
@@ -144,9 +166,10 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
-      X <- acast(xs, key ~ sample, value.var="score")
+      X <- acast(xs, key ~ sample, value.var = "score")
+      X <- X[unique(gdbc.df$key),]
     }
-    ## If we want to split, it (only?) makes sense to split by collection
+    # If we want to split, it (only?) makes sense to split by collection
     split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
 
@@ -186,7 +209,7 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
       }
       col <- colorRamp2(
         c(zlim[1L], 0, zlim[2L]),
-        c('#1F294E', 'white', '#6E0F11'))
+        c('#1F294E', '#F7F7F7', '#6E0F11'))
     } else {
       if (missing(zlim)) {
         fpost <- quantile(X, c(0.025, 0.975))
@@ -224,7 +247,14 @@ mgheatmap <- function(x, gdb = NULL, col=NULL,
     if (aggregate.by != 'none') {
       rownames(X) <- split_gskey(rownames(X))$name
     } else {
-      if (!is.null(split)) split <- split_gskey(split)$name
+      if (!is.null(split)) {
+        # The order of the splits should be preserved up until this point.
+        # Since this is our final "look" at the split character vector, let's
+        # set this as a factor with the levels set in the order of their first
+        # appearance.
+        split <- split_gskey(split)$name
+        split <- factor(split, unique(split))
+      }
     }
   }
 

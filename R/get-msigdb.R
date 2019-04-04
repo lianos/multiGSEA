@@ -48,6 +48,7 @@
 #'   `FALSE`.
 #' @param version the version of the MSigDB database to use.
 #' @return a `GeneSetDb` object
+#' @examples
 #' \dontrun{
 #'   gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
 #'   gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")

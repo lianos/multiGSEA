@@ -6,7 +6,7 @@
 \usage{
 gsdScore(x, eigengene = 1L, center = TRUE, scale = TRUE,
   uncenter = center, unscale = scale, retx = FALSE, ...,
-  .use_irlba = FALSE)
+  .use_irlba = FALSE, .drop.sd = 1e-04)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score
@@ -24,6 +24,12 @@ Defaults to the respective values of \code{center} and \code{scale}}
 \item{retx}{Works the same as \code{retx} from \code{\link[stats]{prcomp}}. If
 \code{TRUE}, will return a \code{ret$pca$x} matrix that has the rotated
 variables.}
+
+\item{...}{these aren't used in here}
+
+\item{.drop.sd}{When zero-sd (non varying) features are scaled, their values
+are \code{NaN}. When the Features with rowSds < this threshold (default 1e-4) are
+identified, and their scaled values are set to 0.}
 }
 \value{
 A list of useful transformation information. The caller is likely

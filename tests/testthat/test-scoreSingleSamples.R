@@ -25,7 +25,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   lol <- as.list(gdb)
 
   set.seed(0xBEEF)
-  gsva.ex <- GSVA::gsva(E, lol, method='gsva', parallel.sz=4, verbose=FALSE)
+  gsva.ex <- GSVA::gsva(E, lol, method='gsva', parallel.sz=1, verbose=FALSE)
 
   set.seed(0xBEEF)
   gsva.mg <- expect_warning({
@@ -44,7 +44,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
 
   # gsva.mg.melt <- scoreSingleSamples(gdb, E, methods='gsva',
   #                               verbose=FALSE, melted=TRUE)
-  plage.ex <- gsva(E, lol, method='plage', parallel.sz=4, verbose=FALSE)
+  plage.ex <- gsva(E, lol, method='plage', parallel.sz=1, verbose=FALSE)
   plage.mg <- expect_warning({
     scoreSingleSamples(gdb, E, methods='plage', as.matrix=TRUE)
   }, "GSVA")
@@ -59,7 +59,7 @@ test_that('do.scoreSingleSamples.gsva is equivalent to GSVA::gsva', {
   counts <- exampleExpressionSet(do.voom = FALSE)$counts
 
   set.seed(0xBEEF)
-  gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=4,
+  gsvar.ex <- gsva(counts, lol, method='gsva', kcdf='Poisson', parallel.sz=1,
                    verbose=FALSE)
   set.seed(0xBEEF)
   gsvar.mg <- expect_warning({
@@ -88,12 +88,12 @@ test_that("multiple 'melted' scores are returned in a long data.frame", {
 
 test_that("ssGSEA.normalize returns same normalization as GSVA", {
   scores <- expect_warning({
-    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=1,
                        verbose=FALSE)
   }, "GSVA")
   my.norm <- ssGSEA.normalize(scores$score)
   ssgsea.norm <- expect_warning({
-    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=1,
                        ssgsea.norm=TRUE)
   }, "GSVA")
   expect_equal(my.norm, ssgsea.norm$score)
@@ -102,12 +102,12 @@ test_that("ssGSEA.normalize returns same normalization as GSVA", {
 test_that("ssGSEA (raw) scores are not affected by samples included in test", {
   some <- sample(ncol(vm), 10)
   scores.all <- expect_warning({
-    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=4,
+    scoreSingleSamples(gdb, vm$E, methods='ssgsea', parallel.sz=1,
                        verbose=FALSE)
   }, "GSVA")
   scores.some <- expect_warning({
     scoreSingleSamples(gdb, vm$E[, some],
-                       methods='ssgsea', parallel.sz=4,
+                       methods='ssgsea', parallel.sz=1,
                        verbose=FALSE)
   }, "GSVA")
   scores <- merge(scores.all, scores.some, suffixes=c('.all', '.some'),

@@ -10,7 +10,8 @@
 #' *multiGSEA.shiny* package.
 #'
 #' @export
-#'
+#' @importFrom ggplot2 aes ggplot geom_hex
+#' @importFrom plotly add_lines config ggplotly layout plotly_build
 #' @param xhex The raw `.xv` (not `xtfrm(.xv)`) value that acts
 #'   as a threshold such that values less than this will be hexbinned.
 #' @param yhex the `.yvt` value threshold. Vaues less than this will
@@ -142,6 +143,7 @@ volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
 }
 
 #' @noRd
+#' @importFrom ggplot2 aes geom_point
 mg_add_points <- function(gg, dat, color='black') {
   if (is.null(dat) || nrow(dat) == 0) {
     return(gg)

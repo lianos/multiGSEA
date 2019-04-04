@@ -6,7 +6,7 @@
 \usage{
 eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
   uncenter = center, unscale = scale, retx = FALSE, weights = NULL,
-  normalize = FALSE, all.x = NULL, ...)
+  normalize = FALSE, all.x = NULL, ..., .drop.sd = 1e-04)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score
@@ -45,6 +45,12 @@ genes are provided, then all genes in \code{y} are fair game.}
 \item{all.x}{if the user is trying to normalize these scores, an expression
 matrix that has superset of the control genes needs to be provided, where
 the columns of \code{all.x} must correspond to this in \code{x}.}
+
+\item{...}{these aren't used in here}
+
+\item{.drop.sd}{When zero-sd (non varying) features are scaled, their values
+are \code{NaN}. When the Features with rowSds < this threshold (default 1e-4) are
+identified, and their scaled values are set to 0.}
 }
 \value{
 A list of useful transformation information. The caller is likely

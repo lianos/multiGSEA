@@ -12,6 +12,7 @@
 #'
 #' @rdname iplot
 #' @export
+#' @importFrom ggplot2 theme_bw
 #'
 #' @param x A [MultiGSEAResult()] object
 #' @param y the name of the gene set collection
