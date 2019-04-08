@@ -215,7 +215,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
             # is this possible?
             all(is.null(vals))
           } else {
-            all(vals == vals[1L])
+            all(!is.na(vals) & vals == vals[1L])
           }
         })
       }, by = c("collection", "name")]
