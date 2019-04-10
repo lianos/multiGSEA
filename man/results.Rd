@@ -3,14 +3,18 @@
 \name{resultNames}
 \alias{resultNames}
 \alias{result}
+\alias{result.MultiGSEAResult}
 \alias{results}
 \alias{tabulateResults}
 \title{Interrogate the results of a multiGSEA analysis stored in a MultiGSEAResult}
 \usage{
 resultNames(x)
 
-result(x, name, stats.only = FALSE, rank.by = c("pval", "t", "logFC"),
-  add.suffix = FALSE, as.dt = FALSE)
+result(x, name, ...)
+
+\method{result}{MultiGSEAResult}(x, name, stats.only = FALSE,
+  rank.by = c("pval", "t", "logFC"), add.suffix = FALSE,
+  as.dt = FALSE)
 
 results(x, names = resultNames(x), stats.only = TRUE,
   rank.by = c("pval", "logFC", "t"), add.suffix = length(names) > 1L,

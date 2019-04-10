@@ -265,7 +265,12 @@ resultNames <- function(x) {
 
 #' @export
 #' @rdname results
-#'
+result <- function(x, name, ...) {
+  UseMethod("result", x)
+}
+
+#' @export
+#' @rdname results
 #' @param x MultiGSEAResult
 #' @param name the names of the results desired
 #' @param stats.only logical, set to `FALSE` if you want to return all
@@ -282,9 +287,9 @@ resultNames <- function(x) {
 #'   `pval.camera`.
 #'
 #' @return a data.table with the results from the requested method.
-result <- function(x, name, stats.only=FALSE,
-                   rank.by=c('pval', 't', 'logFC'),
-                   add.suffix=FALSE, as.dt=FALSE) {
+result.MultiGSEAResult <- function(x, name, stats.only=FALSE,
+                                   rank.by=c('pval', 't', 'logFC'),
+                                   add.suffix=FALSE, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
     if (missing(name)) name <- NULL

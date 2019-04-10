@@ -240,8 +240,7 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
   # 0sd rows (genes) will deliver NaN's in the scaled matrix. This issue is
   # handled when we call scoreSingleSamples by removing 0sd rows, but when
   # this method is called directly, it will throw an error. In this case, we
-  # will add some noise to the 0sd rows and rescale. If we still have problems
-  # we will give up.
+  # will set the scaled values to 0.
   isnan <- is.nan(xs)
   if (scale && any(isnan)) {
     # Just making sure that the NaN entires are coming from rows with 0sd genes
@@ -299,19 +298,19 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
   score <- colMeans(egene)
   names(score) <- colnames(x)
 
-  ## Reconstruct some PCA output here just because we've already done the heavy
-  ## lifting calculations
+  # Reconstruct some PCA output here just because we've already done the heavy
+  # lifting calculations
   pca.d <- s$d / sqrt(max(1L, nrow(x) - 1L))
   pca.v <- s$v
   dimnames(pca.v) <- list(colnames(x), paste0('PC', seq_len(ncol(s$v))))
 
-  ## Make this look ilke the output of `prcomp`
-  ## s$v is the matrix with the eigenvectors. these entries should be correlated
-  ## to our svd scores.
+  # Make this look ilke the output of `prcomp`
+  # s$v is the matrix with the eigenvectors. these entries should be correlated
+  # to our svd scores.
   xproj <- xs %*% s$v
-  ## Show something like the percent contribution of each gene to the PCs
-  ## This code was inspired from the biplot function, where the vectors of
-  ## a PCA biplot are drawn as a function of the projected data (ie. pca$x)
+  # Show something like the percent contribution of each gene to the PCs
+  # This code was inspired from the biplot function, where the vectors of
+  # a PCA biplot are drawn as a function of the projected data (ie. pca$x)
   axproj <- abs(xproj)
   ctrb <- sweep(axproj, 2, colSums(axproj), '/')
   colnames(ctrb) <- paste0('PC', seq(ncol(ctrb)))
