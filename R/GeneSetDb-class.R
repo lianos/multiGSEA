@@ -176,6 +176,12 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
     x[, collection := collectionName]
   }
 
+  if (!"featureId" %in% colnames(x)) {
+    if ("feature_id" %in% colnames(x)) {
+      setnames(x, "feature_id", "featureId")
+    }
+  }
+
   req.cols <- key(proto@db)
   cols.missed <- setdiff(req.cols, names(x))
   if (length(cols.missed)) {
