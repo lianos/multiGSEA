@@ -74,6 +74,13 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
+  if (!is.null(treat.lfc)) {
+    stopifnot(is.numeric(treat.lfc), length(treat.lfc) == 1L)
+    treat.lfc <- abs(treat.lfc)
+  } else {
+    treat.lfc <- 0
+  }
+
   if (ncol(x) == 1L) {
     # The user passed in a vector of statistics. Only a very few number of
     # GSEA methods support this, but they are useful (fgsea and cameraPR). We
@@ -99,11 +106,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     test_type <- if (length(contrast) == 1L) "ttest" else "anova"
   }
 
-  use.treat <- FALSE
-  if (is.numeric(treat.lfc)) {
-    stopifnot(length(treat.lfc) == 1L, treat.lfc > 0)
-    use.treat <- TRUE
-  }
+  use.treat <- test_type == "ttest" && treat.lfc > 0
 
   if (is(x, 'DGEList')) {
     # We default to using the quasi-likelihood piepline with edgeR with
@@ -117,7 +120,7 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     } else {
       fit <- glmFit(x, design)
     }
-    if (use.treat && test_type == "ttest") {
+    if (use.treat) {
       if (do.contrast) {
         tt <- glmTreat(fit, contrast=contrast, lfc=treat.lfc)
       } else {

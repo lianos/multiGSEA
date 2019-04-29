@@ -139,7 +139,7 @@ volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
   #   }
   # }
 
-  config(p, collaborate=FALSE, displaylogo=FALSE)
+  config(p, displaylogo=FALSE)
 }
 
 #' @noRd

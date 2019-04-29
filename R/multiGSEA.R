@@ -195,9 +195,8 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   # First calculate differential expression statistics, or wrap a pre-ranked
   # vector into a data.frame returned by an internal dge analysis
   treat.lfc <- if (use.treat) feature.min.logFC else NULL
-  logFC <- calculateIndividualLogFC(x, design, contrast, use.treat=use.treat,
-                                    treat.lfc=treat.lfc, verbose=verbose, ...,
-                                    as.dt=TRUE)
+  logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
+                                    verbose=verbose, ..., as.dt=TRUE)
   test_type <- attr(logFC, "test_type")
 
   logFC[, significant := {

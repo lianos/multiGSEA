@@ -159,7 +159,7 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
     p <- layout(p, legend=list(x=0.75, y=1))
   }
 
-  config(p, collaborate=FALSE, displaylogo=FALSE)
+  config(p, displaylogo=FALSE)
 }
 
 #' @noRd
@@ -223,5 +223,5 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p$x$data[[1]]$marker <- list(opacity=0)
   p$x$data[[2]]$hoverinfo <- 'none'
   p$x$data[[2]]$marker <- list(opacity=0)
-  config(p, collaborate = FALSE, displaylogo = FALSE)
+  config(p, displaylogo = FALSE)
 }

@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.12.5
+Version: 0.12.6
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("cph", "fnd"),
@@ -30,7 +30,7 @@ Imports:
     Matrix,
     matrixStats,
     methods,
-    plotly (>= 4.7.0),
+    plotly (>= 4.9.0),
     viridis
 Suggests:
     AnnotationDbi,
