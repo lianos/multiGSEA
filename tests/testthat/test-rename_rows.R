@@ -37,3 +37,46 @@ test_that("rename_rows works from custom data.frame", {
   expect_equal(vmsmall$E[,1], vmss$E[,1], check.attributes = FALSE)
   expect_equal(rownames(vmss), vmsmall$genes$symbol)
 })
+
+test_that("rename returns unique rownames when there are duplciates in map", {
+  m <- matrix(rnorm(50), nrow = 10)
+  rownames(m) <- head(letters, nrow(m))
+
+  re <- data.frame(
+    from = rownames(m),
+    to = sample(tail(letters, 4), nrow(m), replace = TRUE),
+    stringsAsFactors = FALSE)
+  # if rename.duplicates is deault (original), let's put the original name
+  # back in to see if renaming happens correctly
+  re$to.o <- re$to
+  re$to.o <- ifelse(duplicated(re$to.o), re$from, re$to)
+
+  m.re <- rename_rows(m, re[, 1:2])
+  expect_equal(rownames(m.re), re$to.o)
+
+  m.re.u <- rename_rows(m, re[, 1:2],
+                        rename.duplicates = "make.unique")
+  expect_equal(sub("\\..*$", "", rownames(m.re.u)), re$to)
+})
+
+if (FALSE) {
+# New complexheatmap row_labels move with matrix
+library(ComplexHeatmap)
+library(viridis)
+
+m <- matrix(rnorm(50), nrow = 10)
+rownames(m) <- head(letters, nrow(m))
+
+rowdf <- data.frame(score = 1:10)
+rownames(rowdf) <- rownames(m)
+ranno <- rowAnnotation(
+  df = rowdf)
+
+hm1 <- Heatmap(m, show_row_names = TRUE, row_names_side = "left")
+
+draw(hm1 + ranno)
+
+hm2 <- Heatmap(m, show_row_names = TRUE, row_names_side = "left",
+               row_labels = tail(letters, nrow(m)))
+draw(hm2 + ranno)
+}

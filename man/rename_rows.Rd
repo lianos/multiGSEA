@@ -21,6 +21,15 @@ candidate rownames for the object.
 \item A two column data.frame. The first column has entries in rownames(x),
 and the second column is the value to rename it to.
 }}
+
+\item{rename.duplicates}{The policy used to deal with duplicates in the
+renamed values. If Multiple elements in the source can be renamed to
+the same elements in the target (think of microarray probes to gene
+symbols), what to do? By deafult (\code{"original"}), one of the original
+elements will be renamed to the new name, and the rest will keep their
+original (unique) names. When set to \code{"make.unique"}, the new name
+will be kept, but \code{*.1}, \code{*.2}, etc. will be appended to all but the
+first multimapper.}
 }
 \description{
 The most common usecase for this is when you have a SummarizedExperiment,

@@ -23,6 +23,14 @@
 #'     candidate rownames for the object.
 #'   * A two column data.frame. The first column has entries in rownames(x),
 #'     and the second column is the value to rename it to.
+#' @param rename.duplicates The policy used to deal with duplicates in the
+#'   renamed values. If Multiple elements in the source can be renamed to
+#'   the same elements in the target (think of microarray probes to gene
+#'   symbols), what to do? By deafult (`"original"`), one of the original
+#'   elements will be renamed to the new name, and the rest will keep their
+#'   original (unique) names. When set to `"make.unique"`, the new name
+#'   will be kept, but `*.1`, `*.2`, etc. will be appended to all but the
+#'   first multimapper.
 #' @examples
 #' eset <- exampleExpressionSet(do.voom = FALSE)
 #' ess <- rename_rows(eset, "symbol")
@@ -38,8 +46,12 @@ rename_rows <- function(x, xref, ...) {
 #' should be renamed to.
 #'
 #' @noRd
-.rename_rows.df <- function(x, xref = NULL, rowmeta.df = NULL, ...) {
+.rename_rows.df <- function(x, xref = NULL, rowmeta.df = NULL,
+                            rename.duplicates = c("original", "make.unique"),
+                            ...) {
   stopifnot(is.character(x))
+  rename.duplicates <- match.arg(rename.duplicates)
+
   if (!is.data.frame(xref)) {
     stopifnot(
       is.character(xref),
@@ -52,7 +64,10 @@ rename_rows <- function(x, xref, ...) {
   stopifnot(
     is.data.frame(xref),
     ncol(xref) == 2L,
-    is.character(xref[[1L]]), is.character(xref[[2L]]))
+    is.character(xref[[1L]]) || is.factor(xref[[1L]]),
+    is.character(xref[[2L]]) || is.factor(xref[[2L]]))
+  xref[[1L]] <- as.character(xref[[1L]])
+  xref[[2L]] <- as.character(xref[[2L]])
 
   # If there is NA in rename_to column, use the value from first column
   xref[[2L]] <- ifelse(is.na(xref[[2L]]), xref[[1L]], xref[[2L]])
@@ -69,9 +84,14 @@ rename_rows <- function(x, xref, ...) {
   # Remove ambiguity in remapping process. If the same original ID can be
   # remapped to several other ones, then only one will be picked.
   out <- xref[!duplicated(xref[[1L]]),,drop = FALSE]
-  # If there are duplicated values in the entries that x can be translated to,
-  # then those renamed entries will remap x to itself
-  out[[2L]] <- ifelse(duplicated(out[[2L]]), out[[1L]], out[[2L]])
+  if (rename.duplicates == "original") {
+    # If there are duplicated values in the entries that x can be translated to,
+    # then those renamed entries will remap x to itself
+    out[[2L]] <- ifelse(duplicated(out[[2L]]), out[[1L]], out[[2L]])
+  } else {
+    out[[2L]] <- make.unique(out[[2L]])
+  }
+
   out
 }
 

@@ -73,13 +73,22 @@ A \code{Heatmap} object.
 Encapsulates many common "moves" you'll make when trying to make a heatmap,
 especially if you are trying to show geneset activity across a panel of
 samples.
+
+\strong{NOTE}: this function will \strong{almost certainly} reorder the rows of the
+input matrix. If you are concatentating Heatmap objects together horizontally
+(ie. you if you want to use a rowAnnotation along side the returned heatmap),
+you must reorder the rows of the annotation data.frame, ie.
+\code{ranno.df <- ranno.df[rownames(out@matrix),]}
+}
+\details{
+More info here.
 }
 \section{Renaming Heatmap Rows}{
 
 This function leverages \code{\link[=rename_rows]{rename_rows()}} so that you can better customize the
 output of your heatmaps by tweaking its rownames.
 
-If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the }rownames()\code{are gene identifieres, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
+If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the }rownames()\code{are gene identifiers, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
 \itemize{
 \item If \code{rename.rows} is \code{NULL}, then nothing is done.
 \item If \code{rename.rows} is a \code{string}, then we assume that \code{x} has an associated
@@ -89,6 +98,14 @@ its columns, ie. \code{DGEList$genes[[rename.rows]]} or
 be swapped out for \code{x}'s rownames
 \item If \code{rename.rows} is a two-column data.frame, the first column is assumed
 to be \code{rownames(x)} and the second is what you want to rename it to.
+\item When there are duplicates in the renamed rownames, the \code{rename.duplicates}
+\code{...} parameter dictates the behavior. This will happen, for instance, if
+you are trying to rename the rows of an affy matrix to gene symbols, where
+we have multiple probe ids for one gene. When \code{rename.duplicates} is set to
+\code{"original"}, one of the rows will get the new name, and the remaning
+duplicate rows will keep the rownames they came in with. When set to
+\code{"make.unique"}, the new names will contain \code{*.1}, \code{*.2}, etc. suffixes,
+as you would get from using \code{\link[base:make.unique]{base::make.unique()}}.
 }
 
 Maybe you are aggregating the expression scores into geneset scores, and

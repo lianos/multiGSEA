@@ -1,15 +1,25 @@
 #' Creates a "geneset smart" ComplexHeatmap::Heatmap
 #'
+#' @description
 #' Encapsulates many common "moves" you'll make when trying to make a heatmap,
 #' especially if you are trying to show geneset activity across a panel of
 #' samples.
+#'
+#' **NOTE**: this function will **almost certainly** reorder the rows of the
+#' input matrix. If you are concatentating Heatmap objects together horizontally
+#' (ie. you if you want to use a rowAnnotation along side the returned heatmap),
+#' you must reorder the rows of the annotation data.frame, ie.
+#' `ranno.df <- ranno.df[rownames(out@matrix),]`
+#'
+#' @details
+#' More info here.
 #'
 #' @section Renaming Heatmap Rows:
 #' This function leverages [rename_rows()] so that you can better customize the
 #' output of your heatmaps by tweaking its rownames.
 #'
 #' If you are plotting a **gene-level** heatmap (ie. `aggregate.by == "none"``)
-#' and the `rownames()` are gene identifieres, but you want the rownames of the
+#' and the `rownames()` are gene identifiers, but you want the rownames of the
 #' heatmap to be gene symbols. You can perform this renaming using the
 #' `rename.rows` parameter.
 #'
@@ -21,6 +31,14 @@
 #'   be swapped out for `x`'s rownames
 #' * If `rename.rows` is a two-column data.frame, the first column is assumed
 #'   to be `rownames(x)` and the second is what you want to rename it to.
+#' * When there are duplicates in the renamed rownames, the `rename.duplicates`
+#'   `...` parameter dictates the behavior. This will happen, for instance, if
+#'   you are trying to rename the rows of an affy matrix to gene symbols, where
+#'   we have multiple probe ids for one gene. When `rename.duplicates` is set to
+#'   `"original"`, one of the rows will get the new name, and the remaning
+#'   duplicate rows will keep the rownames they came in with. When set to
+#'   `"make.unique"`, the new names will contain `*.1`, `*.2`, etc. suffixes,
+#'   as you would get from using [base::make.unique()].
 #'
 #' Maybe you are aggregating the expression scores into geneset scores, and
 #' you don't want the rownames of the heatmap to be `collection;;name` (or just
@@ -107,7 +125,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
 
   if (is.null(gdb)) {
     # make a one geneset GeneSetDb
-    faux.gs <- list(allgenes = rownames(x))
+    faux.gs <- list(allgenes = unique(rownames(x)))
     gdb <- GeneSetDb(faux.gs, collectionName = "faux")
     split <- FALSE
     gs.order <- NULL
@@ -272,8 +290,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   hm.args[['split']] <- split
   hm.args[['name']] <- name
 
-  H <- do.call(ComplexHeatmap::Heatmap, hm.args)
-
+  row.labels <- rownames(X)
   if (!is.null(rename.rows)) {
     has.meta <- is(x, "DGEList") ||
       is(x, "EList") ||
@@ -286,14 +303,13 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
         metadf <- data.frame(rn = rownames(x), to = metadf[[rename.rows]],
                              stringsAsFactors = FALSE)
         if (!is.null(metadf$to)) {
-          rr <- rename_rows(H@matrix, xref = metadf)
+          row.labels <- rownames(rename_rows(X, xref = metadf, ...))
         } else {
           warning("rename.rows column not found in metadata for x")
         }
       } else {
-        rr <- rename_rows(H@matrix, rename.rows)
+        row.labels <- rownames(rename_rows(X, rename.rows, ...))
       }
-      rownames(H@matrix) <- rownames(rr)
     } else {
       if (!(is.data.frame(rename.rows) && ncol(rename.rows) == 2)) {
         warning("rename.rows parameter must be a 2 column data.frame when ",
@@ -304,9 +320,12 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
           rr[[1L]] <- sub("^.*;;?", "", rename.rows[[1L]])
           rename.rows <- rbind(rename.rows, rr)
         }
-        H@matrix <- rename_rows(H@matrix, rename.rows)
+        row.labels <- rownames(rename_rows(X, rename.rows, ...))
       }
     }
   }
+  hm.args[["row_labels"]] <- row.labels
+
+  H <- do.call(ComplexHeatmap::Heatmap, hm.args)
   H
 }
