@@ -104,4 +104,3 @@ Collate:
     'zzz.R'
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
-biocViews: Pathways, GeneSetEnrichment, DifferentialExpression, GO, RNASeq
