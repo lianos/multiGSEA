@@ -58,6 +58,7 @@ Suggests:
 Remotes: 
     lianos/GeneSetDb.MSigDB.Hsapiens.v61,
     lianos/GeneSetDb.MSigDB.Mmusculus.v61
+biocViews: DifferentialExpression, GeneExpression, GeneSetEnrichment, Pathways
 VignetteBuilder: knitr
 License: MIT + file LICENSE.md
 Encoding: UTF-8
