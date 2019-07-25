@@ -74,7 +74,9 @@
 #'   dictate the order of the genesets displayed in the heatmap. Currently this
 #'   only matches against the `"name"` value of the geneset and probably only
 #'   works when `split = TRUE`. We will support `colleciton,name` tuples soon.
-#'   This can be a superset of the names found in `gdb`
+#'   This can be a superset of the names found in `gdb`. As of ComplexHeatmap
+#'   v2 (maybe earlier versions), this doesn't really work when
+#'   `cluster_rows = TRUE`.
 #' @param rm.dups if `aggregate.by == 'none'`, do we remove genes that
 #'   appear in more than one geneset? Defaults to `FALSE`
 #' @param recenter do you want to mean center the rows of the heatmap matrix
@@ -237,14 +239,6 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
         stopifnot(all(zlim >= 0), all(zlim <= 1))
         fpost <- quantile(X, zlim)
       }
-      # breaks <- quantile(X, seq(0, 1, by = 0.25))
-      # if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[4L]) {
-      #   stop("Illegal values for zlim")
-      # }
-      # breaks[1] <- fpost[1]
-      # breaks[5] <- fpost[2]
-      # col <- colorRamp2(breaks, viridis::viridis(5))
-
       # Higher granularity for viridis colorRamp
       breaks <- quantile(X, seq(0, 1, by = 0.05))
       if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[20L]) {
@@ -287,7 +281,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   hm.args <- dot.args[intersect(names(dot.args), names(hm.args.default))]
   hm.args[['matrix']] <- X
   hm.args[['col']] <- col
-  hm.args[['split']] <- split
+  hm.args[['row_split']] <- split
   hm.args[['name']] <- name
 
   row.labels <- rownames(X)

@@ -153,10 +153,12 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
   ## The keys on the internal data.tables should already be set, but doing it
   ## again because paranoia doesn't necessarily have to destroy you.
   proto <- new("GeneSetDb")
+
   setkeyv(gdb@db, key(proto@db))
   setkeyv(gdb@table, key(proto@table))
   setkeyv(gdb@featureIdMap, key(proto@featureIdMap))
   setkeyv(gdb@collectionMetadata, key(proto@collectionMetadata))
+
   gdb
 }
 

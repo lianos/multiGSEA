@@ -54,6 +54,9 @@
 #'   framework for analysis, otherwise uses glmFit/glmTest.
 #' @param ... parameters passed down into the relevant limma/edgeR based
 #'   functions.
+#' @param xmeta a data.frame to add meta data (symbol, primarly) to the outgoing
+#'   logFC data.frame. This is used when `x` was a vector (pre-ranked).
+#'   THIS IS A HACK UNTIL WE REFACTOR FOR FACILEVERSE
 #' @template asdt-param
 #' @return If `with.fit == FALSE` (the default) a `data.table` of
 #'   logFC statistics for the contrast under test. Otherwise, a list is
@@ -63,7 +66,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
                                      robust.fit=FALSE, robust.eBayes=FALSE,
                                      trend.eBayes=FALSE, treat.lfc=NULL,
                                      confint=TRUE, with.fit=FALSE,
-                                     use.qlf = TRUE, ..., as.dt=FALSE) {
+                                     use.qlf = TRUE, ...,
+                                     xmeta. = NULL,
+                                     as.dt=FALSE) {
   do.contrast <- !is.vector(x) &&
     ncol(x) > 1L &&
     !is.null(design) &&
@@ -164,6 +169,20 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   out[, x.idx := 1:nrow(x)]
   if ('ID' %in% names(out)) {
     out[, ID := NULL]
+  }
+
+  if (is.data.frame(xmeta.)) {
+    xref.col <- which(c("feature_id", "featureId") %in% colnames(xmeta.))
+    if (length(xref.col)) {
+      xcol <- xref.col[1L]
+      xref <- match(out$featureId, xmeta.[[xcol]])
+      keep.cols <- setdiff(colnames(xmeta.), colnames(out))
+      if (length(keep.cols)) {
+        out <- cbind(out, xmeta.[xref, keep.cols,drop = FALSE])
+      }
+    } else {
+      warning("Can't match featureIds in colnames(xmeta.), skipping ...")
+    }
   }
 
   if (!as.dt) out <- setDF(out)

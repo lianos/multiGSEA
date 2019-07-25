@@ -782,9 +782,6 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
     }
   }
   ## update or replace
-  if (!is.list(value)) {
-    value <- list(value)
-  }
   idx <- x@collectionMetadata[list(xcoll, xname), which=TRUE]
   if (is.na(idx)) {
     if (!allow.add) {
@@ -792,13 +789,17 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
                      "should be there. Your GeneSetDb is hosed")
       stop(msg)
     }
-    ## the variable you want to ender here is not there yet, so let's put it in
+    if (!is.list(value)) {
+      value <- list(value)
+    }
+    # the variable you want to enter here is not there yet, so we create an
+    # empty, singl-row data.table that will be added to the current metadata
     add.me <- x@collectionMetadata[NA]
     add.me$collection[1L] <- xcoll
     add.me$name[1L] <- xname
     add.me$value[[1L]] <- value
-    x@collectionMetadata <- setkeyv(rbind(x@collectionMetadata, add.me),
-                                    key(x@collectionMetadata))
+    x@collectionMetadata <- rbind(x@collectionMetadata, add.me)
+    setkeyv(x@collectionMetadata, key(x@collectionMetadata))
   } else {
     x@collectionMetadata$value[[idx]] <- value
   }

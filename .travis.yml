@@ -28,6 +28,7 @@ branches:
     - develop
 
 r_binary_packages:
+  - covr
   - ggplot2
   - data.table
   - irlba
@@ -107,3 +108,6 @@ bioc_packages:
   - PANTHER.db
   - reactome.db
   - SummarizedExperiment
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'

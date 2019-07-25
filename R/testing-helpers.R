@@ -97,6 +97,7 @@ exampleGeneSetDb <- function() {
   fn <- function(x, y) {
     paste0('http://www.broadinstitute.org/gsea/msigdb/cards/', y, '.html')
   }
+  # browser()
   for (col in colls) {
     geneSetCollectionURLfunction(out, col) <- fn
   }
