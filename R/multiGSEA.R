@@ -6,6 +6,11 @@
 #' `methods` argument, and these methods are fine tuned by passing their
 #' arguments down through the `...` of this wrapper function.
 #'
+#' Note that we are currently in the middle of a refactor to accept and fully
+#' take advantage of `data.frame` as inputs for `x`, which will be used for
+#' preranked type of GSEA methods. See the following issue for more details:
+#' https://github.com/lianos/multiGSEA/issues/24
+#'
 #' The bulk of the GSEA methods currently available in this package come from
 #' edgeR/limma, however others are included (and are being added), as well.
 #' *GSEA Methods* and *GSEA Method Parameterization* sections for more details.

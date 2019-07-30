@@ -75,6 +75,11 @@ The particular analyses that are performed are specified by the
 arguments down through the \code{...} of this wrapper function.
 }
 \details{
+Note that we are currently in the middle of a refactor to accept and fully
+take advantage of \code{data.frame} as inputs for \code{x}, which will be used for
+preranked type of GSEA methods. See the following issue for more details:
+https://github.com/lianos/multiGSEA/issues/24
+
 The bulk of the GSEA methods currently available in this package come from
 edgeR/limma, however others are included (and are being added), as well.
 \emph{GSEA Methods} and \emph{GSEA Method Parameterization} sections for more details.

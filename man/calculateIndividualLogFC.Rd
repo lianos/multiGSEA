@@ -7,7 +7,7 @@
 calculateIndividualLogFC(x, design, contrast = ncol(design),
   robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
   treat.lfc = NULL, confint = TRUE, with.fit = FALSE,
-  use.qlf = TRUE, ..., as.dt = FALSE)
+  use.qlf = TRUE, ..., xmeta. = NULL, as.dt = FALSE)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -49,6 +49,9 @@ framework for analysis, otherwise uses glmFit/glmTest.}
 
 \item{...}{parameters passed down into the relevant limma/edgeR based
 functions.}
+
+\item{xmeta.}{a data.frame to add meta data (symbol, primarly) to the outgoing
+logFC data.frame. This is used when \code{x} was a vector (pre-ranked).}
 
 \item{as.dt}{If \code{FALSE} (default), the data.frame like thing that
 this funciton returns will be set to a data.frame. Set this to \code{TRUE}

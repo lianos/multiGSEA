@@ -39,7 +39,9 @@ alphabetical in the heatmap. You can pass in a character vector that will
 dictate the order of the genesets displayed in the heatmap. Currently this
 only matches against the \code{"name"} value of the geneset and probably only
 works when \code{split = TRUE}. We will support \code{colleciton,name} tuples soon.
-This can be a superset of the names found in \code{gdb}}
+This can be a superset of the names found in \code{gdb}. As of ComplexHeatmap
+v2 (maybe earlier versions), this doesn't really work when
+\code{cluster_rows = TRUE}.}
 
 \item{rm.dups}{if \code{aggregate.by == 'none'}, do we remove genes that
 appear in more than one geneset? Defaults to \code{FALSE}}

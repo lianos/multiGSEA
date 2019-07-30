@@ -54,9 +54,8 @@
 #'   framework for analysis, otherwise uses glmFit/glmTest.
 #' @param ... parameters passed down into the relevant limma/edgeR based
 #'   functions.
-#' @param xmeta a data.frame to add meta data (symbol, primarly) to the outgoing
+#' @param xmeta. a data.frame to add meta data (symbol, primarly) to the outgoing
 #'   logFC data.frame. This is used when `x` was a vector (pre-ranked).
-#'   THIS IS A HACK UNTIL WE REFACTOR FOR FACILEVERSE
 #' @template asdt-param
 #' @return If `with.fit == FALSE` (the default) a `data.table` of
 #'   logFC statistics for the contrast under test. Otherwise, a list is
@@ -72,7 +71,9 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   do.contrast <- !is.vector(x) &&
     ncol(x) > 1L &&
     !is.null(design) &&
-    length(contrast) == ncol(design)
+    length(contrast) == ncol(design) &&
+    # there are some positive and negative coefficients (otherwise maybe ANOVA)
+    any(contrast < 0) && any(contrast > 0)
 
   if (is.vector(x)) {
     # this is a preranked vector
@@ -171,14 +172,24 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     out[, ID := NULL]
   }
 
-  if (is.data.frame(xmeta.)) {
+  if (is.data.frame(xmeta.) && nrow(xmeta.) > 0L) {
     xref.col <- which(c("feature_id", "featureId") %in% colnames(xmeta.))
     if (length(xref.col)) {
       xcol <- xref.col[1L]
       xref <- match(out$featureId, xmeta.[[xcol]])
-      keep.cols <- setdiff(colnames(xmeta.), colnames(out))
-      if (length(keep.cols)) {
-        out <- cbind(out, xmeta.[xref, keep.cols,drop = FALSE])
+      # if test_type == "preranked"
+      # you might be passing in a data.frame with t and logFC and F and
+      # whatever else statistics, we replace the NA stats columns generated
+      # internally with the ones provided in the xmeta. table.
+      xfer.cols <- colnames(xmeta.)[-xcol]
+      if (test_type != "preranked") {
+        # only add columns we don't have
+        xfer.cols <- setdiff(xfer.cols, colnames(out))
+      }
+      if (length(xfer.cols)) {
+        for (cname in xfer.cols) {
+          out[, (cname) := xmeta.[[cname]][xref]]
+        }
       }
     } else {
       warning("Can't match featureIds in colnames(xmeta.), skipping ...")

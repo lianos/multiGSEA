@@ -17,8 +17,12 @@
 #' @param x A [MultiGSEAResult()] object
 #' @param y the name of the gene set collection
 #' @param j the name of the gene set name
-#' @param value plot individual log fold changes (default) or t-statistics
-#'   `"logFC"` or `"t"`, respectively)
+#' @param value A string indicating the column name for the value of the
+#'   gene-level metadata to plot. Default is `"logFC"`. Anoter often used choice
+#'   might also be `"t"`, to plot t-statistics (if they're in the result). But
+#'   this can be any numeric column found in the data.frame returned by
+#'   `geneSet(x, y, j)`. If this is a named string (vector), then the value in
+#'   `names(value)` will be used on the axis when plotted.
 #' @param type plot the distributions as a `"density"` plot or `"boxplot"`.
 #' @param tools the tools to display in the rbokeh plot
 #' @param main A title to display. If not specified, the gene set name
@@ -33,7 +37,10 @@
 #'   the outgoing rbokeh plot object (list) as `$data` Default is
 #'   `FALSE`
 #' @return the ploty plot ojbect
-iplot <- function(x, y, j, value=c('logFC', 't'),
+#' @examples
+#' mgr <- exampleMultiGSEAResult()
+#' iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"))
+iplot <- function(x, y, j, value = "logFC",
                   type=c('density', 'boxplot'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                   main=NULL, with.legend=TRUE, with.data=FALSE,
@@ -46,7 +53,9 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
 
   stopifnot(is(x, 'MultiGSEAResult'))
   type <- match.arg(type)
-  value <- match.arg(value)
+  lfc <- copy(logFC(x, as.dt = TRUE)[, group := "bg"])
+  match.arg(value, colnames(lfc))
+  stopifnot(is.numeric(lfc[[value]]))
 
   if (missing(main)) {
     main <- sprintf("%s (%s)", j, y)
@@ -55,7 +64,6 @@ iplot <- function(x, y, j, value=c('logFC', 't'),
   # silence R CMD check NOTEs
   val <- NULL
   dat <- local({
-    lfc <- copy(logFC(x, as.dt=TRUE))[, group := 'bg']
     lfc[, val := lfc[[value]]]
     gs.stats <- copy(geneSet(x, y, j, as.dt=TRUE))[, group := 'geneset']
     gs.stats[, val := gs.stats[[value]]]
@@ -109,14 +117,18 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
             'notsig'='grey', 'psig'='lightblue', 'sig'='darkblue')
 
   if (value == 't') {
-    value <- 't-statistic'
-    # gs.dat$y <- 0.005
     gs.dat$y <- 0.0015 + runif(nrow(gs.dat), 0, 0.004)
     jitter <- 0.005
   } else {
     ## gs.dat$y <- c('notsig'=0.1, 'psig'=0.2, 'sig'=0.3)[gs.dat$significant]
     gs.dat$y <- 0.005 + runif(nrow(gs.dat), 0, 0.040)
     jitter <- 0.05
+  }
+
+  if (is.null(names(value))) {
+    label <- if (value == "t") "t-statistic" else value
+  } else {
+    label <- names(value)
   }
 
   bg <- subset(dat, group == 'bg')
@@ -140,7 +152,7 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p <- plot_ly(source=shiny_source, width=width, height=height) %>%
     add_lines(x=bgd$x, y=bgd$y, name='All Genes', hoverinfo='none', line=lmeta) %>%
     add_lines(x=gsd$x, y=gsd$y, name='Geneset', hoverinfo='none', line=lmeta) %>%
-    layout(xaxis=list(title="logFC", range=xrange),
+    layout(xaxis=list(title=label, range=xrange),
            yaxis=list(title="Density"),
            showlegend = with.legend, title=main, dragmode="select")
   if ('symbol' %in% names(gs.dat) && with.points) {
@@ -174,8 +186,11 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   gs <- subset(dat, is.gs) %>% setDF
   bg <- subset(dat, !is.gs) %>% setDF
   n.gs <- sum(is.gs)
-  if (value == 't') {
-    value <- 't-statistic'
+
+  if (is.null(names(value))) {
+    label <- if (value == "t") "t-statistic" else value
+  } else {
+    label <- names(value)
   }
 
   # silence R CMD check NOTEs
@@ -212,7 +227,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   p <- suppressMessages({
     ggplotly(gg, width = width, height = height, tooltip = "text")
   })
-  p <- layout(p, yaxis = list(title=value),
+  p <- layout(p, yaxis = list(title=label),
               dragmode = "select", showlegend = with.legend)
   p <- plotly_build(p)
 

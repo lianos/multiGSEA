@@ -4,7 +4,7 @@
 \alias{iplot}
 \title{Visualize gene level behavior of genes within a geneset across a contrast.}
 \usage{
-iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
+iplot(x, y, j, value = "logFC", type = c("density", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
   with.legend = TRUE, with.data = FALSE, shiny_source = "mggenes",
   width = NULL, height = NULL, ggtheme = theme_bw(), trim = 0.005,
@@ -17,8 +17,12 @@ iplot(x, y, j, value = c("logFC", "t"), type = c("density", "boxplot"),
 
 \item{j}{the name of the gene set name}
 
-\item{value}{plot individual log fold changes (default) or t-statistics
-\code{"logFC"} or \code{"t"}, respectively)}
+\item{value}{A string indicating the column name for the value of the
+gene-level metadata to plot. Default is \code{"logFC"}. Anoter often used choice
+might also be \code{"t"}, to plot t-statistics (if they're in the result). But
+this can be any numeric column found in the data.frame returned by
+\code{geneSet(x, y, j)}. If this is a named string (vector), then the value in
+\code{names(value)} will be used on the axis when plotted.}
 
 \item{type}{plot the distributions as a \code{"density"} plot or \code{"boxplot"}.}
 
@@ -49,4 +53,8 @@ distribution of log fold changes of the entire transcriptome.
 
 You can visualize this behavior via a \code{type = "density"} plot, or a
 \code{type = "boxplot". It is also common to plot either the individual log fold changes }value = "logFC"\code{or t-statistics}value = "t"`.
+}
+\examples{
+mgr <- exampleMultiGSEAResult()
+iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"))
 }
