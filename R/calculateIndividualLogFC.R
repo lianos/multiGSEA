@@ -173,15 +173,18 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   }
 
   if (is.data.frame(xmeta.) && nrow(xmeta.) > 0L) {
-    xref.col <- which(c("feature_id", "featureId") %in% colnames(xmeta.))
-    if (length(xref.col)) {
-      xcol <- xref.col[1L]
-      xref <- match(out$featureId, xmeta.[[xcol]])
-      # if test_type == "preranked"
-      # you might be passing in a data.frame with t and logFC and F and
-      # whatever else statistics, we replace the NA stats columns generated
-      # internally with the ones provided in the xmeta. table.
-      xfer.cols <- colnames(xmeta.)[-xcol]
+    xmeta. <- try(validate.xmeta(xmeta.))
+    if (!is.data.frame(xmeta.)) {
+      warning("Can't match featureIds in colnames(xmeta.), skipping ...")
+    } else {
+      # if test_type == "preranked" there will be many columns with NA's
+      # produced here. If that's the case, we will take as many of them from
+      # xmeta. (and then some) we can get.
+      #
+      # If this generates a data.frame of stats from running a DGE, then we
+      # only take columns we don't have
+      xref <- match(out[["featureId"]], xmeta.[["featureId"]])
+      xfer.cols <- setdiff(colnames(xmeta.), "featureId")
       if (test_type != "preranked") {
         # only add columns we don't have
         xfer.cols <- setdiff(xfer.cols, colnames(out))
@@ -191,8 +194,6 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
           out[, (cname) := xmeta.[[cname]][xref]]
         }
       }
-    } else {
-      warning("Can't match featureIds in colnames(xmeta.), skipping ...")
     }
   }
 

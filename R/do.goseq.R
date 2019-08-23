@@ -1,6 +1,7 @@
 # Note: I won't implement limma::goana since they do not accept their own
-#       universe. The methodology in goseq is equivalent except for minor
-#       detail when low number of DE genes (cf ?goana)
+#       universe (but limma::kegga does!). The methodology in goseq is
+#       equivalent except for minor detail when low number of DE genes
+#       (cf ?goana)
 
 #' @include validateInputs.R
 NULL
@@ -78,13 +79,15 @@ validate.inputs.goseq <- function(x, design, contrast, feature.bias,
 #'   times.
 do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      feature.bias,
-                     method="Wallenius",
+                     goseq.method = "Wallenius",
                      repcnt=2000, use_genes_without_cat=TRUE,
                      split.updown=TRUE,
                      direction=c('over', 'under'),
                      plot.fit=FALSE, use.treat=FALSE,
                      feature.min.logFC=if (use.treat) log2(1.25) else 1,
                      feature.max.padj=0.10, logFC=NULL, ...) {
+  .Deprecated("multiGSEA(..., methods = 'enrich')")
+
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
   # stop("testing graceful method failure in multiGSEA call")
@@ -118,7 +121,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
       up = logFC[significant == TRUE & direction == "up"]$featureId,
       down = logFC[significant == TRUE & direction == "down"]$featureId)
     res <- suppressWarnings({
-      multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
+      multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, goseq.method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
                        do.conform=FALSE, as.dt=FALSE, .pipelined=TRUE)
     })

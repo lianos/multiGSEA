@@ -7,7 +7,7 @@
 multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
   use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else
   1, feature.max.padj = 0.1, trim = 0.1, verbose = FALSE, ...,
-  .parallel = FALSE, BPPARAM = bpparam())
+  xmeta. = NULL, .parallel = FALSE, BPPARAM = bpparam())
 }
 \arguments{
 \item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} that defines the gene sets of interest.}

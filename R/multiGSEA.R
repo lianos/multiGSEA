@@ -189,6 +189,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   x <- inputs$x
   design <- inputs$design
   contrast <- inputs$contrast
+  xmeta. <- inputs$xmeta.
 
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x, ...)
@@ -208,7 +209,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   if (!is.logical(logFC[["significant"]])) {
     # If xmeta. was passed in, it may already have been defined
     logFC[, significant := {
-      if (test_type == "anova") {
+      if (test_type == "anova" || !is.numeric(logFC[["logFC"]])) {
         padj <= feature.max.padj
       } else {
         padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
@@ -242,8 +243,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
       BPPARAM <- SerialParam(stop.on.error=FALSE)
     }
     stopifnot(is(BPPARAM, 'BiocParallelParam'))
-    res1 <- bplapply(methods, function(method) {
-      tryCatch(mg.run(method, gsd, x, design, contrast, logFC, use.treat,
+    message("methods: ", paste(methods, collapse = ","))
+    res1 <- bplapply(methods, function(method.) {
+      message("... ", method.)
+      tryCatch(mg.run(method., gsd, x, design, contrast, logFC, use.treat,
                       feature.min.logFC, feature.max.padj, verbose=verbose,
                       gs.idxs=gs.idxs, ...),
                error=function(e) list(NULL))
@@ -289,10 +292,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 #' goseq.down hacks from a single goseq call
 #'
 #' @noRd
-mg.run <- function(method, gsd, x, design, contrast, logFC=NULL,
+mg.run <- function(xmethod, gsd, x, design, contrast, logFC=NULL,
                    use.treat=TRUE, feature.min.logFC=log2(1.25),
                    feature.max.padj=0.10, verbose=FALSE, ...) {
-  fn.name <- paste0('do.', method)
+  fn.name <- paste0('do.', xmethod)
   if (verbose) {
     message("... calling: ", fn.name)
   }

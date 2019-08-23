@@ -12,7 +12,7 @@ resultNames(x)
 
 result(x, name, ...)
 
-\method{result}{MultiGSEAResult}(x, name, stats.only = FALSE,
+\method{result}{MultiGSEAResult}(x, name = NULL, stats.only = FALSE,
   rank.by = c("pval", "t", "logFC"), add.suffix = FALSE,
   as.dt = FALSE)
 

@@ -5,7 +5,7 @@
 \title{Validate the input objects to a GSEA call.}
 \usage{
 validateInputs(x, design = NULL, contrast = NULL, methods = NULL,
-  require.x.rownames = TRUE, ...)
+  xmeta. = NULL, require.x.rownames = TRUE, ...)
 }
 \arguments{
 \item{x}{The expression object to use}

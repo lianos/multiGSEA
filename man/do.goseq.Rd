@@ -5,11 +5,11 @@
 \title{Performs goseq analysis significance of gene set membership.}
 \usage{
 do.goseq(gsd, x, design, contrast = ncol(design), feature.bias,
-  method = "Wallenius", repcnt = 2000, use_genes_without_cat = TRUE,
-  split.updown = TRUE, direction = c("over", "under"),
-  plot.fit = FALSE, use.treat = FALSE, feature.min.logFC = if
-  (use.treat) log2(1.25) else 1, feature.max.padj = 0.1, logFC = NULL,
-  ...)
+  goseq.method = "Wallenius", repcnt = 2000,
+  use_genes_without_cat = TRUE, split.updown = TRUE,
+  direction = c("over", "under"), plot.fit = FALSE,
+  use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else
+  1, feature.max.padj = 0.1, logFC = NULL, ...)
 }
 \arguments{
 \item{gsd}{The \code{\link{GeneSetDb}} for analysis}
@@ -29,9 +29,6 @@ values for these if you do not have the correct values used in your
 analysis. If there is no way for you to get this information, then use
 \code{method='hyperGeometricTest'}.}
 
-\item{method}{The method to use to calculate the unbiased category
-enrichment scores}
-
 \item{repcnt}{Number of random samples to be calculated when random sampling
 is used. Ignored unless \code{method="Sampling"}.}
 
@@ -50,6 +47,9 @@ number of genes outside the category being tested.}
 \item{logFC}{The logFC data.table from \code{calculateIndividualLogFC}}
 
 \item{...}{arguments to pass down into \code{calculateIndividualLogFC}}
+
+\item{method}{The method to use to calculate the unbiased category
+enrichment scores}
 }
 \value{
 A data.table of goseq results. The "pval" column here refers to

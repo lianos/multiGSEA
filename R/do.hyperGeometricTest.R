@@ -36,6 +36,7 @@ do.hyperGeometricTest <- function(gsd, x, design, contrast=ncol(design),
                                   use.treat=FALSE,
                                   feature.min.logFC=1, feature.max.padj=0.10,
                                   logFC=NULL, ...) {
+  .Deprecated("multiGSEA(..., methods = 'enrich', feature.bias = NULL)")
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
 

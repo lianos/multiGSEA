@@ -42,6 +42,9 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
+  # Ensure there is only featureId-like column, and this is its name.
+  xmeta. <- validate.xmeta(xmeta.)
+
   ## Check that x is generally OK
   x.kosher <- validate.X(x, xmeta.)
   if (!isTRUE(x.kosher)) {
@@ -102,7 +105,36 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     }
   }
 
-  list(x=x, design=design, contrast=contrast, is.full.design=is.matrix(design))
+  list(x = x, design = design, contrast = contrast, xmeta. = xmeta.,
+       is.full.design = is.matrix(design))
+}
+
+#' Ensures xmeta. has one and only one featureId-like column that is named
+#' as such.
+#' @noRd
+validate.xmeta <- function(xmeta. = NULL, ...) {
+  if (is.null(xmeta.)) return(NULL)
+  if (!is.data.frame(xmeta.)) {
+    stop("If not NULL, xmeta. must be a data.frame")
+  }
+  xref.col <- match(c("feature_id", "featureId"), colnames(xmeta.))
+  if (all(is.na(xref.col))) {
+    stop("xmeta. needs a featureId or feature_id column")
+  }
+  if (!any(is.na(xref.col))) {
+    same.same <- isTRUE(
+      all.equal(xmeta.[["feature_id"]], xmeta.[["featureId"]]))
+    if (!same.same) {
+      stop("xmeta.$featureId and xmeta.$feature_id do not match")
+    }
+    xmeta.[[xref.col[2]]] <- NULL
+    xref.col <- xref.col[1]
+  } else {
+    xref.col <- xref.col[!is.na(xref.col)]
+  }
+  colnames(xmeta.)[xref.col] <- "featureId"
+  stopifnot(is.character(xmeta.[["featureId"]]))
+  xmeta.
 }
 
 #' Checkes that there are no NAs in x
