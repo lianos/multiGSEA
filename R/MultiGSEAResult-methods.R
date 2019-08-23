@@ -287,17 +287,14 @@ result <- function(x, name, ...) {
 #'   `pval.camera`.
 #'
 #' @return a data.table with the results from the requested method.
-result.MultiGSEAResult <- function(x, name, stats.only=FALSE,
+result.MultiGSEAResult <- function(x, name = NULL, stats.only=FALSE,
                                    rank.by=c('pval', 't', 'logFC'),
                                    add.suffix=FALSE, as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
-    if (missing(name)) name <- NULL
     return(results(x, name, as.dt=as.dt))
   }
-  if (length(resultNames(x)) == 1L) {
-    name <- resultNames(x)
-  }
+  if (is.null(name)) name <- resultNames(x)[1L]
   ## no methods run?
   stopifnot(isSingleCharacter(name))
   invalidMethods(x, name, as.error=TRUE)

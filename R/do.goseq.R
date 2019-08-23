@@ -6,11 +6,15 @@
 NULL
 
 validate.x.goseq <- validate.X
-validate.inputs.goseq <- function(x, design, contrast, feature.bias, ...) {
-  default <- .validate.inputs.full.design(x, design, contrast)
-  if (length(default)) {
-    return(default)
+validate.inputs.goseq <- function(x, design, contrast, feature.bias,
+                                  xmeta. = NULL, ...) {
+  if (!is.data.frame(xmeta.)) {
+    default <- .validate.inputs.full.design(x, design, contrast)
+    if (length(default)) {
+      return(default)
+    }
   }
+
   ## Ensure that caller provides a named feature.bias vector
   errs <- list()
   if (missing(feature.bias)) {
@@ -101,12 +105,18 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
   }
 
   do <- c('all', if (split.updown) c('up', 'down') else NULL)
+  if (any(c("up", "down") %in% do)) {
+    if (!is.logical(logFC[["direction"]])) {
+      logFC[["direction"]] <- ifelse(logFC[["logFC"]] > 0, "up", "down")
+    }
+  }
 
   out <- sapply(do, function(dge.dir) {
-    drawn <- switch(dge.dir,
-                    all=logFC[significant == TRUE]$featureId,
-                    up=logFC[significant == TRUE & logFC > 0]$featureId,
-                    down=logFC[significant == TRUE & logFC < 0]$featureId)
+    drawn <- switch(
+      dge.dir,
+      all = logFC[significant == TRUE]$featureId,
+      up = logFC[significant == TRUE & direction == "up"]$featureId,
+      down = logFC[significant == TRUE & direction == "down"]$featureId)
     res <- suppressWarnings({
       multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,

@@ -5,7 +5,7 @@ validate.inputs.romer <- .validate.inputs.full.design
 
 ## validate.x.romer <- validate.DGEList
 
-validate.x.romer <- function(x) {
+validate.x.romer <- function(x, xmeta. = NULL, ...) {
   if (isTRUE(is(x, 'DGEList'))) {
     if (!is.numeric(x$common.dispersion)) {
       return("dispersion is not estimated, minimally call estimateDisp(x)")

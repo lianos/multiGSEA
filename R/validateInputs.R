@@ -27,7 +27,7 @@
 #' @return A list with "normalized" versions of `$x`, `$design`, and `$contrast`
 #'   for downstream use.
 validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
-                           require.x.rownames=TRUE, ...) {
+                           xmeta. = NULL, require.x.rownames=TRUE, ...) {
   if (is.character(methods)) {
     check.gsea.methods(methods)
   } else if (!is.null(methods)) {
@@ -43,7 +43,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   }
 
   ## Check that x is generally OK
-  x.kosher <- validate.X(x)
+  x.kosher <- validate.X(x, xmeta.)
   if (!isTRUE(x.kosher)) {
     stop("Bad expression object x provided: ", paste(x.kosher, collapse=','))
   }
@@ -52,7 +52,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   if (!is.null(methods)) {
     is.valid.x <- sapply(methods, function(meth) {
       fn <- getFunction(paste0('validate.x.', meth))
-      fn(x)
+      fn(x, xmeta.)
     }, simplify=FALSE)
     bad <- which(sapply(is.valid.x, Negate(isTRUE)))
     if (length(bad)) {
@@ -70,7 +70,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   }
 
   if (is.matrix(design)) {
-    design.errs <- .validateDesign(x, design)
+    design.errs <- .validateDesign(x, design, xmeta.)
     if (length(design.errs)) {
       stop("Design matrix problems:\n    * ",
            paste(names(design.errs), collapse='\n    * '))
@@ -90,7 +90,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   if (is.character(methods)) {
     errs.all <- sapply(methods, function(method) {
       fn <- getFunction(paste0('validate.inputs.', method))
-      errs <- fn(x, design, contrast, ...)
+      errs <- fn(x, design, contrast, xmeta., ...)
     }, simplify=FALSE)
 
     errs.un <- unlist(errs.all)
@@ -134,7 +134,7 @@ disp.estimated <- function(x) {
 #' Returns a 0-length list when there is no error
 #'
 #' @noRd
-.validateDesign <- function(x, design) {
+.validateDesign <- function(x, design, xmeta. = NULL, ...) {
   errs <- list()
   if (!is.matrix(design)) {
     errs$design.not.matrix <- TRUE
@@ -234,7 +234,8 @@ disp.estimated <- function(x) {
 
 #' Check inputs when we are running multiGSEA with `method = "logFC"`
 #' @noRd
-.validate.inputs.logFC.only <- function(x, design, contrast, ...) {
+.validate.inputs.logFC.only <- function(x, design, contrast, xmeta. = NULL,
+                                        ...) {
   errs <- list()
   if (ncol(x) > 1) {
     errs <- .validate.inputs.full.design(x, design, contrast, ...)
@@ -269,7 +270,7 @@ disp.estimated <- function(x) {
 #' Validates x has matrix-like properties
 #'
 #' @noRd
-validate.X <- function(x) {
+validate.X <- function(x, xmeta. = NULL, ...) {
   if (!inherits(x, .valid.x)) {
     return("Invalid expression object (x) type: ", class(x)[1L])
   }
@@ -286,6 +287,20 @@ validate.X <- function(x) {
   if (is(x, 'DGEList')) {
     return(validate.DGEList(x))
   }
+  if (!is.null(xmeta.)) {
+    fid.column <- intersect(c("feature_id", "featureId"), colnames(xmeta.))
+    if (length(fid.column) != 1L) {
+      return(paste("xmeta. must have one and only one of ",
+                   "'feature_id', or 'featureId' columns"))
+    }
+    if (!is.character(xmeta.[[fid.column]])) {
+      return(paste("xmeta. '", fid.column, "' column must be character"))
+    }
+    if (!all(rownames(x) %in% xmeta.[[fid.column]])) {
+      return("xmeta. missing entries for some rownames(x)")
+    }
+  }
+
   TRUE
 }
 

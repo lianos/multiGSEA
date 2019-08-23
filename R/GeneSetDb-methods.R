@@ -798,8 +798,9 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
     add.me$collection[1L] <- xcoll
     add.me$name[1L] <- xname
     add.me$value[[1L]] <- value
-    x@collectionMetadata <- rbind(x@collectionMetadata, add.me)
-    setkeyv(x@collectionMetadata, key(x@collectionMetadata))
+    cm <- rbind(x@collectionMetadata, add.me)
+    setkeyv(cm, key(x@collectionMetadata))
+    x@collectionMetadata <- cm
   } else {
     x@collectionMetadata$value[[idx]] <- value
   }

@@ -1,8 +1,18 @@
 #' @include validateInputs.R
 NULL
 
-validate.inputs.hyperGeometricTest <- .validate.inputs.full.design
 validate.x.hyperGeometricTest <- validate.X
+validate.inputs.hyperGeometricTest <- function(x, design, contrast,
+                                               xmeta. = NULL, ...) {
+  if (!is.data.frame(xmeta.)) {
+    default <- .validate.inputs.full.design(x, design, contrast)
+    if (length(default)) {
+      return(default)
+    }
+  }
+  errs <- list()
+  return(errs)
+}
 
 #' Performs a hypergeometric test for significance of gene set membership.
 #'

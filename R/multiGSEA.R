@@ -160,7 +160,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       methods=NULL, use.treat=FALSE,
                       feature.min.logFC=if (use.treat) log2(1.25) else 1,
                       feature.max.padj=0.10, trim=0.10, verbose=FALSE, ...,
-                      .parallel=FALSE, BPPARAM=bpparam()) {
+                      xmeta. = NULL, .parallel=FALSE, BPPARAM=bpparam()) {
   if (!is(gsd, "GeneSetDb")) {
     if (is(gsd, "GeneSetCollection") || is(gsd, "GeneSet")) {
       stop("A GeneSetDb is required. GeneSetCollections can be converted to a ",
@@ -183,7 +183,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   # ----------------------------------------------------------------------------
   # Argument sanity checking and input sanitization
   args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
-  inputs <- validateInputs(x, design, contrast, methods,
+  inputs <- validateInputs(x, design, contrast, methods, xmeta. = xmeta.,
                            require.x.rownames=TRUE, ...)
 
   x <- inputs$x
@@ -201,16 +201,20 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   # vector into a data.frame returned by an internal dge analysis
   treat.lfc <- if (use.treat) feature.min.logFC else NULL
   logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
-                                    verbose=verbose, ..., as.dt=TRUE)
+                                    verbose=verbose, ...,
+                                    xmeta. = xmeta., as.dt=TRUE)
   test_type <- attr(logFC, "test_type")
 
-  logFC[, significant := {
-    if (test_type == "anova") {
-      padj <= feature.max.padj
-    } else {
-      padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
-    }
-  }]
+  if (!is.logical(logFC[["significant"]])) {
+    # If xmeta. was passed in, it may already have been defined
+    logFC[, significant := {
+      if (test_type == "anova") {
+        padj <= feature.max.padj
+      } else {
+        padj <= feature.max.padj & abs(logFC) >= feature.min.logFC
+      }
+    }]
+  }
 
   # the 'logFC' method is just a pass through -- we don't call it if it was
   # provided
@@ -238,7 +242,6 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
       BPPARAM <- SerialParam(stop.on.error=FALSE)
     }
     stopifnot(is(BPPARAM, 'BiocParallelParam'))
-
     res1 <- bplapply(methods, function(method) {
       tryCatch(mg.run(method, gsd, x, design, contrast, logFC, use.treat,
                       feature.min.logFC, feature.max.padj, verbose=verbose,

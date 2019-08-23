@@ -2,13 +2,13 @@
 NULL
 
 validate.inputs.fry <- .validate.inputs.full.design
-validate.x.fry <- function(x) {
+validate.x.fry <- function(x, xmeta., ...) {
   ## This is not defined for DGEList yet
   if (is(x, 'DGEList') && packageVersion('edgeR') < '3.14') {
     warning("fry is not implemented for a DGEList yet", immediate.=TRUE)
     return(FALSE)
   }
-  validate.X(x)
+  validate.X(x, xmeta.)
 }
 
 #' Worker function to run fry from within a multiGSEA pipeline
