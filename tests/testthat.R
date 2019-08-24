@@ -1,6 +1,7 @@
 library("multiGSEA")
 library("testthat")
 library("data.table")
+library("dplyr")
 
 test_check("multiGSEA")
 

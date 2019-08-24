@@ -1,6 +1,6 @@
-validate.x.enrich <- validate.X
-vaidate.inputs.enrich <- function(x, design, contrast, feature.bias,
-                                  xmeta. = NULL, ...) {
+validate.x.enrichtest <- validate.X
+vaidate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
+                                      xmeta. = NULL, ...) {
   if (!is.data.frame(xmeta.)) {
     default <- .validate.inputs.full.design(x, design, contrast)
     if (length(default)) {
@@ -54,12 +54,12 @@ vaidate.inputs.enrich <- function(x, design, contrast, feature.bias,
 #' @param feature.bias we will try to extract the average expression of the
 #'   gene as teh default bias, but you can send in gene length, or
 #'   what-have-you
-do.enrich <- function(gsd, x, design, contrast = ncol(design),
-                      feature.bias = "AveExpr", prior.prob = NULL,
-                      restrict.universe = FALSE,
-                      split.updown = TRUE, use.treat = FALSE,
-                      feature.min.logFC = if (use.treat) log2(1.25) else 1,
-                      feature.max.padj = 0.10, logFC = NULL, ...) {
+do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
+                          feature.bias = "AveExpr", prior.prob = NULL,
+                          restrict.universe = FALSE,
+                          split.updown = TRUE, use.treat = FALSE,
+                          feature.min.logFC = if (use.treat) log2(1.25) else 1,
+                          feature.max.padj = 0.10, logFC = NULL, ...) {
   # 1. Specify up and down genes as a list of identifiers:
   #      list(Up = sigup, Down = sigdown)
   # 2a. Process feature.bias parameter so that it is a numeric bias vector
@@ -100,7 +100,7 @@ do.enrich <- function(gsd, x, design, contrast = ncol(design),
     split.direction <- "direction"
   }
 
-  res <- enrichment(gsd, logFC, selected = "significant",
+  res <- enrichtest(gsd, logFC, selected = "significant",
                     groups = split.direction,
                     feature.bias = feature.bias,
                     restrict.universe = restrict.universe)
@@ -143,9 +143,35 @@ do.enrich <- function(gsd, x, design, contrast = ncol(design),
 #' @param universe Defaults to all elements in `dat[["featureId"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
 #' @param plot.bias See `plot` parameter in [limma::kega()]
-#' @return a data.frame of pathway enrichment
-enrichment <- function(gsd, dat, selected = "significant",
-                       groups = "direction",
+#' @return A data.frame of pathway enrichment. The last N colums are enrichment
+#'   statistics per pathway, grouped by the `groups` parameter. `P.all` are the
+#'   stats for all selected features, and the remaingin `P.*` columns are for
+#'   the features specifed by `groups`.
+#' @examples
+#' dgestats <- exampleDgeResult("human", "ensembl")
+#' gdb <- getMSigGeneSetDb("h", "human", "ensembl")
+#'
+#' # Run enrichmnent without accounting for any bias
+#' nobias <- enrichtest(gdb, dgestats, selected = "selected",
+#'                      groups = "direction",
+#'                      feature.bias = NULL)
+#'
+#' # Run enrichment and account for gene length
+#' lbias <- enrichtest(gdb, dgestats, selected = "selected",
+#'                     feature.bias = "effective_length")
+#'
+#' # plot length bias with DGE status
+#' plot_enrichtest_bias(dgestats, "selected", "effective_length")
+#'
+#' # induce length bias and see what is the what ...............................
+#' biased <- dgestats[order(dgestats$pval),]
+#' biased$effective_length <- sort(biased$effective_length, decreasing = TRUE)
+#' plot_enrichtest_bias(biased, "selected", "effective_length")
+#' etest <- enrichtest(gdb, biased, selected = "selected",
+#'                     groups = "direction",
+#'                     feature.bias = "effective_length")
+enrichtest <- function(gsd, dat, selected = "significant",
+                       groups = NULL,
                        feature.bias = NULL, universe = NULL,
                        restrict.universe = FALSE,
                        plot.bias = FALSE, ...) {
@@ -245,4 +271,34 @@ enrichment <- function(gsd, dat, selected = "significant",
 
   setattr(kres, "rawresult", TRUE)
   kres
+}
+
+#' Plots bias of coviarate to DE / selected status
+#'
+#' This meat and potatoes of this function code was extracted from limma::kegga,
+#' originally written by Gordon Smyth and Yifang Hu.
+#'
+#' @export
+#' @importFrom stats approx
+#' @importFrom limma barcoddeplot
+plot_enrichtest_bias <- function(x, selected, feature.bias,
+                                 title = "DE status vs bias") {
+  assert_multi_class(x, c("data.frame", "tibble"))
+  if (test_string(selected)) {
+    selected <- x[[selected]]
+  }
+  assert_logical(selected)
+  if (test_string(feature.bias)) {
+    feature.bias <- x[[feature.bias]]
+  }
+  assert_numeric(feature.bias, len = length(selected))
+
+  span <- approx(x = c(20,200), y = c(1, 0.5),
+                 xout = sum(selected),
+                 rule = 2, ties = list("ordered", mean))$y
+  limma::barcodeplot(feature.bias,
+                     index = selected,
+                     worm = TRUE, span.worm = span,
+                     main = "DE status vs covariate (manual)")
+
 }

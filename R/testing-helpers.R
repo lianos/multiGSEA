@@ -134,3 +134,14 @@ exampleMultiGSEAResult <- function(cached=TRUE) {
   }
   out
 }
+
+#' @export
+#' @rdname examples
+exampleDgeResult <- function(species = "human", id.type = "ensembl") {
+  # we only have human/ensembl for now
+  species <- match.arg(species, "human")
+  id.type <- match.arg(id.type, "ensembl")
+  dge.fn <- system.file("extdata", "testdata", "dataframe-input.csv",
+                        package = "multiGSEA")
+  read.csv(dge.fn, stringsAsFactors = FALSE)
+}
