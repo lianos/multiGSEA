@@ -22,15 +22,16 @@ multiGSEA.methods <- function(names.only = TRUE) {
   methods <- list(
     camera = list(package = "edgeR", type = "required"),
     cameraPR = list(package = "edgeR", type = "required"),
-    roast = list(package = "edgeR", type = "required"),
-    fry = list(package = "edgeR", type = "required"),
-    romer = list(package = "edgeR", type = "required"),
+    fgsea = list(package = "fgsea", type = "suggested"),
     geneSetTest = list(package = "edgeR", type = "required"),
     goseq = list(package = "goseq", type = "suggested"),
+    logFC = list(package="multiGSEA", type = "required"),
     hyperGeometricTest = list(package = "multiGSEA", type = "required"),
-    fgsea = list(package = "fgsea", type = "suggested"),
-    svdGeneSetTest = list(package="multiGSEA", type = "required"),
-    logFC = list(package="multiGSEA", type = "required")
+    enrichtest = list(package = "limma", type = "required"),
+    fry = list(package = "edgeR", type = "required"),
+    roast = list(package = "edgeR", type = "required"),
+    romer = list(package = "edgeR", type = "required"),
+    svdGeneSetTest = list(package="multiGSEA", type = "required")
   )
 
   if (names.only) {

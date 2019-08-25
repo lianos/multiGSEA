@@ -74,7 +74,7 @@ Collate:
     'validateInputs.R'
     'do.camera.R'
     'do.cameraPR.R'
-    'do.enrich.R'
+    'do.enrichtest.R'
     'do.fgsea.R'
     'do.fry.R'
     'do.geneSetTest.R'

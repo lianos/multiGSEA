@@ -46,18 +46,15 @@ vaidate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
 #' [goseq::nullp()], so I jumped over to this given this insight:
 #' https://support.bioconductor.org/p/65789/#65914
 #'
-#' @references
-#' Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
-#' Gene ontology analysis for RNA-seq: accounting for selection bias.
-#' *Genome Biology* 11, R14. http://genomebiology.com/2010/11/2/R14
+#' @noRd
 #'
 #' @param feature.bias we will try to extract the average expression of the
 #'   gene as teh default bias, but you can send in gene length, or
 #'   what-have-you
 do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
-                          feature.bias = "AveExpr", prior.prob = NULL,
-                          restrict.universe = FALSE,
-                          split.updown = TRUE, use.treat = FALSE,
+                          feature.bias = "AveExpr",
+                          restrict.universe = FALSE, groups = "direction",
+                          use.treat = FALSE,
                           feature.min.logFC = if (use.treat) log2(1.25) else 1,
                           feature.max.padj = 0.10, logFC = NULL, ...) {
   # 1. Specify up and down genes as a list of identifiers:
@@ -87,39 +84,44 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
     }]
   }
 
-  do <- c('all', if (split.updown) c('up', 'down') else NULL)
-  if (any(c("up", "down") %in% do && is.numeric(logFC[["logFC"]]))) {
-    if (!is.character(logFC[["direction"]])) {
-      logFC[["direction"]] <- ifelse(logFC[["logFC"]] > 0, "up", "down")
-    }
+  add.dir <- groups == "direction" &&
+    !is.character(logFC[["direction"]]) &&
+    is.numeric(logFC[["logFC"]])
+  if (add.dir) {
+    logFC[["direction"]] <- ifelse(logFC[["logFC"]] > 0, "up", "down")
   }
 
-  if (!(is.character(logFC[["direction"]]) && split.updown)) {
-    split.direction <- NULL
-  } else {
-    split.direction <- "direction"
+  if (is.character(groups) && !is.character(logFC[[groups]])) {
+    warning("`groups' column not found within do.enrichtest")
+    groups <- NULL
   }
 
   res <- enrichtest(gsd, logFC, selected = "significant",
-                    groups = split.direction,
+                    groups = groups,
                     feature.bias = feature.bias,
                     restrict.universe = restrict.universe)
-
-  # TODO: plit into all/up/down results like do.goseq
-  #
-  if (!is.numeric(prior.prob) && !is.null(feature.bias)) {
-    if (is.character(feature.bias)) {
-      fb <- logFC[[feature.bias]]
-    }
-  }
+  res.groups <- colnames(res)[grep("P\\..*$", colnames(res))]
+  ngroups <- length(res.groups)
+  setattr(res, "mgunlist", ngroups > 1L)
+  setattr()
+  res
 }
 
-#' Runs biased enrichment test over a data.frame of features
+#' Performs enrichment based testing while (optinally) accounting for bias.
 #'
 #' This function wraps [limma::kegga()] to perform biased enrichment tests over
 #' gene set collection stored in a GeneSetDb (`gsd`) object. Its easiest to
 #' use this function when the biases and selection criteria are stored as
 #' columns of the input data.frame `dat`.
+#'
+#' In principle, this test does what `goseq` does, however I found that
+#' sometimes callin goseq would throw errors within `goseq::nullp()` when
+#' calling `makesplines`. I stumbled onto this implementation when googling
+#' for these errors and landing here:
+#' https://support.bioconductor.org/p/65789/#65914
+#'
+#' The meat and potatoes of this function's code was extracted from
+#' [limma::kegga()], originally written by Gordon Smyth and Yifang Hu.
 #'
 #' @export
 #' @importFrom limma kegga
@@ -142,11 +144,19 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
 #'   or a named (using featureIds) numeric vector of the same.
 #' @param universe Defaults to all elements in `dat[["featureId"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
-#' @param plot.bias See `plot` parameter in [limma::kega()]
+#' @param plot.bias See `plot` parameter in [limma::kega()]. You can generate
+#'   this plot without running `enrichtest` using the [plot_enrichtest_bias()],
+#'   like so:
+#'   `plot_enrichtest_bias(dat, selected = selected, groups = groups,
+#'                         feature.bias = feature.bias)`
 #' @return A data.frame of pathway enrichment. The last N colums are enrichment
 #'   statistics per pathway, grouped by the `groups` parameter. `P.all` are the
 #'   stats for all selected features, and the remaingin `P.*` columns are for
 #'   the features specifed by `groups`.
+#' @references
+#' Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
+#' Gene ontology analysis for RNA-seq: accounting for selection bias.
+#' *Genome Biology* 11, R14. http://genomebiology.com/2010/11/2/R14
 #' @examples
 #' dgestats <- exampleDgeResult("human", "ensembl")
 #' gdb <- getMSigGeneSetDb("h", "human", "ensembl")
@@ -174,7 +184,8 @@ enrichtest <- function(gsd, dat, selected = "significant",
                        groups = NULL,
                        feature.bias = NULL, universe = NULL,
                        restrict.universe = FALSE,
-                       plot.bias = FALSE, ...) {
+                       plot.bias = FALSE, ...,
+                       as.dt = FALSE, .pipelined = FALSE) {
   dat <- validate.xmeta(dat) # enforse featureId column
   if (is.null(universe)) universe <- dat[["featureId"]]
   gsd <- conform(gsd, universe, ...)
@@ -269,20 +280,26 @@ enrichtest <- function(gsd, dat, selected = "significant",
                          plot = plot.bias && !is.null(feature.bias))
   }
 
+  res.groups <- colnames(kres)[grep("P\\..*$", colnames(kres))]
+  ngroups <- length(res.groups)
+
+  setattr(kres, "mgunlist", ngroups > 1L)
+  setattr(kres, "groups", res.groups)
   setattr(kres, "rawresult", TRUE)
+
   kres
 }
 
 #' Plots bias of coviarate to DE / selected status
 #'
-#' This meat and potatoes of this function code was extracted from limma::kegga,
-#' originally written by Gordon Smyth and Yifang Hu.
+#' The meat and potatoes of this function's code was extracted from
+#' limma::kegga, originally written by Gordon Smyth and Yifang Hu.
 #'
 #' @export
 #' @importFrom stats approx
-#' @importFrom limma barcoddeplot
+#' @importFrom limma barcodeplot
 plot_enrichtest_bias <- function(x, selected, feature.bias,
-                                 title = "DE status vs bias") {
+                                 title = "DE status vs bias", ...) {
   assert_multi_class(x, c("data.frame", "tibble"))
   if (test_string(selected)) {
     selected <- x[[selected]]

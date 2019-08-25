@@ -135,13 +135,27 @@ exampleMultiGSEAResult <- function(cached=TRUE) {
   out
 }
 
+#' `exampleDgeResult` returns a data.frame of differential expression results.
+#' Currently they are for human ensembl genes. Setting the `induce.bias`
+#' parameter to `"effective_length"` or `"AveExpr"` will munge the returned
+#' result such that larger "bias" values will be associated to lower pvalues,
+#' so we can more easily test biased enrichment approaches like [enrichtest()]
+#' and [goseq()].
+#'
 #' @export
 #' @rdname examples
-exampleDgeResult <- function(species = "human", id.type = "ensembl") {
+exampleDgeResult <- function(species = "human", id.type = "ensembl",
+                             induce.bias = NULL) {
   # we only have human/ensembl for now
   species <- match.arg(species, "human")
   id.type <- match.arg(id.type, "ensembl")
   dge.fn <- system.file("extdata", "testdata", "dataframe-input.csv",
                         package = "multiGSEA")
-  read.csv(dge.fn, stringsAsFactors = FALSE)
+  out <- read.csv(dge.fn, stringsAsFactors = FALSE)
+  if (is.character(induce.bias)) {
+    bias <- match.arg(induce.bias, c("effective_length", "AveExpr"))
+    o <- order(out[["pval"]])
+    out[[bias]][o] <- sort(out[[bias]], decreasing = TRUE)
+  }
+  out
 }

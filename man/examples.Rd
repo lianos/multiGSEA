@@ -6,6 +6,7 @@
 \alias{exampleGeneSetDb}
 \alias{exampleGeneSetDF}
 \alias{exampleMultiGSEAResult}
+\alias{exampleDgeResult}
 \title{Functions that load data for use in examples and testing.}
 \usage{
 exampleExpressionSet(dataset = c("tumor-vs-normal", "tumor-subtype"),
@@ -18,6 +19,8 @@ exampleGeneSetDb()
 exampleGeneSetDF()
 
 exampleMultiGSEAResult(cached = TRUE)
+
+exampleDgeResult(species = "human", id.type = "ensembl")
 }
 \arguments{
 \item{dataset}{Character vector indicating what samples wanted, either

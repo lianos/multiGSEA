@@ -65,3 +65,8 @@ dependencies, which take a long time -- and I don't want loading multiGSEA
 to take a long time. So, the goseq package has moved to Suggests and then
 is loaded within this function when necessary.
 }
+\references{
+Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
+Gene ontology analysis for RNA-seq: accounting for selection bias.
+\emph{Genome Biology} 11, R14. http://genomebiology.com/2010/11/2/R14
+}

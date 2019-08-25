@@ -179,6 +179,10 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 #' @return A \code{data.table} of results, similar to goseq output. The output
 #'   from \code{\link[goseq]{nullp}} is added to the outgoing data.table as
 #'   an attribue named \code{"pwf"}.
+#' @references
+#' Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
+#' Gene ontology analysis for RNA-seq: accounting for selection bias.
+#' *Genome Biology* 11, R14. http://genomebiology.com/2010/11/2/R14
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
