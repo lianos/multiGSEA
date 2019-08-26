@@ -18,7 +18,7 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
 
-  methods <- c('camera', 'hyperGeometricTest')
+  methods <- c('camera', 'cameraPR')
   min.logFC <- log2(1.25)
   max.padj <- 0.10
   mg <- multiGSEA(gsd, vm, vm$design, methods=methods,
@@ -35,7 +35,7 @@ test_that("multiGSEA wrapper generates same results as individual do.*", {
   ## Some GSEA results use sampling and their outputs only converge under higher
   ## iterations, which will slow down testing. To avoid that we just use methods
   ## that are deterministic.
-  no.random <- c('camera', 'hyperGeometricTest')
+  no.random <- c('camera', 'cameraPR')
   for (m in no.random) {
     do.x <- do[[m]]
     mg.x <- mg@results[[m]]

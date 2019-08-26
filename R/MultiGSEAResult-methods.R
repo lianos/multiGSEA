@@ -133,13 +133,21 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor')
 #' head(geneSetsStats(mg))
 geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
-                          trim=0.10, as.dt=FALSE) {
+                          trim=0.10, reannotate.significance = FALSE,
+                          as.dt=FALSE) {
   stopifnot(is(x, 'MultiGSEAResult'))
   lfc <- logFC(x, as.dt=TRUE)
 
+  # reannotate.significance was added to better accomodate annotations that
+  # were passed in the xmeta. data.frame through the multiGSEA call. You
+  # should revisit this when you revisit how data.frame input support superseds
+  # the xmeta. hacks we have in place now.
   annotate.lfc <- !missing(feature.min.logFC) ||
-    !missing(feature.max.padj) ||
+    !missing(feature.max.padj)
+  annotate.lfc <- annotate.lfc && reannotate.significance
+  annotate.lfc <- annotate.lfc ||
     !all(c('significant', 'direction') %in% names(lfc))
+
 
   is.ttest <- "logFC" %in% names(lfc)
   if (annotate.lfc) {

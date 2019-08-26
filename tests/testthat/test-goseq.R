@@ -68,31 +68,3 @@ test_that("internal goseq mimics goseq package", {
   expect_equal(my2$n, goseq.res$numInCat)
   expect_equal(my2$n.sig, goseq.res$numDEInCat)
 })
-
-
-
-test_that("goseq hypergeometric pvals close to do.hyperGeometricTest", {
-  vm <- exampleExpressionSet()
-  gsl <- exampleGeneSets()
-  gsd <- GeneSetDb(gsl)
-  gsd <- conform(gsd, vm)
-  mylens <- setNames(vm$genes$size, rownames(vm))
-
-  mg <- multiGSEA(gsd, vm, vm$design)
-  lfc <- logFC(mg)
-  selected <- subset(lfc, significant)$featureId
-  universe <- rownames(vm)
-
-  mygoh <- suppressWarnings({
-    multiGSEA::goseq(gsd, selected, universe, method='Hypergeometric',
-                     feature.bias=mylens)
-  })
-
-  myhyp <- multiGSEA::hyperGeometricTest(gsd, selected, universe)
-  if (FALSE) {
-    plot(-log10(mygoh$over_represented_pvalue), -log10(myhyp$pval))
-    abline(0,1,col='red')
-  }
-
-  expect_equal(mygoh$over_represented_pvalue, myhyp$pval, tolerance=0.025)
-})

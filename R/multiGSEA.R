@@ -32,12 +32,12 @@
 #'
 #' - `"camera"`: from [limma::camera()] (*)
 #' - `"cameraPR"`: from [limma::cameraPR()]
+#' - `"enrichtest"`: from [limma::kegga()] (optionally biased) hypergeometic test
 #' - `"roast"`: from [limma::roast()] (*)
 #' - `"fry"`: from [limma::fry()] (*)
 #' - `"romer"`: from [limma::romer()] (*)
 #' - `"geneSetTest"`: from [limma::geneSetTest()]
 #' - `"goseq"`: from [goseq::goseq()]
-#' - `"hyperGeometricTest"`
 #' - `"fgsea"`: from [fgsea::fgsea()]
 #'
 #' Methods annotated with a `(*)` indicate that these methods require
@@ -268,7 +268,8 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   out <- .MultiGSEAResult(gsd=gsd, results=results, logFC=logFC)
   gs.stats <- geneSetsStats(out, feature.min.logFC=feature.min.logFC,
                             feature.max.padj=feature.max.padj,
-                            trim=trim, as.dt=TRUE)
+                            trim=trim, reannotate.significance = FALSE,
+                            as.dt=TRUE)
   axe.gsd.cols <- setdiff(colnames(gs.stats), c('collection', 'name'))
   axe.gsd.cols <- intersect(axe.gsd.cols, colnames(out@gsd@table))
   new.table <- copy(out@gsd@table)

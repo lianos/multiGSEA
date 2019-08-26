@@ -59,7 +59,7 @@ Let's define a few variables that will be used to customize the output:
 
 ```{r init-vars, cache=TRUE}
 ## The GSEA methods we want to run
-gsea.methods <- c('camera', 'geneSetTest', 'hyperGeometricTest', 'roast')
+gsea.methods <- c('camera', 'geneSetTest', 'enrichtest', 'roast')
 
 ## The ExpessionSet we will be analyzing. multiGSEA provides a convenience
 ## function to provide a subset of samples from the TCGA/BRCA indication
@@ -327,27 +327,25 @@ methods.
 
 Let's imagine you've done your own analysis, and have a list of "selected" genes
 you want to test enrichment for against a `GeneSetDb` using the traditional
-hypergeometric approach. `multiGSEA` provides the `hyperGeometricTest` for
-this purpose.
+hypergeometric approach. `multiGSEA` provides the `enrichtest`method, which
+is a wrappter to `limma::kegga` that works with a `GeneSetDb` object. The test
+can optionally adjust for dge detection by controlling for a numeric covariate,
+such as gene length (like "goseq" does).
+
 
 Here we show how to do this enrichment for genes upregulated in tumors vs.
 normals against the panther pathways.
 
-
 ```{r manual-hyperG, eval=TRUE}
-## The up regulated genes in tumor vs normal
+# The up regulated genes in tumor vs normal
 lfc <- logFC(mg)
-selected <- subset(lfc, padj <= 0.1 & logFC >= 1L)$featureId
 
-## conforming the GeneSetDb to the entirety of the genes that were tested
-## aginst defines the universe for the hypergeometric test. This is done
-## automatically in the `hyperGeometricTest` call if need be.
-gsdc <- conform(gsd, lfc$featureId)
-hg.res <- hyperGeometricTest(gsdc, selected, lfc$featureId)
+# Run an unbiased hypergeometric test
+enriced <- enrichtest(gsd, lfc, selected = "significant")
 ```
 
 These are the pathways with an FDR <= 0.3:
 
-`r knitr::kable(subset(hg.res, padj < 0.1))`
+`r knitr::kable(subset(enriched, P.all < 0.1)`
 
 ## Manual goseq Testing

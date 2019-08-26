@@ -102,12 +102,12 @@ You can choose the methods you want to run over your contrast using the
 \itemize{
 \item \code{"camera"}: from \code{\link[limma:camera]{limma::camera()}} (*)
 \item \code{"cameraPR"}: from \code{\link[limma:cameraPR]{limma::cameraPR()}}
+\item \code{"enrichtest"}: from \code{\link[limma:kegga]{limma::kegga()}} (optionally biased) hypergeometic test
 \item \code{"roast"}: from \code{\link[limma:roast]{limma::roast()}} (*)
 \item \code{"fry"}: from \code{\link[limma:fry]{limma::fry()}} (*)
 \item \code{"romer"}: from \code{\link[limma:romer]{limma::romer()}} (*)
 \item \code{"geneSetTest"}: from \code{\link[limma:geneSetTest]{limma::geneSetTest()}}
 \item \code{"goseq"}: from \code{\link[goseq:goseq]{goseq::goseq()}}
-\item \code{"hyperGeometricTest"}
 \item \code{"fgsea"}: from \code{\link[fgsea:fgsea]{fgsea::fgsea()}}
 }
 

@@ -6,7 +6,7 @@
 \usage{
 goseq(gsd, selected, universe, feature.bias, method = c("Wallenius",
   "Sampling", "Hypergeometric"), repcnt = 2000,
-  use_genes_without_cat = TRUE, plot.fit = TRUE, do.conform = TRUE,
+  use_genes_without_cat = TRUE, plot.fit = FALSE, do.conform = TRUE,
   as.dt = FALSE, .pipelined = FALSE)
 }
 \arguments{

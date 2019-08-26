@@ -15,10 +15,6 @@
 #' @return a character vector of GSEA names, or a list of metadata for each
 #'   method.
 multiGSEA.methods <- function(names.only = TRUE) {
-  c('camera', 'cameraPR', 'roast', 'fry', 'romer', 'geneSetTest',
-    'goseq', 'hyperGeometricTest', 'fgsea',
-    'svdGeneSetTest', 'logFC')
-
   methods <- list(
     camera = list(package = "edgeR", type = "required"),
     cameraPR = list(package = "edgeR", type = "required"),
@@ -26,7 +22,6 @@ multiGSEA.methods <- function(names.only = TRUE) {
     geneSetTest = list(package = "edgeR", type = "required"),
     goseq = list(package = "goseq", type = "suggested"),
     logFC = list(package="multiGSEA", type = "required"),
-    hyperGeometricTest = list(package = "multiGSEA", type = "required"),
     enrichtest = list(package = "limma", type = "required"),
     fry = list(package = "edgeR", type = "required"),
     roast = list(package = "edgeR", type = "required"),

@@ -66,24 +66,29 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
 
   # no bias correction
   e1 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction")
-  g1 <- multiGSEA::goseq(
-    gdb.,
-    subset(dfinput, selected)$feature_id,
-    dfinput$feature_id,
-    setNames(dfinput$effective_length, dfinput$feature_id),
-    method = "Hypergeometric")
+  g1 <- expect_warning({
+    multiGSEA::goseq(
+      gdb.,
+      subset(dfinput, selected)$feature_id,
+      dfinput$feature_id,
+      setNames(dfinput$effective_length, dfinput$feature_id),
+      method = "Hypergeometric")
+  }, "initial point")
+
   expect_equal(e1$Pathway, g1$category)
   expect_equal(e1$P.all, g1$over_represented_pvalue)
 
   # length correction
   e2 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction",
                    feature.bias = "effective_length")
-  g2 <- multiGSEA::goseq(
-    gdb.,
-    subset(dfinput, selected)$feature_id,
-    dfinput$feature_id,
-    setNames(dfinput$effective_length, dfinput$feature_id),
-    method = "Wallenius")
+  g2 <- expect_warning({
+    multiGSEA::goseq(
+      gdb.,
+      subset(dfinput, selected)$feature_id,
+      dfinput$feature_id,
+      setNames(dfinput$effective_length, dfinput$feature_id),
+      method = "Wallenius")
+  }, "initial point")
 
   if (FALSE) {
     par(mfrow = c(1, 2))

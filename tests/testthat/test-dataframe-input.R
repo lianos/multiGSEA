@@ -1,9 +1,6 @@
 context("data.frame ranks/DGE input to multiGSEA")
 
-xdf <- read.csv(system.file("extdata", "testdata", "dataframe-input.csv",
-                            package = "multiGSEA"), stringsAsFactors = FALSE)
-xdf$significant <- abs(xdf$logFC) > 1 & xdf$padj <= 0.10
-
+xdf <- exampleDgeResult()
 scores <- setNames(xdf$logFC, xdf$feature_id)
 
 gdb <- getMSigGeneSetDb("h", "human", "ensembl")
@@ -37,11 +34,11 @@ test_that("enrichment-based methods work", {
       selected = subset(xdf, significant)$feature_id,
       universe = xdf$feature_id,
       feature.bias = fbias)
-  }, "collapsing.*unique.*values")
+  }, "initial point")
 
   expect_equal(mgres$key, gseq$category)
   expect_equal(mgres$pval, gseq$over_represented_pvalue)
   expect_equal(mgres$pval.under, gseq$under_represented_pvalue)
-  expect_equal(mgres$n.sig, gseq$numDEInCat)
+  expect_equal(mgres$n.drawn, gseq$numDEInCat)
   expect_equal(mgres$n, gseq$numInCat)
 })

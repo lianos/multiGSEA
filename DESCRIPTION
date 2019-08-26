@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.12.11
+Version: 0.12.12
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("cph", "fnd"), comment = "2018+"),
@@ -79,7 +79,6 @@ Collate:
     'do.fry.R'
     'do.geneSetTest.R'
     'do.goseq.R'
-    'do.hyperGeometricTest.R'
     'do.logFC.R'
     'do.roast.R'
     'do.romer.R'
