@@ -209,7 +209,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   if (!is.logical(logFC[["significant"]])) {
     # If xmeta. was passed in, it may already have been defined
     logFC[, significant := {
-      if (test_type == "anova" || !is.numeric(logFC[["logFC"]])) {
+      if (test_type == "anova" || !is.numeric(logFC)) {
         padj <= feature.max.padj
       } else {
         padj <= feature.max.padj & abs(logFC) >= feature.min.logFC

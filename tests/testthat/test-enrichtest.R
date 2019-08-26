@@ -43,12 +43,12 @@ test_that("induced length associattion to significance is accounted for", {
 test_that("enrichtest,groups variable accepts column or list", {
   dfinput <- exampleDgeResult("human", "ensembl")
   group.list <- split(dfinput$feature_id, dfinput$direction)
-  group.cols <- paste0("P.", c("all", "down", "up"))
+  p.cols <- paste0("P.", c("all", "down", "up"))
 
-  g1 <- enrichtest(gdb, dfinput, selected = "selected", groups = "direction")
-  g2 <- enrichtest(gdb, dfinput, selected = "selected", groups = group.list)
+  g1 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction")
+  g2 <- enrichtest(gdb., dfinput, selected = "selected", groups = group.list)
   expect_equal(g1$Pathway, g2$Pathway)
-  for (pname in group.cols) {
+  for (pname in p.cols) {
     expect_numeric(g1[[pname]], info = pname)
     expect_equal(g1[[pname]], g2[[pname]], info = pname)
   }
@@ -56,7 +56,7 @@ test_that("enrichtest,groups variable accepts column or list", {
   # This is some metadata that is required for correctly processing these
   # results inside the 'multiGSEA' pipeline
   expect_true(attr(g1, "mgunlist"))
-  expect_setequal(attr(g1, "groups"), group.cols)
+  expect_setequal(attr(g1, "groups"), c("all", names(group.list)))
   expect_true(attr(g1, "rawresult"))
 })
 
@@ -65,9 +65,9 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
                               induce.bias = "effective_length")
 
   # no bias correction
-  e1 <- enrichtest(gdb, dfinput, selected = "selected", groups = "direction")
+  e1 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction")
   g1 <- multiGSEA::goseq(
-    gdb,
+    gdb.,
     subset(dfinput, selected)$feature_id,
     dfinput$feature_id,
     setNames(dfinput$effective_length, dfinput$feature_id),
@@ -76,10 +76,10 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
   expect_equal(e1$P.all, g1$over_represented_pvalue)
 
   # length correction
-  e2 <- enrichtest(gdb, dfinput, selected = "selected", groups = "direction",
+  e2 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction",
                    feature.bias = "effective_length")
   g2 <- multiGSEA::goseq(
-    gdb,
+    gdb.,
     subset(dfinput, selected)$feature_id,
     dfinput$feature_id,
     setNames(dfinput$effective_length, dfinput$feature_id),
@@ -107,4 +107,35 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
   # test that average difference is less than a threshold
   pval.diff <- abs(e2$P.all - g2$over_represented_pvalue)
   expect_lt(mean(pval.diff), 0.025)
+})
+
+test_that("'naked' enrichtest call vs multiGSEA pipeline are equivalent", {
+  dfinput <- exampleDgeResult("human", "ensembl",
+                              induce.bias = "effective_length")
+  nres <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction",
+                     feature.bias = "effective_length")
+  mres <- multiGSEA(gdb., setNames(dfinput$t, dfinput$feature_id),
+                    methods = "enrichtest", feature.bias = "effective_length",
+                    xmeta. = dfinput)
+
+  groups <- c(all = "enrichtest", up = "enrichtest.up",
+              down = "enrichtest.down")
+  expect_setequal(resultNames(mres), groups)
+
+  for (i in seq(groups)) {
+    # Call enrichtest direct
+    ename <- names(groups)[i]
+    pcol <- paste0("P.", ename)
+    cmp <- nres[, c("Pathway", "N", ename, pcol)]
+
+    # Pull out of MultiGSEAResult object
+    mname <- groups[i]
+    mg <- result(mres, mname)
+    mg <- mg[, c("collection", "name", "N", "n", "n.drawn", "pval")]
+
+    expect_equal(mg$name, sub(".*;;", "", nres$Pathway), info = ename)
+    expect_equal(mg$n, cmp$N, info = ename)
+    expect_equal(mg$n.drawn, cmp[[ename]], info = ename)
+    expect_equal(mg$pval, cmp[[pcol]], info = ename)
+  }
 })

@@ -1,6 +1,9 @@
+#' @include validateInputs.R
+NULL
+
 validate.x.enrichtest <- validate.X
-vaidate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
-                                      xmeta. = NULL, ...) {
+validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
+                                       xmeta. = NULL, ...) {
   if (!is.data.frame(xmeta.)) {
     default <- .validate.inputs.full.design(x, design, contrast)
     if (length(default)) {
@@ -99,12 +102,41 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
   res <- enrichtest(gsd, logFC, selected = "significant",
                     groups = groups,
                     feature.bias = feature.bias,
-                    restrict.universe = restrict.universe)
-  res.groups <- colnames(res)[grep("P\\..*$", colnames(res))]
-  ngroups <- length(res.groups)
-  setattr(res, "mgunlist", ngroups > 1L)
-  setattr()
-  res
+                    restrict.universe = restrict.universe,
+                    as.dt = TRUE)
+
+  base <- res[, list(Pathway, n = N)]
+  groups <- attr(res, "groups")
+  if (is.null(groups)) groups <- "all"
+
+  out <- sapply(groups, function(group) {
+    grp <- copy(base)
+    grp[, n.drawn := res[[group]]]
+    grp[, pval := res[[paste0("P.", group)]]]
+    setattr(grp, "rawresult", TRUE)
+    grp
+  }, simplify = FALSE)
+
+  if (length(out) == 1L) {
+    out <- out[[1L]]
+  } else {
+    setattr(out, 'mgunlist', TRUE)
+  }
+
+  out
+}
+
+mgres.enrichtest <- function(res, gsd, ...) {
+  if (!isTRUE(attr(res, "rawresult"))) return(res)
+  stopifnot(is.data.frame(res), is(gsd, "GeneSetDb"))
+  res <- copy(res)[, n := NULL]
+  gs <- copy(geneSets(gsd, active.only=TRUE, as.dt=TRUE))
+  gs <- gs[, list(collection, name, N, n, idx = seq_along(name))]
+  gs[, Pathway := encode_gskey(gs)]
+  out <- merge(gs, res, by = "Pathway")
+  stopifnot(isTRUE(all.equal(out$idx, 1:nrow(out))))
+  out[, Pathway := NULL][, idx := NULL]
+  out[, padj := p.adjust(pval, 'BH')]
 }
 
 #' Performs enrichment based testing while (optinally) accounting for bias.
@@ -188,6 +220,8 @@ enrichtest <- function(gsd, dat, selected = "significant",
                        as.dt = FALSE, .pipelined = FALSE) {
   dat <- validate.xmeta(dat) # enforse featureId column
   if (is.null(universe)) universe <- dat[["featureId"]]
+
+  # If this is .pipelined, do we have to conform? I should check that.
   gsd <- conform(gsd, universe, ...)
 
   if (test_string(selected) && test_logical(dat[[selected]])) {
@@ -281,7 +315,10 @@ enrichtest <- function(gsd, dat, selected = "significant",
   }
 
   res.groups <- colnames(kres)[grep("P\\..*$", colnames(kres))]
+  res.groups <- sub("P\\.", "", res.groups)
   ngroups <- length(res.groups)
+
+  kres <- if (as.dt) setDT(kres) else setDF(kres)
 
   setattr(kres, "mgunlist", ngroups > 1L)
   setattr(kres, "groups", res.groups)

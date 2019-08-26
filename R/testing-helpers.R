@@ -157,5 +157,6 @@ exampleDgeResult <- function(species = "human", id.type = "ensembl",
     o <- order(out[["pval"]])
     out[[bias]][o] <- sort(out[[bias]], decreasing = TRUE)
   }
+  out$significant <- out$selected
   out
 }

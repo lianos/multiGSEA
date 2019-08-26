@@ -20,7 +20,8 @@ exampleGeneSetDF()
 
 exampleMultiGSEAResult(cached = TRUE)
 
-exampleDgeResult(species = "human", id.type = "ensembl")
+exampleDgeResult(species = "human", id.type = "ensembl",
+  induce.bias = NULL)
 }
 \arguments{
 \item{dataset}{Character vector indicating what samples wanted, either

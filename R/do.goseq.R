@@ -86,7 +86,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
                      plot.fit=FALSE, use.treat=FALSE,
                      feature.min.logFC=if (use.treat) log2(1.25) else 1,
                      feature.max.padj=0.10, logFC=NULL, ...) {
-  .Deprecated("multiGSEA(..., methods = 'enrich')")
+  # .Deprecated("multiGSEA(..., methods = 'enrich')")
 
   stopifnot(is.conformed(gsd, x))
   direction <- match.arg(direction)
@@ -186,7 +186,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 goseq <- function(gsd, selected, universe, feature.bias,
                   method=c("Wallenius", "Sampling", "Hypergeometric"),
                   repcnt=2000, use_genes_without_cat=TRUE,
-                  plot.fit=TRUE, do.conform=TRUE, as.dt=FALSE,
+                  plot.fit=FALSE, do.conform=TRUE, as.dt=FALSE,
                   .pipelined=FALSE) {
   gseq <- tryCatch(loadNamespace("goseq"), error=function(e) NULL)
   if (is.null(goseq)) {
