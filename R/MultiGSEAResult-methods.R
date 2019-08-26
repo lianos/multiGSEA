@@ -375,6 +375,13 @@ result.MultiGSEAResult <- function(x, name = NULL, stats.only=FALSE,
     setnames(out, rename.cols, paste(rename.cols, name, sep='.'))
   }
 
+  # let's get the pvalue related columns up front
+  upfront <- c(
+    "collection", "name", "active", "N", "n",
+    names(out)[grepl('^(pval\\.?|padj\\.?)', names(out))])
+  upfront <- intersect(upfront, names(out))
+  setcolorder(out, upfront)
+
   if (!as.dt) setDF(out)
   out
 }
@@ -415,6 +422,13 @@ results <- function(x, names=resultNames(x), stats.only=TRUE,
         out[, (col) := res[[col]]]
       }
     }
+
+    # let's get the pvalue related columns up front
+    upfront <- c(
+      "collection", "name", "active", "N", "n",
+      names(out)[grepl('^(pval\\.?|padj\\.?)', names(out))])
+    upfront <- intersect(upfront, names(out))
+    setcolorder(out, upfront)
 
     if (!as.dt) setDF(out)
   }

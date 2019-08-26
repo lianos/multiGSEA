@@ -19,6 +19,7 @@ output:
     toc: true
     fig_width: 5
     css: mystyles.css
+    df_print: paged
 vignette: >
   %\VignetteIndexEntry{Performing gene set enrichment analyses with multiGSEA}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,6 +28,7 @@ vignette: >
 
 ```{r init, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 library(multiGSEA)
+library(dplyr)
 knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE) #, dpi=150)
 
@@ -69,20 +71,24 @@ data objects used for differential expression analysis, namely:
 * A design matrix
 * A contrast vector/matrix (if your design and comparison require it)
 
-Other methods only require the user to provide a vector of statistics that
-represent some differential expression statistic per gene, and the GSEA is
+Other methods only require the user to provide a ranked vector of statistics
+that represent some differential expression statistic per gene, and the GSEA is
 performed by analyzing the ranks of genes within this vector.
 
 The user can invoke one `multiGSEA` call that can orchestrate multiple analyses
 of any type.
 
-All GSEA methods require the use of a `GeneSetDb`.
+All GSEA methods require the use of a `GeneSetDb` object, which is a new class
+provided by this package that holds geneset collection information which is
+stored primarily as tables / data.frames.
 
 Currently supported gene set enrichment methods include:
 
 ```{r multiGSEA-methods, results='asis', echo=FALSE}
-meths <- setdiff(multiGSEA.methods(), c('logFC', 'svdGeneSetTest'))
-cat(sprintf('* %s\n', meths))
+# meths <- setdiff(multiGSEA.methods(), c('logFC', 'svdGeneSetTest'))
+# cat(sprintf('* %s\n', meths))
+multiGSEA_methods() %>% 
+  select(method, test_type, package, comment)
 ```
 
 When using these methods in analyses that lead to publication, please cite
@@ -139,7 +145,8 @@ vm <- exampleExpressionSet(dataset = "tumor-subtype", do.voom = TRUE)
 Below you'll find the `$targets` data.frame of the voomed `EList`
 
 ```{r}
-knitr::kable(vm$targets[, c('Patient_ID', 'Cancer_Status', 'PAM50subtype')])
+vm$targets %>% 
+  select(Patient_ID, Cancer_Status, PAM50subtype)
 ```
 
 <div class="note">
@@ -239,13 +246,15 @@ The call to `multiGSEA` will perform these analyses and return a
 ```{r run-multi-GSEA, eval=!exists('mg'), results='hide', warning=FALSE}
 mg <- multiGSEA(
   gdb, vm, vm$design, cm[, 'BvH'],
-  methods=c('camera', 'fry', 'goseq'),
-  ## these parameters define which genes are differentially expressed
-  feature.max.padj=0.05, feature.min.logFC=1,
-  ## for camera:
-  inter.gene.cor=0.01,
-  ## for goseq (the *.max.padj and *.min.logFC parameters also affect goseq)
-  feature.bias=setNames(vm$genes$size, rownames(vm)))
+  methods = c('camera', 'fry', 'enrichtest'),
+  # these parameters define which genes are differentially expressed
+  feature.max.padj = 0.05, feature.min.logFC = 1,
+  # for camera:
+  inter.gene.cor = 0.01,
+  # specifies the numeric covariate to bias-correct for
+  # "size" is found in the vm$genes data.frame, which makes its way to the 
+  # internal DGE statistics table ... more on that later
+  feature.bias = "size")
 ```
 
 We will unpack the details of the `multiGSEA` call shortly ...
@@ -329,7 +338,7 @@ the `result` function (or several can be returned with `results`):
 
 ```{r goseq-res}
 cam.res <- result(mg, 'camera')
-cam.go.res <- results(mg, c('camera', 'goseq.up'))
+cam.go.res <- results(mg, c('camera', 'enrichtest.up'))
 ```
 
 You can identify genesets with the strongest enrichment by filtering and sorting

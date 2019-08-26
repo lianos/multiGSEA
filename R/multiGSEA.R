@@ -180,9 +180,14 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     is.numeric(feature.max.padj) && length(feature.max.padj) == 1L,
     is.numeric(trim) && length(trim) == 1L)
 
+  if (is.null(xmeta.) && !is.null(fdata(x))) {
+    xmeta. <- fdata(x)
+    xmeta.[["featureId"]] <- rownames(x)
+  }
+
   # ----------------------------------------------------------------------------
   # Argument sanity checking and input sanitization
-  args <- list(gsd=gsd, x=x, design=design, contrast=contrast)
+
   inputs <- validateInputs(x, design, contrast, methods, xmeta. = xmeta.,
                            require.x.rownames=TRUE, ...)
 

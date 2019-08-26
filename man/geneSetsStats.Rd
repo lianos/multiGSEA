@@ -5,7 +5,7 @@
 \title{Summarizes useful statistics per gene set from a MultiGSEAResult}
 \usage{
 geneSetsStats(x, feature.min.logFC = 1, feature.max.padj = 0.1,
-  trim = 0.1, as.dt = FALSE)
+  trim = 0.1, reannotate.significance = FALSE, as.dt = FALSE)
 }
 \arguments{
 \item{x}{A \code{MultiGSEAResult} object}

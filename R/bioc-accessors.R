@@ -5,6 +5,10 @@ fdata <- function(x, as.df = FALSE, ...) {
   UseMethod("fdata", x)
 }
 
+#' @noRd
+#' @export
+fdata.default <- function(x, ...) NULL
+
 `fdata<-` <- function(x, value) {
   UseMethod("fdata<-", x)
 }
@@ -13,6 +17,10 @@ fdata <- function(x, as.df = FALSE, ...) {
 pdata <- function(x, as.df = FALSE, ...) {
   UseMethod("pdata", x)
 }
+
+#' @noRd
+#' @export
+pdata.default <- function(x, ...) NULL
 
 `pdata<-` <- function(x, value) {
   UseMethod("pdata<-", x)
