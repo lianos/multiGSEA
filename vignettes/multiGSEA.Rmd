@@ -29,6 +29,13 @@ vignette: >
 library(multiGSEA)
 knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE) #, dpi=150)
+
+# TODO: 
+# 1. update text to favor `enrichtest`
+# 2. describe how its data.frame input works (enrichtest)
+# 3. provide a brief comparison to its performance vs goseq, with and without 
+#    accounting for bias). You can take the code for that from the 
+#    enrichtest/goseq PAC unit test.
 ```
 
 # Overview
