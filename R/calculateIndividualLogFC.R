@@ -172,6 +172,11 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
     out[, ID := NULL]
   }
 
+  if (test_type == "anova") {
+    out[, logFC := NA_real_]
+    out[, t := NA_real_]
+  }
+
   if (is.data.frame(xmeta.) && nrow(xmeta.) > 0L) {
     xmeta. <- try(validate.xmeta(xmeta.))
     if (!is.data.frame(xmeta.)) {

@@ -93,7 +93,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
   if (is.character(methods)) {
     errs.all <- sapply(methods, function(method) {
       fn <- getFunction(paste0('validate.inputs.', method))
-      errs <- fn(x, design, contrast, xmeta., ...)
+      errs <- fn(x, design, contrast, xmeta. = xmeta., ...)
     }, simplify=FALSE)
 
     errs.un <- unlist(errs.all)

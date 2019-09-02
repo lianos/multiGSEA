@@ -109,3 +109,21 @@ test_that("edgeR's glmLRT or QLF are used when asked", {
   # Pvalues from QLF and LRT should not be the same
   expect_false(isTRUE(all.equal(logFC(mgq)$pval, logFC(mgl)$pval)))
 })
+
+test_that("calculateIndividualLogFC supports basic ANOVA", {
+  y <- exampleExpressionSet('tumor-subtype', do.voom=FALSE)
+  d0 <- y$design
+  di <- model.matrix(~ PAM50subtype, data = y$samples)
+  vm <- voom(y, di)
+  anova.res <- lmFit(vm, vm$design) %>%
+    eBayes() %>%
+    topTable(coef = 2:3, n = Inf)
+
+  lfc <- calculateIndividualLogFC(vm, vm$design, 2:3)
+
+  cmp <- merge(
+    anova.res[, c("symbol", "entrez_id", "F", "P.Value")],
+    lfc[, c("entrez_id", "F", "pval")], by = "entrez_id")
+  expect_equal(cmp$F.x, cmp$F.y)
+  expect_equal(cmp$P.Value, cmp$pval)
+})

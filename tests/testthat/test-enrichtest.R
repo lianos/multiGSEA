@@ -144,3 +144,14 @@ test_that("'naked' enrichtest call vs multiGSEA pipeline are equivalent", {
     expect_equal(mg$pval, cmp[[pcol]], info = ename)
   }
 })
+
+test_that("enrichtest over ANOVA anaysis works through multiGEAS", {
+  y <- exampleExpressionSet('tumor-subtype', do.voom=FALSE)
+  di <- model.matrix(~ PAM50subtype, data = y$samples)
+  vm <- voom(y, di)
+  gdb <- exampleGeneSetDb()
+  mg <- multiGSEA(gdb, vm, vm$design, contrast = 2:3, methods = "enrichtest")
+  r <- result(mg)
+  expect_numeric(r[["pval"]])
+  expect_true(sum(r[["pval"]] < 0.002) > 0)
+})

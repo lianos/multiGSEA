@@ -87,11 +87,16 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
     }]
   }
 
-  add.dir <- groups == "direction" &&
+  ttype <- attr(logFC, "test_type")
+  add.dir <- isTRUE(groups == "direction") &&
+    isTRUE(ttype == "ttest") &&
     !is.character(logFC[["direction"]]) &&
     is.numeric(logFC[["logFC"]])
   if (add.dir) {
     logFC[["direction"]] <- ifelse(logFC[["logFC"]] > 0, "up", "down")
+  }
+  if (isTRUE(ttype == "anova") && isTRUE(groups == "direction")) {
+    groups <- NULL
   }
 
   if (is.character(groups) && !is.character(logFC[[groups]])) {

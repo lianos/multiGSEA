@@ -248,9 +248,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
       BPPARAM <- SerialParam(stop.on.error=FALSE)
     }
     stopifnot(is(BPPARAM, 'BiocParallelParam'))
-    message("methods: ", paste(methods, collapse = ","))
+    if (verbose) message("methods: ", paste(methods, collapse = ","))
     res1 <- bplapply(methods, function(method.) {
-      message("... ", method.)
+      if (verbose) message("... ", method.)
       tryCatch(mg.run(method., gsd, x, design, contrast, logFC, use.treat,
                       feature.min.logFC, feature.max.padj, verbose=verbose,
                       gs.idxs=gs.idxs, ...),
