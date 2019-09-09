@@ -30,6 +30,15 @@
 #' Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
 #' package (data files from AnnotationHub) to be installed/accessible.
 #'
+#' @section Citing the Molecular Signatures Database:
+#' To cite your use of the Molecular Signatures Database (MSigDB), please
+#' reference Subramanian, Tamayo, et al. (2005, PNAS 102, 15545-15550) and one
+#' or more of the following as appropriate:
+#'
+#' * Liberzon, et al. (2011, Bionformatics);
+#' * Liberzon, et al. (2015, Cell Systems); and
+#' * The source for the gene set as listed on the gene set page.
+#'
 #' @export
 #' @rdname MSigDB
 #'
