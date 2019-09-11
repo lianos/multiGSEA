@@ -34,15 +34,15 @@ Suggests:
     AnnotationDbi,
     BiasedUrn,
     Biobase (>= 2.24.0),
+    biomaRt,
     BiocStyle,
     DESeq2,
     dplyr,
     dtplyr,
-    GeneSetDb.MSigDB.Hsapiens.v61,
-    GeneSetDb.MSigDB.Mmusculus.v61,
     fgsea,
     GO.db,
     goseq,
+    msigdbr (>= 7.0.1),
     KernSmooth,
     knitr,
     org.Hs.eg.db,
@@ -52,11 +52,9 @@ Suggests:
     reshape2,
     SummarizedExperiment,
     statmod,
+    stringr,
     testthat,
     webshot
-Remotes: 
-    lianos/GeneSetDb.MSigDB.Hsapiens.v61,
-    lianos/GeneSetDb.MSigDB.Mmusculus.v61
 biocViews: DifferentialExpression, GeneExpression, GeneSetEnrichment, Pathways
 VignetteBuilder: knitr
 License: MIT + file LICENSE.md

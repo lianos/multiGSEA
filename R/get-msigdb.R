@@ -67,12 +67,13 @@ getMSigGeneSetDb <- function(collection, species='human',
                              id.type = c("entrez", "ensembl", "symbol"),
                              with.kegg=FALSE, species.specific=FALSE,
                              version=.msigdb.version.current) {
-  collections <- c("h", paste0("c", 1:7))
+  collection <- toupper(collection)
+  collections <- c("H", paste0("C", 1:7))
 
   species <- resolve.species(species)
-  if (species != "Homo_sapiens") {
-    collections <- setdiff(collections, "c1")
-  }
+  # if (species != "Homo_sapiens") {
+  #   collections <- setdiff(collections, "C1")
+  # }
   bad.coll <- setdiff(collection, collections)
   if (length(bad.coll)) {
     stop("These are invalied MSigDB collections: ", bad.coll)
