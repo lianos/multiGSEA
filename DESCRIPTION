@@ -56,6 +56,8 @@ Suggests:
     stringr,
     testthat,
     webshot
+Remotes:
+    lianos/GeneSetDb.MSigDB@master
 biocViews: DifferentialExpression, GeneExpression, GeneSetEnrichment, Pathways
 VignetteBuilder: knitr
 License: MIT + file LICENSE.md
