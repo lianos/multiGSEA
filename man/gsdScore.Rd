@@ -67,7 +67,7 @@ released GSDecon package by Jason Hackney}
 }
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
-gdb <- conform(getMSigGeneSetDb('h'), vm)
+gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
 features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
                        value='x.idx')
 scores <- gsdScore(vm[features,])$score

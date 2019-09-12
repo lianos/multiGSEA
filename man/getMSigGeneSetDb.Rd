@@ -4,9 +4,10 @@
 \alias{getMSigGeneSetDb}
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
-getMSigGeneSetDb(collection, species = "human", id.type = c("entrez",
-  "ensembl", "symbol"), with.kegg = FALSE, species.specific = FALSE,
-  version = .msigdb.version.current)
+getMSigGeneSetDb(collection = c("H", paste0("C", 1:7)),
+  species = "human", id.type = c("ensembl", "entrez", "symbol"),
+  with.kegg = FALSE, allow_multimap = TRUE, min_ortho_sources = 2,
+  version = NULL, ...)
 }
 \arguments{
 \item{collection}{character vector specifying the collections you want
@@ -20,11 +21,9 @@ restricted license, so by default we do not return them as part of the
 GeneSetDb. To include the KEGG gene sets when asking for the c2
 collection, set this flag to \code{TRUE}.}
 
-\item{species.specific}{Many of the genesets defined in MSigDB are annotated
-with the organism from which the experiment was conducted and which the
-geneset was extracted from. If this is set to \code{TRUE}, then only
-gene sets that match \code{species} will be included. Default is
-\code{FALSE}.}
+\item{allow_multimap, min_ortho_sources}{configure how to handle orthology
+mapping (allow multimappers, and what type of level of db suport required).
+See help in \code{\link[GeneSetDb.MSigDB:msigdb_retrieve]{GeneSetDb.MSigDB::msigdb_retrieve()}}}
 
 \item{version}{the version of the MSigDB database to use.}
 }
@@ -54,6 +53,18 @@ to the licensing restricions of the genesets provided herein.
 Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
 package (data files from AnnotationHub) to be installed/accessible.
 }
+\section{Citing the Molecular Signatures Database}{
+
+To cite your use of the Molecular Signatures Database (MSigDB), please
+reference Subramanian, Tamayo, et al. (2005, PNAS 102, 15545-15550) and one
+or more of the following as appropriate:
+\itemize{
+\item Liberzon, et al. (2011, Bionformatics);
+\item Liberzon, et al. (2015, Cell Systems); and
+\item The source for the gene set as listed on the gene set page.
+}
+}
+
 \examples{
 \dontrun{
   gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")

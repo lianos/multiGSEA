@@ -20,11 +20,11 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
   db.result <- res %>%
     dplyr::select(collection, name, starts_with('featureId_')) %>%
     melt(c('collection', 'name')) %>%
-    setDT %>%
-    dplyr::rename(featureId=variable, present=value) %>%
+      dplyr::rename(featureId=variable, present=value) %>%
     dplyr::mutate(featureId=sub('featureId_', '', featureId)) %>%
     dplyr::filter(present) %>%
     dplyr::select(-present) %>%
+    setDT() %>%
     setkeyv(key(db.expect))
   expect_equal(db.result, db.expect)
 })

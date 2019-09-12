@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' vm <- exampleExpressionSet()
-#' gdb <- getMSigGeneSetDb('h', 'human')
+#' gdb <- getMSigGeneSetDb('h', 'human', "entrez")
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 #' lfc <- logFC(mg)
 #' annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
@@ -223,7 +223,7 @@ is.conformed <- function(x, to) {
 #'
 #' @examples
 #' vm <- exampleExpressionSet()
-#' gdb <- getMSigGeneSetDb('h', 'human')
+#' gdb <- getMSigGeneSetDb('h', 'human', 'entrez')
 #' im <- incidenceMatrix(gdb)
 #' imv <- incidenceMatrix(gdb, vm)
 incidenceMatrix <- function(x, y, ...) {
@@ -637,6 +637,8 @@ setMethod("collectionMetadata",
     cmd$value[[idx]]
   })
 
+#' TODO: This should accept a data.frame of collect,name combos
+#' @noRd
 setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
   stopifnot(is.character(i), is.character(j), length(i) == length(j))
   collections <- unique(i)
@@ -802,6 +804,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
     setkeyv(cm, key(x@collectionMetadata))
     x@collectionMetadata <- cm
   } else {
+    if (!is.list(value)) value <- list(value)
     x@collectionMetadata$value[[idx]] <- value
   }
   x
@@ -947,6 +950,8 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   out
 })
 
+#' @importMethodsFrom BiocGenerics nrow
+#' @exportMethod nrow
 setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x, as.dt=TRUE)))
 
 #' Checks equality (feature parity) between GeneSetDb objects
@@ -962,7 +967,7 @@ setMethod("nrow", "GeneSetDb", function(x) nrow(geneSets(x, as.dt=TRUE)))
 #'   want to ignore for the purposes of the equality test.
 #' @param ... moar args.
 #' @return `TRUE` if equal, or \code{character} vector of messages if not.
-all.equal.GeneSetDb <- function(target, current, features.only=FALSE, ...) {
+all.equal.GeneSetDb <- function(target, current, features.only = TRUE, ...) {
   stopifnot(is(target, 'GeneSetDb'))
   stopifnot(is(current, 'GeneSetDb'))
 

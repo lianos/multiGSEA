@@ -93,8 +93,8 @@ like so:\preformatted{url.fn <- function(collection, name) {
   url <- 'http://www.broadinstitute.org/gsea/msigdb/cards/\%s.html'
   sprintf(url, name)
 }
-gdb <- getMSigGeneSetDb('h')
-geneSetCollectionURLfunction(gdb, 'h') <- url.fn
+gdb <- getMSigGeneSetDb('H')
+geneSetCollectionURLfunction(gdb, 'H') <- url.fn
 }
 
 In this way, a call to \code{geneSetURL(gdb, 'h', 'HALLMARK_ANGIOGENESIS')}
@@ -112,10 +112,10 @@ be of the same type. Most often you'll probably be working with Entrez
 identifiers, simply because that's what most of the annotations work with.
 
 As such, you'd define that your collection uses geneset identifiers like
-so:\preformatted{gdb <- getMSigGeneSetDb('h')
-featureIdType(gdb, 'h') <- EntrezIdentifier()
+so:\preformatted{gdb <- getMSigGeneSetDb('H')
+featureIdType(gdb, 'H') <- GSEABase::ENSEMBLIdentifier()
 ## or, equivalently (but you don't want to use this)
-gdb <- addCollectionMetadata(gdb, 'h', 'id_type', EntrezIdentifier())
+gdb <- addCollectionMetadata(gdb, 'H', 'id_type', GSEABase::ENSEMBLIdentifier())
 }
 }
 
@@ -123,8 +123,8 @@ gdb <- addCollectionMetadata(gdb, 'h', 'id_type', EntrezIdentifier())
 
 
 You're going to want to keep track of the organism the experiments were run
-in that were used to define this collection of gene sets.\preformatted{gdb <- getMSigGeneSetDb('h')
-org(gdb, 'h') <- 'Homo_sapiens'
+in that were used to define this collection of gene sets.\preformatted{gdb <- getMSigGeneSetDb('H')
+org(gdb, 'H') <- 'Homo_sapiens'
 }
 }
 
@@ -143,11 +143,11 @@ gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
 }
 
 \examples{
-gdb <- getMSigGeneSetDb('h')
+gdb <- getMSigGeneSetDb('H')
 
 ## Gene Set URLs
-geneSetURL(gdb, 'h', 'HALLMARK_ADIPOGENESIS')
-geneSetURL(gdb, c('h', 'h'),
+geneSetURL(gdb, 'H', 'HALLMARK_ADIPOGENESIS')
+geneSetURL(gdb, c('H', 'H'),
            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 
 ## FeatureId TYpe

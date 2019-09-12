@@ -169,8 +169,10 @@ gsets <- geneSets(gdb.df)
 nkcells <- geneSet(gdb.df, 'cellularity', 'NK cells')
 fids <- featureIds(gdb.df)
 
-## GeneSetDb Manipulation
-## Subset ImmuneSigDB down to only gene sets defined from mouse
+# GeneSetDb Manipulation ....................................................
+# Subset ImmuneSigDB down to only gene sets defined from mouse
+# NOTE: This doesn't work with updated MSigDB collections
+\dontrun{
 idb <- getMSigGeneSetDb('c7', 'mouse')
 igs <- geneSets(idb)
 table(igs$organism)
@@ -178,6 +180,7 @@ table(igs$organism)
 ##         1888         2984
 idb.mm <- idb[igs$organism == 'Mus musculus']
 length(idb.mm) ## 2984
+}
 }
 \seealso{
 \code{?conversion}

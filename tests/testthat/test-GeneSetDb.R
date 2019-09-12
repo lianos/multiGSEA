@@ -8,9 +8,8 @@ context("GeneSetDb")
 ##      - collectionMetadata(x, collection, name)
 ##  * test collectionMetadata<- ensures single collection,name pairs
 
-gdb.h <- getMSigGeneSetDb(c('h'))
-# gdb.c2 <- getMSigGeneSetDb(c('c2'))
-gdb.c6 <- getMSigGeneSetDb(c('c6'))
+gdb.h <- getMSigGeneSetDb(c('h'), "human", "entrez")
+gdb.c6 <- getMSigGeneSetDb(c('c6'), "human", "entrez")
 
 test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   ## This test exercise both the single list and list-of-lists input for geneset
@@ -91,20 +90,20 @@ test_that("addGeneSetMetadata doesn't adds geneset metadata appropriately", {
 
 test_that("GeneSetDb contructor converts GeneSetCollection properly", {
   gsc <- as(gdb.h, 'GeneSetCollection')
-  gdbn <- GeneSetDb(gsc, collectionName='h')
+  gdbn <- GeneSetDb(gsc, collectionName = 'H')
   expect_equal(gdb.h, gdbn, features.only=TRUE)
 })
 
 test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
   gdbo <- append(gdb.h, gdb.c6)
 
-  gscl <- list(h=as(gdb.h, 'GeneSetCollection'),
-               c6=as(gdb.c6, 'GeneSetCollection'))
+  gscl <- list(H  = as(gdb.h, 'GeneSetCollection'),
+               C6 = as(gdb.c6, 'GeneSetCollection'))
   gdbn <- GeneSetDb(gscl)
 
   ## Ensure that collection names are preserved, since gscl is a named list
   ## of collections
-  expect_equal(gdbn, gdbo, features.only=TRUE)
+  expect_equal(gdbn, gdbo)
 })
 
 test_that("GeneSetDb constructor honors custom collectionName args", {
@@ -130,7 +129,7 @@ test_that("GeneSetDb constructor honors custom collectionName args", {
 })
 
 test_that("as(gdb, 'GeneSetCollection') preserves featureIds per GeneSet", {
-  gdb <- getMSigGeneSetDb(c('h', 'c6'))
+  gdb <- getMSigGeneSetDb(c('h', 'c6'), "human", "entrez")
   gsc <- as(gdb, 'GeneSetCollection')
   for (gs in gsc) {
     gs.info <- strsplit(GSEABase::setName(gs), ';')[[1]]
@@ -295,7 +294,7 @@ test_that("gene set metadata kept pre/post conform,GeneSetDb", {
 })
 
 test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
-  m <- getMSigGeneSetDb('h')
+  m <- getMSigGeneSetDb('h', "human", "entrez")
   r <- getReactomeGeneSetDb()
 
   a <- append(r, m)
@@ -314,7 +313,7 @@ test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
 
 test_that("as.*.GeneSetDb conversions honor `active.only` requests", {
   vm <- exampleExpressionSet()
-  gdb <- getMSigGeneSetDb(c('c2'))
+  gdb <- getMSigGeneSetDb(c('c2'), "human", "entrez")
   expect_warning(gdbc <- conform(gdb, vm)) ## fires off warning when genesets are dropped
 
   gs.all <- gdb@table$name
@@ -332,7 +331,7 @@ test_that("as.*.GeneSetDb conversions honor `active.only` requests", {
 
 test_that("Conformed GeneSetDb returns only matched genes on data.frame conversion", {
   vm <- exampleExpressionSet()
-  gdb <- getMSigGeneSetDb(c('c2'))
+  gdb <- getMSigGeneSetDb(c('c2'), "human", "entrez")
   expect_warning(gdbc <- conform(gdb, vm)) ## fires off warning when genesets are dropped
 
   gdb.df <- as.data.frame(gdb)
@@ -431,20 +430,24 @@ test_that("subsetByFeatures returns correct genesets for features", {
 
   db.all <- gdb@db
   db.sub <- gdb.sub@db
-  db.rest <- anti_join(db.all, db.sub, by=c('collection', 'name'))
+  db.rest <- anti_join(
+    as.data.frame(db.all),
+    as.data.frame(db.sub),
+    by=c('collection', 'name'))
+  db.rest <- as.data.table(db.rest)
 
-  ## db.sub + db.rest should == db.all
+  # db.sub + db.rest should == db.all
   expect_equal(nrow(db.sub) + nrow(db.rest), nrow(db.all))
 
-  ## 1. Ensure that each geneset in subsetted gdb (gdb.sub) has >= 1
-  ##    of requested features in its featureId column.
+  # 1. Ensure that each geneset in subsetted gdb (gdb.sub) has >= 1
+  #    of requested features in its featureId column.
   has.1 <- db.sub[, {
     list(N=.N, n=sum(featureId %in% features))
   }, by=c('collection', 'name')]
   expect_true(all(has.1$n >= 1))
 
-  ## 2. Ensure that any geneset not in the subsetted GeneSetDb doesn't have
-  ##    any of the requested features
+  # 2. Ensure that any geneset not in the subsetted GeneSetDb doesn't have
+  #    any of the requested features
   has.0 <- db.rest[, {
     list(N=.N, n=sum(featureId %in% features))
   }, by=c('collection', 'featureId')]
