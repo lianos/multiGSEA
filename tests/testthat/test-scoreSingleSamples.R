@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 })
 
 vm <- exampleExpressionSet()
-gdb <- getMSigGeneSetDb('h')
+gdb <- getMSigGeneSetDb("h", "human", "entrez")
 
 test_that("scoreSingleSamples can use genesets of size n = 1 and value is gene", {
   genes <- c(GZMA = "3001", PRF1 = "5551", TGFB1 = "7040")

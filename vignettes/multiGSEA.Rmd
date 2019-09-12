@@ -27,8 +27,6 @@ vignette: >
 ---
 
 ```{r init, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-library(multiGSEA)
-library(dplyr)
 knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE) #, dpi=150)
 
@@ -84,11 +82,11 @@ stored primarily as tables / data.frames.
 
 Currently supported gene set enrichment methods include:
 
-```{r multiGSEA-methods, results='asis', echo=FALSE}
+```{r multiGSEA-methods, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
 # meths <- setdiff(multiGSEA.methods(), c('logFC', 'svdGeneSetTest'))
 # cat(sprintf('* %s\n', meths))
-multiGSEA_methods() %>% 
-  select(method, test_type, package, comment)
+dplyr::select(multiGSEA::multiGSEA_methods(),
+              method, test_type, package, comment)
 ```
 
 When using these methods in analyses that lead to publication, please cite
@@ -347,7 +345,7 @@ gene sets show the strongest enrichment as follows:
 
 ```{r}
 cam.res %>% 
-  filter(padj < 0.1, collection == 'h') %>% 
+  filter(padj < 0.1, collection == 'H') %>% 
   arrange(desc(mean.logFC)) %>% 
   select(name, n, mean.logFC, padj) %>% 
   head
@@ -357,7 +355,7 @@ You can also list the members of a geneset and their individual differential
 expression statistics for the contrast under test using the `geneSet` function.
 
 ```{r geneset-result}
-geneSet(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING') %>% 
+geneSet(mg, 'H', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING') %>% 
   select(symbol, entrez_id, logFC, pval, padj) %>%
   head
 ```
@@ -383,14 +381,14 @@ the regions of the distributions you care about.
 **Boxplot**
 
 ```{r iplot-tnfa-box, fig.asp=1}
-iplot(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
+iplot(mg, 'H', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
       type='boxplot', value='logFC')
 ```
 
 **Density**
 
 ```{r iplot-tnfa-density, fig.asp=1}
-iplot(mg, 'h', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
+iplot(mg, 'H', 'HALLMARK_WNT_BETA_CATENIN_SIGNALING',
       type='density', value='logFC')
 ```
 
@@ -428,7 +426,7 @@ has a large (on average) log fold change beteen conditions.
 
 ```{r ssgenesets}
 sig.res <- cam.res %>% 
-  filter(padj < 0.1 & (collection == 'h' | abs(mean.logFC) >= 2))
+  filter(padj < 0.05 & (collection == 'H' | abs(mean.logFC) >= 2))
 gdb.sub <- gdb[geneSets(gdb)$name %in% sig.res$name]
 ```
 
@@ -458,7 +456,7 @@ The `scoreSingleSamples` function will return a long `data.frame` with
 given `sample` using the specified `method`. You can subset against the `method`
 column to extract all of the single sample scores for a given method.
 
-```{r ssscore}
+```{r ssscore, warning=FALSE}
 scores <- scoreSingleSamples(gdb.sub, vm.bh,
                              methods=c('ewm', 'ssgsea', 'zscore'),
                              ssgsea.norm=TRUE,
@@ -486,7 +484,7 @@ sma <- acast(scores.all, name + sample ~ method, value.var="score")
 corplot(sma, cluster=TRUE)
 ```
 
-Furhter exposition on the "ewm" (eigenWeightedMean) scoring method can be
+Further exposition on the "ewm" (eigenWeightedMean) scoring method can be
 found in the `?eigenWeightedMean` function.
 
 ## Visualizing Single Sample Gene Set Scores
@@ -551,7 +549,7 @@ col.anno <- HeatmapAnnotation(
 
 mgheatmap(vm.bh, gdb.2, aggregate.by = "none", split = TRUE,
           show_row_names = FALSE, show_column_names = FALSE,
-          top_annotation=col.anno, zlim = c(-1.2, 1.2))
+          top_annotation=col.anno, zlim = c(-3, 3))
 ```
 
 ### Gene set-based heatmap
@@ -563,9 +561,9 @@ geneset.
 Let's see what the simple 2-geneset version of the heatmap above looks like:
 
 ```{r gshm2, fig.height = 2.5, fig.width = 8}
-mgheatmap(vm.bh, gdb.2, aggregate.by="ewm", split=FALSE,
-          show_row_names=TRUE, show_column_names=FALSE,
-          top_annotation=col.anno, zlim = c(-1.2, 1.2))
+mgheatmap(vm.bh, gdb.2, aggregate.by = "ewm", split = FALSE,
+          show_row_names = TRUE, show_column_names = FALSE,
+          top_annotation = col.anno)
 ```
 
 Plotted in this way, we can now show the activity of a greater number of
@@ -575,7 +573,7 @@ genesets
 mgheatmap(vm.bh, gdb.sub, 
           aggregate.by='ewm', split=TRUE,
           show_row_names=TRUE, show_column_names=FALSE,
-          top_annotation=col.anno, zlim = c(-1.2, 1.2))
+          top_annotation=col.anno, zlim = c(-2.5, 2.5))
 ```
 
 # The GeneSetDb Class
@@ -647,7 +645,7 @@ it is your responsibility to ensure that the two `GeneSetDb` objedts are
 are referencing the same species, etc.
 
 ```{r, eval=FALSE}
-msigdb <- getMSigGeneSetDb('h', 'human')
+msigdb <- getMSigGeneSetDb('H', 'human')
 goslimdb <- getPantherGeneSetDb('goslim', 'human')
 gdb.uber <- append(msigdb, goslimdb)
 ```
@@ -669,13 +667,11 @@ install `PANTHER.db` in a user-writable directory using
 The subsetting functionality for a `GeneSetDb` isn't quite as fluent as I would
 like to be. Improvements will be provided in a future release.
 
-I would ideally like to be able to remove gene sets from a `GeneSetDb` as if
-you were calling `subset` (or `filter`) on the `data.frame` returned from the
-`geneSets(gdb)` function. In this way, if we wanted to keep all of the gene sets
-in `gdb` that were defined in `organism == 'Mus musculus'` you could simply do:
+Let's say we wanted to include only the genesets where their "subcategory" was
+"[CP:PID][msigdbpid]", we would like to do it like this:
 
 ```r
-gdb.sub <- subset(gdb, organism == "Mus musculus")
+gdb.sub <- subset(gdb, subcategory == "CP:PID")
 ```
 
 **Unfortunatey we aren't there yet**. Currently have to first define a logical
@@ -683,7 +679,7 @@ vector over the `data.frame` you get from `geneSets(gdb)`. Then use that vector
 to remove gene sets using the `GeneSetDb,"["` function:
 
 ```{r subset-gdb-by-metadata}
-keep <- geneSets(gdb)$organism == "Mus musculus"
+keep <- geneSets(gdb)$subcategory == "CP:PID"
 gdb.sub <- gdb[keep]
 ```
 
@@ -694,6 +690,15 @@ only the gene sets that have certain features in them using the
 `subsetByFeatures` function.
 
 ## Packaged MSigDb Gene Sets
+
+<!--
+Update MSigDb Section ==========================================================
+-->
+
+TODO: This needs update to reflect our use of 
+[msigdbr](https://cran.r-project.org/package=msigdbr) within the
+[GeneSetDb.MSigDB](https://github.com/lianos/GeneSetDb.MSigDB) package.
+
 
 The multiGSEA package provides the `getMSigGeneSetDb` utility function to provide
 easy access to [the MSigDB gene set collection][msigdb] for users. The data for
@@ -716,7 +721,8 @@ retrieving the genesets from. For instance, the call below only retrieves
 gene sets in the "c2" and "c5" collections that were only defined in mouse.
 
 ```{r species-specific, eval=FALSE}
-mgdb <- getMSigGeneSetDb(c('c2' 'c7'), species='mouse',
+# This no longer is included
+mgdb <- getMSigGeneSetDb(c('C2' 'C7'), species='mouse',
                          species.specific=TRUE)
 ```
 
@@ -744,7 +750,7 @@ head(geneSets(gdbc, active.only=FALSE))
 ```
 
 We can see that, only 23 of the 26 genes in the
-`(c2,ABBUD_LIF_SIGNALING_1_DN)` were found in the rows of `vm`, and the `(c2,ABBUD_LIF_SIGNALING_2_DN)` was "deactivated." Deactivated
+`(C2,ABBUD_LIF_SIGNALING_1_DN)` were found in the rows of `vm`, and the `(C2,ABBUD_LIF_SIGNALING_2_DN)` was "deactivated." Deactivated
 (`active == FALSE`) gene sets will be ignored during downstream analyses. This
 gene set was deactivated  because it only has five "conformed" genes, but the
 minimum geneset size we wanted to consider (`min.gs.size`) was set to ten in
@@ -758,12 +764,12 @@ which is `TRUE` by default. This specifies that only the genes that have been
 successfully conformed to a gene set should be the ones that are returned.
 
 For instance, we can identify which genes belong to the
-`(c2,ABBUD_LIF_SIGNALING_1_DN)`, and which three were not found in `vm` like so:
+`(C2,ABBUD_LIF_SIGNALING_1_DN)`, and which three were not found in `vm` like so:
 
 ```{r}
 missed <- setdiff(
-  featureIds(gdbc, 'c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE),
-  featureIds(gdbc, 'c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=TRUE))
+  featureIds(gdbc, 'C2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE),
+  featureIds(gdbc, 'C2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=TRUE))
 missed
 ```
 
@@ -771,7 +777,7 @@ or we can use the `geneSet` function to return a `data.frame` of these results:
 
 ```{r}
 gdbc %>% 
-  geneSet('c2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE) %>%
+  geneSet('C2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE) %>%
   subset(featureId %in% missed)
 ```
 

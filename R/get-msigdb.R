@@ -40,7 +40,7 @@
 #' * The source for the gene set as listed on the gene set page.
 #'
 #' @export
-#' @rdname MSigDB
+#' @importFrom GeneSetDb.MSigDB msigdb_retrieve
 #'
 #' @param collection character vector specifying the collections you want
 #'   (c1, c2, ..., c7, h)
@@ -50,11 +50,9 @@
 #'   restricted license, so by default we do not return them as part of the
 #'   GeneSetDb. To include the KEGG gene sets when asking for the c2
 #'   collection, set this flag to `TRUE`.
-#' @param species.specific Many of the genesets defined in MSigDB are annotated
-#'   with the organism from which the experiment was conducted and which the
-#'   geneset was extracted from. If this is set to `TRUE`, then only
-#'   gene sets that match `species` will be included. Default is
-#'   `FALSE`.
+#' @param allow_multimap,min_ortho_sources configure how to handle orthology
+#'   mapping (allow multimappers, and what type of level of db suport required).
+#'   See help in [GeneSetDb.MSigDB::msigdb_retrieve()]
 #' @param version the version of the MSigDB database to use.
 #' @return a `GeneSetDb` object
 #' @examples
@@ -63,105 +61,42 @@
 #'   gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
 #'   gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")
 #' }
-getMSigGeneSetDb <- function(collection, species='human',
-                             id.type = c("entrez", "ensembl", "symbol"),
-                             with.kegg=FALSE, species.specific=FALSE,
-                             version=.msigdb.version.current) {
-  collections <- c("h", paste0("c", 1:7))
-
-  species <- resolve.species(species)
-  if (species != "Homo_sapiens") {
-    collections <- setdiff(collections, "c1")
-  }
-  bad.coll <- setdiff(collection, collections)
-  if (length(bad.coll)) {
-    stop("These are invalied MSigDB collections: ", bad.coll)
-  }
-
-  version <- match.arg(version, names(.msigdb.collections))
+getMSigGeneSetDb <- function(collection = c("H", paste0("C", 1:7)),
+                             species = "human",
+                             id.type = c("ensembl", "entrez", "symbol"),
+                             with.kegg = FALSE,
+                             allow_multimap = TRUE, min_ortho_sources = 2,
+                             version = NULL, ...) {
   id.type <- match.arg(id.type)
-  avail.cols <- .msigdb.collections[[version]]
+  msig.db <- msigdb_retrieve(species, collection, id.type, ...)
+  if (!with.kegg) {
+    msig.db <- subset(msig.db, !subcategory %in% "CP:KEGG")
+  }
+  gdb <- GeneSetDb(msig.db)
 
-  pkg.species <- if (species == 'Mus_musculus') 'Mmusculus' else 'Hsapiens'
-  pkg.version <- sub('\\.', '', version)
-
-  ## Note: This will be updated when AnnotationHub files come oneline to
-  ## support that properly, but right now I require these packages to be
-  ## installed as the "more traditional" data packages.
-
-  ## For the first releas, v5.2 is stored in the v6.1 package, so the general
-  ## code below is special cased. This will change in the future after relase.
-  # pkg <- sprintf("GeneSetDb.MSigDB.%s.%s", pkg.species, pkg.version)
-  # pkg.dir <- find.package(pkg, quiet=TRUE)
-  # if (length(pkg.dir) == 0L) {
-  #   stop("GeneSetDb.* package not installed: ", pkg)
-  # }
-  # fn <- paste0(pkg, '.rds')
-  # fn <- file.path(pkg.dir, 'extdata', fn)
-  # out <- readRDS(fn)
-  pkg <- sprintf("GeneSetDb.MSigDB.%s.v61", pkg.species)
-  ## Check that package is installed so we can get the extdata
-  pkg.dir <- find.package(pkg, quiet=TRUE)
-  if (length(pkg.dir) == 0L) {
-    stop("GeneSetDb.* package not installed: ", pkg)
+  # Beef up collectionMetadata
+  if (id.type == "ensembl") {
+    idtype <- GSEABase::ENSEMBLIdentifier()
+  } else if (id.type == "entrez") {
+    idtype <- GSEABase::EntrezIdentifier()
+  } else {
+    idtype <- GSEABase::SymbolIdentifier()
   }
 
-  use.symbols <- id.type == "symbol"
-  if (use.symbols) {
-    id.type <- "entrez" # this is the primary identifiers MSigDB provides
+  url.fn <- function(collection, name) {
+    url <- "http://www.broadinstitute.org/gsea/msigdb/cards/%s.html"
+    sprintf(url, name)
+  }
+  for (col in unique(geneSets(gdb)$collection)) {
+    geneSetCollectionURLfunction(gdb, col) <- url.fn
+    featureIdType(gdb, col) <- idtype
+    gdb <- addCollectionMetadata(gdb, col, 'source',
+                                 attr(msig.db, "msigdb_version"))
   }
 
-  fn <- sub('\\.v61', paste0("-", id.type, ".", pkg.version, ".rds"), pkg)
-  fn <- file.path(pkg.dir, 'extdata', fn)
-
-  out <- readRDS(fn)
-
-  gs <- geneSets(out, as.dt=TRUE)
-
-  if (!setequal(collection, avail.cols)) {
-    keep <- gs$collection %in% collection
-    out <- subset.GeneSetDb(out, gs$collection %in% collection)
-    gs <- geneSets(out, as.dt=TRUE)
-  }
-
-  if ('c2' %in% gs$collection && !with.kegg) {
-    is.c2 <- gs$collection == 'c2'
-    keep <- !is.c2 | (is.c2 & !grepl('^KEGG_', gs$name))
-    out <- subset.GeneSetDb(out, keep)
-  }
-
-  if (species.specific) {
-    spec <- sub('_', ' ', species)
-    org <- geneSets(out)$organism
-    keep <-  !is.na(org) & org == spec
-    out <- subset.GeneSetDb(out, keep)
-  }
-
-  # Note: this functionality should really use the featureIdMap cross
-  # referencing that you haven't made  yet.
-  if (use.symbols) {
-    out@db[[id.type]] <- out@db[["featureId"]]
-    out@db[["featureId"]] <- out@db[["symbol"]]
-    # Sometimes identifiers can't be mapped to symbols, ie. the symbol is NA
-    # or different identifier map to the same symbol, so we handle that here.
-    out@db <- out@db[!is.na(featureId)]
-    out@db <- unique(out@db, by = c("collection", "name", "featureId"))
-    # clean up ou@table be ensuring that N is correct
-    new.N <- out@db[, list(N = .N), by = c("collection", "name")]
-    out@table <- out@table[new.N]
-    out@table[, N := i.N]
-    out@table[, i.N := NULL]
-    out@collectionMetadata <- out@collectionMetadata[collection %in% out@table$collection]
-    fmap <- out@db[, list(featureId = featureId, x.id = featureId, x.idx = NA_integer_)]
-    fmap <- unique(fmap, by = "featureId")
-    setkeyv(fmap, "featureId")
-    out@featureIdMap <- fmap
-  }
-
-  # NOTE: remove count collectionMetadata
-  out@collectionMetadata <- out@collectionMetadata[name != "count"]
-
-  out
+  org(gdb) <- attr(msig.db, "species_info")[["species_name_"]]
+  gdb@collectionMetadata <- gdb@collectionMetadata[name != "count"]
+  gdb
 }
 
 #' @noRd

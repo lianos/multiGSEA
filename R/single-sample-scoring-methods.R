@@ -57,7 +57,7 @@
 #'   the SVD/PCA decomposition are included for the ride.
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
 #' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- eigenWeightedMean(vm[features,])$score
@@ -142,7 +142,7 @@ pcWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 #' @param trim calculate trimmed mean?
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
 #' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- zScore(vm[features,])$score
@@ -229,7 +229,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #'
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h'), vm)
+#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
 #' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- gsdScore(vm[features,])$score

@@ -93,11 +93,11 @@ setGeneric("featureIdMap<-", function(x, value) {
 #' @param name The name of the metadata variable to get the value for
 #'
 #' @examples
-#' gdb <- getMSigGeneSetDb('h')
+#' gdb <- getMSigGeneSetDb('H')
 #'
 #' ## Gene Set URLs
-#' geneSetURL(gdb, 'h', 'HALLMARK_ADIPOGENESIS')
-#' geneSetURL(gdb, c('h', 'h'),
+#' geneSetURL(gdb, 'H', 'HALLMARK_ADIPOGENESIS')
+#' geneSetURL(gdb, c('H', 'H'),
 #'            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 #'
 #' ## FeatureId TYpe
@@ -134,8 +134,8 @@ function(x, collection, name, ...) {
 #'   url <- 'http://www.broadinstitute.org/gsea/msigdb/cards/%s.html'
 #'   sprintf(url, name)
 #' }
-#' gdb <- getMSigGeneSetDb('h')
-#' geneSetCollectionURLfunction(gdb, 'h') <- url.fn
+#' gdb <- getMSigGeneSetDb('H')
+#' geneSetCollectionURLfunction(gdb, 'H') <- url.fn
 #' ```
 #'
 #' In this way, a call to `geneSetURL(gdb, 'h', 'HALLMARK_ANGIOGENESIS')`
@@ -176,10 +176,10 @@ setGeneric("geneSetCollectionURLfunction<-", signature="x", function(x, i, value
 #' so:
 #'
 #' ```
-#' gdb <- getMSigGeneSetDb('h')
-#' featureIdType(gdb, 'h') <- EntrezIdentifier()
+#' gdb <- getMSigGeneSetDb('H')
+#' featureIdType(gdb, 'H') <- GSEABase::ENSEMBLIdentifier()
 #' ## or, equivalently (but you don't want to use this)
-#' gdb <- addCollectionMetadata(gdb, 'h', 'id_type', EntrezIdentifier())
+#' gdb <- addCollectionMetadata(gdb, 'H', 'id_type', GSEABase::ENSEMBLIdentifier())
 #' ```
 #'
 #' @exportMethod featureIdType
@@ -201,8 +201,8 @@ setGeneric("featureIdType<-", signature="x", function(x, i, value) {
 #' in that were used to define this collection of gene sets.
 #'
 #' ```
-#' gdb <- getMSigGeneSetDb('h')
-#' org(gdb, 'h') <- 'Homo_sapiens'
+#' gdb <- getMSigGeneSetDb('H')
+#' org(gdb, 'H') <- 'Homo_sapiens'
 #' ```
 #'
 #' @exportMethod org

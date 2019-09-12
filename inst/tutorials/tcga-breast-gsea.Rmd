@@ -95,7 +95,7 @@ collections for mouse our human. Some collections of interest may be:
 So let's fetch them:
 
 ```{r genesetdb-init, results='asis', cache=TRUE}
-gsd.all <- getMSigGeneSetDb(c('h', 'c2', 'c7'), 'human')
+gsd.all <- getMSigGeneSetDb(c('h', 'c2', 'c7'), 'human', 'entrez')
 tally.all <- table(geneSets(gsd.all)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
@@ -111,7 +111,7 @@ save time on computation, we will use all of the hallmark genes, and a
 predefined subset of c2 and c7.
 
 ```{r genesetdb-ex, results='asis'}
-gsd <- append(getMSigGeneSetDb('h'), exampleGeneSetDb())
+gsd <- append(getMSigGeneSetDb('h', id.type = 'entrez'), exampleGeneSetDb())
 tally <- table(geneSets(gsd)$collection) %>%
   as.data.frame %>%
   setNames(c('collection', 'count'))
@@ -164,7 +164,7 @@ The default `plot` method for a `MultiGSEAResult` produces a density plot,
 like so:
 
 ```{r mg-density-plot, eval=TRUE}
-plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
+plot(mg, 'C7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP')
 ```
 
 The points at the bottom of the plot indicate the log fold change for each of
@@ -181,7 +181,7 @@ has been lifted straight from limma, but the plan is to extend its functionality
 in the future.
 
 ```{r mg-barcode-plot}
-plot(mg, 'c7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
+plot(mg, 'C7', 'GSE339_EX_VIVO_VS_IN_CULTURE_CD8POS_DC_UP', type='barcode')
 ```
 
 ## HTML Reports
