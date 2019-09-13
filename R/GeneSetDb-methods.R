@@ -654,7 +654,6 @@ setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
 })
 
 setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {
-  fn <- collectionMetadata(x, i, 'url_function')
   stopifnot(isSingleCharacter(i))
   fn.dt <- x@collectionMetadata[list(i, 'url_function'), nomatch=0]
   if (nrow(fn.dt) == 0) {
@@ -681,6 +680,10 @@ function(x, i, value) {
     if (!isTRUE(is.function(v))) return(FALSE)
     if (length(formalArgs(v)) != 2L) {
       ## "URL function needs to take two arguments"
+      return(FALSE)
+    }
+    url.test <- v("a", "b")
+    if (!isSingleCharacter(url.test)) {
       return(FALSE)
     }
     TRUE
@@ -783,7 +786,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
       stop(sprintf("Invalid value used to update %s,%s", xcoll, xname))
     }
   }
-  ## update or replace
+  # update or replace
   idx <- x@collectionMetadata[list(xcoll, xname), which=TRUE]
   if (is.na(idx)) {
     if (!allow.add) {
@@ -791,21 +794,21 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
                      "should be there. Your GeneSetDb is hosed")
       stop(msg)
     }
-    if (!is.list(value)) {
-      value <- list(value)
-    }
+
     # the variable you want to enter here is not there yet, so we create an
     # empty, singl-row data.table that will be added to the current metadata
-    add.me <- x@collectionMetadata[NA]
-    add.me$collection[1L] <- xcoll
-    add.me$name[1L] <- xname
-    add.me$value[[1L]] <- value
+    add.me <- data.table(
+      collection = xcoll,
+      name = xname,
+      value = list(value))
     cm <- rbind(x@collectionMetadata, add.me)
     setkeyv(cm, key(x@collectionMetadata))
     x@collectionMetadata <- cm
   } else {
-    if (!is.list(value)) value <- list(value)
-    x@collectionMetadata$value[[idx]] <- value
+    # Need to use list(list()) because data.table uses list(.) to look for
+    # values to assign to columns by reference.
+    # https://stackoverflow.com/a/22536321/83761
+    set(x@collectionMetadata, i = idx, j = "value", value = list(list(value)))
   }
   x
 }
