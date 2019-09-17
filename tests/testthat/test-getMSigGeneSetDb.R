@@ -1,15 +1,18 @@
 context("MSigDB GeneSetDb")
 
 test_that("MSigDB retrieval respects collection subsets", {
-  gdb.all <- getMSigGeneSetDb()
+  gdb.all <- getMSigGeneSetDb(NULL, promote_subcategory_to_collection = FALSE)
   expect_setequal(geneSets(gdb.all)$collection, c("H", paste0("C", 1:7)))
   gdb.sub <- getMSigGeneSetDb(c("H", "C6"))
   expect_setequal(geneSets(gdb.sub)$collection, c("H", "C6"))
 })
 
 test_that("with.kegg honors inclusion/exclusion of KEGG gene sets", {
-  with.kegg <- getMSigGeneSetDb("c2", with.kegg = TRUE)
-  no.kegg <- getMSigGeneSetDb("c2", with.kegg = FALSE)
+  with.kegg <- getMSigGeneSetDb("c2", with.kegg = TRUE,
+                                promote_subcategory_to_collection = FALSE)
+
+  no.kegg <- getMSigGeneSetDb("c2", with.kegg = FALSE,
+                              promote_subcategory_to_collection = FALSE)
 
   gs.kegg <- subset(geneSets(with.kegg), subcategory == "CP:KEGG")
   expect_true(nrow(gs.kegg) > 0L)
@@ -19,7 +22,7 @@ test_that("with.kegg honors inclusion/exclusion of KEGG gene sets", {
 })
 
 test_that("url function stored correctly", {
-  go.df <- GeneSetDb.MSigDB::msigdb_retrieve("human", "C5", "entrez")
+  go.df <- GeneSetDb.MSigDB::msigdb_retrieve("C5", "human", "entrez")
   gdb.o <- GeneSetDb(go.df)
 
   # Let's change the collection to GO_MP, GO_BP, GO_CC and fix custom url
@@ -52,4 +55,17 @@ test_that("url function stored correctly", {
   expect_equal(
     basename(geneSetURL(gdb.2, "GO_CC", "GOLGI_APPARATUS")),
     "GO_GOLGI_APPARATUS.html", info = "CC")
+})
+
+test_that("promotion of subcategory to collection is kosher", {
+  gdb <-  getMSigGeneSetDb(c("h", "reactome", "c5"))
+
+  go.url <- basename(geneSetURL(gdb, "GO_BP", "2FE_2S_CLUSTER_ASSEMBLY"))
+  expect_equal(go.url, "GO_2FE_2S_CLUSTER_ASSEMBLY.html")
+
+  react.url <- geneSetURL(
+    gdb, "REACTOME" ,"ACTIVATED_NTRK3_SIGNALS_THROUGH_PI3K")
+  react.url <- basename(react.url)
+
+  expect_equal(react.url, "REACTOME_ACTIVATED_NTRK3_SIGNALS_THROUGH_PI3K.html")
 })
