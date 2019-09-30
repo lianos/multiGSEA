@@ -52,8 +52,8 @@ with `multiGSEA`.
 ``` r
 library(multiGSEA)
 library(dplyr)
-gdb <- getMSigGeneSetDb(c('h', 'c2'), 'human')
-vm <- exampleExpressionSet(dataset='tumor-vs-normal', do.voom=TRUE)
+gdb <- getMSigGeneSetDb(c('H', 'C2'), species = 'human', id.type = "entrez")
+vm <- exampleExpressionSet(dataset = 'tumor-vs-normal', do.voom = TRUE)
 mg <- multiGSEA(gdb, vm, vm$design, "tumor", methods=c("camera", "fry"))
 ```
 
@@ -65,12 +65,12 @@ results(mg, "camera") %>%
   select(collection, name, padj) %>% 
   head
 #>   collection                                        name         padj
-#> 1         c2      SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP 2.604378e-38
-#> 2         c2 ROSTY_CERVICAL_CANCER_PROLIFERATION_CLUSTER 3.601729e-37
-#> 3         c2         NAKAYAMA_SOFT_TISSUE_TUMORS_PCA2_DN 1.004916e-28
-#> 4         c2              KANG_DOXORUBICIN_RESISTANCE_UP 1.478337e-22
-#> 5         c2                     BENPORATH_PROLIFERATION 2.437669e-22
-#> 6         c2               CROONQUIST_IL6_DEPRIVATION_DN 1.934138e-21
+#> 1         C2      SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP 1.037263e-36
+#> 2         C2 ROSTY_CERVICAL_CANCER_PROLIFERATION_CLUSTER 1.037263e-36
+#> 3         C2         NAKAYAMA_SOFT_TISSUE_TUMORS_PCA2_DN 1.718472e-23
+#> 4         C2              KANG_DOXORUBICIN_RESISTANCE_UP 1.203816e-22
+#> 5         C2               CROONQUIST_IL6_DEPRIVATION_DN 2.486087e-22
+#> 6         C2                     BENPORATH_PROLIFERATION 7.471399e-22
 ```
 
 The shift in expression of the genes within the top gene set can be
@@ -80,13 +80,13 @@ this `README`
 file:
 
 ``` r
-iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type="density")
+iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "density")
 ```
 
 <img src="vignettes/images/README_iplot_density.png" />
 
 ``` r
-iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type="boxplot")
+iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "boxplot")
 ```
 
 <img src="vignettes/images/README_iplot_boxplot.png" />
@@ -98,13 +98,10 @@ differential expression statistics.
 # Installation
 
 The multiGSEA suite of packages will soon be submitted to bioconductor
-and installable via the recommended `biocLite` mechanism. In the
-meantime, these packages can be installed like so:
+and installable via the recommended `BiocManager::install()` mechanism.
+In the meantime, install this package form this github repository.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("lianos/multiGSEA")
-devtools::install_github("lianos/multiGSEA.shiny")
-devtools::install_github("lianos/GeneSetDb.MSigDB.Hsapiens.v61")
-devtools::install_github("lianos/GeneSetDb.MSigDB.Mmusculus.v61")
+# install.packages("BiocManager")
+BiocManager::install(c("lianos/multiGSEA", "lianos/multiGSEA.shiny"))
 ```

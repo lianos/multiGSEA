@@ -26,7 +26,7 @@ across the entire feature-space of \code{y}.
 }
 \examples{
 vm <- exampleExpressionSet()
-gdb <- getMSigGeneSetDb('h', 'human', 'entrez')
+gdb <- getMSigGeneSetDb('H', 'human', 'entrez')
 im <- incidenceMatrix(gdb)
 imv <- incidenceMatrix(gdb, vm)
 }

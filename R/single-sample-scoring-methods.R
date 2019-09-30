@@ -57,16 +57,16 @@
 #'   the SVD/PCA decomposition are included for the ride.
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#' gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+#' features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- eigenWeightedMean(vm[features,])$score
 #'
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-##'            setNames(score, sample))
-#' all.equal(s2, scores) ## should be TRUE
+#'            setNames(score, sample))
+#' all.equal(s2, scores)
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
                               weights=NULL, normalize = FALSE, all.x = NULL,
@@ -142,8 +142,8 @@ pcWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 #' @param trim calculate trimmed mean?
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#' gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+#' features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- zScore(vm[features,])$score
 #'
@@ -151,7 +151,7 @@ pcWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 #' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 #'            setNames(score, sample))
-#' all.equal(s2, scores) ## should be TRUE
+#' all.equal(s2, scores)
 zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   x <- as_matrix(x)
   summary <- match.arg(summary)
@@ -229,8 +229,8 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #'
 #' @examples
 #' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-#' features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+#' gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+#' features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 #'                        value='x.idx')
 #' scores <- gsdScore(vm[features,])$score
 #'
@@ -238,7 +238,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 #'            setNames(score, sample))
-#' all.equal(s2, scores) ## should be TRUE
+#' all.equal(s2, scores)
 gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
                      uncenter = center, unscale = scale, retx = FALSE, ...,
                      .use_irlba = FALSE, .drop.sd = 1e-4) {

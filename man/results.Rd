@@ -10,11 +10,11 @@
 \usage{
 resultNames(x)
 
-result(x, name, ...)
+result(x, ...)
 
 \method{result}{MultiGSEAResult}(x, name = NULL, stats.only = FALSE,
   rank.by = c("pval", "t", "logFC"), add.suffix = FALSE,
-  as.dt = FALSE)
+  as.dt = FALSE, ...)
 
 results(x, names = resultNames(x), stats.only = TRUE,
   rank.by = c("pval", "logFC", "t"), add.suffix = length(names) > 1L,

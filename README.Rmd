@@ -56,8 +56,8 @@ using the MSigDB hallmark and c2 gene set collections  with `multiGSEA`.
 ```{r example, message=FALSE, warning=FALSE}
 library(multiGSEA)
 library(dplyr)
-gdb <- getMSigGeneSetDb(c('h', 'c2'), 'human')
-vm <- exampleExpressionSet(dataset='tumor-vs-normal', do.voom=TRUE)
+gdb <- getMSigGeneSetDb(c('H', 'C2'), species = 'human', id.type = "entrez")
+vm <- exampleExpressionSet(dataset = 'tumor-vs-normal', do.voom = TRUE)
 mg <- multiGSEA(gdb, vm, vm$design, "tumor", methods=c("camera", "fry"))
 ```
 
@@ -75,13 +75,13 @@ with the `iplot` function below. This plot produces interactive graphics, but
 rasterized versions are saved for use with this `README` file:
 
 ```{r, eval = FALSE}
-iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type="density")
+iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "density")
 ```
 
 <img src="vignettes/images/README_iplot_density.png" />
 
 ```{r, eval = FALSE}
-iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type="boxplot")
+iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "boxplot")
 ```
 
 <img src="vignettes/images/README_iplot_boxplot.png" />
@@ -93,13 +93,10 @@ expression statistics.
 # Installation
 
 The multiGSEA suite of packages will soon be submitted to bioconductor and
-installable via the recommended `biocLite` mechanism. In the meantime, these
-packages can be installed like so:
+installable via the recommended `BiocManager::install()` mechanism. In the
+meantime, install this package form this github repository.
 
 ```{r gh-installation, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("lianos/multiGSEA")
-devtools::install_github("lianos/multiGSEA.shiny")
-devtools::install_github("lianos/GeneSetDb.MSigDB.Hsapiens.v61")
-devtools::install_github("lianos/GeneSetDb.MSigDB.Mmusculus.v61")
+# install.packages("BiocManager")
+BiocManager::install(c("lianos/multiGSEA", "lianos/multiGSEA.shiny"))
 ```

@@ -97,7 +97,7 @@ gdb <- getMSigGeneSetDb('H')
 geneSetCollectionURLfunction(gdb, 'H') <- url.fn
 }
 
-In this way, a call to \code{geneSetURL(gdb, 'h', 'HALLMARK_ANGIOGENESIS')}
+In this way, a call to \code{geneSetURL(gdb, 'H', 'HALLMARK_ANGIOGENESIS')}
 will return
 http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html.
 
@@ -137,8 +137,8 @@ Note that this is not a replacement method! You must catch the returned
 object to keep the one with the updated \code{collectionMetadata}. Although this
 function is exported, I imagine this being used mostly through predefined
 replace methods that use this as a utility function, such as the replacement
-methods for \code{\link[=org]{org()}}, and \code{\link[=featureIdType]{featureIdType()}}.\preformatted{gdb <- getMSigGeneSetDb('h')
-gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
+methods for \code{\link[=org]{org()}}, and \code{\link[=featureIdType]{featureIdType()}}.\preformatted{gdb <- getMSigGeneSetDb('H')
+gdb <- addCollectionMetadata(gdb, 'H', 'foo', 'bar')
 }
 }
 
@@ -151,12 +151,12 @@ geneSetURL(gdb, c('H', 'H'),
            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 
 ## FeatureId TYpe
-featureIdType(gdb, 'h')
+featureIdType(gdb, 'H')
 
 ## Organism
-org(gdb, 'h')
+org(gdb, 'H')
 
 ## Arbitrary metadata
-gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
-cmh <- collectionMetadata(gdb, 'h') ## print this to see
+gdb <- addCollectionMetadata(gdb, 'H', 'foo', 'bar')
+cmh <- collectionMetadata(gdb, 'H') ## print this to see
 }

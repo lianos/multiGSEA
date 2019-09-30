@@ -8,8 +8,8 @@ context("GeneSetDb")
 ##      - collectionMetadata(x, collection, name)
 ##  * test collectionMetadata<- ensures single collection,name pairs
 
-gdb.h <- getMSigGeneSetDb(c('h'), "human", "entrez")
-gdb.c6 <- getMSigGeneSetDb(c('c6'), "human", "entrez")
+gdb.h <- getMSigGeneSetDb(c('H'), "human", "entrez")
+gdb.c6 <- getMSigGeneSetDb(c('C6'), "human", "entrez")
 
 test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   ## This test exercise both the single list and list-of-lists input for geneset
@@ -294,7 +294,7 @@ test_that("gene set metadata kept pre/post conform,GeneSetDb", {
 })
 
 test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
-  m <- getMSigGeneSetDb('h', "human", "entrez")
+  m <- getMSigGeneSetDb('H', "human", "entrez")
   r <- getReactomeGeneSetDb()
 
   a <- append(r, m)

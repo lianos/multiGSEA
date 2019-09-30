@@ -67,8 +67,8 @@ released GSDecon package by Jason Hackney}
 }
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
-gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
                        value='x.idx')
 scores <- gsdScore(vm[features,])$score
 
@@ -76,5 +76,5 @@ scores <- gsdScore(vm[features,])$score
 scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
 s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
            setNames(score, sample))
-all.equal(s2, scores) ## should be TRUE
+all.equal(s2, scores)
 }

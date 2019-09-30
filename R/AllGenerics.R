@@ -101,14 +101,14 @@ setGeneric("featureIdMap<-", function(x, value) {
 #'            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 #'
 #' ## FeatureId TYpe
-#' featureIdType(gdb, 'h')
+#' featureIdType(gdb, 'H')
 #'
 #' ## Organism
-#' org(gdb, 'h')
+#' org(gdb, 'H')
 #'
 #' ## Arbitrary metadata
-#' gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
-#' cmh <- collectionMetadata(gdb, 'h') ## print this to see
+#' gdb <- addCollectionMetadata(gdb, 'H', 'foo', 'bar')
+#' cmh <- collectionMetadata(gdb, 'H') ## print this to see
 setGeneric("collectionMetadata", signature=c("x", "collection", "name"),
 function(x, collection, name, ...) {
   standardGeneric("collectionMetadata")
@@ -138,7 +138,7 @@ function(x, collection, name, ...) {
 #' geneSetCollectionURLfunction(gdb, 'H') <- url.fn
 #' ```
 #'
-#' In this way, a call to `geneSetURL(gdb, 'h', 'HALLMARK_ANGIOGENESIS')`
+#' In this way, a call to `geneSetURL(gdb, 'H', 'HALLMARK_ANGIOGENESIS')`
 #' will return
 #' http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html.
 #'

@@ -93,8 +93,8 @@ the \code{ctrl.score} normalization found in Seurat's
 
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
-gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
                        value='x.idx')
 scores <- eigenWeightedMean(vm[features,])$score
 
@@ -102,7 +102,7 @@ scores <- eigenWeightedMean(vm[features,])$score
 scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
            setNames(score, sample))
-all.equal(s2, scores) ## should be TRUE
+all.equal(s2, scores)
 }
 \seealso{
 scoreSingleSamples

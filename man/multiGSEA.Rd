@@ -57,7 +57,7 @@ remove unnecessary large objects from your workspace when this is \code{TRUE}
 because R will likely want to copy them down into your worker threads.}
 
 \item{BPPARAM}{a \emph{BiocParallel} parameter definition, like one generated from
-\code{\link[BiocParallel:MulticoreParam()]{BiocParallel::MulticoreParam()()}}, or \code{\link[BiocParallel:BatchtoolsParam]{BiocParallel::BatchtoolsParam()}},
+\code{\link[BiocParallel:MulticoreParam]{BiocParallel::MulticoreParam()}}, or \code{\link[BiocParallel:BatchtoolsParam]{BiocParallel::BatchtoolsParam()}},
 for instance, which is passed down to \link{BiocParallel}::bplapply()]. If not
 specified and \code{.parallel = TRUE}, then the \code{\link[BiocParallel:bpparam]{BiocParallel::bpparam()}} object
 will be used. If \code{.parallel = FALSE}, this parameter is explicitly ignored

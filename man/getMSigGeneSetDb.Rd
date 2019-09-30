@@ -4,14 +4,17 @@
 \alias{getMSigGeneSetDb}
 \title{Fetches a \code{GeneSetDb} from geneset collections defined in MSigDB.}
 \usage{
-getMSigGeneSetDb(collection = c("H", paste0("C", 1:7)),
-  species = "human", id.type = c("ensembl", "entrez", "symbol"),
-  with.kegg = FALSE, allow_multimap = TRUE, min_ortho_sources = 2,
-  version = NULL, ...)
+getMSigGeneSetDb(collection = "H", species = "human",
+  id.type = c("ensembl", "entrez", "symbol"), with.kegg = FALSE,
+  allow_multimap = TRUE, min_ortho_sources = 2,
+  promote_subcategory_to_collection = TRUE, version = NULL, ...)
 }
 \arguments{
 \item{collection}{character vector specifying the collections you want
-(c1, c2, ..., c7, h)}
+(c1, c2, ..., c7, h). By default we load just the hallmark collecitons.
+Setting this to \code{NULL} loads all collections. Alternative you can also
+include named subsets of collections, like \code{"reactome"}. Refer to the
+Details section for more information.}
 
 \item{species}{human or mouse?}
 
@@ -23,7 +26,7 @@ collection, set this flag to \code{TRUE}.}
 
 \item{allow_multimap, min_ortho_sources}{configure how to handle orthology
 mapping (allow multimappers, and what type of level of db suport required).
-See help in \code{\link[GeneSetDb.MSigDB:msigdb_retrieve]{GeneSetDb.MSigDB::msigdb_retrieve()}}}
+See help in \code{\link[msigdb.data:msigdb_retrieve]{msigdb.data::msigdb_retrieve()}}}
 
 \item{version}{the version of the MSigDB database to use.}
 }
@@ -32,27 +35,41 @@ a \code{GeneSetDb} object
 }
 \description{
 This provides versioned genesets from gene set collections defined in
-\href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. We strive to keep
-the latest version of MSigDB available via this function. The current version
-provided is v6.1.
-
-Although the primariy identifiers used in MSigDB are human entrez IDs, we
-also include gene symbols, and mouse versions of each gene set (except c1)
-that were created from simple orthology mapping via biomaRt.
-
-We also include metadata at the geneset level by adding extra columns
-to the \code{geneSets(gdb)} data.frame. "subcategory" may be most useful
-for GO gene sets, eg. CC vs BP vs MF, and "organism" defines the organism in
-which the geneset was derived from ("Homo sapiens" or "Mus musculus").
-
-Note that this function by default will exclude the KEGG genesets from the
-MSigDB c2 collection. Set \code{with.kegg = TRUE} to include them. It is the
-end user's responsibility to ensure that they are appropriately adhering
-to the licensing restricions of the genesets provided herein.
-
-Note that this function is a wrapper that requires the GeneSetDb.MSigDB*
-package (data files from AnnotationHub) to be installed/accessible.
+\href{http://software.broadinstitute.org/gsea/msigdb}{MSigDB}. Collections can
+be retrieved by their collection name, ie \code{c("H", "C2", "C7")}.
 }
+\details{
+Some subsets of curated genesets from within C2 can be retrieved by name,
+like \code{"reactome"}, \code{"kegg"}, \code{"biocarta"}, and \code{"pid"}. You can, for
+instance, call this function with\code{collection = c("reactome", "H")}, and
+the reactome subset of C2 will be returned, along with all of the hallmark
+genesets. When invoked like this, these "blessed" subsets of collections
+will be promoted out of the C2 collection and into its own. This happens
+when \code{promote_subcategory_to_collection = FALSE} (the default).
+
+The GO collection (C5) will also be promoted out of C5 and into their own
+\code{"GO_MP"}, \code{"GO_BP"}, and \code{"GO_MF"} collections.
+}
+\section{KEGG Gene Sets}{
+
+Due to the licensing restrictions over the KEGG collections, they are not
+returned from this function unless they are explicitly asked for. You can
+ask for them through this function by either (i) querying for the \code{"c2"}
+collection while setting \code{with.kegg = TRUE}; or (ii) explicitly calling with
+\code{collection = "kegg"}.
+}
+
+\section{MSigDB Versions}{
+
+We recently switched to using the msigdbr package as the source of truth for
+these, so v7 is the earliest version of the MSigDB collections we make
+available. Version 6 are available in the following (deprecated) packages:
+\itemize{
+\item https://github.com/lianos/GeneSetDb.MSigDB.Mmusculus.v61
+\item https://github.com/lianos/GeneSetDb.MSigDB.Hsapiens.v61
+}
+}
+
 \section{Citing the Molecular Signatures Database}{
 
 To cite your use of the Molecular Signatures Database (MSigDB), please
@@ -67,6 +84,7 @@ or more of the following as appropriate:
 
 \examples{
 \dontrun{
+  gdb <- getMSigGeneSetDb(c("h", "reactome"), "human", "entrez")
   gdb.h.entrez <- getMSigGeneSetDb(c("h", "c2"), "human", "entrez")
   gdb.h.ens <- getMSigGeneSetDb(c("h", "c2"), "human", "ensembl")
   gdb.m.entrez <- getMSigGeneSetDb(c("h", "c2"), "mouse", "entrez")

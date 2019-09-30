@@ -17,13 +17,13 @@
 #'
 #' @examples
 #' vm <- exampleExpressionSet()
-#' gdb <- getMSigGeneSetDb('h', 'human', "entrez")
+#' gdb <- getMSigGeneSetDb('H', 'human', "entrez")
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 #' lfc <- logFC(mg)
 #' annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
 #'
 #' ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
-#' angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`)
+#' angio <- subset(annotated, `H;;HALLMARK_ANGIOGENESIS`)
 annotateGeneSetMembership <- function(x, gdb, x.ids=NULL, ...) {
   stopifnot(is(x, 'data.frame'))
   stopifnot(is(gdb, 'GeneSetDb'))
@@ -56,19 +56,19 @@ setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
 
 #' (Re)-map geneset IDs to the rows in an expression object.
 #'
-#' @description \code{conform}-ing, a \code{GeneSetDb} to a target expression
+#' @description `conform`-ing, a `GeneSetDb` to a target expression
 #' object is an important step required prior to perform any type of GSEA. This
 #' function maps the featureIds used in the GeneSetDb to the elements of a
 #' target expression object (ie. the rows of an expression matrix, or the
 #' elements of a vector of gene-level statistics).
 #'
-#' After \code{conform}-ation, each geneset in the \code{GeneSetDb} is flagged
+#' After `conform`-ation, each geneset in the `GeneSetDb` is flagged
 #' as active (or inactive) given the number of its features that are
-#' successfully mapped to \code{target} and the minimum and maximum number of
-#' genes per geneset required as specified by the \code{min.gs.size} and
-#' \code{max.gs.size} parameters, respectively.
+#' successfully mapped to `target` and the minimum and maximum number of
+#' genes per geneset required as specified by the `min.gs.size` and
+#' `max.gs.size` parameters, respectively.
 #'
-#' Only genesets that are marked with \code{active=TRUE} will be used in any
+#' Only genesets that are marked with `active = TRUE` will be used in any
 #' downstream gene set operations.
 #'
 #' @section Related Functions:
@@ -86,11 +86,11 @@ setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
 #' @param unique.by If there are multiple rows that map to the identifiers used
 #'   in the genesets, this is a means to pick the single row for that ID
 #' @param min.gs.size Ensure that the genesets that make their way to the
-#'   \code{GeneSetDb@@table} are of a minimum size
+#'   `GeneSetDb@@table` are of a minimum size
 #' @param max.gs.size Ensure that the genesets that make their way to the
 #'   `GeneSetDb@@table` are smaller than this size
-#' @param match.tolerance Numeric value between [0,1]. If the fraction of
-#'   \code{featureId}s used in `x` that match `rownames(y)` is below
+#' @param match.tolerance Numeric value between \[0,1\]. If the fraction of
+#'   `featureId`s used in `x` that match `rownames(y)` is below
 #'   this number, a warning will be fired.
 #' @param ... moar args
 #'
@@ -223,7 +223,7 @@ is.conformed <- function(x, to) {
 #'
 #' @examples
 #' vm <- exampleExpressionSet()
-#' gdb <- getMSigGeneSetDb('h', 'human', 'entrez')
+#' gdb <- getMSigGeneSetDb('H', 'human', 'entrez')
 #' im <- incidenceMatrix(gdb)
 #' imv <- incidenceMatrix(gdb, vm)
 incidenceMatrix <- function(x, y, ...) {
@@ -757,8 +757,8 @@ setMethod("org", "GeneSetDb", function(x, i, ...) {
 #' methods for [org()], and [featureIdType()].
 #'
 #' ```
-#' gdb <- getMSigGeneSetDb('h')
-#' gdb <- addCollectionMetadata(gdb, 'h', 'foo', 'bar')
+#' gdb <- getMSigGeneSetDb('H')
+#' gdb <- addCollectionMetadata(gdb, 'H', 'foo', 'bar')
 #' ```
 #'
 #' @export

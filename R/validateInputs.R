@@ -145,22 +145,36 @@ na.check <- function(x) {
 }
 
 #' Checks a DGEList to see if estimateDisp() was run on it
+#'
 #' @noRd
 #' @param x Input DGEList
 #' @return TRUE if yes, FALSE if no or if x is not a DGEList.
 disp.estimated <- function(x) {
-  ## check that estimateDisp has been run
+  # check that estimateDisp has been run
   if (!is(x, "DGEList")) return(FALSE)
-  reqd <- c('common.dispersion', 'trended.dispersion', 'tagwise.dispersion')
-  for (wut in reqd) {
-    vals <- x[[wut]]
-    if (is.null(vals) || is.na(vals) || !is.numeric(vals)) {
-      warning(sprintf('[[%s]] was not found, did you call estimateDisp?"', wut),
-              immediate.=TRUE)
+
+  number <- c("common.dispersion")
+  for (num in number) {
+    kosher <- test_number(x[[num]], finite = TRUE)
+    if (!kosher) {
+      msg <- sprintf("[[%s]] was not found, did you `estimateDisp()`?", num)
+      warning(msg, immediate. = TRUE)
       return(FALSE)
     }
   }
-  return(TRUE)
+
+  numerics <- c("trended.dispersion", "tagwise.dispersion")
+  for (num in numerics) {
+    kosher <- test_numeric(x[[num]], finite = TRUE, any.missing = FALSE,
+                           len = nrow(x))
+    if (!kosher) {
+      msg <- sprintf("[[%s]] was not found, did you `estimateDisp()`?", num)
+      warning(msg, immediate. = TRUE)
+      return(FALSE)
+    }
+  }
+
+  TRUE
 }
 
 #' Returns a 0-length list when there is no error

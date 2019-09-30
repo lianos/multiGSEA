@@ -622,9 +622,8 @@ may be:
 
 * [MSigDB][msigdb] via `getMSigGeneSetDb(...)`. Although the core `multiGSEA`
   package provides the getter function for these genesets, the user needs to
-  install the `GeneSetDb.MSigDB.<species>.version` packages, which provide
-  the actuall geneset information. These datasets will be released on
-  AnnotationHub, however the data packages are provided for the time being.
+  install the `msigdb.data` package to include the data and utility functions
+  for the identifier and species mapping.
 * [PANTHER][pantherdb] (pathways and GOSLIM) via `getPantherGeneSetDb()`
 
 You can create a custom `GeneSetDb` via the `GeneSetDb` constructor, which
@@ -697,7 +696,7 @@ Update MSigDb Section ==========================================================
 
 TODO: This needs update to reflect our use of 
 [msigdbr](https://cran.r-project.org/package=msigdbr) within the
-[GeneSetDb.MSigDB](https://github.com/lianos/GeneSetDb.MSigDB) package.
+[msigdb.data](https://github.com/lianos/msigdb.data) package.
 
 
 The multiGSEA package provides the `getMSigGeneSetDb` utility function to provide

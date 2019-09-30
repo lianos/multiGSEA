@@ -273,7 +273,7 @@ resultNames <- function(x) {
 
 #' @export
 #' @rdname results
-result <- function(x, name, ...) {
+result <- function(x, ...) {
   UseMethod("result", x)
 }
 
@@ -297,7 +297,7 @@ result <- function(x, name, ...) {
 #' @return a data.table with the results from the requested method.
 result.MultiGSEAResult <- function(x, name = NULL, stats.only=FALSE,
                                    rank.by=c('pval', 't', 'logFC'),
-                                   add.suffix=FALSE, as.dt=FALSE) {
+                                   add.suffix=FALSE, as.dt=FALSE, ...) {
   stopifnot(is(x, 'MultiGSEAResult'))
   if (is.null(resultNames(x)) || length(resultNames(x)) == 0) {
     return(results(x, name, as.dt=as.dt))

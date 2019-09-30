@@ -137,7 +137,7 @@
 #'   remove unnecessary large objects from your workspace when this is `TRUE`
 #'   because R will likely want to copy them down into your worker threads.
 #' @param BPPARAM a *BiocParallel* parameter definition, like one generated from
-#'   [BiocParallel::MulticoreParam()()], or [BiocParallel::BatchtoolsParam()],
+#'   [BiocParallel::MulticoreParam()], or [BiocParallel::BatchtoolsParam()],
 #'   for instance, which is passed down to [BiocParallel]::bplapply()]. If not
 #'   specified and `.parallel = TRUE`, then the [BiocParallel::bpparam()] object
 #'   will be used. If `.parallel = FALSE`, this parameter is explicitly ignored

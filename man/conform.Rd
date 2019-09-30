@@ -38,7 +38,7 @@ in the genesets, this is a means to pick the single row for that ID}
 \item{max.gs.size}{Ensure that the genesets that make their way to the
 \code{GeneSetDb@table} are smaller than this size}
 
-\item{match.tolerance}{Numeric value between \link{0,1}. If the fraction of
+\item{match.tolerance}{Numeric value between [0,1]. If the fraction of
 \code{featureId}s used in \code{x} that match \code{rownames(y)} is below
 this number, a warning will be fired.}
 }
@@ -59,7 +59,7 @@ successfully mapped to \code{target} and the minimum and maximum number of
 genes per geneset required as specified by the \code{min.gs.size} and
 \code{max.gs.size} parameters, respectively.
 
-Only genesets that are marked with \code{active=TRUE} will be used in any
+Only genesets that are marked with \code{active = TRUE} will be used in any
 downstream gene set operations.
 }
 \section{Related Functions}{

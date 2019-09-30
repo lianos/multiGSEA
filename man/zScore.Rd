@@ -18,8 +18,8 @@ Calculate single sample geneset score by average z-score method
 }
 \examples{
 vm <- exampleExpressionSet(do.voom=TRUE)
-gdb <- conform(getMSigGeneSetDb('h', "human", "entrez"), vm)
-features <- featureIds(gdb, 'h', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
+gdb <- conform(getMSigGeneSetDb('H', "human", "entrez"), vm)
+features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
                        value='x.idx')
 scores <- zScore(vm[features,])$score
 
@@ -27,5 +27,5 @@ scores <- zScore(vm[features,])$score
 scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
 s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
            setNames(score, sample))
-all.equal(s2, scores) ## should be TRUE
+all.equal(s2, scores)
 }

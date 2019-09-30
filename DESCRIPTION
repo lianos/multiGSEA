@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.13.2
+Version: 0.13.3
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("cph", "fnd"), comment = "2018+"),
@@ -17,7 +17,7 @@ Imports:
     circlize,
     ComplexHeatmap (>= 2.0),
     DelayedMatrixStats,
-    GeneSetDb.MSigDB,
+    msigdb.data,
     limma, 
     edgeR (>= 3.18.1),
     ggplot2 (>= 2.2.0),
@@ -57,10 +57,10 @@ Suggests:
     testthat,
     webshot
 Remotes:
-    lianos/GeneSetDb.MSigDB@master
+    lianos/msigdb.data@master
 biocViews: DifferentialExpression, GeneExpression, GeneSetEnrichment, Pathways
 VignetteBuilder: knitr
-License: MIT + file LICENSE.md
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Collate: 

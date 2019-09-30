@@ -1,9 +1,3 @@
-.msigdb.species <- c('human', 'mouse')
-.msigdb.collections <- list(
-  # 'v5.1'=c(paste0('c', 1:7), 'h'),
-  'v5.2'=c(paste0('c', 1:7), 'h'),
-  'v6.1'=c(paste0('c', 1:7), 'h'))
-.msigdb.version.current <- tail(names(.msigdb.collections), 1L)
 
 #' Fetches a `GeneSetDb` from geneset collections defined in MSigDB.
 #'
@@ -47,7 +41,7 @@
 #' * The source for the gene set as listed on the gene set page.
 #'
 #' @export
-#' @importFrom GeneSetDb.MSigDB msigdb_retrieve
+#' @importFrom msigdb.data msigdb_retrieve
 #'
 #' @param collection character vector specifying the collections you want
 #'   (c1, c2, ..., c7, h). By default we load just the hallmark collecitons.
@@ -62,7 +56,7 @@
 #'   collection, set this flag to `TRUE`.
 #' @param allow_multimap,min_ortho_sources configure how to handle orthology
 #'   mapping (allow multimappers, and what type of level of db suport required).
-#'   See help in [GeneSetDb.MSigDB::msigdb_retrieve()]
+#'   See help in [msigdb.data::msigdb_retrieve()]
 #' @param version the version of the MSigDB database to use.
 #' @return a `GeneSetDb` object
 #' @examples

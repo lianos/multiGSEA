@@ -22,7 +22,7 @@ test_that("with.kegg honors inclusion/exclusion of KEGG gene sets", {
 })
 
 test_that("url function stored correctly", {
-  go.df <- GeneSetDb.MSigDB::msigdb_retrieve("C5", "human", "entrez")
+  go.df <- msigdb.data::msigdb_retrieve("C5", "human", "entrez")
   gdb.o <- GeneSetDb(go.df)
 
   # Let's change the collection to GO_MP, GO_BP, GO_CC and fix custom url

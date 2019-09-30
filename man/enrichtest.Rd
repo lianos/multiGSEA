@@ -34,7 +34,7 @@ or a named (using featureIds) numeric vector of the same.}
 
 \item{restrict.universe}{See same parameter in \code{\link[limma:kegga]{limma::kegga()}}}
 
-\item{plot.bias}{See \code{plot} parameter in \code{\link[limma:kega]{limma::kega()}}. You can generate
+\item{plot.bias}{See \code{plot} parameter in \code{\link[limma:kegga]{limma::kegga()}}. You can generate
 this plot without running \code{enrichtest} using the \code{\link[=plot_enrichtest_bias]{plot_enrichtest_bias()}},
 like so:
 \code{plot_enrichtest_bias(dat, selected = selected, groups = groups, feature.bias = feature.bias)}}

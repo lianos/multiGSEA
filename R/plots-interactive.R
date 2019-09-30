@@ -47,7 +47,7 @@ iplot <- function(x, y, j, value = "logFC",
                   shiny_source='mggenes', width=NULL, height=NULL,
                   ggtheme=theme_bw(), trim=0.005, ...) {
   if (FALSE) {
-    x <- xmg; y <- 'h'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
+    x <- xmg; y <- 'H'; j <- 'HALLMARK_E2F_TARGETS'; value <- 'logFC';
     main <- NULL; type <- 'boxplot'; with.legend <- TRUE
   }
 

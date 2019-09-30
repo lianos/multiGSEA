@@ -28,11 +28,11 @@ be as many new columns added to \code{x} as there are active genesets in \code{g
 }
 \examples{
 vm <- exampleExpressionSet()
-gdb <- getMSigGeneSetDb('h', 'human', "entrez")
+gdb <- getMSigGeneSetDb('H', 'human', "entrez")
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 lfc <- logFC(mg)
 annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
 
 ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
-angio <- subset(annotated, `h;;HALLMARK_ANGIOGENESIS`)
+angio <- subset(annotated, `H;;HALLMARK_ANGIOGENESIS`)
 }

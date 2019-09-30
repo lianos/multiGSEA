@@ -41,7 +41,7 @@ validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
 
 #' This is a generic wrapper around limma::kegga to perform "biased enrichment"
 #'
-#' This, in principle, works similarly to goseq but uses [limma::kega()] as its
+#' This, in principle, works similarly to goseq but uses [limma::kegga()] as its
 #' engine. If you don't want to calculate any type of biased enrichment, then
 #' explicitly set feature.bias and prior.prob to `NULL`.
 #'
@@ -181,7 +181,7 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #'   or a named (using featureIds) numeric vector of the same.
 #' @param universe Defaults to all elements in `dat[["featureId"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
-#' @param plot.bias See `plot` parameter in [limma::kega()]. You can generate
+#' @param plot.bias See `plot` parameter in [limma::kegga()]. You can generate
 #'   this plot without running `enrichtest` using the [plot_enrichtest_bias()],
 #'   like so:
 #'   `plot_enrichtest_bias(dat, selected = selected, groups = groups,
