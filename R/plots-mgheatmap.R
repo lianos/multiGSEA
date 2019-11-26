@@ -121,18 +121,27 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
                       aggregate.by = c("none", "ewm", "zscore"),
                       split = TRUE, scores = NULL, gs.order = NULL,
                       name = NULL, rm.collection.prefix = TRUE,
-                      rm.dups = FALSE, recenter = TRUE, rescale = FALSE,
+                      rm.dups = FALSE, recenter = FALSE, rescale = FALSE,
+                      center = TRUE, scale = TRUE,
                       rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
   X <- as_matrix(x)
-
-  if (is.null(gdb)) {
-    # make a one geneset GeneSetDb
-    faux.gs <- list(allgenes = unique(rownames(x)))
-    gdb <- GeneSetDb(faux.gs, collectionName = "faux")
-    split <- FALSE
-    gs.order <- NULL
+  if (is.null(scores)) {
+    aggregate.by <- match.arg(aggregate.by)
+  } else {
+    stopifnot(
+      is.character(aggregate.by),
+      length(aggregate.by) == 1L,
+      aggregate.by %in% scores$method)
   }
-  stopifnot(is(gdb, "GeneSetDb"))
+
+  # if (is.null(gdb)) {
+  #   # make a one geneset GeneSetDb
+  #   faux.gs <- list(allgenes = unique(rownames(x)))
+  #   gdb <- GeneSetDb(faux.gs, collectionName = "faux")
+  #   split <- FALSE
+  #   gs.order <- NULL
+  # }
+  if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
 
   # split.by <- match.arg(split.by)
   drop1.split <- missing(split)
@@ -149,40 +158,61 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     ncol(X) > 1L,
     !any(is.na(X)))
 
-  if (is.null(scores)) {
-    aggregate.by <- match.arg(aggregate.by)
-  } else {
-    stopifnot(
-      is.character(aggregate.by),
-      length(aggregate.by) == 1L,
-      aggregate.by %in% scores$method)
+  if (!is.null(scores)) {
   }
 
-  gdbc <- suppressWarnings(conform(gdb, X, ...))
-  gdbc.df <- as.data.frame(gdbc) # keep only genes that matched in gdb.df
+  if (!is.null(gdb)) {
+    gdbc <- suppressWarnings(conform(gdb, X, ...))
+    gdbc.df <- as.data.frame(gdbc) # keep only genes that matched in gdb.df
 
-  # Order genesets in requested (if any) order
-  if (!is.null(gs.order)) {
-    assert_character(gs.order, min.len = 1)
-    gs.order <- unique(c(gs.order, gdbc.df[["name"]]))
-    gs.order <- intersect(gs.order, gdbc.df[["name"]])
-    assert_set_equal(gs.order, gdbc.df[["name"]])
-    name. <- factor(gdbc.df[["name"]], gs.order)
-    gdbc.df <- gdbc.df[order(name.),,drop = FALSE]
+    # Order genesets in requested (if any) order
+    if (!is.null(gs.order)) {
+      assert_character(gs.order, min.len = 1)
+      gs.order <- unique(c(gs.order, gdbc.df[["name"]]))
+      gs.order <- intersect(gs.order, gdbc.df[["name"]])
+      assert_set_equal(gs.order, gdbc.df[["name"]])
+      name. <- factor(gdbc.df[["name"]], gs.order)
+      gdbc.df <- gdbc.df[order(name.),,drop = FALSE]
+    }
+
+    # Set this up so we can order the data.frame in the way requested by user
+    gdbc.df$key <- encode_gskey(gdbc.df)
   }
 
-  # Set this up so we can order the data.frame in the way requested by user
-  gdbc.df$key <- encode_gskey(gdbc.df)
+  # What is recenter doing?
+  # 1. The user can set it to `TRUE` to center all values on the mean of their
+  #    row. (`FALSE` does no centering)
+  # 2. A (named) vector of values that is a superset of rownames(x). These will
+  #    be the values that are subtracted from each row.
+  # 3. A logical vector as long as ncol(x). Each value will be centered to the
+  #    mean of the values of the columns specified as TRUE.
+  # 4. An integer vector, the is the analog of 3 but specifies the columns to
+  #    use for centering.
+  if (!test_flag(recenter)) {
+    assert_numeric(recenter, min.len = nrow(X), names = "unique")
+    assert_subset(rownames(X), names(recenter))
+    recenter <- recenter[rownames(X)]
+  }
+  if (!test_flag(center)) {
+    assert_numeric(center, min.len = nrow(X), names = "unique")
+    assert_subset(rownames(X), names(center))
+    center <- center[rownames(X)]
+  }
 
   if (aggregate.by == "none") {
-    ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
-    # We may have a sparse matrix at this point, turning it to dense for now,
-    # but need to fix.
-    X <- X[ridx,,drop=FALSE]
-    split <- if (split) gdbc.df$key else NULL
+    if (!is.null(gdb)) {
+      ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
+      # We may have a sparse matrix at this point, turning it to dense for now,
+      # but need to fix.
+      X <- X[ridx,,drop=FALSE]
+      if (is.numeric(recenter)) recenter <- recenter[ridx]
+      if (is.numeric(center)) center <- center[ridx]
+      split <- if (split) gdbc.df$key else NULL
+    }
   } else {
     if (is.null(scores)) {
-      X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE, ...)
+      X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE,
+                              center = center, scale = scale, ...)
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
@@ -193,11 +223,11 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     split <- if (split) split_gskey(rownames(X))$collection else NULL
   }
 
-  if (recenter || rescale) {
+  if (!isFALSE(recenter) || !isFALSE(rescale)) {
     if (is(X, "sparseMatrix")) {
       X <- as.matrix(X)
     }
-    X <- t(scale(t(X), center=recenter, scale=rescale))
+    X <- t(scale(t(X), center = recenter, scale = rescale))
     isna <- which(is.na(X), arr.ind = TRUE)
     if (nrow(isna) > 0L) {
       na.rows <- unique(isna[, "row"])
@@ -216,8 +246,8 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   # we use viridis.
   if (is.null(col)) {
     # Is 0 close to the center of the score distribution?
-    mean.X <- mean(X)
-    zero.center <- mean.X >= -0.2 && mean.X <= 0.2
+    qtile.X <- quantile(X, c(0.25, 0.75))
+    zero.center <- qtile.X[1L] < 0 && qtile.X[2L] > 0
     if (zero.center) {
       if (missing(zlim)) {
         fpost <- quantile(abs(X), 0.975)
@@ -229,7 +259,9 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
       }
       col <- colorRamp2(
         c(zlim[1L], 0, zlim[2L]),
-        c('#1F294E', '#F7F7F7', '#6E0F11'))
+        # c('#1F294E', '#F7F7F7', '#6E0F11')
+        c("navy", "white", "firebrick")
+        )
     } else {
       if (missing(zlim)) {
         fpost <- quantile(X, c(0.025, 0.975))

@@ -160,6 +160,9 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #' The meat and potatoes of this function's code was extracted from
 #' [limma::kegga()], originally written by Gordon Smyth and Yifang Hu.
 #'
+#' Note that the BiasedUrn CRAN package needs to be installed to support biased
+#' enrichment testing
+#'
 #' @export
 #' @importFrom limma kegga
 #'
@@ -178,7 +181,8 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #' @param feature.bias If `NULL` (default), no bias is used in enrichment
 #'   analysis. Otherwise, can be the name of a column in `dat` to extract
 #'   a numeric bias vector (gene length, GC content, average expression, etc.)
-#'   or a named (using featureIds) numeric vector of the same.
+#'   or a named (using featureIds) numeric vector of the same. The BiasedUrn
+#'   CRAN package is required when this is not NULL.
 #' @param universe Defaults to all elements in `dat[["featureId"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
 #' @param plot.bias See `plot` parameter in [limma::kegga()]. You can generate
