@@ -16,3 +16,8 @@
 \description{
 Combines two GeneSetDb objects together
 }
+\examples{
+gdb1 <- exampleGeneSetDb()
+gdb2 <- GeneSetDb(exampleGeneSetDF())
+gdb <- combine(gdb1, gdb2)
+}

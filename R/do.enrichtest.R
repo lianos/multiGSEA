@@ -20,8 +20,8 @@ validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
       if (!is.data.frame(xmeta.) || !is.numeric(xmeta.[[feature.bias]])) {
         errs <- c(
           errs,
-          paste("when feature.bias is a string, xmeta. needs to be a data.frame ",
-                "with a numeric column named `feature.bias`"))
+          paste("when feature.bias is a string, xmeta. needs to be a ",
+                "data.frame with a numeric column named `feature.bias`"))
         return(errs)
       }
       feature.bias <- setNames(xmeta.[[feature.bias]], xmeta.[["featureId"]])
@@ -166,6 +166,11 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #' @export
 #' @importFrom limma kegga
 #'
+#' @references
+#' Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
+#' Gene ontology analysis for RNA-seq: accounting for selection bias.
+#' *Genome Biology* 11, R14. http://genomebiology.com/2010/11/2/R14
+#'
 #' @param gsd The GeneSetDb
 #' @param dat A data.frame with feature-level statistics. Minimally, this should
 #'   have a `"featureId"` (character) column, but read on ...
@@ -194,10 +199,7 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #'   statistics per pathway, grouped by the `groups` parameter. `P.all` are the
 #'   stats for all selected features, and the remaingin `P.*` columns are for
 #'   the features specifed by `groups`.
-#' @references
-#' Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010).
-#' Gene ontology analysis for RNA-seq: accounting for selection bias.
-#' *Genome Biology* 11, R14. http://genomebiology.com/2010/11/2/R14
+#'
 #' @examples
 #' dgestats <- exampleDgeResult("human", "ensembl")
 #' gdb <- getMSigGeneSetDb("h", "human", "ensembl")

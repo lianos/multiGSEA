@@ -12,6 +12,38 @@ downgradeObject <- function(x) {
   x
 }
 
+#' Combines two MultiGSEAResult objects together.
+#'
+#' This would be useful when you want to add a GSEA result to an already
+#' existing one. `append` would be more appropriate, but ...
+#'
+#' When would you want to do that? Imagine a shiny app that drives multiGSEA.
+#' You might want to present the results of each analysis as they come "online",
+#' so you would run them independently and make them available to the user
+#' immediately after they each finish (ie. in combination with the promises
+#' package).
+#'
+#' @param x A `MultiGSEAResult` object
+#' @param y A `MultiGSEAResult` object
+#' @param rename.x A named vector that used to match resultNames(x) and remane
+#'   them to something different. `names(rename.x)` should match whatever you
+#'   want to change in `resultNames(x)`, and the values are the new names of
+#'   the result.
+#' @param rename.y Same as `rename.x`, but for the results in `y`.
+#' @param ... more things
+#'
+#' @importMethodsFrom BiocGenerics combine
+#' @exportMethod combine
+#' @return A combined `MultiGSEAResult` object
+#' @examples
+#' mg1 <- exampleMultiGSEAResult()
+#' mg2 <- exampleMultiGSEAResult()
+#' mgc <- combine(mg1, mg2, rename.y = )
+setMethod("combine", c(x = "MultiGSEAResult", y = "MultiGSEAResult"),
+function(x, y, rename.x = NULL, rename.y = NULL, ...) {
+
+})
+
 #' Fetches the GeneSetDb from MultiGSEAResult
 #'
 #' @export

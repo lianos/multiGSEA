@@ -902,23 +902,33 @@ addGeneSetMetadata <- function(x, meta, ...) {
 #' gdb1 <- exampleGeneSetDb()
 #' gdb2 <- GeneSetDb(exampleGeneSetDF())
 #' gdb <- append(gdb1, gdb2)
-setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
+setMethod("append", c(x = "GeneSetDb"), function(x, values, after = NA) {
+  .Deprecated("combine")
   if (!missing(after)) {
     warning("`after` argument is ignored in append,GeneSetDb")
   }
-  if (!is(values, 'GeneSetDb')) {
-    values <- GeneSetDb(values)
-  }
-  if (!is(values, 'GeneSetDb')) {
-    stop("GeneSetDb expected by now")
-  }
+  combine(x, values)
+})
+
+#' Combines two GeneSetDb objects together
+#'
+#' @importMethodsFrom BiocGenerics combine
+#' @exportMethod combine
+#' @param x a GeneSetDb object
+#' @param y a GeneSetDb object
+#' @param ... more things
+#' @examples
+#' gdb1 <- exampleGeneSetDb()
+#' gdb2 <- GeneSetDb(exampleGeneSetDF())
+#' gdb <- combine(gdb1, gdb2)
+setMethod("combine", c(x = "GeneSetDb", y = "GeneSetDb"), function(x, y, ...) {
 
   ## Combine the db and featureIdMap(s)
-  db <- rbindlist(list(x@db, values@db), use.names=TRUE, fill=TRUE)
+  db <- rbindlist(list(x@db, y@db), use.names=TRUE, fill=TRUE)
   db <- unique(db, by=c('collection', 'name', 'featureId'))
   db <- setkeyv(db, key(x@db))
 
-  fms <- list(featureIdMap(x, as.dt=TRUE), featureIdMap(values, as.dt=TRUE))
+  fms <- list(featureIdMap(x, as.dt=TRUE), featureIdMap(y, as.dt=TRUE))
   fm <- rbindlist(fms, use.names=TRUE, fill=TRUE)
   ## ensure that a featureId entry maps to only one x.id entry
   ## DEBUG: Is this uniquification necessary?
@@ -926,7 +936,7 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   fm[, x.idx := NA_integer_]  ## blow out any `conform`-ation information
   setkeyv(fm, 'featureId')
 
-  cmeta <- rbind(x@collectionMetadata, values@collectionMetadata)
+  cmeta <- rbind(x@collectionMetadata, y@collectionMetadata)
   cmeta <- unique(cmeta, by=key(x@collectionMetadata))
   setkeyv(cmeta, key(x@collectionMetadata))
 
@@ -936,7 +946,7 @@ setMethod("append", c(x='GeneSetDb'), function(x, values, after=NA) {
   ## Transfer over any extra metadata (columns) of the @table slots from
   ## the two inputs incase the user stored extra data at the geneset level
   ## in them.
-  gs <- rbindlist(list(x@table, values@table), use.names=TRUE, fill=TRUE)
+  gs <- rbindlist(list(x@table, y@table), use.names=TRUE, fill=TRUE)
   add.gs.cols <- setdiff(names(gs), names(out@table))
   if (length(add.gs.cols) > 0) {
     gs.keys <- key(out@table)
