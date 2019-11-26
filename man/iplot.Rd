@@ -4,11 +4,23 @@
 \alias{iplot}
 \title{Visualize gene level behavior of genes within a geneset across a contrast.}
 \usage{
-iplot(x, y, j, value = "logFC", type = c("density", "boxplot"),
-  tools = c("wheel_zoom", "box_select", "reset", "save"), main = NULL,
-  with.legend = TRUE, with.data = FALSE, shiny_source = "mggenes",
-  width = NULL, height = NULL, ggtheme = theme_bw(), trim = 0.005,
-  ...)
+iplot(
+  x,
+  y,
+  j,
+  value = "logFC",
+  type = c("density", "boxplot"),
+  tools = c("wheel_zoom", "box_select", "reset", "save"),
+  main = NULL,
+  with.legend = TRUE,
+  with.data = FALSE,
+  shiny_source = "mggenes",
+  width = NULL,
+  height = NULL,
+  ggtheme = theme_bw(),
+  trim = 0.005,
+  ...
+)
 }
 \arguments{
 \item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object}
@@ -34,12 +46,12 @@ will disable the title altogether.}
 
 \item{with.legend}{Draws a legend to map point color to meaning. There are
 three levels a point (gene level statistic) can be color as, "notsig",
-"psig", and "sig". "notsig" implies that the FDR >= 10\%, "psig" means that
-FDR <= 10\%, but the logFC is "unremarkable" (< 1), and "sig" means
-that both the FDR <= 10\% and the logFC >= 1}
+"psig", and "sig". "notsig" implies that the FDR >= 10\\%, "psig" means that
+FDR <= 10\\%, but the logFC is "unremarkable" (< 1), and "sig" means
+that both the FDR <= 10\\% and the logFC >= 1}
 
 \item{with.data}{if \code{TRUE}, the data used for the plot is added to
-the outgoing rbokeh plot object (list) as \code{$data} Default is
+the outgoing rbokeh plot object (list) as \verb{$data} Default is
 \code{FALSE}}
 }
 \value{
@@ -52,7 +64,7 @@ respect to each other; and (2) see how the compare to the background
 distribution of log fold changes of the entire transcriptome.
 
 You can visualize this behavior via a \code{type = "density"} plot, or a
-\code{type = "boxplot". It is also common to plot either the individual log fold changes }value = "logFC"\code{or t-statistics}value = "t"`.
+\verb{type = "boxplot". It is also common to plot either the individual log fold changes }value = "logFC"\verb{or t-statistics}value = "t"`.
 }
 \examples{
 mgr <- exampleMultiGSEAResult()

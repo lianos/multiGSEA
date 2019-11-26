@@ -4,9 +4,20 @@
 \alias{eigenWeightedMean}
 \title{Single sample gene set score by a weighted average of the genes in geneset}
 \usage{
-eigenWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE, weights = NULL,
-  normalize = FALSE, all.x = NULL, ..., .drop.sd = 1e-04)
+eigenWeightedMean(
+  x,
+  eigengene = 1L,
+  center = TRUE,
+  scale = TRUE,
+  uncenter = center,
+  unscale = scale,
+  retx = FALSE,
+  weights = NULL,
+  normalize = FALSE,
+  all.x = NULL,
+  ...,
+  .drop.sd = 1e-04
+)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score
@@ -54,7 +65,7 @@ identified, and their scaled values are set to 0.}
 }
 \value{
 A list of useful transformation information. The caller is likely
-most interested in the \code{$score} vector, but other bits related to
+most interested in the \verb{$score} vector, but other bits related to
 the SVD/PCA decomposition are included for the ride.
 }
 \description{
@@ -62,7 +73,7 @@ Weights for the genes in \code{x} are calculated by the percent of which
 they contribute to the principal component indicated by \code{eigengene}.
 }
 \details{
-You will generally want the rows of the gene x sample matrix ``x\code{to be z-transformed. If it is not already, ensure that}center` and
+You will generally want the rows of the gene x sample matrix ``x\verb{to be z-transformed. If it is not already, ensure that}center` and
 `scale` are set to `TRUE`.
 
 When uncenter and/or unscale are \code{FALSE}, it means that the scores
@@ -83,7 +94,7 @@ possible, we use as many genes as we can get.
 
 Note that normalization requires an expression matrix to be passed into
 the \code{all.x} parameter, whose columns match 1:1 to the columns in \code{x}.
-Calling \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} with \code{method = "ewm", normalize = TRUE}
+Calling \code{\link[=scoreSingleSamples]{scoreSingleSamples()}} with \verb{method = "ewm", normalize = TRUE}
 handles this transparently.
 
 This idea to implement this method of normalizatition was inspried from

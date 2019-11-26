@@ -8,12 +8,22 @@
 \alias{as.list.GeneSetDb}
 \title{Convert a GeneSetDb to other formats.}
 \usage{
-\method{as.data.frame}{GeneSetDb}(x, row.names = NULL,
-  optional = FALSE, value = c("featureId", "x.id", "x.idx"),
-  active.only = is.conformed(x), ...)
+\method{as.data.frame}{GeneSetDb}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  value = c("featureId", "x.id", "x.idx"),
+  active.only = is.conformed(x),
+  ...
+)
 
-\method{as.list}{GeneSetDb}(x, value = c("featureId", "x.id", "x.idx"),
-  active.only = is.conformed(x), nested = FALSE, ...)
+\method{as.list}{GeneSetDb}(
+  x,
+  value = c("featureId", "x.id", "x.idx"),
+  active.only = is.conformed(x),
+  nested = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{A \code{GeneSetDb} object}
@@ -43,7 +53,7 @@ that many of the limma gene set testing methods use
 }
 }
 \details{
-The \code{as.*} functions accept a \code{value} parameter which indicates the type of
+The \verb{as.*} functions accept a \code{value} parameter which indicates the type of
 IDs you want to export in the conversion:
 \itemize{
 \item \code{"featureId"}: The ID used as originally entered into the \code{GeneSetDb}.

@@ -4,8 +4,14 @@
 \alias{failWith}
 \title{Utility function to try and fail with grace.}
 \usage{
-failWith(default = NULL, expr, frame = parent.frame(),
-  message = geterrmessage(), silent = FALSE, file = stderr())
+failWith(
+  default = NULL,
+  expr,
+  frame = parent.frame(),
+  message = geterrmessage(),
+  silent = FALSE,
+  file = stderr()
+)
 }
 \arguments{
 \item{default}{the value to return if \code{expr} fails}

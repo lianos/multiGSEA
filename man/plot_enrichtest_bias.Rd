@@ -4,8 +4,13 @@
 \alias{plot_enrichtest_bias}
 \title{Plots bias of coviarate to DE / selected status}
 \usage{
-plot_enrichtest_bias(x, selected, feature.bias,
-  title = "DE status vs bias", ...)
+plot_enrichtest_bias(
+  x,
+  selected,
+  feature.bias,
+  title = "DE status vs bias",
+  ...
+)
 }
 \description{
 The meat and potatoes of this function's code was extracted from

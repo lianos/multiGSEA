@@ -4,9 +4,19 @@
 \alias{enrichtest}
 \title{Performs enrichment based testing while (optinally) accounting for bias.}
 \usage{
-enrichtest(gsd, dat, selected = "significant", groups = NULL,
-  feature.bias = NULL, universe = NULL, restrict.universe = FALSE,
-  plot.bias = FALSE, ..., as.dt = FALSE, .pipelined = FALSE)
+enrichtest(
+  gsd,
+  dat,
+  selected = "significant",
+  groups = NULL,
+  feature.bias = NULL,
+  universe = NULL,
+  restrict.universe = FALSE,
+  plot.bias = FALSE,
+  ...,
+  as.dt = FALSE,
+  .pipelined = FALSE
+)
 }
 \arguments{
 \item{gsd}{The GeneSetDb}
@@ -28,7 +38,8 @@ all elements in \code{selected}. See examples for details.}
 \item{feature.bias}{If \code{NULL} (default), no bias is used in enrichment
 analysis. Otherwise, can be the name of a column in \code{dat} to extract
 a numeric bias vector (gene length, GC content, average expression, etc.)
-or a named (using featureIds) numeric vector of the same.}
+or a named (using featureIds) numeric vector of the same. The BiasedUrn
+CRAN package is required when this is not NULL.}
 
 \item{universe}{Defaults to all elements in \code{dat[["featureId"]]}.}
 
@@ -42,7 +53,7 @@ like so:
 \value{
 A data.frame of pathway enrichment. The last N colums are enrichment
 statistics per pathway, grouped by the \code{groups} parameter. \code{P.all} are the
-stats for all selected features, and the remaingin \code{P.*} columns are for
+stats for all selected features, and the remaingin \verb{P.*} columns are for
 the features specifed by \code{groups}.
 }
 \description{
@@ -60,6 +71,9 @@ https://support.bioconductor.org/p/65789/#65914
 
 The meat and potatoes of this function's code was extracted from
 \code{\link[limma:kegga]{limma::kegga()}}, originally written by Gordon Smyth and Yifang Hu.
+
+Note that the BiasedUrn CRAN package needs to be installed to support biased
+enrichment testing
 }
 \examples{
 dgestats <- exampleDgeResult("human", "ensembl")

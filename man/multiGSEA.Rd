@@ -4,10 +4,22 @@
 \alias{multiGSEA}
 \title{Performs a plethora of GSEA analyses over a contrast of interest.}
 \usage{
-multiGSEA(gsd, x, design = NULL, contrast = NULL, methods = NULL,
-  use.treat = FALSE, feature.min.logFC = if (use.treat) log2(1.25) else
-  1, feature.max.padj = 0.1, trim = 0.1, verbose = FALSE, ...,
-  xmeta. = NULL, .parallel = FALSE, BPPARAM = bpparam())
+multiGSEA(
+  gsd,
+  x,
+  design = NULL,
+  contrast = NULL,
+  methods = NULL,
+  use.treat = FALSE,
+  feature.min.logFC = if (use.treat) log2(1.25) else 1,
+  feature.max.padj = 0.1,
+  trim = 0.1,
+  verbose = FALSE,
+  ...,
+  xmeta. = NULL,
+  .parallel = FALSE,
+  BPPARAM = bpparam()
+)
 }
 \arguments{
 \item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} that defines the gene sets of interest.}
@@ -111,12 +123,12 @@ You can choose the methods you want to run over your contrast using the
 \item \code{"fgsea"}: from \code{\link[fgsea:fgsea]{fgsea::fgsea()}}
 }
 
-Methods annotated with a \code{(*)} indicate that these methods require
+Methods annotated with a \verb{(*)} indicate that these methods require
 a complete expression object, a valid design matrix, and a contrast
 specification in order to run. These are all of the same things you need to
 provide when performing a vanilla differential gene expression analysis.
 
-Methods missing a \code{(*)} can be run on a feature-named input vector
+Methods missing a \verb{(*)} can be run on a feature-named input vector
 of gene level statistics which will be used for ranking (ie. a named vector
 of logFC's or t-statistics for genes). They can also be run by providing
 an expression, design, and contrast vector, and the appropriate statistics

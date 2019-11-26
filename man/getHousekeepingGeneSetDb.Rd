@@ -4,8 +4,11 @@
 \alias{getHousekeepingGeneSetDb}
 \title{Retrieves a housekeeping GeneSetDb for a given species}
 \usage{
-getHousekeepingGeneSetDb(species = c("human", "mouse"),
-  id.type = c("entrez", "ensembl"), ...)
+getHousekeepingGeneSetDb(
+  species = c("human", "mouse"),
+  id.type = c("entrez", "ensembl"),
+  ...
+)
 }
 \arguments{
 \item{species}{\code{"human"} or \code{"mouse"}}

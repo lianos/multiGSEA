@@ -5,8 +5,10 @@
 \alias{getGOslimGeneSetDb}
 \title{Get pathways/GOslim information from PANTHER.db Biocondcutor package.}
 \usage{
-getPantherGeneSetDb(type = c("pathway", "goslim"), species = c("human",
-  "mouse"))
+getPantherGeneSetDb(
+  type = c("pathway", "goslim"),
+  species = c("human", "mouse")
+)
 
 getGOslimGeneSetDb(species = c("human", "mouse"))
 }

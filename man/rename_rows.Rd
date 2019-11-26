@@ -28,7 +28,7 @@ the same elements in the target (think of microarray probes to gene
 symbols), what to do? By deafult (\code{"original"}), one of the original
 elements will be renamed to the new name, and the rest will keep their
 original (unique) names. When set to \code{"make.unique"}, the new name
-will be kept, but \code{*.1}, \code{*.2}, etc. will be appended to all but the
+will be kept, but \verb{*.1}, \verb{*.2}, etc. will be appended to all but the
 first multimapper.}
 }
 \description{

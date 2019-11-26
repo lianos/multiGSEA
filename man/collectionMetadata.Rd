@@ -28,11 +28,17 @@ org(x, i, ...)
 
 org(x, i) <- value
 
-addCollectionMetadata(x, xcoll, xname, value, validate.value.fn = NULL,
-  allow.add = TRUE)
+addCollectionMetadata(
+  x,
+  xcoll,
+  xname,
+  value,
+  validate.value.fn = NULL,
+  allow.add = TRUE
+)
 }
 \arguments{
-\item{x}{Object to extract the collectionMetadata from}
+\item{x}{\code{\link[=GeneSetDb]{GeneSetDb()}}}
 
 \item{collection}{The geneset collection to to query}
 
@@ -54,12 +60,10 @@ addCollectionMetadata(x, xcoll, xname, value, validate.value.fn = NULL,
 \item{allow.add}{If \code{FALSE}, this xcoll,xname should be in the
 \code{GeneSetDb} already, and this will fail because something is
 deeply wrong with the world}
-
-\item{x}{\code{\link[=GeneSetDb]{GeneSetDb()}}}
 }
 \value{
 A character vector of URLs for each of the genesets identified by
-\code{i, j}. \code{NA} is returned for genesets \code{i,j} that are not found in \code{x}.
+\verb{i, j}. \code{NA} is returned for genesets \verb{i,j} that are not found in \code{x}.
 
 The updated \code{GeneSetDb}.
 }
@@ -89,10 +93,10 @@ A URL function can be defined per collection that takes the collection,name
 compound key and generates a URL for the gene set that the user can browse
 to for futher information. For instance, the
 \code{\link[=geneSetCollectionURLfunction]{geneSetCollectionURLfunction()}} for the MSigDB collections are defined
-like so:\preformatted{url.fn <- function(collection, name) {
+like so:\preformatted{url.fn <- function(collection, name) \{
   url <- 'http://www.broadinstitute.org/gsea/msigdb/cards/\%s.html'
   sprintf(url, name)
-}
+\}
 gdb <- getMSigGeneSetDb('H')
 geneSetCollectionURLfunction(gdb, 'H') <- url.fn
 }

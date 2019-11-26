@@ -4,9 +4,18 @@
 \alias{scoreSingleSamples}
 \title{Generates single sample gene set scores across a datasets by many methods}
 \usage{
-scoreSingleSamples(gdb, y, methods = "ewm", as.matrix = FALSE,
-  drop.sd = 1e-04, verbose = FALSE, recenter = FALSE,
-  rescale = FALSE, ..., as.dt = FALSE)
+scoreSingleSamples(
+  gdb,
+  y,
+  methods = "ewm",
+  as.matrix = FALSE,
+  drop.sd = 1e-04,
+  verbose = FALSE,
+  recenter = FALSE,
+  rescale = FALSE,
+  ...,
+  as.dt = FALSE
+)
 }
 \arguments{
 \item{gdb}{A GeneSetDb}

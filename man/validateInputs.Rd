@@ -4,8 +4,15 @@
 \alias{validateInputs}
 \title{Validate the input objects to a GSEA call.}
 \usage{
-validateInputs(x, design = NULL, contrast = NULL, methods = NULL,
-  xmeta. = NULL, require.x.rownames = TRUE, ...)
+validateInputs(
+  x,
+  design = NULL,
+  contrast = NULL,
+  methods = NULL,
+  xmeta. = NULL,
+  require.x.rownames = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{The expression object to use}
@@ -23,7 +30,7 @@ have it in this package for dev/testing purposes.}
 for}
 }
 \value{
-A list with "normalized" versions of \code{$x}, \code{$design}, and \code{$contrast}
+A list with "normalized" versions of \verb{$x}, \verb{$design}, and \verb{$contrast}
 for downstream use.
 }
 \description{

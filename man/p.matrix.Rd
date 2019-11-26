@@ -4,8 +4,11 @@
 \alias{p.matrix}
 \title{Assembles a matrix of nominal or adjusted pvalues from a multiGSEA result}
 \usage{
-p.matrix(x, names = resultNames(x), pcol = c("padj",
-  "padj.by.collection", "pval"))
+p.matrix(
+  x,
+  names = resultNames(x),
+  pcol = c("padj", "padj.by.collection", "pval")
+)
 }
 \arguments{
 \item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object.}

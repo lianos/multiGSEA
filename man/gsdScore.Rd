@@ -4,9 +4,18 @@
 \alias{gsdScore}
 \title{Single sample geneset score using SVD based eigengene value per sample.}
 \usage{
-gsdScore(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE, ...,
-  .use_irlba = FALSE, .drop.sd = 1e-04)
+gsdScore(
+  x,
+  eigengene = 1L,
+  center = TRUE,
+  scale = TRUE,
+  uncenter = center,
+  unscale = scale,
+  retx = FALSE,
+  ...,
+  .use_irlba = FALSE,
+  .drop.sd = 1e-04
+)
 }
 \arguments{
 \item{x}{An expression matrix of genes x samples. When using this to score

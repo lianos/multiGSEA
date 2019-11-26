@@ -4,11 +4,26 @@
 \alias{mgheatmap}
 \title{Creates a "geneset smart" ComplexHeatmap::Heatmap}
 \usage{
-mgheatmap(x, gdb = NULL, col = NULL, aggregate.by = c("none", "ewm",
-  "zscore"), split = TRUE, scores = NULL, gs.order = NULL,
-  name = NULL, rm.collection.prefix = TRUE, rm.dups = FALSE,
-  recenter = TRUE, rescale = FALSE, rename.rows = NULL,
-  zlim = NULL, transpose = FALSE, ...)
+mgheatmap(
+  x,
+  gdb = NULL,
+  col = NULL,
+  aggregate.by = c("none", "ewm", "zscore"),
+  split = TRUE,
+  scores = NULL,
+  gs.order = NULL,
+  name = NULL,
+  rm.collection.prefix = TRUE,
+  rm.dups = FALSE,
+  recenter = FALSE,
+  rescale = FALSE,
+  center = TRUE,
+  scale = TRUE,
+  rename.rows = NULL,
+  zlim = NULL,
+  transpose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{the data matrix}
@@ -38,7 +53,7 @@ default. By default, \code{gs.order = NULL} and genesets are enumerated in
 alphabetical in the heatmap. You can pass in a character vector that will
 dictate the order of the genesets displayed in the heatmap. Currently this
 only matches against the \code{"name"} value of the geneset and probably only
-works when \code{split = TRUE}. We will support \code{colleciton,name} tuples soon.
+works when \code{split = TRUE}. We will support \verb{colleciton,name} tuples soon.
 This can be a superset of the names found in \code{gdb}. As of ComplexHeatmap
 v2 (maybe earlier versions), this doesn't really work when
 \code{cluster_rows = TRUE}.}
@@ -90,7 +105,7 @@ More info here.
 This function leverages \code{\link[=rename_rows]{rename_rows()}} so that you can better customize the
 output of your heatmaps by tweaking its rownames.
 
-If you are plotting a \strong{gene-level} heatmap (ie. \code{aggregate.by == "none"``) and the }rownames()\code{are gene identifiers, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
+If you are plotting a \strong{gene-level} heatmap (ie. \verb{aggregate.by == "none"``) and the }rownames()\verb{are gene identifiers, but you want the rownames of the heatmap to be gene symbols. You can perform this renaming using the}rename.rows` parameter.
 \itemize{
 \item If \code{rename.rows} is \code{NULL}, then nothing is done.
 \item If \code{rename.rows} is a \code{string}, then we assume that \code{x} has an associated
@@ -106,14 +121,14 @@ you are trying to rename the rows of an affy matrix to gene symbols, where
 we have multiple probe ids for one gene. When \code{rename.duplicates} is set to
 \code{"original"}, one of the rows will get the new name, and the remaning
 duplicate rows will keep the rownames they came in with. When set to
-\code{"make.unique"}, the new names will contain \code{*.1}, \code{*.2}, etc. suffixes,
+\code{"make.unique"}, the new names will contain \verb{*.1}, \verb{*.2}, etc. suffixes,
 as you would get from using \code{\link[base:make.unique]{base::make.unique()}}.
 }
 
 Maybe you are aggregating the expression scores into geneset scores, and
-you don't want the rownames of the heatmap to be \code{collection;;name} (or just
+you don't want the rownames of the heatmap to be \verb{collection;;name} (or just
 \code{name} when \code{rm.collection.prefx = TRUE}), you can pass in a two column
-\code{data.frame}, where the first column is \code{collection;name} and the second
+\code{data.frame}, where the first column is \verb{collection;name} and the second
 is the name you want to rename that to. There is an example of this in
 the "Examples" section here.
 }

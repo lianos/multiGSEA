@@ -4,8 +4,11 @@
 \alias{getReactomeGeneSetDb}
 \title{Retrieve annotations from reactome.db}
 \usage{
-getReactomeGeneSetDb(species = "human", rm.species.prefix = TRUE,
-  id.type = c("entrez", "ensembl"))
+getReactomeGeneSetDb(
+  species = "human",
+  rm.species.prefix = TRUE,
+  id.type = c("entrez", "ensembl")
+)
 }
 \arguments{
 \item{species}{the species to get pathay information for}

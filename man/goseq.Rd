@@ -4,10 +4,19 @@
 \alias{goseq}
 \title{Perform goseq Enrichment tests across a GeneSetDb.}
 \usage{
-goseq(gsd, selected, universe, feature.bias, method = c("Wallenius",
-  "Sampling", "Hypergeometric"), repcnt = 2000,
-  use_genes_without_cat = TRUE, plot.fit = FALSE, do.conform = TRUE,
-  as.dt = FALSE, .pipelined = FALSE)
+goseq(
+  gsd,
+  selected,
+  universe,
+  feature.bias,
+  method = c("Wallenius", "Sampling", "Hypergeometric"),
+  repcnt = 2000,
+  use_genes_without_cat = TRUE,
+  plot.fit = FALSE,
+  do.conform = TRUE,
+  as.dt = FALSE,
+  .pipelined = FALSE
+)
 }
 \arguments{
 \item{gsd}{The \code{GeneSetDb} object to run tests against}

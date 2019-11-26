@@ -4,8 +4,15 @@
 \alias{volcanoStatsTable}
 \title{Extracts x and y axis values from objects to create input for volcano plot}
 \usage{
-volcanoStatsTable(x, stats = "dge", xaxis = "logFC", yaxis = "pval",
-  idx = "idx", xtfrm = identity, ytfrm = function(vals) -log10(vals))
+volcanoStatsTable(
+  x,
+  stats = "dge",
+  xaxis = "logFC",
+  yaxis = "pval",
+  idx = "idx",
+  xtfrm = identity,
+  ytfrm = function(vals) -log10(vals)
+)
 }
 \arguments{
 \item{x}{A \code{MultiGSEAResult} object, or a \code{data.frame}}

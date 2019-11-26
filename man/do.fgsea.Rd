@@ -4,10 +4,20 @@
 \alias{do.fgsea}
 \title{Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea}
 \usage{
-do.fgsea(gsd, x, design, contrast = ncol(design), minSize = 15,
-  maxSize = 15, nperm = 10000, gseaParam = 1, score.by = c("t",
-  "logFC", "pval"), logFC = NULL, gs.idxs = as.list(gsd, active.only =
-  TRUE, value = "x.idx"), ...)
+do.fgsea(
+  gsd,
+  x,
+  design,
+  contrast = ncol(design),
+  minSize = 15,
+  maxSize = 15,
+  nperm = 10000,
+  gseaParam = 1,
+  score.by = c("t", "logFC", "pval"),
+  logFC = NULL,
+  gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"),
+  ...
+)
 }
 \arguments{
 \item{gsd}{The \code{\link[=GeneSetDb]{GeneSetDb()}} for analysis}

@@ -4,9 +4,20 @@
 \alias{pcWeightedMean}
 \title{Just like eigenWeightedMean but direct from PCA (no gsdscore)}
 \usage{
-pcWeightedMean(x, eigengene = 1L, center = TRUE, scale = TRUE,
-  uncenter = center, unscale = scale, retx = FALSE, weights = NULL,
-  normalize = FALSE, all.x = NULL, ..., .drop.sd = 1e-04)
+pcWeightedMean(
+  x,
+  eigengene = 1L,
+  center = TRUE,
+  scale = TRUE,
+  uncenter = center,
+  unscale = scale,
+  retx = FALSE,
+  weights = NULL,
+  normalize = FALSE,
+  all.x = NULL,
+  ...,
+  .drop.sd = 1e-04
+)
 }
 \description{
 Just like eigenWeightedMean but direct from PCA (no gsdscore)

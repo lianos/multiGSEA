@@ -4,10 +4,21 @@
 \alias{calculateIndividualLogFC}
 \title{Utility function to run limma differential expression analysis}
 \usage{
-calculateIndividualLogFC(x, design, contrast = ncol(design),
-  robust.fit = FALSE, robust.eBayes = FALSE, trend.eBayes = FALSE,
-  treat.lfc = NULL, confint = TRUE, with.fit = FALSE,
-  use.qlf = TRUE, ..., xmeta. = NULL, as.dt = FALSE)
+calculateIndividualLogFC(
+  x,
+  design,
+  contrast = ncol(design),
+  robust.fit = FALSE,
+  robust.eBayes = FALSE,
+  trend.eBayes = FALSE,
+  treat.lfc = NULL,
+  confint = TRUE,
+  with.fit = FALSE,
+  use.qlf = TRUE,
+  ...,
+  xmeta. = NULL,
+  as.dt = FALSE
+)
 }
 \arguments{
 \item{x}{The expression object. This can be 1 column matrix if you are not
@@ -60,8 +71,8 @@ to keep this object as a \code{data.table}}
 \value{
 If \code{with.fit == FALSE} (the default) a \code{data.table} of
 logFC statistics for the contrast under test. Otherwise, a list is
-returned with \code{$result} containing the logFC statistics, and
-\code{$fit} has the limma fit for the data/design/contrast under test.
+returned with \verb{$result} containing the logFC statistics, and
+\verb{$fit} has the limma fit for the data/design/contrast under test.
 }
 \description{
 Utility function to run limma differential expression analysis

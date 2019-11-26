@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{a \code{\link[=GeneSetDb]{GeneSetDb()}}}
 
-\item{keep}{logical vector as long as \code{nrow(geneSets(x, active.only=FALSE)}}
+\item{keep}{logical vector as long as \verb{nrow(geneSets(x, active.only=FALSE)}}
 }
 \value{
 a \code{GeneSetDb} that has only the results for the specified

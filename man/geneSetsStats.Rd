@@ -4,8 +4,14 @@
 \alias{geneSetsStats}
 \title{Summarizes useful statistics per gene set from a MultiGSEAResult}
 \usage{
-geneSetsStats(x, feature.min.logFC = 1, feature.max.padj = 0.1,
-  trim = 0.1, reannotate.significance = FALSE, as.dt = FALSE)
+geneSetsStats(
+  x,
+  feature.min.logFC = 1,
+  feature.max.padj = 0.1,
+  trim = 0.1,
+  reannotate.significance = FALSE,
+  as.dt = FALSE
+)
 }
 \arguments{
 \item{x}{A \code{MultiGSEAResult} object}
@@ -32,16 +38,16 @@ are summarized below:
 thersholds satisfy the criteria of the \code{feature.min.logFC} and
 \code{feature.max.padj} parameters of the original \code{\link[=multiGSEA]{multiGSEA()}} call
 \item \code{n.neutral}: The number of individual features whose abs(logFC) and padj
-thersholds do not satisfy the \code{feature.*} criteria named above.
-\item \code{n.up, n.down}: The number of individual features with \code{logFC > 0} or
-\code{logFC < 0}, respectively, irrespective of the \code{feature.*} thresholds
+thersholds do not satisfy the \verb{feature.*} criteria named above.
+\item \verb{n.up, n.down}: The number of individual features with \code{logFC > 0} or
+\code{logFC < 0}, respectively, irrespective of the \verb{feature.*} thresholds
 referenced above.
-\item \code{n.sig.up, n.sig.down}: The number of individual features that pass the
-\code{feature.*} thresholds and have logFC > 0 or logFC < 0, respectively.
-\item \code{mean.logFC, mean.logFC.trim}: The mean (or trimmed mean) of the individual
+\item \verb{n.sig.up, n.sig.down}: The number of individual features that pass the
+\verb{feature.*} thresholds and have logFC > 0 or logFC < 0, respectively.
+\item \verb{mean.logFC, mean.logFC.trim}: The mean (or trimmed mean) of the individual
 logFC estimates for the features in the gene set. The amount of trim is
 specified in the \code{trim} parameter of the \code{\link[=multiGSEA]{multiGSEA()}} call.
-\item \code{mean.t, mean.t.trim}: The mean (or trimmed mean) of the individual
+\item \verb{mean.t, mean.t.trim}: The mean (or trimmed mean) of the individual
 t-statistics for the features in the gene sets. These are \code{NA} if the input
 expression object was a \code{DGEList}.
 }

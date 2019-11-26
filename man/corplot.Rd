@@ -4,8 +4,15 @@
 \alias{corplot}
 \title{Plots the correlation among the columns of a numeric matrix.}
 \usage{
-corplot(E, title, cluster = FALSE, col.point = "#00000066",
-  diag.distro = TRUE, smooth.scatter = nrow(E) > 400, ...)
+corplot(
+  E,
+  title,
+  cluster = FALSE,
+  col.point = "#00000066",
+  diag.distro = TRUE,
+  smooth.scatter = nrow(E) > 400,
+  ...
+)
 }
 \arguments{
 \item{E}{the matrix used to plot a pairs correlation plot. The vectors used

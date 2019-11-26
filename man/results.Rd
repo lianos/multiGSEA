@@ -12,19 +12,35 @@ resultNames(x)
 
 result(x, ...)
 
-\method{result}{MultiGSEAResult}(x, name = NULL, stats.only = FALSE,
-  rank.by = c("pval", "t", "logFC"), add.suffix = FALSE,
-  as.dt = FALSE, ...)
+\method{result}{MultiGSEAResult}(
+  x,
+  name = NULL,
+  stats.only = FALSE,
+  rank.by = c("pval", "t", "logFC"),
+  add.suffix = FALSE,
+  as.dt = FALSE,
+  ...
+)
 
-results(x, names = resultNames(x), stats.only = TRUE,
-  rank.by = c("pval", "logFC", "t"), add.suffix = length(names) > 1L,
-  as.dt = FALSE)
+results(
+  x,
+  names = resultNames(x),
+  stats.only = TRUE,
+  rank.by = c("pval", "logFC", "t"),
+  add.suffix = length(names) > 1L,
+  as.dt = FALSE
+)
 
-tabulateResults(x, names = resultNames(x), max.p = 0.2,
-  p.col = c("padj", "padj.by.collection", "pval"), as.dt = FALSE)
+tabulateResults(
+  x,
+  names = resultNames(x),
+  max.p = 0.2,
+  p.col = c("padj", "padj.by.collection", "pval"),
+  as.dt = FALSE
+)
 }
 \arguments{
-\item{x}{MultiGSEAResult}
+\item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object.}
 
 \item{name}{the names of the results desired}
 
@@ -43,17 +59,12 @@ columns of the \code{method}-specific statistics returned, ie. the
 \code{pval} column from the \code{"camera"} result will be turned to
 \code{pval.camera}.}
 
-\item{names}{The results you want to cbind together for the output, will
-default to all of them.}
+\item{names}{the names of the GSEA methods to be reported. By default,
+this function will display results for all methods.}
 
 \item{max.p}{The maximum padj value to consider a result significant}
 
 \item{p.col}{use padj or padj.by.collection?}
-
-\item{x}{A \code{\link[=MultiGSEAResult]{MultiGSEAResult()}} object.}
-
-\item{names}{the names of the GSEA methods to be reported. By default,
-this function will display results for all methods.}
 }
 \value{
 a data.table with the results from the requested method.
@@ -76,7 +87,7 @@ generated \code{x}.
 }
 \details{
 The product of an indivdual GSEA is consumed by the corresponding
-\code{do.<METHOD>} function and converted into a data.table of results that
+\verb{do.<METHOD>} function and converted into a data.table of results that
 is internally stored.
 
 Use the \code{resultNames()} function to identify which results are available

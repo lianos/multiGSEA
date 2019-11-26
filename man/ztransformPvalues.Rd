@@ -4,8 +4,7 @@
 \alias{ztransformPvalues}
 \title{Z-tranfsorm a vector of pvalues}
 \usage{
-ztransformPvalues(x, logFC, alternative = c("two.sided", "less",
-  "greater"))
+ztransformPvalues(x, logFC, alternative = c("two.sided", "less", "greater"))
 }
 \arguments{
 \item{x}{\code{numeric} vector of pvalues}
