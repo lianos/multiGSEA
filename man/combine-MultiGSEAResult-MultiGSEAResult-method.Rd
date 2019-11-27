@@ -37,5 +37,5 @@ package).
 \examples{
 mg1 <- exampleMultiGSEAResult()
 mg2 <- exampleMultiGSEAResult()
-mgc <- combine(mg1, mg2, rename.y = )
+mgc <- combine(mg1, mg2)
 }

@@ -95,7 +95,7 @@ test_that("GeneSetDb contructor converts GeneSetCollection properly", {
 })
 
 test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
-  gdbo <- append(gdb.h, gdb.c6)
+  gdbo <- combine(gdb.h, gdb.c6)
 
   gscl <- list(H  = as(gdb.h, 'GeneSetCollection'),
                C6 = as(gdb.c6, 'GeneSetCollection'))
@@ -107,7 +107,7 @@ test_that("GeneSetDb contructor converts list of GeneSetCollection properly", {
 })
 
 test_that("GeneSetDb constructor honors custom collectionName args", {
-  gdbo <- append(gdb.h, gdb.c6)
+  gdbo <- combine(gdb.h, gdb.c6)
 
   lol <- as.list(gdbo, nested=TRUE)
   new.cnames <- setNames(c('x1', 'x2'), names(lol))
@@ -258,11 +258,11 @@ test_that("conform,GeneSetDb follows row permutation in expression object", {
   }
 })
 
-test_that("append,GeneSetDb works", {
+test_that("combine,GeneSetDb works", {
   gsl <- exampleGeneSets()
   gsd <- GeneSetDb(gsl)
   extra <- list(more=list(first=head(letters, 10), second=tail(letters, 10)))
-  gst2 <- append(gsd, extra)
+  gst2 <- combine(gsd, GeneSetDb(extra))
   expect_is(gst2, 'GeneSetDb')
   expect_true(validObject(gst2))
 
@@ -271,7 +271,7 @@ test_that("append,GeneSetDb works", {
   ## Ensure that all new and old features are in the new GeneSetDb
   for (group in names(all.gsl)) {
     for (id in names(all.gsl[[group]])) {
-      info <- sprintf('appended collection: %s, name %s', group, id)
+      info <- sprintf('combined collection: %s, name %s', group, id)
       expected <- all.gsl[[group]][[id]]
       fids <- featureIds(gst2, group, id)
       expect_true(setequal(expected, fids), info=info)
@@ -293,19 +293,19 @@ test_that("gene set metadata kept pre/post conform,GeneSetDb", {
     gs.c[, !names(gs.c) %in% c('active', 'n')])
 })
 
-test_that("append,GeneSetDb honors geneset metadata in columns of geneSets()", {
+test_that("combine,GeneSetDb honors geneset metadata in columns of geneSets()", {
   m <- getMSigGeneSetDb('H', "human", "entrez")
   r <- getReactomeGeneSetDb()
 
-  a <- append(r, m)
+  a <- combine(r, m)
 
-  ## Check that all columns are there
+  # Check that all columns are there
   expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
                        names(geneSets(a))))
 
-  ## Add a species column to m@table to check if it carries through after append
+  # Add species column to m@table to check if it carries through after combine
   m@table$species <- 'human'
-  a2 <- append(m, r)
+  a2 <- combine(m, r)
   expect_true(setequal(c(names(geneSets(m)), names(geneSets(r))),
                        names(geneSets(a2))))
 

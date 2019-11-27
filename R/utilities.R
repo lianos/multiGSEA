@@ -1,3 +1,29 @@
+#' Helper utitlity to rename specified names of a vector
+#'
+#' Looks for values in `x` that are specified in `names(rename)`, and changes
+#' the names in `x` with the ones specified in the values of `rename`.
+#'
+#' @noRd
+#' @param x A character  list/vector (of any type)
+#' @param rename A named character vector
+#' @examples
+#' .replace(c("x", "y", "z"), c("y" = "why", "m" = "emm")) # c("x", "why", "z")
+.replace <- function(x, rename = NULL) {
+  if (is.null(rename)) return(x)
+  assert_character(x)
+  assert_character(rename, names = "unique")
+
+  ridx <- match(names(rename), x)
+  matched <- !is.na(ridx)
+  if (any(matched)) {
+    # This avoids a for loop, but nested function calls are expensive ..
+    x[ridx[matched]] <- rename[matched]
+    x <- .replace(x, rename)
+  }
+
+  x
+}
+
 #' Utility function to ensure order of genesets in cached list used in do.*
 #' methods matches the active genesets extracted from the GeneSetDb used to run
 #' multiGSEA

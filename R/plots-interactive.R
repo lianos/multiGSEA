@@ -30,12 +30,9 @@
 #'   will disable the title altogether.
 #' @param with.legend Draws a legend to map point color to meaning. There are
 #'   three levels a point (gene level statistic) can be color as, "notsig",
-#'   "psig", and "sig". "notsig" implies that the FDR >= 10\%, "psig" means that
-#'   FDR <= 10\%, but the logFC is "unremarkable" (< 1), and "sig" means
-#'   that both the FDR <= 10\% and the logFC >= 1
-#' @param with.data if `TRUE`, the data used for the plot is added to
-#'   the outgoing rbokeh plot object (list) as `$data` Default is
-#'   `FALSE`
+#'   "psig", and "sig". "notsig" implies that the FDR >= 10%, "psig" means that
+#'   FDR <= 10%, but the logFC is "unremarkable" (< 1), and "sig" means
+#'   that both the FDR <= 10% and the logFC >= 1
 #' @return the ploty plot ojbect
 #' @examples
 #' mgr <- exampleMultiGSEAResult()
@@ -43,7 +40,7 @@
 iplot <- function(x, y, j, value = "logFC",
                   type=c('density', 'boxplot'),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
-                  main=NULL, with.legend=TRUE, with.data=FALSE,
+                  main=NULL, with.legend=TRUE,
                   shiny_source='mggenes', width=NULL, height=NULL,
                   ggtheme=theme_bw(), trim=0.005, ...) {
   if (FALSE) {
@@ -79,22 +76,15 @@ iplot <- function(x, y, j, value = "logFC",
   if (type == 'density') {
     out <- iplot.density.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
-                                with.data=with.data, shiny_source=shiny_source,
+                                shiny_source=shiny_source,
                                 ggtheme=ggtheme, trim=trim, ...)
   } else if (type == 'boxplot') {
     out <- iplot.boxplot.plotly(x, y, j, value, main, dat=dat,
                                 with.legend=with.legend, tools=tools,
-                                with.data=with.data, shiny_source=shiny_source,
+                                shiny_source=shiny_source,
                                 width=width, height=height, ggtheme=ggtheme,
                                 trim=trim, ...)
   } else if (type == 'volcano') {
-    # out <- iplot.volcano.rbokeh(x, y, j, value, main, dat=dat,
-    #                             with.legend=with.legend, tools=tools,
-    #                             with.data=with.data, ...)
-    # out <- iplot.volcano.plotly(x, y, j, value, main, dat=dat,
-    #                             with.legend=with.legend, tools=tools,
-    #                             with.data=with.data, width=width, height=height,
-    #                             shiny_source=shiny_source, ggtheme=ggtheme, ...)
   }
 
   out
@@ -105,8 +95,7 @@ iplot <- function(x, y, j, value = "logFC",
 #' @noRd
 #' @importFrom plotly add_markers add_lines config layout plot_ly
 iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
-                                 with.points=TRUE,  with.data=FALSE,
-                                 shiny_source='mggenes',
+                                 with.points=TRUE, shiny_source='mggenes',
                                  legend.pos=c('inside', 'outside'),
                                  height=NULL, width=NULL, trim=0.02,
                                  square=TRUE, ...) {
@@ -178,10 +167,9 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
 #' @importFrom plotly config ggplotly layout plotly_build
 #' @importFrom ggplot2 aes geom_boxplot geom_jitter ggplot
 iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
-                                 with.points=TRUE, with.data=FALSE,
-                                 shiny_source='mggenes', height=NULL,
-                                 width=NULL, ggtheme=theme_bw(), trim=0.02,
-                                 ...) {
+                                 with.points=TRUE, shiny_source='mggenes',
+                                 height=NULL, width=NULL, ggtheme=theme_bw(),
+                                 trim=0.02, ...) {
   is.gs <- dat[['group']] == 'geneset'
   gs <- subset(dat, is.gs) %>% setDF
   bg <- subset(dat, !is.gs) %>% setDF

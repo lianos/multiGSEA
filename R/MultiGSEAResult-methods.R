@@ -38,10 +38,23 @@ downgradeObject <- function(x) {
 #' @examples
 #' mg1 <- exampleMultiGSEAResult()
 #' mg2 <- exampleMultiGSEAResult()
-#' mgc <- combine(mg1, mg2, rename.y = )
+#' mgc <- combine(mg1, mg2)
 setMethod("combine", c(x = "MultiGSEAResult", y = "MultiGSEAResult"),
 function(x, y, rename.x = NULL, rename.y = NULL, ...) {
+  if (!isTRUE(all.equal(geneSetDb(x), geneSetDb(y)))) {
+    stop("Can't combine MultiGSEAResults with different internal GeneSetDb's")
+  }
+  if (!isTRUE(all.equal(logFC(x), logFC(y)))) {
+    stop("Can't combine MultiGSEAResults with different internal logFC stats")
+  }
 
+  xnames <- .replace(resultNames(x), rename.x)
+  ynames <- .replace(resultNames(y), rename.y)
+  rnames <- make.unique(c(xnames, ynames))
+
+  out <- x
+  out@results <- setNames(c(x@results, y@results), rnames)
+  out
 })
 
 #' Fetches the GeneSetDb from MultiGSEAResult

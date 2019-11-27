@@ -13,7 +13,6 @@ iplot(
   tools = c("wheel_zoom", "box_select", "reset", "save"),
   main = NULL,
   with.legend = TRUE,
-  with.data = FALSE,
   shiny_source = "mggenes",
   width = NULL,
   height = NULL,
@@ -46,13 +45,9 @@ will disable the title altogether.}
 
 \item{with.legend}{Draws a legend to map point color to meaning. There are
 three levels a point (gene level statistic) can be color as, "notsig",
-"psig", and "sig". "notsig" implies that the FDR >= 10\\%, "psig" means that
-FDR <= 10\\%, but the logFC is "unremarkable" (< 1), and "sig" means
-that both the FDR <= 10\\% and the logFC >= 1}
-
-\item{with.data}{if \code{TRUE}, the data used for the plot is added to
-the outgoing rbokeh plot object (list) as \verb{$data} Default is
-\code{FALSE}}
+"psig", and "sig". "notsig" implies that the FDR >= 10\%, "psig" means that
+FDR <= 10\%, but the logFC is "unremarkable" (< 1), and "sig" means
+that both the FDR <= 10\% and the logFC >= 1}
 }
 \value{
 the ploty plot ojbect

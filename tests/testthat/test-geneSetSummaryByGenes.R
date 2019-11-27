@@ -19,7 +19,7 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
     setkeyv(c('collection', 'name', 'featureId'))
   db.result <- res %>%
     dplyr::select(collection, name, starts_with('featureId_')) %>%
-    melt(c('collection', 'name')) %>%
+    reshape2::melt(c('collection', 'name')) %>%
       dplyr::rename(featureId=variable, present=value) %>%
     dplyr::mutate(featureId=sub('featureId_', '', featureId)) %>%
     dplyr::filter(present) %>%
@@ -41,7 +41,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
                                feature.rename=FALSE)
 
   ## Check that logFC for each feature is accurate
-  lfc <- melt(as.matrix(res[, features, drop=FALSE])) %>%
+  lfc <- reshape2::melt(as.matrix(res[, features, drop=FALSE])) %>%
     dplyr::transmute(featureId=as.character(Var2), logFC=value) %>%
     dplyr::filter(logFC != 0) %>%
     dplyr::distinct(featureId, .keep_all=TRUE) %>%
@@ -68,7 +68,7 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
     as.data.frame() %>%
     dplyr::select(!!lfc.ex$renamed) %>%
     as.matrix() %>%
-    melt() %>%
+    reshape2::melt() %>%
     dplyr::transmute(renamed=as.character(Var2), logFC=value) %>%
     dplyr::filter(logFC != 0) %>%
     dplyr::distinct(renamed, .keep_all=TRUE) %>%
