@@ -147,7 +147,10 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   } else if (ncol(x) > 1L) {
     # If x is matrix-like but not a DGEList, we assume you are OK to run the
     # limma pipeline.
-    fit <- lmFit(x, design, method = if (robust.fit) 'robust' else 'ls', ...)
+    fit <- suppressWarnings({
+      # partial match of 'coef' to 'coefficients'
+      lmFit(x, design, method = if (robust.fit) 'robust' else 'ls', ...)
+    })
     if (do.contrast) {
       fit <- contrasts.fit(fit, contrast)
       contrast <- 1L
