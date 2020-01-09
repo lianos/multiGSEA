@@ -189,6 +189,13 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   # 4. An integer vector, the is the analog of 3 but specifies the columns to
   #    use for centering.
   if (!test_flag(recenter)) {
+    if (test_logical(recenter) && length(recenter) == ncol(X)) {
+      # indicator of which columns to calculate mean from and recenter to
+      recenter <- which(recenter)
+    }
+    if (test_integerish(recenter, lower = 1L, upper = ncol(X), unique = TRUE)) {
+      recenter <- rowMeans(X[, recenter, drop = FALSE])
+    }
     assert_numeric(recenter, min.len = nrow(X), names = "unique")
     assert_subset(rownames(X), names(recenter))
     recenter <- recenter[rownames(X)]
@@ -211,7 +218,16 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     }
   } else {
     if (is.null(scores)) {
-      X <- scoreSingleSamples(gdb, X, methods=aggregate.by, as.matrix=TRUE,
+      if (is.numeric(recenter) &&
+          isTRUE(all.equal(names(recenter), rownames(X)))) {
+        # DEBUG: You are making this hard on yourself! You think you know what
+        # you're doing now, but you'll be crying next time you have to revisit
+        # this!
+        X <- X - recenter
+        center <- FALSE
+        recenter <- FALSE
+      }
+      X <- scoreSingleSamples(gdb, X, methods = aggregate.by, as.matrix=TRUE,
                               center = center, scale = scale, ...)
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
