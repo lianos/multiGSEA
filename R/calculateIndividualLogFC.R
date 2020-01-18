@@ -45,6 +45,9 @@
 #' @param treat.lfc If this is numeric, this activates limma's "treat"
 #'   functionality and tests for differential expression against this
 #'   specified log fold change threshold. This defaults to `NULL`.
+#' @param weights an option matrix of weights to use in [limma::lmFit()].
+#'   If `x` is an EList already, and `x$weights` is already defined, this
+#'   argument will be ignored.
 #' @param confint add confidence intervals to `topTable` output (default
 #'   `TRUE`)? Ignored if `x` is a `DGEList`.
 #' @param with.fit If `TRUE`, this function returns a list object with
@@ -61,13 +64,13 @@
 #'   logFC statistics for the contrast under test. Otherwise, a list is
 #'   returned with `$result` containing the logFC statistics, and
 #'   `$fit` has the limma fit for the data/design/contrast under test.
-calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
-                                     robust.fit=FALSE, robust.eBayes=FALSE,
-                                     trend.eBayes=FALSE, treat.lfc=NULL,
-                                     confint=TRUE, with.fit=FALSE,
-                                     use.qlf = TRUE, ...,
+calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
+                                     robust.fit = FALSE, robust.eBayes = FALSE,
+                                     trend.eBayes = FALSE, treat.lfc = NULL,
+                                     weights = NULL, confint = TRUE,
+                                     with.fit = FALSE, use.qlf = TRUE, ...,
                                      xmeta. = NULL,
-                                     as.dt=FALSE) {
+                                     as.dt = FALSE) {
   do.contrast <- !is.vector(x) &&
     ncol(x) > 1L &&
     !is.null(design) &&
@@ -147,9 +150,22 @@ calculateIndividualLogFC <- function(x, design, contrast=ncol(design),
   } else if (ncol(x) > 1L) {
     # If x is matrix-like but not a DGEList, we assume you are OK to run the
     # limma pipeline.
+    if (is.null(weights) && !is.null(x[["weights"]])) {
+      weights <- x[["weights"]]
+    }
+    if (!is.null(weights)) {
+      if (is.vector(weights)) {
+        stopifnot(length(weights) == ncol(x))
+      } else if (is.matrix(weights)) {
+        stopifnot(ncol(weights) == ncol(x), nrow(weights) == nrow(x))
+      } else {
+        stop("Unknown weights")
+      }
+    }
     fit <- suppressWarnings({
       # partial match of 'coef' to 'coefficients'
-      lmFit(x, design, method = if (robust.fit) 'robust' else 'ls', ...)
+      lmFit(x, design, method = if (robust.fit) 'robust' else 'ls',
+            weights = weights, ...)
     })
     if (do.contrast) {
       fit <- contrasts.fit(fit, contrast)

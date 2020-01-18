@@ -12,6 +12,7 @@ calculateIndividualLogFC(
   robust.eBayes = FALSE,
   trend.eBayes = FALSE,
   treat.lfc = NULL,
+  weights = NULL,
   confint = TRUE,
   with.fit = FALSE,
   use.qlf = TRUE,
@@ -47,6 +48,10 @@ the limma::eBayes()] function.}
 \item{treat.lfc}{If this is numeric, this activates limma's "treat"
 functionality and tests for differential expression against this
 specified log fold change threshold. This defaults to \code{NULL}.}
+
+\item{weights}{an option matrix of weights to use in \code{\link[limma:lmFit]{limma::lmFit()}}.
+If \code{x} is an EList already, and \code{x$weights} is already defined, this
+argument will be ignored.}
 
 \item{confint}{add confidence intervals to \code{topTable} output (default
 \code{TRUE})? Ignored if \code{x} is a \code{DGEList}.}
