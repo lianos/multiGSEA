@@ -153,4 +153,12 @@ test_that("use explicit observation weights", {
   mismatch.logFC <- sign(x.res[["logFC"]]) != sign(vm.res[["logFC"]])
   expect_true(mean(mismatch.logFC) > 0 & mean(mismatch.logFC) < 0.10)
   expect_false(isTRUE(all.equal(x.res[["pval"]], vm.res[["pval"]])))
+
+  # custom weights through limma
+  ex.res <- lmFit(vm$E, vm$design, weights = W) %>%
+    eBayes() %>%
+    topTable(coef = "tumor", n = Inf, sort.by = "none")
+  expect_equal(x.res[["featureId"]], rownames(ex.res))
+  expect_equal(x.res[["logFC"]], ex.res[["logFC"]])
+  expect_equal(x.res[["pval"]], ex.res[["P.Value"]])
 })
