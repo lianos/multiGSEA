@@ -127,3 +127,30 @@ test_that("calculateIndividualLogFC supports basic ANOVA", {
   expect_equal(cmp$F.x, cmp$F.y)
   expect_equal(cmp$P.Value, cmp$pval)
 })
+
+test_that("use explicit observation weights", {
+  vm <- exampleExpressionSet(do.voom = TRUE)
+
+  # we have already tested that this codepath produces the "standard"
+  # limma::voom result
+  vm.res <- calculateIndividualLogFC(vm, vm$design, "tumor")
+
+  # explicit matrix and weights
+  w.res <- calculateIndividualLogFC(vm$E, vm$design, "tumor",
+                                    weights = vm$weights)
+  expect_equal(w.res[["featureId"]], vm.res[["featureId"]])
+  expect_equal(w.res[["logFC"]], vm.res[["logFC"]])
+  expect_equal(w.res[["pval"]], vm.res[["pval"]])
+
+  # standard voom w/ custom weights. Order of output is the same, but
+  # everything (logFC, t-stats, etc.) are different
+  set.seed(0xFEED)
+  W <- runif(length(vm$E), min = min(vm$weights), max = max(vm$weights))
+  W <- matrix(W, nrow = nrow(vm))
+  x.res <- calculateIndividualLogFC(vm, vm$design, "tumor", weights = W)
+
+  expect_equal(x.res[["featureId"]], vm.res[["featureId"]])
+  mismatch.logFC <- sign(x.res[["logFC"]]) != sign(vm.res[["logFC"]])
+  expect_true(mean(mismatch.logFC) > 0 & mean(mismatch.logFC) < 0.10)
+  expect_false(isTRUE(all.equal(x.res[["pval"]], vm.res[["pval"]])))
+})

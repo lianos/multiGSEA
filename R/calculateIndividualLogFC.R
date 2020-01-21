@@ -150,7 +150,7 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
   } else if (ncol(x) > 1L) {
     # If x is matrix-like but not a DGEList, we assume you are OK to run the
     # limma pipeline.
-    if (is.null(weights) && !is.null(x[["weights"]])) {
+    if (is.null(weights) && is(x, "EList") && !is.null(x[["weights"]])) {
       weights <- x[["weights"]]
     }
     if (!is.null(weights)) {
@@ -159,7 +159,7 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
       } else if (is.matrix(weights)) {
         stopifnot(ncol(weights) == ncol(x), nrow(weights) == nrow(x))
       } else {
-        stop("Unknown weights")
+        stop("Unknown weights class: ", class(weights)[1L])
       }
     }
     fit <- suppressWarnings({
