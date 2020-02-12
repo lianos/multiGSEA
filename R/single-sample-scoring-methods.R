@@ -356,7 +356,7 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
 
   rn <- if (!is.null(rownames(ctrb))) rownames(ctrb) else paste0('r', 1:nrow(ctrb))
   ctrb <- cbind(
-    data.frame(featureId=rn, stringsAsFactors=FALSE),
+    data.frame(feature_id=rn, stringsAsFactors=FALSE),
     as.data.frame(ctrb))
 
   pca <- list(sdev=pca.d, rotation=pca.v,

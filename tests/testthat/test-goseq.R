@@ -8,7 +8,7 @@ test_that("multiGSEA(method='goseq') requires valid feature.bias vector", {
 
   mg <- multiGSEA(gsd, vm, vm$design)
   lfc <- logFC(mg)
-  selected <- subset(lfc, significant)$featureId
+  selected <- subset(lfc, significant)$feature_id
   universe <- rownames(vm)
 
   expect_error({
@@ -28,7 +28,7 @@ test_that("internal goseq mimics goseq package", {
   ## Identify differentially expressed genes
   mg <- multiGSEA(gsd, vm, vm$design)
   lfc <- logFC(mg)
-  selected <- subset(lfc, significant)$featureId
+  selected <- subset(lfc, significant)$feature_id
   universe <- rownames(vm)
   mylens <- setNames(vm$genes$size, rownames(vm))
   degenes <- setNames(integer(length(universe)), universe)
@@ -45,7 +45,7 @@ test_that("internal goseq mimics goseq package", {
   g2c <- transform(as.data.frame(gsd),
                    category=encode_gskey(collection, name),
                    stringsAsFactors=FALSE)
-  g2c <- g2c[, c('category', 'featureId')]
+  g2c <- g2c[, c('category', 'feature_id')]
   pwf <- suppressWarnings(goseq::nullp(degenes, bias.data=mylens))
   goseq.res <- suppressWarnings({
     goseq::goseq(pwf, gene2cat=g2c, method='Wallenius',

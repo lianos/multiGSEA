@@ -150,8 +150,8 @@
 #' gdb <- exampleGeneSetDb()
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor',
 #'                 methods=c('camera', 'fry'),
-#'                 ## customzie camera parameter:
-#'                 inter.gene.cor=0.04)
+#'                 # customzie camera parameter:
+#'                 inter.gene.cor = 0.04)
 #' resultNames(mg)
 #' res.camera <- result(mg, 'camera')
 #' res.fry <- result(mg, 'fry')
@@ -182,7 +182,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
 
   if (is.null(xmeta.) && !is.null(fdata(x))) {
     xmeta. <- fdata(x)
-    xmeta.[["featureId"]] <- rownames(x)
+    xmeta.[["feature_id"]] <- rownames(x)
   }
 
   # ----------------------------------------------------------------------------

@@ -5,6 +5,6 @@ context("PANTHER.db")
 #   ## to ensure that fetching ontologies works.
 #   mdb <- getGOslimGeneSetDb('mouse')
 #   hdb <- getGOslimGeneSetDb('human')
-#   expect_false(any(mdb@db$featureId %in% hdb@db$featureId))
+#   expect_false(any(mdb@db$feature_id %in% hdb@db$feature_id))
 #   expect_true(setequal(geneSets(mdb)$GOID, geneSets(hdb)$GOID))
 # })

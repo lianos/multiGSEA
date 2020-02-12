@@ -145,14 +145,14 @@ iplot.density.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
            yaxis=list(title="Density"),
            showlegend = with.legend, title=main, dragmode="select")
   if ('symbol' %in% names(gs.dat) && with.points) {
-    p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
+    p <- add_markers(p, x=~val, y=~y, key=~feature_id, data=gs.dat, name="Genes",
                      hoverinfo='text',
                      text=~paste0('Symbol: ', symbol, '<br>',
                                   'logFC: ', sprintf('%.3f', logFC), '<br>',
                                   'FDR: ', sprintf('%.3f', padj)))
   } else if (with.points) {
-    p <- add_markers(p, x=~val, y=~y, key=~featureId, data=gs.dat, name="Genes",
-                     text=~paste0('featureId: ', featureId, '<br>',
+    p <- add_markers(p, x=~val, y=~y, key=~feature_id, data=gs.dat, name="Genes",
+                     text=~paste0('feature_id: ', feature_id, '<br>',
                                   'logFC: ', logFC, '<br>',
                                   'FDR: ', padj))
   }
@@ -189,7 +189,7 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   if ('symbol' %in% names(bg) && with.points) {
     gg <- gg +
       suppressWarnings({
-        geom_jitter(aes(key=featureId,
+        geom_jitter(aes(key=feature_id,
                         text=paste0('Symbol: ', symbol, '<br>',
                                     'logFC: ', sprintf('%.3f', logFC), '<br>',
                                     'FDR: ', sprintf('%.3f', padj))),
@@ -199,8 +199,8 @@ iplot.boxplot.plotly <- function(x, y, j, value, main, dat, with.legend=TRUE,
   } else if (with.points) {
     gg <- gg +
       suppressWarnings({
-        geom_jitter(aes(key=featureId,
-                        text=paste(paste0('featureId: ', featureId, '<br>',
+        geom_jitter(aes(key=feature_id,
+                        text=paste(paste0('feature_id: ', feature_id, '<br>',
                                           'logFC: ', logFC, '<br>',
                                           'FDR: ', padj))),
                     data=gs, width=0.2)

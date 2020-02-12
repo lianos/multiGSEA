@@ -1,1 +1,114 @@
-collection,name,featureId,symbolcellularity,B cells,973,CD79Acellularity,B cells,9834,KIAA0125cellularity,B cells,5450,POU2AF1cellularity,B cells,640,BLKcellularity,B cells,1380,CR2cellularity,B cells,57699,CPNE5cellularity,B cells,151888,BTLAcellularity,B cells,2731,GLDCcellularity,B cells,1690,COCHcellularity,B cells,6328,SCN3Acellularity,B cells,53335,BCL11Acellularity,B cells,29760,BLNKcellularity,B cells,57565,KLHL14cellularity,B cells,60468,BACH2cellularity,B cells,6565,SLC15A2cellularity,Dendritic cells,6614,SIGLEC1cellularity,Dendritic cells,3118,HLA-DQA2cellularity,Dendritic cells,942,CD86cellularity,Dendritic cells,714,C1QCcellularity,Dendritic cells,7412,VCAM1cellularity,Dendritic cells,10537,UBDcellularity,Dendritic cells,3290,HSD11B1cellularity,Dendritic cells,8038,ADAM12cellularity,Dendritic cells,2209,FCGR1Acellularity,Dendritic cells,1438,CSF2RAcellularity,Dendritic cells,3624,INHBAcellularity,Dendritic cells,23601,CLEC5Acellularity,Dendritic cells,8778,SIGLEC5cellularity,Dendritic cells,11167,FSTL1cellularity,Dendritic cells,8013,NR4A3cellularity,Macrophages,9332,CD163cellularity,Macrophages,4481,MSR1cellularity,Macrophages,51338,MS4A4Acellularity,Macrophages,8832,CD84cellularity,Macrophages,1118,CHIT1cellularity,Macrophages,58475,MS4A7cellularity,Macrophages,10457,GPNMBcellularity,Macrophages,81035,COLEC12cellularity,Macrophages,5730,PTGDScellularity,Macrophages,348,APOEcellularity,Macrophages,54210,TREM1cellularity,Macrophages,353514,LILRA5cellularity,Macrophages,586,BCAT1cellularity,Macrophages,1513,CTSKcellularity,Macrophages,3929,LBPcellularity,NK cells,57823,SLAMF7cellularity,NK cells,114836,SLAMF6cellularity,NK cells,6693,SPNcellularity,NK cells,969,CD69cellularity,NK cells,5294,PIK3CGcellularity,NK cells,356,FASLGcellularity,NK cells,56253,CRTAMcellularity,NK cells,10990,LILRB5cellularity,NK cells,27036,SIGLEC7cellularity,NK cells,7940,LST1cellularity,NK cells,27180,SIGLEC9cellularity,NK cells,29992,PILRAcellularity,NK cells,3488,IGFBP5cellularity,NK cells,3823,KLRC3cellularity,NK cells,4684,NCAM1cellularity,T cells CD4,923,CD6cellularity,T cells CD4,50852,TRAT1cellularity,T cells CD4,3594,IL12RB1cellularity,T cells CD4,3902,LAG3cellularity,T cells CD4,84868,HAVCR2cellularity,T cells CD4,959,CD40LGcellularity,T cells CD4,50943,FOXP3cellularity,T cells CD4,1235,CCR6cellularity,T cells CD4,2625,GATA3cellularity,T cells CD4,3595,IL12RB2cellularity,T cells CD4,7292,TNFSF4cellularity,T cells CD4,8744,TNFSF9cellularity,T cells CD4,57124,CD248cellularity,T cells CD4,11065,UBE2Ccellularity,T cells CD4,7153,TOP2Acellularity,T cells CD8,926,CD8Bcellularity,T cells CD8,55340,GIMAP5cellularity,T cells CD8,5588,PRKCQcellularity,T cells CD8,1844,DUSP2cellularity,T cells CD8,7994,KAT6Acellularity,T cells CD8,5196,PF4cellularity,T cells CD8,23060,ZNF609cellularity,T cells CD8,687,KLF9cellularity,T cells CD8,6935,ZEB1cellularity,T cells CD8,55623,THUMPD1cellularity,T cells CD8,27122,DKK3cellularity,T cells CD8,23779,ARHGAP8cellularity,T cells CD8,9194,SLC16A7cellularity,T cells CD8,83988,NCALDcellularity,T cells CD8,7570,ZNF22functional,Active fibroblasts,1289,COL5A1functional,Active fibroblasts,2335,FN1functional,Active fibroblasts,1295,COL8A1functional,Active fibroblasts,4313,MMP2functional,Active fibroblasts,2191,FAPfunctional,Active fibroblasts,5159,PDGFRBfunctional,Active fibroblasts,633,BGNfunctional,Active fibroblasts,10630,PDPNfunctional,Active fibroblasts,4017,LOXL2functional,Active fibroblasts,1282,COL4A1functional,Active fibroblasts,1284,COL4A2cellularity,Cytolytic Activity,4283,CXCL9cellularity,Cytolytic Activity,3627,CXCL10cellularity,Cytolytic Activity,925,CD8Acellularity,Cytolytic Activity,3001,GZMAcellularity,Cytolytic Activity,4818,NKG7cellularity,Cytolytic Activity,916,CD3Ecellularity,Cytolytic Activity,3002,GZMBcellularity,Cytolytic Activity,5551,PRF1cellularity,Cytolytic Activity,8320,EOMEScellularity,Cytolytic Activity,3824,KLRD1cellularity,Cytolytic Activity,3458,IFNGcellularity,Cytolytic Activity,30009,TBX21
+collection,name,feature_id,symbol
+cellularity,B cells,973,CD79A
+cellularity,B cells,9834,KIAA0125
+cellularity,B cells,5450,POU2AF1
+cellularity,B cells,640,BLK
+cellularity,B cells,1380,CR2
+cellularity,B cells,57699,CPNE5
+cellularity,B cells,151888,BTLA
+cellularity,B cells,2731,GLDC
+cellularity,B cells,1690,COCH
+cellularity,B cells,6328,SCN3A
+cellularity,B cells,53335,BCL11A
+cellularity,B cells,29760,BLNK
+cellularity,B cells,57565,KLHL14
+cellularity,B cells,60468,BACH2
+cellularity,B cells,6565,SLC15A2
+cellularity,Dendritic cells,6614,SIGLEC1
+cellularity,Dendritic cells,3118,HLA-DQA2
+cellularity,Dendritic cells,942,CD86
+cellularity,Dendritic cells,714,C1QC
+cellularity,Dendritic cells,7412,VCAM1
+cellularity,Dendritic cells,10537,UBD
+cellularity,Dendritic cells,3290,HSD11B1
+cellularity,Dendritic cells,8038,ADAM12
+cellularity,Dendritic cells,2209,FCGR1A
+cellularity,Dendritic cells,1438,CSF2RA
+cellularity,Dendritic cells,3624,INHBA
+cellularity,Dendritic cells,23601,CLEC5A
+cellularity,Dendritic cells,8778,SIGLEC5
+cellularity,Dendritic cells,11167,FSTL1
+cellularity,Dendritic cells,8013,NR4A3
+cellularity,Macrophages,9332,CD163
+cellularity,Macrophages,4481,MSR1
+cellularity,Macrophages,51338,MS4A4A
+cellularity,Macrophages,8832,CD84
+cellularity,Macrophages,1118,CHIT1
+cellularity,Macrophages,58475,MS4A7
+cellularity,Macrophages,10457,GPNMB
+cellularity,Macrophages,81035,COLEC12
+cellularity,Macrophages,5730,PTGDS
+cellularity,Macrophages,348,APOE
+cellularity,Macrophages,54210,TREM1
+cellularity,Macrophages,353514,LILRA5
+cellularity,Macrophages,586,BCAT1
+cellularity,Macrophages,1513,CTSK
+cellularity,Macrophages,3929,LBP
+cellularity,NK cells,57823,SLAMF7
+cellularity,NK cells,114836,SLAMF6
+cellularity,NK cells,6693,SPN
+cellularity,NK cells,969,CD69
+cellularity,NK cells,5294,PIK3CG
+cellularity,NK cells,356,FASLG
+cellularity,NK cells,56253,CRTAM
+cellularity,NK cells,10990,LILRB5
+cellularity,NK cells,27036,SIGLEC7
+cellularity,NK cells,7940,LST1
+cellularity,NK cells,27180,SIGLEC9
+cellularity,NK cells,29992,PILRA
+cellularity,NK cells,3488,IGFBP5
+cellularity,NK cells,3823,KLRC3
+cellularity,NK cells,4684,NCAM1
+cellularity,T cells CD4,923,CD6
+cellularity,T cells CD4,50852,TRAT1
+cellularity,T cells CD4,3594,IL12RB1
+cellularity,T cells CD4,3902,LAG3
+cellularity,T cells CD4,84868,HAVCR2
+cellularity,T cells CD4,959,CD40LG
+cellularity,T cells CD4,50943,FOXP3
+cellularity,T cells CD4,1235,CCR6
+cellularity,T cells CD4,2625,GATA3
+cellularity,T cells CD4,3595,IL12RB2
+cellularity,T cells CD4,7292,TNFSF4
+cellularity,T cells CD4,8744,TNFSF9
+cellularity,T cells CD4,57124,CD248
+cellularity,T cells CD4,11065,UBE2C
+cellularity,T cells CD4,7153,TOP2A
+cellularity,T cells CD8,926,CD8B
+cellularity,T cells CD8,55340,GIMAP5
+cellularity,T cells CD8,5588,PRKCQ
+cellularity,T cells CD8,1844,DUSP2
+cellularity,T cells CD8,7994,KAT6A
+cellularity,T cells CD8,5196,PF4
+cellularity,T cells CD8,23060,ZNF609
+cellularity,T cells CD8,687,KLF9
+cellularity,T cells CD8,6935,ZEB1
+cellularity,T cells CD8,55623,THUMPD1
+cellularity,T cells CD8,27122,DKK3
+cellularity,T cells CD8,23779,ARHGAP8
+cellularity,T cells CD8,9194,SLC16A7
+cellularity,T cells CD8,83988,NCALD
+cellularity,T cells CD8,7570,ZNF22
+functional,Active fibroblasts,1289,COL5A1
+functional,Active fibroblasts,2335,FN1
+functional,Active fibroblasts,1295,COL8A1
+functional,Active fibroblasts,4313,MMP2
+functional,Active fibroblasts,2191,FAP
+functional,Active fibroblasts,5159,PDGFRB
+functional,Active fibroblasts,633,BGN
+functional,Active fibroblasts,10630,PDPN
+functional,Active fibroblasts,4017,LOXL2
+functional,Active fibroblasts,1282,COL4A1
+functional,Active fibroblasts,1284,COL4A2
+cellularity,Cytolytic Activity,4283,CXCL9
+cellularity,Cytolytic Activity,3627,CXCL10
+cellularity,Cytolytic Activity,925,CD8A
+cellularity,Cytolytic Activity,3001,GZMA
+cellularity,Cytolytic Activity,4818,NKG7
+cellularity,Cytolytic Activity,916,CD3E
+cellularity,Cytolytic Activity,3002,GZMB
+cellularity,Cytolytic Activity,5551,PRF1
+cellularity,Cytolytic Activity,8320,EOMES
+cellularity,Cytolytic Activity,3824,KLRD1
+cellularity,Cytolytic Activity,3458,IFNG
+cellularity,Cytolytic Activity,30009,TBX21

@@ -17,7 +17,7 @@ NULL
 utils::globalVariables(
   c(".",
     # appears in data.table[manip := ulations] of core multiGSEA tables
-    "active", "collection", "featureId", "N", "n", "name",
+    "active", "collection", "feature_id", "N", "n", "name",
     "mean.logFC.trim",
     "pval", "padj", "padj.by.collection", "padj.up", "padj.down",
     "value",  "significant", "x.idx",

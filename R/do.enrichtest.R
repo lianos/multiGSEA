@@ -24,7 +24,7 @@ validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
                 "data.frame with a numeric column named `feature.bias`"))
         return(errs)
       }
-      feature.bias <- setNames(xmeta.[[feature.bias]], xmeta.[["featureId"]])
+      feature.bias <- setNames(xmeta.[[feature.bias]], xmeta.[["feature_id"]])
     }
 
     if (!is.numeric(feature.bias)) {
@@ -173,10 +173,10 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #'
 #' @param gsd The GeneSetDb
 #' @param dat A data.frame with feature-level statistics. Minimally, this should
-#'   have a `"featureId"` (character) column, but read on ...
+#'   have a `"feature_id"` (character) column, but read on ...
 #' @param selected Either the name of a logical column in `dat` used to subset
 #'   out the features to run the enrichement over, or a character vector of
-#'   `"featureId"`s that are selected from `dat[["featureId"]]`.
+#'   `"feature_id"`s that are selected from `dat[["feature_id"]]`.
 #' @param groups Encodes groups of features that we can use to test selected
 #'   features individual, as well as "all" together. This can be specified by:
 #'   (1) specifying a name of a column in `dat` to split the enriched features
@@ -188,7 +188,7 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #'   a numeric bias vector (gene length, GC content, average expression, etc.)
 #'   or a named (using featureIds) numeric vector of the same. The BiasedUrn
 #'   CRAN package is required when this is not NULL.
-#' @param universe Defaults to all elements in `dat[["featureId"]]`.
+#' @param universe Defaults to all elements in `dat[["feature_id"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
 #' @param plot.bias See `plot` parameter in [limma::kegga()]. You can generate
 #'   this plot without running `enrichtest` using the [plot_enrichtest_bias()],
@@ -229,14 +229,14 @@ enrichtest <- function(gsd, dat, selected = "significant",
                        restrict.universe = FALSE,
                        plot.bias = FALSE, ...,
                        as.dt = FALSE, .pipelined = FALSE) {
-  dat <- validate.xmeta(dat) # enforse featureId column
-  if (is.null(universe)) universe <- dat[["featureId"]]
+  dat <- validate.xmeta(dat) # enforse feature_id column
+  if (is.null(universe)) universe <- dat[["feature_id"]]
 
   # If this is .pipelined, do we have to conform? I should check that.
   gsd <- conform(gsd, universe, ...)
 
   if (test_string(selected) && test_logical(dat[[selected]])) {
-    selected. <- dat[["featureId"]][dat[[selected]]]
+    selected. <- dat[["feature_id"]][dat[[selected]]]
   } else if (test_character(selected, min.len = 1L)) {
     selected. <- intersect(selected, universe)
     if (!setequal(selected., selected)) {
@@ -253,7 +253,7 @@ enrichtest <- function(gsd, dat, selected = "significant",
 
   if (!is.null(groups)) {
     if (test_string(groups) && test_character(dat[[groups]])) {
-      groups <- split(dat[["featureId"]], dat[[groups]])
+      groups <- split(dat[["feature_id"]], dat[[groups]])
     }
   }
 
@@ -272,7 +272,7 @@ enrichtest <- function(gsd, dat, selected = "significant",
 
   if (!is.null(feature.bias)) {
     if (test_string(feature.bias) && test_numeric(dat[[feature.bias]])) {
-      feature.bias <- setNames(dat[[feature.bias]], dat[["featureId"]])
+      feature.bias <- setNames(dat[[feature.bias]], dat[["feature_id"]])
     }
     if (!is.numeric(feature.bias) && all(universe %in% names(feature.bias))) {
       warning("feature.bias vector does not cover universe: running unbiased ",
@@ -300,7 +300,7 @@ enrichtest <- function(gsd, dat, selected = "significant",
   #       126  path:hsa00010
   gene.pathway <- local({
     gp <- as.data.frame(gsd, active.only = TRUE)
-    data.frame(GeneID = gp[["featureId"]], PathwayID = encode_gskey(gp),
+    data.frame(GeneID = gp[["feature_id"]], PathwayID = encode_gskey(gp),
                stringsAsFactors = FALSE)
   })
 

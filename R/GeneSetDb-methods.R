@@ -8,7 +8,7 @@
 #' @param x A data.frame with genes/features in rows
 #' @param gdb A [GeneSetDb()] object with geneset membership
 #' @param x.ids The name of the column in `x` that holds the feautre
-#'   id's in `x` that match the featureId's in `gdb`, or a vector
+#'   id's in `x` that match the feature_id's in `gdb`, or a vector
 #'   of id's to use for each row in `x` that represent these.
 #' @param ... parameters passed down into [incidenceMatrix()]
 #' @return Returns the original `x` with additional columns: each is a
@@ -20,7 +20,7 @@
 #' gdb <- getMSigGeneSetDb('H', 'human', "entrez")
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 #' lfc <- logFC(mg)
-#' annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
+#' annotated <- annotateGeneSetMembership(lfc, gdb, 'feature_id')
 #'
 #' ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
 #' angio <- subset(annotated, `H;;HALLMARK_ANGIOGENESIS`)
@@ -90,7 +90,7 @@ setMethod("length", "GeneSetDb", function(x) nrow(geneSets(x)))
 #' @param max.gs.size Ensure that the genesets that make their way to the
 #'   `GeneSetDb@@table` are smaller than this size
 #' @param match.tolerance Numeric value between \[0,1\]. If the fraction of
-#'   `featureId`s used in `x` that match `rownames(y)` is below
+#'   `feature_id`s used in `x` that match `rownames(y)` is below
 #'   this number, a warning will be fired.
 #' @param ... moar args
 #'
@@ -142,7 +142,7 @@ function(x, target, unique.by=c('none', 'mean', 'var'),
 
   otable <- x@table
   ntable <- x@db[, {
-    f <- featureId
+    f <- feature_id
     xref <- fm[list(f)]
     n <- sum(!is.na(xref$x.idx))
     active <- n >= min.gs.size && n <= max.gs.size
@@ -230,8 +230,8 @@ incidenceMatrix <- function(x, y, ...) {
   stopifnot(is(x, 'GeneSetDb'))
   gs <- NULL
   if (missing(y)) {
-    val <- 'featureId'
-    ynames <- unique(x@db$featureId)
+    val <- 'feature_id'
+    ynames <- unique(x@db$feature_id)
     ncol <- length(ynames)
   } else {
     val <- 'x.idx'
@@ -285,7 +285,7 @@ is.active <- function(x, i, j) {
 }
 
 setMethod("subsetByFeatures", c(x="GeneSetDb"),
-function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
+function(x, features, value=c('feature_id', 'x.id', 'x.idx'), ...) {
   value <- match.arg(value)
   ## some good old data.table voodoo going on inside here
   unk.f <- setdiff(features, featureIds(x, value=value))
@@ -294,7 +294,7 @@ function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
     features <- setdiff(features, unk.f)
   }
 
-  dat <- merge(x@db, featureIdMap(x, as.dt=TRUE), by='featureId')
+  dat <- merge(x@db, featureIdMap(x, as.dt=TRUE), by='feature_id')
   hits <- unique(dat[dat[[value]] %in% features, list(collection, name)])
   gs.all <- geneSets(x, active.only=FALSE, as.dt=TRUE)
   keep <- rep(FALSE, nrow(gs.all))
@@ -307,12 +307,12 @@ function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
 
 #' @rdname featureIds
 setMethod("featureIds", c(x="GeneSetDb"),
-function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
+function(x, i, j, value=c('feature_id', 'x.id', 'x.idx'),
          active.only=is.conformed(x), ...) {
   if (missing(value)) {
-    value <- if (is.conformed(x)) 'x.id' else 'featureId'
+    value <- if (is.conformed(x)) 'x.id' else 'feature_id'
   }
-  value <- match.arg(value, c('featureId', 'x.id', 'x.idx'))
+  value <- match.arg(value, c('feature_id', 'x.id', 'x.idx'))
 
   if (missing(i) && missing(j)) {
     ## User isn't asking about any particular collection, but just wants all
@@ -347,19 +347,19 @@ function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
   }
 
   if (whole.collection) {
-    db <- unique(x@db[gs], by='featureId')
+    db <- unique(x@db[gs], by='feature_id')
   } else {
     ## I am purposefully not using `hasGeneSet` here for performance reasons
     ## hasGeneSet(x, i, j, as.error=TRUE)
     db <- x@db[list(i, j)]
-    if (is.na(db$featureId[1L])) {
+    if (is.na(db$feature_id[1L])) {
       msg <- sprintf("collection=%s, name=%s does not exist in GeneSetDb db",
                      i, j)
       stop(msg)
     }
   }
 
-  fid.map <- featureIdMap(x, as.dt=TRUE)[db$featureId]
+  fid.map <- featureIdMap(x, as.dt=TRUE)[db$feature_id]
   if (is.conformed(x) && active.only) {
     fid.map <- fid.map[!is.na(x.idx)]
   }
@@ -375,7 +375,7 @@ setMethod("featureIdMap", c(x="GeneSetDb"), function(x, as.dt=FALSE) {
 
 #' Replacing the featureIdMap blows away the "conform"-ation status of x
 #'
-#' This method ensures that there is only one featureId <-> x.id mapping value.
+#' This method ensures that there is only one feature_id <-> x.id mapping value.
 #' Note that this does not mean that this enforces a 1:1 mapping, it's just
 #' that the same mapping is not listed more than once.
 #'
@@ -387,14 +387,14 @@ setReplaceMethod('featureIdMap', 'GeneSetDb', function(x, value) {
   if (!ncol(value) == 2) {
     stop("featureIdMap must be a 2 column data.frame")
   }
-  if (!all(x@db$featureId %in% value[[1]])) {
-    stop("Some @db$featureId's are not in first column of new featureIdMap")
+  if (!all(x@db$feature_id %in% value[[1]])) {
+    stop("Some @db$feature_id's are not in first column of new featureIdMap")
   }
 
   value <- as.data.table(value)
-  setnames(value, c('featureId', 'x.id'))
-  value <- unique(value, by=c('featureId', 'x.id'))
-  setkeyv(value, 'featureId')
+  setnames(value, c('feature_id', 'x.id'))
+  value <- unique(value, by=c('feature_id', 'x.id'))
+  setkeyv(value, 'feature_id')
   value[, x.idx := NA_integer_]
   x@featureIdMap <- value
   unconform(x)
@@ -430,7 +430,7 @@ function(x, i, j, active.only=is.conformed(x), with.feature.map=FALSE, ...,
     j <- gs[["name"]]
   }
   stopifnot(isSingleCharacter(i), isSingleCharacter(j))
-  fids <- featureIds(x, i, j, value='featureId', active.only=active.only, ...)
+  fids <- featureIds(x, i, j, value='feature_id', active.only=active.only, ...)
   info <- geneSets(x, active.only=FALSE, as.dt=TRUE)[list(i, j)]
   info <- info[, c("collection", "name", "active", "N", "n"), with=FALSE]
 
@@ -496,7 +496,7 @@ subset.GeneSetDb <- function(x, keep) {
   keep.db <- x@db[gs.keys, nomatch=0] ## only keep entries in db in gs.keys
 
   ## 3
-  keep.featureIdMap <- subset(x@featureIdMap, featureId %in% keep.db$featureId)
+  keep.featureIdMap <- subset(x@featureIdMap, feature_id %in% keep.db$feature_id)
 
   ## 4a
   keep.cm <- subset(x@collectionMetadata, collection %in% keep.db$collection)
@@ -925,16 +925,16 @@ setMethod("combine", c(x = "GeneSetDb", y = "GeneSetDb"), function(x, y, ...) {
 
   ## Combine the db and featureIdMap(s)
   db <- rbindlist(list(x@db, y@db), use.names=TRUE, fill=TRUE)
-  db <- unique(db, by=c('collection', 'name', 'featureId'))
+  db <- unique(db, by=c('collection', 'name', 'feature_id'))
   db <- setkeyv(db, key(x@db))
 
   fms <- list(featureIdMap(x, as.dt=TRUE), featureIdMap(y, as.dt=TRUE))
   fm <- rbindlist(fms, use.names=TRUE, fill=TRUE)
-  ## ensure that a featureId entry maps to only one x.id entry
+  ## ensure that a feature_id entry maps to only one x.id entry
   ## DEBUG: Is this uniquification necessary?
-  fm <- unique(fm, by=c('featureId', 'x.id'))
+  fm <- unique(fm, by=c('feature_id', 'x.id'))
   fm[, x.idx := NA_integer_]  ## blow out any `conform`-ation information
-  setkeyv(fm, 'featureId')
+  setkeyv(fm, 'feature_id')
 
   cmeta <- rbind(x@collectionMetadata, y@collectionMetadata)
   cmeta <- unique(cmeta, by=key(x@collectionMetadata))
@@ -986,7 +986,7 @@ all.equal.GeneSetDb <- function(target, current, features.only = TRUE, ...) {
 
   msg <- TRUE
 
-  dbt <- setkeyv(copy(target@db), c('collection', 'name', 'featureId'))
+  dbt <- setkeyv(copy(target@db), c('collection', 'name', 'feature_id'))
   gst <- geneSets(target, active.only=FALSE, as.dt=TRUE)
 
   dbc <- setkeyv(copy(current@db), key(dbt))
@@ -1033,7 +1033,7 @@ all.equal.GeneSetDb <- function(target, current, features.only = TRUE, ...) {
 #' The `as.*` functions accept a `value` parameter which indicates the type of
 #' IDs you want to export in the conversion:
 #'
-#' * `"featureId"`: The ID used as originally entered into the `GeneSetDb`.
+#' * `"feature_id"`: The ID used as originally entered into the `GeneSetDb`.
 #' * `"x.idx"`: Only valid if the GeneSetDb `x` has been `conform`-ed to an
 #'   expession container. This option will export the features as the integer
 #'   rows of the expression container.
@@ -1065,12 +1065,12 @@ all.equal.GeneSetDb <- function(target, current, features.only = TRUE, ...) {
 #' gdfi <- as.data.frame(gdb, value = 'x.idx')
 #' gdl <- as.list(gdb)
 as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
-                                    value=c('featureId', 'x.id', 'x.idx'),
+                                    value=c('feature_id', 'x.id', 'x.idx'),
                                     active.only=is.conformed(x), ...) {
   stopifnot(is(x, 'GeneSetDb'))
   value <- match.arg(value)
   if (!is.conformed(x) && value %in% c('x.id', 'x.idx')) {
-    stop("must use value='featureId' for non-conformed GeneSetDb'")
+    stop("must use value='feature_id' for non-conformed GeneSetDb'")
   }
 
   fid.map <- featureIdMap(x, as.dt=TRUE)
@@ -1081,12 +1081,12 @@ as.data.frame.GeneSetDb <- function(x, row.names=NULL, optional=FALSE,
 
   gs <- copy(geneSets(x, active.only=active.only, as.dt=TRUE))
 
-  gene2cat <- merge(x@db, fid.map, by='featureId')
+  gene2cat <- merge(x@db, fid.map, by='feature_id')
   gene2cat <- gene2cat[!is.na(gene2cat[[value]]),]
   gene2cat$finalId <- gene2cat[[value]]
 
-  # collection <- name <- finalId <- featureId <- NULL # silence R CMD check NOTEs
-  out <- gene2cat[, list(collection, name, featureId=finalId)]
+  # collection <- name <- finalId <- feature_id <- NULL # silence R CMD check NOTEs
+  out <- gene2cat[, list(collection, name, feature_id=finalId)]
 
   more.cols <- setdiff(names(gene2cat),
                        c(names(out), names(fid.map), 'finalId'))
@@ -1116,7 +1116,7 @@ csplit <- function(x, f) {
 #' @rdname conversion
 #' @method as.list GeneSetDb
 #' @export
-as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
+as.list.GeneSetDb <- function(x, value=c('feature_id', 'x.id', 'x.idx'),
                               active.only=is.conformed(x), nested=FALSE,
                               ...) {
   stopifnot(is(x, 'GeneSetDb'))
@@ -1128,11 +1128,11 @@ as.list.GeneSetDb <- function(x, value=c('featureId', 'x.id', 'x.idx'),
     ## preserve ordering
     out <- sapply(colls, function(coll) {
       xdf <- df[df[['collection']] == coll,,drop=FALSE]
-      csplit(xdf$featureId, xdf$name)
+      csplit(xdf$feature_id, xdf$name)
     }, simplify=FALSE)
   } else {
     df$key <- encode_gskey(df)
-    out <- csplit(df$featureId, df$key)
+    out <- csplit(df$feature_id, df$key)
   }
   out
 }
@@ -1158,7 +1158,7 @@ setAs("GeneSetDb", "GeneSetCollection", function(from) {
     if (!is(idt, 'GeneIdentifierType')) {
       idt <- NullIdentifier()
     }
-    ids <- featureIds(from, coll, name, 'featureId')
+    ids <- featureIds(from, coll, name, 'feature_id')
     xorg <- org[coll]$value[[1]]
     if (is.null(xorg)) {
       xorg <- ""

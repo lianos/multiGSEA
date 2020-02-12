@@ -42,7 +42,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
 
-  # Ensure there is only featureId-like column, and this is its name.
+  # Ensure there is only feature_id-like column, and this is its name.
   xmeta. <- validate.xmeta(xmeta.)
 
   ## Check that x is generally OK
@@ -109,7 +109,7 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
        is.full.design = is.matrix(design))
 }
 
-#' Ensures xmeta. has one and only one featureId-like column that is named
+#' Ensures xmeta. has one and only one feature_id-like column that is named
 #' as such.
 #' @noRd
 validate.xmeta <- function(xmeta. = NULL, ...) {
@@ -117,23 +117,24 @@ validate.xmeta <- function(xmeta. = NULL, ...) {
   if (!is.data.frame(xmeta.)) {
     stop("If not NULL, xmeta. must be a data.frame")
   }
-  xref.col <- match(c("feature_id", "featureId"), colnames(xmeta.))
-  if (all(is.na(xref.col))) {
-    stop("xmeta. needs a featureId or feature_id column")
-  }
-  if (!any(is.na(xref.col))) {
-    same.same <- isTRUE(
-      all.equal(xmeta.[["feature_id"]], xmeta.[["featureId"]]))
-    if (!same.same) {
-      stop("xmeta.$featureId and xmeta.$feature_id do not match")
-    }
-    xmeta.[[xref.col[2]]] <- NULL
-    xref.col <- xref.col[1]
-  } else {
-    xref.col <- xref.col[!is.na(xref.col)]
-  }
-  colnames(xmeta.)[xref.col] <- "featureId"
-  stopifnot(is.character(xmeta.[["featureId"]]))
+  # xref.col <- match(c("featureId", "feature_id"), colnames(xmeta.))
+  # xref.col <- match("feature_id", colnames(xmeta.))
+  # if (all(is.na(xref.col))) {
+  #   stop("xmeta. needs a feature_id or feature_id column")
+  # }
+  # if (!any(is.na(xref.col))) {
+  #   same.same <- isTRUE(
+  #     all.equal(xmeta.[["feature_id"]], xmeta.[["feature_id"]]))
+  #   if (!same.same) {
+  #     stop("xmeta.$feature_id and xmeta.$feature_id do not match")
+  #   }
+  #   xmeta.[[xref.col[2]]] <- NULL
+  #   xref.col <- xref.col[1]
+  # } else {
+  #   xref.col <- xref.col[!is.na(xref.col)]
+  # }
+  # colnames(xmeta.)[xref.col] <- "feature_id"
+  stopifnot(is.character(xmeta.[["feature_id"]]))
   xmeta.
 }
 
@@ -334,10 +335,10 @@ validate.X <- function(x, xmeta. = NULL, ...) {
     return(validate.DGEList(x))
   }
   if (!is.null(xmeta.)) {
-    fid.column <- intersect(c("feature_id", "featureId"), colnames(xmeta.))
+    fid.column <- intersect(c("feature_id", "feature_id"), colnames(xmeta.))
     if (length(fid.column) != 1L) {
       return(paste("xmeta. must have one and only one of ",
-                   "'feature_id', or 'featureId' columns"))
+                   "'feature_id', or 'feature_id' columns"))
     }
     if (!is.character(xmeta.[[fid.column]])) {
       return(paste("xmeta. '", fid.column, "' column must be character"))

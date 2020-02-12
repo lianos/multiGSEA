@@ -57,13 +57,13 @@ volcanoPlot <- function(x, stats='dge', xaxis='logFC', yaxis='pval', idx,
 
   hex <- dat[hex.me,,drop=FALSE]
   if (is.character(highlight)) {
-    hlite <- dat[dat[['featureId']] %in% highlight,,drop=FALSE]
+    hlite <- dat[dat[['feature_id']] %in% highlight,,drop=FALSE]
   } else {
     hlite <- dat[FALSE,,drop=FALSE]
   }
   pts <- dat[!hex.me,,drop=FALSE]
   if (nrow(hlite)) {
-    pts <- pts[!pts[['featureId']] %in% hlite[['featureId']],,drop=FALSE]
+    pts <- pts[!pts[['feature_id']] %in% hlite[['feature_id']],,drop=FALSE]
   }
 
   # silence R CMD check NOTEs
@@ -151,7 +151,7 @@ mg_add_points <- function(gg, dat, color='black') {
   symbol <- xaxis <- yaxis <- .xv <- .yv <- NULL ## "missing symbol" NOTE
   if ('symbol' %in% names(dat)) {
     gg <- gg + suppressWarnings({
-      geom_point(aes(key=featureId,
+      geom_point(aes(key=feature_id,
                      text=paste0('Symbol: ', symbol, '<br>',
                                  xaxis, ': ', sprintf('%.3f', .xv), '<br>',
                                  yaxis, ': ', sprintf('%.3f', .yv))),
@@ -159,8 +159,8 @@ mg_add_points <- function(gg, dat, color='black') {
     })
   } else {
     gg <- gg +
-      geom_point(aes(key=featureId,
-                     text=paste0('featureId: ', featureId, '<br>',
+      geom_point(aes(key=feature_id,
+                     text=paste0('feature_id: ', feature_id, '<br>',
                                  xaxis, ': ', sprintf('%.3f', .xv), '<br>',
                                  yaxis, ': ', sprintf('%.3f', .yv))),
                  color=color, data=dat)
@@ -264,7 +264,7 @@ volcanoStatsTable <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
     stats <- match.arg(stats, c('dge', resultNames(x)))
     if (stats == 'dge') {
       x <- logFC(x, as.dt=TRUE)
-      idx <- 'featureId'
+      idx <- 'feature_id'
     } else {
       x <- result(x, stats, as.dt=TRUE)
       if (missing(xaxis)) xaxis <- "mean.logFC.trim"
@@ -282,12 +282,12 @@ volcanoStatsTable <- function(x, stats='dge', xaxis='logFC', yaxis='pval',
     stop("Missing columns from stats data.frame from volcano object:\n  ",
          paste(missed.cols, collapse=','))
   }
-  if (!'featureId' %in% names(x)) {
+  if (!'feature_id' %in% names(x)) {
     ids <- rownames(x)
     if (is.null(ids)) {
       ids <- as.character(1:nrow(x))
     }
-    x[['featureId']] <- ids
+    x[['feature_id']] <- ids
   }
   x[['.xv']] <- x[[xaxis]]
   x[['.yv']] <- x[[yaxis]]

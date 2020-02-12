@@ -18,8 +18,8 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
   min.max <- range(sapply(gs.idxs, length))
 
   lfc <- logFC(mgt)
-  ranks.lfc <- setNames(lfc[['logFC']], lfc[['featureId']])
-  ranks.t <- setNames(lfc[['t']], lfc[['featureId']])
+  ranks.lfc <- setNames(lfc[['logFC']], lfc[['feature_id']])
+  ranks.t <- setNames(lfc[['t']], lfc[['feature_id']])
 
   expect_warning({
     rest <- fgsea::fgsea(gs.idxs, ranks.t, nperm, min.max[1], min.max[2],

@@ -139,7 +139,7 @@ test_that("eigenWeightedMean can handle 0sd features", {
   # Added to address Issue #20
   # https://github.com/lianos/multiGSEA/issues/20
   gs <- geneSet(conform(gdb, vm), name = "HALLMARK_TGF_BETA_SIGNALING")
-  E.o <- vm$E[gs$featureId,]
+  E.o <- vm$E[gs$feature_id,]
 
   # 0 out low variance genes: these will provide minor contributions to the
   # geneset score anyway

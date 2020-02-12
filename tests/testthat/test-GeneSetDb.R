@@ -23,7 +23,7 @@ test_that("GeneSetDb constructor preserves featureIDs per geneset", {
   ## retrieves them using the back door -- this is intentional.
   for (xgrp in names(gsl)) {
     for (xid in names(gsl[[xgrp]])) {
-      gsd.ids <- gsd@db[list(xgrp, xid)]$featureId
+      gsd.ids <- gsd@db[list(xgrp, xid)]$feature_id
       expected.ids <- gsl[[xgrp]][[xid]]
       info.lol <- sprintf('collection %s id %s', xgrp, xid)
       expect_true(setequal(expected.ids, gsd.ids), info=info.lol)
@@ -37,11 +37,11 @@ test_that("GeneSetDb constructor works with an input data.frame", {
   df <- as.data.frame(gdb0)
 
   # Adding a fake symbol here, just to see what is the what
-  meta <- data.frame(featureId=unique(df$featureId), stringsAsFactors=FALSE)
+  meta <- data.frame(feature_id=unique(df$feature_id), stringsAsFactors=FALSE)
   faux <- replicate(nrow(meta),
                     paste(sample(letters, 5, replace=TRUE), collapse=""))
   meta$symbol <- faux
-  df.in <- merge(df, meta, by='featureId')
+  df.in <- merge(df, meta, by='feature_id')
 
   # A warning is fired if merging extra columns (symbol, here) hoses something
   # in the GeneSetDb, so let's make sure there is no such warning here.
@@ -70,8 +70,8 @@ test_that("gene- and gene-set level metadata data perserved via GeneSetDb.data.f
   expect_equal(gdb2@table$N, gdb2@table$gslevel)
 
   # Test that the geneleve annotations are correct
-  expect_equal(gdb2@db[, list(collection, name, featureId, glevel)],
-               gdf[, list(collection, name, featureId, glevel)])
+  expect_equal(gdb2@db[, list(collection, name, feature_id, glevel)],
+               gdf[, list(collection, name, feature_id, glevel)])
 })
 
 test_that("addGeneSetMetadata doesn't adds geneset metadata appropriately", {
@@ -122,7 +122,7 @@ test_that("GeneSetDb constructor honors custom collectionName args", {
       oids <- featureIds(gdbo, oname, gs.name)
       nids <- featureIds(gdbn, nname, gs.name)
       expect_true(setequal(nids, oids),
-                  info=sprintf("featureId parity for (%s:%s, %s)",
+                  info=sprintf("feature_id parity for (%s:%s, %s)",
                                oname, nname, gs.name))
     }
   }
@@ -136,7 +136,7 @@ test_that("as(gdb, 'GeneSetCollection') preserves featureIds per GeneSet", {
     coll <- gs.info[1]
     name <- gs.info[2]
     expect_true(setequal(GSEABase::geneIds(gs), featureIds(gdb, coll, name)),
-                info=sprintf("featureId match for geneset (%s,%s)", coll, name))
+                info=sprintf("feature_id match for geneset (%s,%s)", coll, name))
   }
 })
 
@@ -186,14 +186,14 @@ test_that("featureIds(GeneSetDb, i, MISSING) gets all features in a collection",
   cols <- unique(geneSets(gsd)$collection)
   for (col in cols) {
     fids <- featureIds(gsd, col)
-    expected <- unique(subset(gsd@db, collection == col)$featureId)
+    expected <- unique(subset(gsd@db, collection == col)$feature_id)
     expect_true(setequal(expected, fids), info=paste("collection:", col))
   }
 
   ## Uncformable features dropped
   for (col in cols) {
     fids <- featureIds(gsc, col)
-    expected <- intersect(subset(gsd@db, collection == col)$featureId,
+    expected <- intersect(subset(gsd@db, collection == col)$feature_id,
                           rownames(vm))
     expect_true(setequal(expected, fids),
                 info=paste("active collection:", col))
@@ -337,13 +337,13 @@ test_that("Conformed GeneSetDb returns only matched genes on data.frame conversi
   gdb.df <- as.data.frame(gdb)
   gdbc.df <- as.data.frame(gdbc)
 
-  extra.genes <- setdiff(gdb.df$featureId, rownames(vm))
-  matched.genes <- intersect(gdb.df$featureId, rownames(vm))
+  extra.genes <- setdiff(gdb.df$feature_id, rownames(vm))
+  matched.genes <- intersect(gdb.df$feature_id, rownames(vm))
   expect_true(length(extra.genes) > 0)
   expect_true(length(matched.genes) > 0)
 
-  expect_true(!all(gdb.df$featureId %in% rownames(vm)))
-  expect_true(all(gdbc.df$featureId %in% rownames(vm)))
+  expect_true(!all(gdb.df$feature_id %in% rownames(vm)))
+  expect_true(all(gdbc.df$feature_id %in% rownames(vm)))
 })
 
 test_that("as.list.GeneSetDb returns gene sets in same order as GeneSetDb", {
@@ -414,11 +414,11 @@ test_that("annotateGeneSetMembership works", {
   expect_equal(lfc.anno.u, lfc.anno.p)
 
   ## ensure that annotateGeneSetMembership guessed the right column
-  lfc.anno.x <- annotateGeneSetMembership(lfc, gdb, x.ids=lfc$featureId)
+  lfc.anno.x <- annotateGeneSetMembership(lfc, gdb, x.ids=lfc$feature_id)
   expect_equal(lfc.anno.x, lfc.anno.u)
 
   ## ensure that x.ids specified by column name in lfc works
-  lfc.anno.c <- annotateGeneSetMembership(lfc, gdb, x.ids='featureId')
+  lfc.anno.c <- annotateGeneSetMembership(lfc, gdb, x.ids='feature_id')
   expect_equal(lfc.anno.x, lfc.anno.c)
 })
 
@@ -440,17 +440,17 @@ test_that("subsetByFeatures returns correct genesets for features", {
   expect_equal(nrow(db.sub) + nrow(db.rest), nrow(db.all))
 
   # 1. Ensure that each geneset in subsetted gdb (gdb.sub) has >= 1
-  #    of requested features in its featureId column.
+  #    of requested features in its feature_id column.
   has.1 <- db.sub[, {
-    list(N=.N, n=sum(featureId %in% features))
+    list(N=.N, n=sum(feature_id %in% features))
   }, by=c('collection', 'name')]
   expect_true(all(has.1$n >= 1))
 
   # 2. Ensure that any geneset not in the subsetted GeneSetDb doesn't have
   #    any of the requested features
   has.0 <- db.rest[, {
-    list(N=.N, n=sum(featureId %in% features))
-  }, by=c('collection', 'featureId')]
+    list(N=.N, n=sum(feature_id %in% features))
+  }, by=c('collection', 'feature_id')]
   expect_true(all(has.0$n) == 0)
 })
 

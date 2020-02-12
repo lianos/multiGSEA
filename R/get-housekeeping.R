@@ -13,7 +13,7 @@
 #' @md
 #'
 #' @param species `"human"` or `"mouse"`
-#' @param id.type defines the type of identifers used in the `featureId` column
+#' @param id.type defines the type of identifers used in the `feature_id` column
 #'   for the GeneSetDb, `"entrez"` or `"ensembl"`.
 #' @return a GeneSetDb of housekeeping genes
 getHousekeepingGeneSetDb <- function(species=c("human", "mouse"),
@@ -26,12 +26,12 @@ getHousekeepingGeneSetDb <- function(species=c("human", "mouse"),
                     mustWork = TRUE)
 
   gsets <- read.csv(fn, colClasses = "character")
-  gsets[["featureId"]] <- gsets[[id.type]]
+  gsets[["feature_id"]] <- gsets[[id.type]]
   gsets[["collection"]] <- "qiagen"
   gsets[["name"]] <- "housekeeping"
 
   gsets <- subset(gsets, organism == species)
-  gdb <- GeneSetDb(gsets[, c("collection", "name", "featureId", "symbol")])
+  gdb <- GeneSetDb(gsets[, c("collection", "name", "feature_id", "symbol")])
 
   geneSetCollectionURLfunction(gdb, 'qiagen') <- qiagen.url.fn(species)
 

@@ -8,7 +8,7 @@
 #' within `x` are returned.
 #'
 #' If the GeneSetDb `x` has been conformed to an expression object this
-#' will default to return only the featureId's that are matched to the target
+#' will default to return only the feature_id's that are matched to the target
 #' expression object, and they will be returned using the same identifiers that
 #' the target expression object uses. To change this behavior, tweak the values
 #' for the `active.only` and `value` parameters, respectively.
@@ -23,7 +23,7 @@
 #'   `MultiGSEAResult`.
 #' @param i,j The collection,name compound key identifier of the gene set
 #' @param value What form do you want the id's in?
-#'   * `"featureId"`: the IDs used in the original geneset definitions
+#'   * `"feature_id"`: the IDs used in the original geneset definitions
 #'   * `"x.id"`: the ids of the features as they are used in the expression
 #'     object.
 #'   * `"x.idx"`: The integer index into the expresion object `x` that the
@@ -51,7 +51,7 @@
 #' ## returned as row indices into vm
 #' fids.idxs <- featureIds(gdb, 'c2', value='x.idx')
 setGeneric("featureIds", signature="x",
-function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
+function(x, i, j, value=c('feature_id', 'x.id', 'x.idx'),
          active.only=is.conformed(x), ...) {
   standardGeneric("featureIds")
 })
@@ -100,7 +100,7 @@ setGeneric("featureIdMap<-", function(x, value) {
 #' geneSetURL(gdb, c('H', 'H'),
 #'            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 #'
-#' ## FeatureId TYpe
+#' ## feature_id TYpe
 #' featureIdType(gdb, 'H')
 #'
 #' ## Organism
@@ -236,7 +236,7 @@ setGeneric("org<-", signature="x", function(x, i, value) {
 #'
 #' @inheritParams featureIds
 #' @param with.feature.map If `TRUE`, then details of the feature mapping
-#'   from the original featureId space to the target feature space are included
+#'   from the original feature_id space to the target feature space are included
 #'   (default: `FALSE`).
 #' @param ... passed down to inner functinos
 #' @template asdt-param
@@ -317,7 +317,7 @@ setGeneric("conform", function(x, ...) standardGeneric("conform"))
 #' features <- c("55839", "8522", "29087")
 #' (gdb.sub <- subsetByFeatures(gdb, features))
 setGeneric("subsetByFeatures", signature="x",
-function(x, features, value=c('featureId', 'x.id', 'x.idx'), ...) {
+function(x, features, value=c('feature_id', 'x.id', 'x.idx'), ...) {
   standardGeneric("subsetByFeatures")
 })
 

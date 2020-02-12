@@ -118,9 +118,9 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
   out <- sapply(do, function(dge.dir) {
     drawn <- switch(
       dge.dir,
-      all = logFC[significant == TRUE]$featureId,
-      up = logFC[significant == TRUE & direction == "up"]$featureId,
-      down = logFC[significant == TRUE & direction == "down"]$featureId)
+      all = logFC[significant == TRUE]$feature_id,
+      up = logFC[significant == TRUE & direction == "up"]$feature_id,
+      down = logFC[significant == TRUE & direction == "down"]$feature_id)
     res <- suppressWarnings({
       multiGSEA::goseq(gsd, drawn, rownames(x), feature.bias, goseq.method,
                        repcnt, use_genes_without_cat, plot.fit=plot.fit,
@@ -172,7 +172,7 @@ do.goseq <- function(gsd, x, design, contrast=ncol(design),
 #'   is called from the \code{\link{multiGSEA}} codepath, we do not have to
 #'   reconform the \code{GeneSetDb} object, because it has already been done.
 #' @param active.only If \code{TRUE}, only "active" genesets are used
-#' @param value The featureId types to extract from \code{gsd}
+#' @param value The feature_id types to extract from \code{gsd}
 #' @param .pipelined If this is being external to a multiGSEA pipeline, then
 #'   some additional cleanup of columns name output will be done. Otherwise
 #'   the column renaming and post processing is left to the do.goseq caller
@@ -216,7 +216,7 @@ goseq <- function(gsd, selected, universe, feature.bias,
   gs[, category := encode_gskey(gs)]
   g2c <- as.data.frame(gsd, active.only=TRUE, value='x.id')
   g2c <- transform(g2c, category=encode_gskey(g2c))
-  g2c <- g2c[, c('category', 'featureId')]
+  g2c <- g2c[, c('category', 'feature_id')]
 
   selected <- intersect(selected, universe)
   de.genes <- setNames(integer(length(universe)), universe)

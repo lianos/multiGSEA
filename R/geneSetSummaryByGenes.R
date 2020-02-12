@@ -19,7 +19,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
     stop("No selected features in GeneSetDb")
   }
   x.sub <- subsetByFeatures(x, features)
-  x.db <- x.sub@db[featureId %in% features]
+  x.db <- x.sub@db[feature_id %in% features]
   x.gs <- geneSets(x.sub, as.dt=TRUE)
 
   gs.cols <- c('collection', 'name', 'active')
@@ -32,12 +32,12 @@ function(x, features, with.features=TRUE, feature.rename=NULL, ...,
 
   ## Each geneset row will be annotated with the number of features it
   ## it has, even if caller doesn't ask for `with.features`. To do so we first
-  ## create geneset <-> featureId contingency table.
-  ## we turn x.dt$featureId into a factor with levels == features because there
+  ## create geneset <-> feature_id contingency table.
+  ## we turn x.dt$feature_id into a factor with levels == features because there
   ## maybe be some features that don't appear anywhere (due to conformation(?))
 
   x.dt <- dcast.data.table(transform(x.db, present=TRUE),
-                           collection + name ~ featureId,
+                           collection + name ~ feature_id,
                            value.var='present', fill=FALSE)
 
   ## I was once given a strange GeneSetDb object with genesets in gdb@db that
@@ -114,7 +114,7 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
   ## logFC of that feature
   if (with.features) {
     ## spank on the logFCs of the genes
-    lfc <- setkeyv(copy(logFC(x, as.dt=TRUE)), 'featureId')
+    lfc <- setkeyv(copy(logFC(x, as.dt=TRUE)), 'feature_id')
     for (fid in features) {
       replace.me <- fcols[[fid]]
       fcols[, (fid) := ifelse(replace.me, lfc[fid]$logFC, 0)]
@@ -122,10 +122,10 @@ function(x, features, with.features=TRUE, feature.rename=NULL,
 
     if (is.character(feature.rename)) {
       feature.rename <- feature.rename[1]
-      ## Where do we find the featureId <-> renamed xref? If we find this column
+      ## Where do we find the feature_id <-> renamed xref? If we find this column
       ## in the logFC(x) table, then that trumps all.
       if (is.character(lfc[[feature.rename]])) {
-        xref <- match(gdb@db$featureId, lfc$featureId)
+        xref <- match(gdb@db$feature_id, lfc$feature_id)
         gdb@db[[feature.rename]] <- lfc[[feature.rename]][xref]
       }
     }
@@ -185,9 +185,9 @@ rename.feature.columns <- function(x, gdb, feature.rename=NULL) {
   if (is.null(feature.rename)) {
     new.names <- default.names
   } else {
-    db <- gdb@db[featureId %in% rename.cols]
-    db <- unique(db, by=c('featureId'))
-    new.names <- setNames(db[[feature.rename]], db[['featureId']])
+    db <- gdb@db[feature_id %in% rename.cols]
+    db <- unique(db, by=c('feature_id'))
+    new.names <- setNames(db[[feature.rename]], db[['feature_id']])
     isna <- is.na(new.names)
     new.names[isna] <- default.names[isna]
   }

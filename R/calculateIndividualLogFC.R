@@ -96,7 +96,7 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
     # make the output of this look like a "DGE" data.table
     out <- data.table(logFC=x[, 1L], AveExpr=NA_real_, t=x[, 1L],
                       pval=NA_real_, padj=NA_real_, confint=NA_real_,
-                      featureId=rownames(x))
+                      feature_id=rownames(x))
     fit <- NULL
     test_type <- "preranked"
   } else if (do.contrast) {
@@ -144,7 +144,7 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
       }
     }
     tt <- as.data.frame(topTags(tt, Inf, sort.by='none'))
-    tt <- transform(setDT(tt), t=NA_real_, featureId=rownames(x))
+    tt <- transform(setDT(tt), t=NA_real_, feature_id=rownames(x))
     setnames(tt, c('logCPM', 'PValue', 'FDR'), c('AveExpr', 'pval', 'padj'))
     out <- tt
   } else if (ncol(x) > 1L) {
@@ -181,7 +181,7 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
       tt <- topTable(fit, contrast, number = Inf, sort.by = "none",
                      confint = confint)
     }
-    tt <- transform(setDT(tt), featureId = rownames(x))
+    tt <- transform(setDT(tt), feature_id = rownames(x))
     setnames(tt, c("P.Value", "adj.P.Val"), c("pval", "padj"))
     out <- tt
   }
@@ -207,8 +207,8 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
       #
       # If this generates a data.frame of stats from running a DGE, then we
       # only take columns we don't have
-      xref <- match(out[["featureId"]], xmeta.[["featureId"]])
-      xfer.cols <- setdiff(colnames(xmeta.), "featureId")
+      xref <- match(out[["feature_id"]], xmeta.[["feature_id"]])
+      xfer.cols <- setdiff(colnames(xmeta.), "feature_id")
       if (test_type != "preranked") {
         # only add columns we don't have
         xfer.cols <- setdiff(xfer.cols, colnames(out))
@@ -236,16 +236,16 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
 #' @param x An expression-like object to further test against.
 is.logFC.like <- function(logFC, x, as.error=FALSE) {
   ref.dt <- data.table(logFC=numeric(), t=numeric(), pval=numeric(),
-                       padj=numeric(), featureId=character())
+                       padj=numeric(), feature_id=character())
   ref.check <- check.dt(logFC, ref.dt)
   if (isTRUE(ref.check)) {
     if (!missing(x)) {
       if (nrow(logFC) != nrow(x)) {
         ref.check <- "nrow(logFC) != nrow(x)"
       } else {
-        missed.features <- setdiff(rownames(x), logFC$featureId)
+        missed.features <- setdiff(rownames(x), logFC$feature_id)
         if (length(missed.features)) {
-          ref.check <- sprintf("%d features missing from featureId",
+          ref.check <- sprintf("%d features missing from feature_id",
                                length(missed.features))
         }
       }

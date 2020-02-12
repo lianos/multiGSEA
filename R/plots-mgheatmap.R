@@ -208,7 +208,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
 
   if (aggregate.by == "none") {
     if (!is.null(gdb)) {
-      ridx <- if (rm.dups) unique(gdbc.df$featureId) else gdbc.df$featureId
+      ridx <- if (rm.dups) unique(gdbc.df$feature_id) else gdbc.df$feature_id
       # We may have a sparse matrix at this point, turning it to dense for now,
       # but need to fix.
       X <- X[ridx,,drop=FALSE]

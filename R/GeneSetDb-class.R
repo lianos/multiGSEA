@@ -14,14 +14,14 @@
 #'
 #' * collection
 #' * name
-#' * featureId
+#' * feature_id
 #'
 #' The (`collection`, `name`) compound key is the primary key of a gene set.
 #' There will be as many entries with the same (`collection`, `name`) as there
 #' are genes/features in that set.
 #'
 #' The `GeneSetDb` tracks metadata about genesets at **the collection**
-#' level. This means that we assume that all of the `featureId`'s used
+#' level. This means that we assume that all of the `feature_id`'s used
 #' within a collection use the same type of feature identifier (such as
 #' a [GSEABase::EntrezIdentifier()], were defined in the same organism,
 #' etc.
@@ -49,7 +49,7 @@
 #' * a `data.frame`-like object: To keep track of your own custom gene sets, you
 #'   have probably realized the importance of maintaing your own sanity, and
 #'   likely have gene sets organized in a table like object that has something
-#'   like the `collection`, `name`, and `featureId` required for a `GeneSetDb`.
+#'   like the `collection`, `name`, and `feature_id` required for a `GeneSetDb`.
 #'   Simply rename the appropriate columns to the ones prescribed here, and pass
 #'   that into the constructor. Any other additional columns (symbol, direction,
 #'   etc.) will be copied into the \code{GeneSetDb}.
@@ -114,7 +114,7 @@
 #'
 #' ## list of ids
 #' gs.df$key <- encode_gskey(gs.df)
-#' gs.list <- split(gs.df$featureId, gs.df$key)
+#' gs.list <- split(gs.df$feature_id, gs.df$key)
 #' gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs')
 #'
 #' ## A list of lists, where the top level list splits the collections.
@@ -181,9 +181,9 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
     x[, collection := collectionName]
   }
 
-  if (!"featureId" %in% colnames(x)) {
+  if (!"feature_id" %in% colnames(x)) {
     if ("feature_id" %in% colnames(x)) {
-      setnames(x, "feature_id", "featureId")
+      setnames(x, "feature_id", "feature_id")
     }
   }
 
@@ -199,7 +199,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
 
   x <- unique(x, by=req.cols)
   lol <- sapply(unique(x[['collection']]), function(col) {
-    with(x[collection == col], split(featureId, name))
+    with(x[collection == col], split(feature_id, name))
   }, simplify=FALSE)
   gdb <- GeneSetDb(lol, featureIdMap=featureIdMap)
 
@@ -310,8 +310,8 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   setkeyv(meta, c('collection', 'name'))
 
   if (is.null(featureIdMap)) {
-    .ids <- unique(db$featureId)
-    featureIdMap <- data.table(featureId=.ids, x.id=.ids, x.idx=NA_integer_)
+    .ids <- unique(db$feature_id)
+    featureIdMap <- data.table(feature_id=.ids, x.id=.ids, x.idx=NA_integer_)
     setkeyv(featureIdMap, key(featureIdMap(proto, as.dt=TRUE)))
   }
 
@@ -384,7 +384,7 @@ init.gsd.db.from.list.of.lists <- function(x) {
     groups <- lapply(names(x), function(g.name) {
       members <- lapply(names(x[[g.name]]), function(id) {
         ids <- unique(x[[g.name]][[id]])
-        data.table(collection=g.name, name=id, featureId=ids)
+        data.table(collection=g.name, name=id, feature_id=ids)
       })
       rbindlist(members)
     })
@@ -446,20 +446,20 @@ setValidity("GeneSetDb", function(object) {
   ## ---------------------------------------------------------------------------
   ## Further check @db slot:
   ## 1. ensure all features in @db have a row in the @featureIdMap
-  if (!all(object@db$featureId %in% featureIdMap(object, as.dt=TRUE)$featureId)) {
-    return("Some @db$featureId's are not in featureIdMap(object)$featureId")
+  if (!all(object@db$feature_id %in% featureIdMap(object, as.dt=TRUE)$feature_id)) {
+    return("Some @db$feature_id's are not in featureIdMap(object)$feature_id")
   }
-  if (any(is.na(object@db$featureId))) {
-    return("NA's not permitted in @db$featureId")
+  if (any(is.na(object@db$feature_id))) {
+    return("NA's not permitted in @db$feature_id")
   }
   ## Ensure that the collection,id combination is unique in @table
   if (any(duplicated(object@table, by=key(proto@table)))) {
     return("Duplicated gene set entries in @table")
   }
 
-  ## Ensure that that collection,id,featureId are unique in @db
-  if (any(duplicated(object@db, by=c('collection', 'name', 'featureId')))) {
-    return("Duplicated collection,id,featureId in @db")
+  ## Ensure that that collection,id,feature_id are unique in @db
+  if (any(duplicated(object@db, by=c('collection', 'name', 'feature_id')))) {
+    return("Duplicated collection,id,feature_id in @db")
   }
 
   TRUE
