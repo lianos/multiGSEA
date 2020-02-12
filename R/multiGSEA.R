@@ -160,6 +160,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
                       methods=NULL, use.treat=FALSE,
                       feature.min.logFC=if (use.treat) log2(1.25) else 1,
                       feature.max.padj=0.10, trim=0.10, verbose=FALSE, ...,
+                      rank_by = NULL, select_by = NULL,
+                      rank_order = c("ordered", "descending", "ascending"),
+                      group_by = NULL, biased_by = NULL,
                       xmeta. = NULL, .parallel=FALSE, BPPARAM=bpparam()) {
   if (!is(gsd, "GeneSetDb")) {
     if (is(gsd, "GeneSetCollection") || is(gsd, "GeneSet")) {
@@ -173,6 +176,22 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   }
   if (missing(methods) || length(methods) == 0) {
     methods <- "logFC"
+  }
+
+  # Supporting for data.frames is painful right now, and will be refactored
+  # during the next release cycle.
+  if (is.data.frame(x)) {
+    rank_order <- match.arg(rank_order)
+    assert_character(x[["feature_id"]])
+    assert_string(rank_by)
+    assert_numeric(x[[rank_by]])
+    if (rank_order != "ordered") {
+      xo <- order(x[[rank_by]], decreasing = rank_order == "descending")
+      x <- x[xo,,drop = FALSE]
+    }
+    xmeta. <- x
+    x <- setNames(x[[rank_by]], x[["feature_id"]])
+    xmeta.[[rank_by]] <- NULL
   }
 
   stopifnot(
@@ -191,10 +210,10 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   inputs <- validateInputs(x, design, contrast, methods, xmeta. = xmeta.,
                            require.x.rownames=TRUE, ...)
 
-  x <- inputs$x
-  design <- inputs$design
-  contrast <- inputs$contrast
-  xmeta. <- inputs$xmeta.
+  x <- inputs[["x"]]
+  design <- inputs[["design"]]
+  contrast <- inputs[["contrast"]]
+  xmeta. <- inputs[["xmeta."]]
 
   if (!is.conformed(gsd, x)) {
     gsd <- conform(gsd, x, ...)
@@ -206,9 +225,9 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   # First calculate differential expression statistics, or wrap a pre-ranked
   # vector into a data.frame returned by an internal dge analysis
   treat.lfc <- if (use.treat) feature.min.logFC else NULL
-  logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc=treat.lfc,
-                                    verbose=verbose, ...,
-                                    xmeta. = xmeta., as.dt=TRUE)
+  logFC <- calculateIndividualLogFC(x, design, contrast, treat.lfc = treat.lfc,
+                                    verbose = verbose, ...,
+                                    xmeta. = xmeta., as.dt = TRUE)
   test_type <- attr(logFC, "test_type")
 
   if (!is.logical(logFC[["significant"]])) {
