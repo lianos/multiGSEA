@@ -65,7 +65,7 @@
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
@@ -150,7 +150,7 @@ pcWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   x <- as_matrix(x)
@@ -237,7 +237,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
                      uncenter = center, unscale = scale, retx = FALSE, ...,

@@ -17,7 +17,7 @@ mgheatmap2(
   rm.dups = FALSE,
   recenter = FALSE,
   rescale = FALSE,
-  center = TRUE,
+  center = FALSE,
   scale = FALSE,
   rename.rows = NULL,
   zlim = NULL,
@@ -134,7 +134,6 @@ the "Examples" section here.
 }
 
 \examples{
-library(ComplexHeatmap)
 vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
 col.anno <- ComplexHeatmap::HeatmapAnnotation(
@@ -142,9 +141,12 @@ col.anno <- ComplexHeatmap::HeatmapAnnotation(
   col = list(
     Cancer_Status = c(normal = "grey", tumor = "red"),
     PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
-mgh <- mgheatmap(vm, gdb, aggregate.by = "ewm", split=TRUE,
-                 top_annotation = col.anno, show_column_names = FALSE,
-                 column_title = "Gene Set Activity in BRCA subset")
+mgh <- mgheatmap2(vm, gdb, aggregate.by = "ewm", split = TRUE,
+                  top_annotation = col.anno, show_column_names = FALSE,
+                  column_title = "Gene Set Activity in BRCA subset")
+ComplexHeatmap::draw(mgh)
+
+# Center to "normal" group
 
 # Maybe you want the rownames of the matrix to use spaces instead of "_"
 rr <- geneSets(gdb)[, "name", drop = FALSE]

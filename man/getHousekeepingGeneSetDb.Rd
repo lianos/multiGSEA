@@ -13,7 +13,7 @@ getHousekeepingGeneSetDb(
 \arguments{
 \item{species}{\code{"human"} or \code{"mouse"}}
 
-\item{id.type}{defines the type of identifers used in the \code{featureId} column
+\item{id.type}{defines the type of identifers used in the \code{feature_id} column
 for the GeneSetDb, \code{"entrez"} or \code{"ensembl"}.}
 }
 \value{

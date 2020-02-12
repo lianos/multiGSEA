@@ -234,7 +234,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
-      X <- acast(xs, key ~ sample, value.var = "score")
+      X <- acast(xs, key ~ sample_id, value.var = "score")
       X <- X[unique(gdbc.df$key),]
     }
     # If we want to split, it (only?) makes sense to split by collection

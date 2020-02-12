@@ -154,7 +154,7 @@ geneSetURL(gdb, 'H', 'HALLMARK_ADIPOGENESIS')
 geneSetURL(gdb, c('H', 'H'),
            c('HALLMARK_ADIPOGENESIS', 'HALLMARK_ANGIOGENESIS'))
 
-## FeatureId TYpe
+## feature_id TYpe
 featureIdType(gdb, 'H')
 
 ## Organism

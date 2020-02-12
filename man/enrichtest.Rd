@@ -22,11 +22,11 @@ enrichtest(
 \item{gsd}{The GeneSetDb}
 
 \item{dat}{A data.frame with feature-level statistics. Minimally, this should
-have a \code{"featureId"} (character) column, but read on ...}
+have a \code{"feature_id"} (character) column, but read on ...}
 
 \item{selected}{Either the name of a logical column in \code{dat} used to subset
 out the features to run the enrichement over, or a character vector of
-\code{"featureId"}s that are selected from \code{dat[["featureId"]]}.}
+\code{"feature_id"}s that are selected from \code{dat[["feature_id"]]}.}
 
 \item{groups}{Encodes groups of features that we can use to test selected
 features individual, as well as "all" together. This can be specified by:
@@ -41,7 +41,7 @@ a numeric bias vector (gene length, GC content, average expression, etc.)
 or a named (using featureIds) numeric vector of the same. The BiasedUrn
 CRAN package is required when this is not NULL.}
 
-\item{universe}{Defaults to all elements in \code{dat[["featureId"]]}.}
+\item{universe}{Defaults to all elements in \code{dat[["feature_id"]]}.}
 
 \item{restrict.universe}{See same parameter in \code{\link[limma:kegga]{limma::kegga()}}}
 

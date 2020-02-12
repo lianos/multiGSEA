@@ -12,7 +12,7 @@ annotateGeneSetMembership(x, gdb, x.ids = NULL, ...)
 \item{gdb}{A \code{\link[=GeneSetDb]{GeneSetDb()}} object with geneset membership}
 
 \item{x.ids}{The name of the column in \code{x} that holds the feautre
-id's in \code{x} that match the featureId's in \code{gdb}, or a vector
+id's in \code{x} that match the feature_id's in \code{gdb}, or a vector
 of id's to use for each row in \code{x} that represent these.}
 
 \item{...}{parameters passed down into \code{\link[=incidenceMatrix]{incidenceMatrix()}}}
@@ -31,7 +31,7 @@ vm <- exampleExpressionSet()
 gdb <- getMSigGeneSetDb('H', 'human', "entrez")
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 lfc <- logFC(mg)
-annotated <- annotateGeneSetMembership(lfc, gdb, 'featureId')
+annotated <- annotateGeneSetMembership(lfc, gdb, 'feature_id')
 
 ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
 angio <- subset(annotated, `H;;HALLMARK_ANGIOGENESIS`)

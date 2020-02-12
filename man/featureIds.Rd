@@ -11,7 +11,7 @@ featureIds(
   x,
   i,
   j,
-  value = c("featureId", "x.id", "x.idx"),
+  value = c("feature_id", "x.id", "x.idx"),
   active.only = is.conformed(x),
   ...
 )
@@ -20,7 +20,7 @@ featureIds(
   x,
   i,
   j,
-  value = c("featureId", "x.id", "x.idx"),
+  value = c("feature_id", "x.id", "x.idx"),
   active.only = is.conformed(x),
   ...
 )
@@ -29,7 +29,7 @@ featureIds(
   x,
   i,
   j,
-  value = c("featureId", "x.id", "x.idx"),
+  value = c("feature_id", "x.id", "x.idx"),
   active.only = TRUE,
   ...
 )
@@ -42,7 +42,7 @@ featureIds(
 
 \item{value}{What form do you want the id's in?
 \itemize{
-\item \code{"featureId"}: the IDs used in the original geneset definitions
+\item \code{"feature_id"}: the IDs used in the original geneset definitions
 \item \code{"x.id"}: the ids of the features as they are used in the expression
 object.
 \item \code{"x.idx"}: The integer index into the expresion object \code{x} that the
@@ -67,7 +67,7 @@ these are missing, then a character vector of all the unique feature ids
 within \code{x} are returned.
 
 If the GeneSetDb \code{x} has been conformed to an expression object this
-will default to return only the featureId's that are matched to the target
+will default to return only the feature_id's that are matched to the target
 expression object, and they will be returned using the same identifiers that
 the target expression object uses. To change this behavior, tweak the values
 for the \code{active.only} and \code{value} parameters, respectively.

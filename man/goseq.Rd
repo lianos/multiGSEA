@@ -59,7 +59,7 @@ the column renaming and post processing is left to the do.goseq caller
 
 \item{active.only}{If \code{TRUE}, only "active" genesets are used}
 
-\item{value}{The featureId types to extract from \code{gsd}}
+\item{value}{The feature_id types to extract from \code{gsd}}
 }
 \value{
 A \code{data.table} of results, similar to goseq output. The output

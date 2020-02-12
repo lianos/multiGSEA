@@ -12,14 +12,14 @@
   x,
   row.names = NULL,
   optional = FALSE,
-  value = c("featureId", "x.id", "x.idx"),
+  value = c("feature_id", "x.id", "x.idx"),
   active.only = is.conformed(x),
   ...
 )
 
 \method{as.list}{GeneSetDb}(
   x,
-  value = c("featureId", "x.id", "x.idx"),
+  value = c("feature_id", "x.id", "x.idx"),
   active.only = is.conformed(x),
   nested = FALSE,
   ...
@@ -56,7 +56,7 @@ that many of the limma gene set testing methods use
 The \verb{as.*} functions accept a \code{value} parameter which indicates the type of
 IDs you want to export in the conversion:
 \itemize{
-\item \code{"featureId"}: The ID used as originally entered into the \code{GeneSetDb}.
+\item \code{"feature_id"}: The ID used as originally entered into the \code{GeneSetDb}.
 \item \code{"x.idx"}: Only valid if the GeneSetDb \code{x} has been \code{conform}-ed to an
 expession container. This option will export the features as the integer
 rows of the expression container.

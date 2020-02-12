@@ -111,7 +111,7 @@ test_that("ssGSEA (raw) scores are not affected by samples included in test", {
                        verbose=FALSE)
   }, "GSVA")
   scores <- merge(scores.all, scores.some, suffixes=c('.all', '.some'),
-                  by=c('collection', 'name', 'sample'))
+                  by=c('collection', 'name', 'sample_id'))
   expect_equal(scores$scores.all, scores$scores.some)
 })
 

@@ -192,8 +192,8 @@ vm <- exampleExpressionSet()
 gdb <- exampleGeneSetDb()
 mg <- multiGSEA(gdb, vm, vm$design, 'tumor',
                 methods=c('camera', 'fry'),
-                ## customzie camera parameter:
-                inter.gene.cor=0.04)
+                # customzie camera parameter:
+                inter.gene.cor = 0.04)
 resultNames(mg)
 res.camera <- result(mg, 'camera')
 res.fry <- result(mg, 'fry')
