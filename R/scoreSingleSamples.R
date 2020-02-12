@@ -110,8 +110,8 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose,
               gs.idxs=gs.idxs, ...)
     rownames(out) <- gs.names
-    if (recenter || rescale) {
-      out <- t(scale(t(out), center = recenter, scale = rescale))
+    if (!isFALSE(recenter) || !isFALSE(rescale)) {
+      out <- scale_rows(out, center = recenter, scale = rescale)
     }
     if (!as.matrix) {
       out <- melt.gs.scores(gdb, out)
@@ -291,8 +291,8 @@ do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
 }
 
 #' @noRd
-do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
-                                                    center=TRUE, scale=TRUE,
+do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene = 1L,
+                                                    center = TRUE, scale = TRUE,
                                                     uncenter=center,
                                                     unscale=scale,
                                                     weights=NULL,

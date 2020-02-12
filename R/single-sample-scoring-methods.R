@@ -278,9 +278,6 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
     stop("NaN's or NAs found in expression matrix without scaling")
   }
 
-  cnt <- attributes(xs)$"scaled:center"
-  scl <- attributes(xs)$"scaled:scale"
-
   if (.use_irlba) {
     s <- svdr(xs, k = min(eigengene, nrow(x), ncol(x)))
   } else {
@@ -298,11 +295,43 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
 
   egene <- s$u %*% s$D %*% t(s$v)
 
-  if (unscale) {
-    egene <- sweep(egene, 1, FUN="*", scl)
+  # The data was centered externally and passed in the uncentering vector
+  # browser()
+  if (isFALSE(center) && is.numeric(uncenter)) {
+    if (length(uncenter) < nrow(x)) stop("Illegal uncenter vector, too short")
+    if (!is.null(names(uncenter))) {
+      cnt <- uncenter[rownames(x)]
+    } else {
+      cnt <- uncenter
+    }
+    if (any(is.na(cnt)) || length(cnt) != nrow(egene)) {
+      stop("Illegal uncenter vector")
+    }
+    uncenter <- TRUE
+  } else {
+    cnt <- attr(xs, "scaled:center")
   }
-  if (uncenter) {
-    egene <- sweep(egene, 1, FUN="+", cnt)
+
+  if (isFALSE(scale) && is.numeric(unscale)) {
+    if (length(unscale) < nrow(x)) stop("Illegal uncenter vector, too short")
+    if (!is.null(names(unscale))) {
+      scl <- unscale[rownames(x)]
+    } else {
+      scl <- unscale
+    }
+    if (any(is.na(scl)) || length(scl) != nrow(egene)) {
+      stop("Illegal unscale vector")
+    }
+    unscale <- TRUE
+  } else {
+    scl <- attr(xs, "scaled:scale")
+  }
+
+  if (!is.null(scl) && isTRUE(unscale)) {
+    egene <- sweep(egene, 1, FUN = "*", scl)
+  }
+  if (!is.null(cnt) && isTRUE(uncenter)) {
+    egene <- sweep(egene, 1, FUN = "+", cnt)
   }
 
   score <- colMeans(egene)
@@ -331,8 +360,8 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
     as.data.frame(ctrb))
 
   pca <- list(sdev=pca.d, rotation=pca.v,
-              center=if (center) cnt else 0,
-              scale=if (scale) scl else 1,
+              center = if (is.null(cnt)) 0 else cnt,
+              scale = if (is.null(scl)) 1 else scl,
               x=if (retx) xproj else NULL,
               percentVar=pca.d^2 / sum(pca.d^2))
   class(pca) <- 'prcomp'

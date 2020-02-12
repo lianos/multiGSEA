@@ -227,8 +227,10 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
         center <- FALSE
         recenter <- FALSE
       }
+      # browser()
       X <- scoreSingleSamples(gdb, X, methods = aggregate.by, as.matrix=TRUE,
                               center = center, scale = scale, ...)
+
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
@@ -256,7 +258,6 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
       split <- split[-na.rows]
     }
   }
-
   # What kind of colorscale are we going to use?
   # If this is 0-centered ish, we use a red-white-blue scheme, otherwise
   # we use viridis.
