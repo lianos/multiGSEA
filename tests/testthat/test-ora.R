@@ -1,4 +1,4 @@
-context("limma::kegga wrapper ('enrichtest')")
+context("overrepresentation analysis ('ora')")
 
 gdb. <- getMSigGeneSetDb("h", "human", "ensembl")
 
@@ -6,12 +6,11 @@ test_that("induced length associattion to significance is accounted for", {
   biased <- exampleDgeResult("human", "ensembl",
                              induce.bias = "effective_length")
 
-  nbias <- enrichtest(gdb., biased, selected = "selected",
-                      feature.bias = NULL)
-  lbias <- enrichtest(gdb., biased, selected = "selected",
-                      feature.bias = "effective_length")
+  nbias <- ora(gdb., biased, selected = "selected", feature.bias = NULL)
+  lbias <- ora(gdb., biased, selected = "selected",
+               feature.bias = "effective_length")
   if (FALSE) {
-    plot_enrichtest_bias(biased, "selected", "effective_length")
+    plot_ora_bias(biased, "selected", "effective_length")
   }
   expect_equal(nbias$Pathway, lbias$Pathway)
   expect_equal(nbias$N, lbias$N)
@@ -31,22 +30,22 @@ test_that("induced length associattion to significance is accounted for", {
   # ranomizing length should negate penalty
   set.seed(0xBEEF)
   rando <- mutate(biased, effective_length = sample(effective_length))
-  rbias <- enrichtest(gdb., rando, selected = "selected",
+  rbias <- ora(gdb., rando, selected = "selected",
                       feature.bias = "effective_length")
   expect_equal(rbias$P.all, nbias$P.all, tolerance = 0.005)
 
   if (FALSE) {
-    plot_enrichtest_bias(rando, "selected", "effective_length")
+    plot_ora_bias(rando, "selected", "effective_length")
   }
 })
 
-test_that("enrichtest,groups variable accepts column or list", {
+test_that("ora,groups variable accepts column or list", {
   dfinput <- exampleDgeResult("human", "ensembl")
   group.list <- split(dfinput$feature_id, dfinput$direction)
   p.cols <- paste0("P.", c("all", "down", "up"))
 
-  g1 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction")
-  g2 <- enrichtest(gdb., dfinput, selected = "selected", groups = group.list)
+  g1 <- ora(gdb., dfinput, selected = "selected", groups = "direction")
+  g2 <- ora(gdb., dfinput, selected = "selected", groups = group.list)
   expect_equal(g1$Pathway, g2$Pathway)
   for (pname in p.cols) {
     expect_numeric(g1[[pname]], info = pname)
@@ -60,12 +59,12 @@ test_that("enrichtest,groups variable accepts column or list", {
   expect_true(attr(g1, "rawresult"))
 })
 
-test_that("enrichtest and goseq give probably approximately correct answers", {
+test_that("ora and goseq give probably approximately correct answers", {
   dfinput <- exampleDgeResult("human", "ensembl",
                               induce.bias = "effective_length")
 
   # no bias correction
-  e1 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction")
+  e1 <- ora(gdb., dfinput, selected = "selected", groups = "direction")
   g1 <- expect_warning({
     multiGSEA::goseq(
       gdb.,
@@ -79,7 +78,7 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
   expect_equal(e1$P.all, g1$over_represented_pvalue)
 
   # length correction
-  e2 <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction",
+  e2 <- ora(gdb., dfinput, selected = "selected", groups = "direction",
                    feature.bias = "effective_length")
   g2 <- expect_warning({
     multiGSEA::goseq(
@@ -93,7 +92,7 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
   if (FALSE) {
     par(mfrow = c(1, 2))
     plot(-log10(e1$P.all), -log10(e2$P.all),
-         main = "Uncorrected vs corrected enrichtest",
+         main = "Uncorrected vs corrected ora",
          xlab = "Uncorrected", ylab = "Corrected")
     abline(0, 1, col = "red")
     plot(-log10(g1$over_represented_pvalue), -log10(g2$over_represented_pvalue),
@@ -103,10 +102,10 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
 
     par(mfrow = c(1,1))
 
-    # enrichtest is a bit more conservative
+    # ora is a bit more conservative
     plot(-log10(e2$P.all), -log10(g2$over_represented_pvalue),
-         main = "Corrected enrichtest vs goseq",
-         xlab = "enrichtest", ylab = "goseq")
+         main = "Corrected ora vs goseq",
+         xlab = "ora", ylab = "goseq")
     abline(0, 1, col = "red")
   }
   # test that average difference is less than a threshold
@@ -114,21 +113,21 @@ test_that("enrichtest and goseq give probably approximately correct answers", {
   expect_lt(mean(pval.diff), 0.025)
 })
 
-test_that("'naked' enrichtest call vs multiGSEA pipeline are equivalent", {
+test_that("'naked' ora call vs multiGSEA pipeline are equivalent", {
   dfinput <- exampleDgeResult("human", "ensembl",
                               induce.bias = "effective_length")
-  nres <- enrichtest(gdb., dfinput, selected = "selected", groups = "direction",
+  nres <- ora(gdb., dfinput, selected = "selected", groups = "direction",
                      feature.bias = "effective_length")
   mres <- multiGSEA(gdb., setNames(dfinput$t, dfinput$feature_id),
-                    methods = "enrichtest", feature.bias = "effective_length",
+                    methods = "ora", feature.bias = "effective_length",
                     xmeta. = dfinput)
 
-  groups <- c(all = "enrichtest", up = "enrichtest.up",
-              down = "enrichtest.down")
+  groups <- c(all = "ora", up = "ora.up",
+              down = "ora.down")
   expect_setequal(resultNames(mres), groups)
 
   for (i in seq(groups)) {
-    # Call enrichtest direct
+    # Call ora direct
     ename <- names(groups)[i]
     pcol <- paste0("P.", ename)
     cmp <- nres[, c("Pathway", "N", ename, pcol)]
@@ -145,12 +144,12 @@ test_that("'naked' enrichtest call vs multiGSEA pipeline are equivalent", {
   }
 })
 
-test_that("enrichtest over ANOVA anaysis works through multiGEAS", {
+test_that("ora over ANOVA anaysis works through multiGSEA", {
   y <- exampleExpressionSet('tumor-subtype', do.voom=FALSE)
   di <- model.matrix(~ PAM50subtype, data = y$samples)
   vm <- voom(y, di)
   gdb <- exampleGeneSetDb()
-  mg <- multiGSEA(gdb, vm, vm$design, contrast = 2:3, methods = "enrichtest")
+  mg <- multiGSEA(gdb, vm, vm$design, contrast = 2:3, methods = "ora")
   r <- result(mg)
   expect_numeric(r[["pval"]])
   expect_true(sum(r[["pval"]] < 0.002) > 0)

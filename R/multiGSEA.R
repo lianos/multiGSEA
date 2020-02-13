@@ -32,7 +32,8 @@
 #'
 #' - `"camera"`: from [limma::camera()] (*)
 #' - `"cameraPR"`: from [limma::cameraPR()]
-#' - `"enrichtest"`: from [limma::kegga()] (optionally biased) hypergeometic test
+#' - `"ora"`: overrepresentation analysis from, optionally accounting for bias.
+#'    From  [limma::kegga()].
 #' - `"roast"`: from [limma::roast()] (*)
 #' - `"fry"`: from [limma::fry()] (*)
 #' - `"romer"`: from [limma::romer()] (*)

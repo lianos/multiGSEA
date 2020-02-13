@@ -19,7 +19,7 @@ multiGSEA_methods <- function() {
     camera = list(package = "edgeR", type = "required"),
     cameraPR = list(package = "edgeR", type = "required"),
     fgsea = list(package = "fgsea", type = "suggested"),
-    enrichtest = list(package = "limma", type = "required"),
+    ora = list(package = "limma", type = "required"),
     fry = list(package = "edgeR", type = "required"),
     roast = list(package = "edgeR", type = "required"),
     romer = list(package = "edgeR", type = "required"),
