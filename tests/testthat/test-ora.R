@@ -144,7 +144,7 @@ test_that("'naked' ora call vs multiGSEA pipeline are equivalent", {
   }
 })
 
-test_that("ora over ANOVA anaysis works through multiGEAS", {
+test_that("ora over ANOVA anaysis works through multiGSEA", {
   y <- exampleExpressionSet('tumor-subtype', do.voom=FALSE)
   di <- model.matrix(~ PAM50subtype, data = y$samples)
   vm <- voom(y, di)
