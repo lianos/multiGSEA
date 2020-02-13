@@ -8,7 +8,7 @@ gdb <- conform(gdb, xdf$feature_id)
 gs.idx <- as.list(gdb, active.only = TRUE, value = "x.idx")
 
 test_that("ranks-based gsea works", {
-  mg <- multiGSEA(gdb, scores, methods = c("cameraPR"), xmeta. = xdf)
+  mg <- multiGSEA(gdb, scores, methods = "cameraPR", xmeta. = xdf)
   mgres <- result(mg)
   mgres$key <- encode_gskey(mgres)
 
@@ -19,6 +19,15 @@ test_that("ranks-based gsea works", {
   expect_equal(mgres$Direction, cpr$Direction)
   expect_equal(mgres$pval, cpr$PValue)
   expect_equal(mgres$padj, cpr$FDR)
+})
+
+test_that("data.frame input is same as ranked vector input", {
+  # This follows up from previous test
+  mgv <- multiGSEA(gdb, scores, methods = "cameraPR", xmeta. = xdf)
+  mgdf <- multiGSEA(gdb, xdf, methods = "cameraPR",
+                    rank_by = "logFC", rank_order = "ordered")
+  expect_equal(result(mgdf), result(mgv))
+  expect_equal(logFC(mgdf), logFC(mgdf))
 })
 
 test_that("enrichment-based methods work", {

@@ -86,9 +86,9 @@ function(x, i, j, active.only=TRUE, with.feature.map=FALSE, ...,
   gdb <- geneSetDb(x)
   gs <- geneSet(gdb, i, j, active.only=TRUE, with.feature.map=with.feature.map,
                 ..., collection = collection, name = name, as.dt=TRUE)
-  lfc <- logFC(x, as.dt=TRUE)[list(gs$featureId), on='featureId']
-  stopifnot(all(lfc$featureId == gs$featureId))
-  lfc$featureId <- NULL
+  lfc <- logFC(x, as.dt=TRUE)[list(gs$feature_id), on='feature_id']
+  stopifnot(all(lfc$feature_id == gs$feature_id))
+  lfc$feature_id <- NULL
   # Columns that appear in the geneset and also appear in the `logFC` data.frame
   # will be renamed to avoid collision. The duplicated columns used to be
   # removed with a preference to keep the columns in `gs`, however we might
@@ -119,7 +119,7 @@ function(x, i, ...) {
 
 #' @rdname featureIds
 setMethod("featureIds", c(x="MultiGSEAResult"),
-function(x, i, j, value=c('featureId', 'x.id', 'x.idx'),
+function(x, i, j, value=c('feature_id', 'x.id', 'x.idx'),
          active.only=TRUE, ...) {
   value <- match.arg(value)
   if (!isTRUE(active.only)) {
@@ -215,7 +215,7 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
 
   out <- gs[, {
     fids <- featureIds(x, .BY[[1L]], .BY[[2L]])
-    stats <- lfc[fids, on='featureId']
+    stats <- lfc[fids, on='feature_id']
     up <- stats$direction == 'up'
     down <- stats$direction == "down"
     is.sig <- stats$significant

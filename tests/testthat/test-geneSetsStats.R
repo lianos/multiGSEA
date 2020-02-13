@@ -14,7 +14,7 @@ test_that("geneSetsStats", {
 
   ## calculate expected
   istats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design), as.dt=TRUE)
-  data.table::setkeyv(istats, 'featureId')
+  data.table::setkeyv(istats, 'feature_id')
 
   ## The code below is the same used in do.geneSetScores -- let's think of a
   ## more manual way to do this.

@@ -47,7 +47,7 @@ this funciton returns will be set to a data.frame. Set this to \code{TRUE}
 to keep this object as a \code{data.table}}
 }
 \value{
-A long data.frame with sample,method,score values per row. If
+A long data.frame with sample_id,method,score values per row. If
 \code{as.matrix=TRUE}, a matrix with as many rows as \code{geneSets(gdb)}
 and as many columns as \code{ncol(x)}
 }
@@ -94,7 +94,7 @@ vm <- exampleExpressionSet()
 scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
                              uncenter=FALSE, unscale=FALSE,
                              ssgsea.norm=TRUE)
-sw <- dcast(scores, name + sample ~ method, value.var='score')
+sw <- dcast(scores, name + sample_id ~ method, value.var='score')
 corplot(sw[, c("ewm", "ssgsea", "zscore")],
         title='Single Sample Score Comparison')
 }

@@ -49,7 +49,7 @@ three \code{character} columns:
 \itemize{
 \item collection
 \item name
-\item featureId
+\item feature_id
 }
 
 The (\code{collection}, \code{name}) compound key is the primary key of a gene set.
@@ -57,7 +57,7 @@ There will be as many entries with the same (\code{collection}, \code{name}) as 
 are genes/features in that set.
 
 The \code{GeneSetDb} tracks metadata about genesets at \strong{the collection}
-level. This means that we assume that all of the \code{featureId}'s used
+level. This means that we assume that all of the \code{feature_id}'s used
 within a collection use the same type of feature identifier (such as
 a \code{\link[GSEABase:EntrezIdentifier]{GSEABase::EntrezIdentifier()}}, were defined in the same organism,
 etc.
@@ -107,7 +107,7 @@ each gene set. See the examples for clarification.
 \item a \code{data.frame}-like object: To keep track of your own custom gene sets, you
 have probably realized the importance of maintaing your own sanity, and
 likely have gene sets organized in a table like object that has something
-like the \code{collection}, \code{name}, and \code{featureId} required for a \code{GeneSetDb}.
+like the \code{collection}, \code{name}, and \code{feature_id} required for a \code{GeneSetDb}.
 Simply rename the appropriate columns to the ones prescribed here, and pass
 that into the constructor. Any other additional columns (symbol, direction,
 etc.) will be copied into the \code{GeneSetDb}.
@@ -155,7 +155,7 @@ gdb.df <- GeneSetDb(gs.df)
 
 ## list of ids
 gs.df$key <- encode_gskey(gs.df)
-gs.list <- split(gs.df$featureId, gs.df$key)
+gs.list <- split(gs.df$feature_id, gs.df$key)
 gdb.list <- GeneSetDb(gs.list, collectionName='custom-sigs')
 
 ## A list of lists, where the top level list splits the collections.

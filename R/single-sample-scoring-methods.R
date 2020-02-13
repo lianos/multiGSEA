@@ -65,7 +65,7 @@
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 eigenWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
                               uncenter=center, unscale=scale, retx=FALSE,
@@ -150,7 +150,7 @@ pcWeightedMean <- function(x, eigengene=1L, center=TRUE, scale=TRUE,
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'zscore')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
   x <- as_matrix(x)
@@ -237,7 +237,7 @@ zScore <- function(x, summary=c('mean', 'sqrt'), trim=0, ...) {
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
 #' scores.all <- scoreSingleSamples(gdb, vm, 'gsd')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
-#'            setNames(score, sample))
+#'            setNames(score, sample_id))
 #' all.equal(s2, scores)
 gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
                      uncenter = center, unscale = scale, retx = FALSE, ...,
@@ -278,9 +278,6 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
     stop("NaN's or NAs found in expression matrix without scaling")
   }
 
-  cnt <- attributes(xs)$"scaled:center"
-  scl <- attributes(xs)$"scaled:scale"
-
   if (.use_irlba) {
     s <- svdr(xs, k = min(eigengene, nrow(x), ncol(x)))
   } else {
@@ -298,11 +295,43 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
 
   egene <- s$u %*% s$D %*% t(s$v)
 
-  if (unscale) {
-    egene <- sweep(egene, 1, FUN="*", scl)
+  # The data was centered externally and passed in the uncentering vector
+  # browser()
+  if (isFALSE(center) && is.numeric(uncenter)) {
+    if (length(uncenter) < nrow(x)) stop("Illegal uncenter vector, too short")
+    if (!is.null(names(uncenter))) {
+      cnt <- uncenter[rownames(x)]
+    } else {
+      cnt <- uncenter
+    }
+    if (any(is.na(cnt)) || length(cnt) != nrow(egene)) {
+      stop("Illegal uncenter vector")
+    }
+    uncenter <- TRUE
+  } else {
+    cnt <- attr(xs, "scaled:center")
   }
-  if (uncenter) {
-    egene <- sweep(egene, 1, FUN="+", cnt)
+
+  if (isFALSE(scale) && is.numeric(unscale)) {
+    if (length(unscale) < nrow(x)) stop("Illegal uncenter vector, too short")
+    if (!is.null(names(unscale))) {
+      scl <- unscale[rownames(x)]
+    } else {
+      scl <- unscale
+    }
+    if (any(is.na(scl)) || length(scl) != nrow(egene)) {
+      stop("Illegal unscale vector")
+    }
+    unscale <- TRUE
+  } else {
+    scl <- attr(xs, "scaled:scale")
+  }
+
+  if (!is.null(scl) && isTRUE(unscale)) {
+    egene <- sweep(egene, 1, FUN = "*", scl)
+  }
+  if (!is.null(cnt) && isTRUE(uncenter)) {
+    egene <- sweep(egene, 1, FUN = "+", cnt)
   }
 
   score <- colMeans(egene)
@@ -327,12 +356,12 @@ gsdScore <- function(x, eigengene = 1L, center = TRUE, scale = TRUE,
 
   rn <- if (!is.null(rownames(ctrb))) rownames(ctrb) else paste0('r', 1:nrow(ctrb))
   ctrb <- cbind(
-    data.frame(featureId=rn, stringsAsFactors=FALSE),
+    data.frame(feature_id=rn, stringsAsFactors=FALSE),
     as.data.frame(ctrb))
 
   pca <- list(sdev=pca.d, rotation=pca.v,
-              center=if (center) cnt else 0,
-              scale=if (scale) scl else 1,
+              center = if (is.null(cnt)) 0 else cnt,
+              scale = if (is.null(scl)) 1 else scl,
               x=if (retx) xproj else NULL,
               percentVar=pca.d^2 / sum(pca.d^2))
   class(pca) <- 'prcomp'

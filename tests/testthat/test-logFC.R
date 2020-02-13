@@ -18,8 +18,8 @@ test_that("t-stats and logFCs match full design when only stats passed", {
   mgf <- suppressWarnings(multiGSEA(gsd, vm, vm$design))
   x <- logFC(mgf)
 
-  tstats <- setNames(x$t, x$featureId)
-  lfc <- setNames(x$logFC, x$featureId)
+  tstats <- setNames(x$t, x$feature_id)
+  lfc <- setNames(x$logFC, x$feature_id)
 
   mgt <- multiGSEA(gsd, tstats)
   mgl <- multiGSEA(gsd, lfc)

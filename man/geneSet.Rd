@@ -48,7 +48,7 @@ geneSet(x, i, j, ...)
 \code{\link[=conform]{conform()}} for further details.}
 
 \item{with.feature.map}{If \code{TRUE}, then details of the feature mapping
-from the original featureId space to the target feature space are included
+from the original feature_id space to the target feature space are included
 (default: \code{FALSE}).}
 
 \item{as.dt}{If \code{FALSE} (default), the data.frame like thing that

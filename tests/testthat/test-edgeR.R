@@ -17,7 +17,7 @@ test_that("edgeR::quasiLikelihood pipeline run for logFC's of DGEList input", {
   lfc <- logFC(mge)
 
   ## multiGSEA calls does some reordering of output
-  tte <- tte[lfc$featureId,]
+  tte <- tte[lfc$feature_id,]
   expect_equal(lfc$pval, tte$PValue)
   expect_equal(lfc$AveExpr, tte$logCPM)
 })

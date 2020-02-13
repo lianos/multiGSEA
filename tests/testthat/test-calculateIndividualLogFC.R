@@ -7,7 +7,7 @@ tt2dt <- function(x) {
     onames <- c('P.Value', 'adj.P.Val')
   }
   x <- as.data.frame(x)
-  x$featureId <- rownames(x)
+  x$feature_id <- rownames(x)
   data.table::setnames(x, onames, c('pval', 'padj'))
 }
 
@@ -70,7 +70,7 @@ test_that("treat pvalues are legit", {
 
   xx <- calculateIndividualLogFC(vm, vm$design, 'tumor', treat.lfc=lfc)
 
-  expect_equal(tt$featureId, xx$featureId, info="voom")
+  expect_equal(tt$feature_id, xx$feature_id, info="voom")
   expect_equal(xx$logFC, tt$logFC, info="voom")
   expect_equal(xx$pval, tt$pval, info="voom")
 
@@ -82,7 +82,7 @@ test_that("treat pvalues are legit", {
 
   yy <- calculateIndividualLogFC(y, y$design, 'tumor', treat.lfc = lfc)
 
-  expect_equal(et$featureId, yy$featureId, info="edgeR")
+  expect_equal(et$feature_id, yy$feature_id, info="edgeR")
   expect_equal(yy$logFC, et$logFC, info="edgeR")
   expect_equal(yy$pval, et$pval, info="edgeR")
 })
@@ -138,7 +138,7 @@ test_that("use explicit observation weights", {
   # explicit matrix and weights
   w.res <- calculateIndividualLogFC(vm$E, vm$design, "tumor",
                                     weights = vm$weights)
-  expect_equal(w.res[["featureId"]], vm.res[["featureId"]])
+  expect_equal(w.res[["feature_id"]], vm.res[["feature_id"]])
   expect_equal(w.res[["logFC"]], vm.res[["logFC"]])
   expect_equal(w.res[["pval"]], vm.res[["pval"]])
 
@@ -149,7 +149,7 @@ test_that("use explicit observation weights", {
   W <- matrix(W, nrow = nrow(vm))
   x.res <- calculateIndividualLogFC(vm, vm$design, "tumor", weights = W)
 
-  expect_equal(x.res[["featureId"]], vm.res[["featureId"]])
+  expect_equal(x.res[["feature_id"]], vm.res[["feature_id"]])
   mismatch.logFC <- sign(x.res[["logFC"]]) != sign(vm.res[["logFC"]])
   expect_true(mean(mismatch.logFC) > 0 & mean(mismatch.logFC) < 0.10)
   expect_false(isTRUE(all.equal(x.res[["pval"]], vm.res[["pval"]])))
@@ -158,7 +158,7 @@ test_that("use explicit observation weights", {
   ex.res <- lmFit(vm$E, vm$design, weights = W) %>%
     eBayes() %>%
     topTable(coef = "tumor", n = Inf, sort.by = "none")
-  expect_equal(x.res[["featureId"]], rownames(ex.res))
+  expect_equal(x.res[["feature_id"]], rownames(ex.res))
   expect_equal(x.res[["logFC"]], ex.res[["logFC"]])
   expect_equal(x.res[["pval"]], ex.res[["P.Value"]])
 })

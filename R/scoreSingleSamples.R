@@ -50,7 +50,7 @@
 #' @param ... these parameters are passed down into the the individual single
 #'   sample scoring funcitons to customize them further.
 #' @template asdt-param
-#' @return A long data.frame with sample,method,score values per row. If
+#' @return A long data.frame with sample_id,method,score values per row. If
 #'   `as.matrix=TRUE`, a matrix with as many rows as `geneSets(gdb)`
 #'   and as many columns as `ncol(x)`
 #'
@@ -61,7 +61,7 @@
 #' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
 #'                              uncenter=FALSE, unscale=FALSE,
 #'                              ssgsea.norm=TRUE)
-#' sw <- dcast(scores, name + sample ~ method, value.var='score')
+#' sw <- dcast(scores, name + sample_id ~ method, value.var='score')
 #' corplot(sw[, c("ewm", "ssgsea", "zscore")],
 #'         title='Single Sample Score Comparison')
 scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
@@ -110,8 +110,8 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
     out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose,
               gs.idxs=gs.idxs, ...)
     rownames(out) <- gs.names
-    if (recenter || rescale) {
-      out <- t(scale(t(out), center = recenter, scale = rescale))
+    if (!isFALSE(recenter) || !isFALSE(rescale)) {
+      out <- scale_rows(out, center = recenter, scale = rescale)
     }
     if (!as.matrix) {
       out <- melt.gs.scores(gdb, out)
@@ -151,10 +151,10 @@ scoreSingleSamples <- function(gdb, y, methods='ewm', as.matrix=FALSE,
 #' @param a melted `data.table` of scores
 melt.gs.scores <- function(gdb, scores) {
   out <- cbind(geneSets(gdb, as.dt=TRUE)[, list(collection, name, n)], scores)
-  out <- data.table::melt.data.table(out, c('collection', 'name', 'n'),
-                                     variable.name='sample',
+  out <- data.table::melt.data.table(out, c("collection", "name", "n"),
+                                     variable.name = "sample_id",
                                      value.name='score')
-  out[, sample := as.character(sample)]
+  out[, sample_id := as.character(sample_id)]
 }
 
 #' @noRd
@@ -291,8 +291,8 @@ do.scoreSingleSamples.gsd <- function(gdb, y, as.matrix=FALSE, center=TRUE,
 }
 
 #' @noRd
-do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene=1L,
-                                                    center=TRUE, scale=TRUE,
+do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene = 1L,
+                                                    center = TRUE, scale = TRUE,
                                                     uncenter=center,
                                                     unscale=scale,
                                                     weights=NULL,

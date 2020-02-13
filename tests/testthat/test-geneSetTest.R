@@ -8,7 +8,7 @@ test_that("geneSetTest matches re-implememtation", {
 
   stats <- calculateIndividualLogFC(vm, vm$design, ncol(vm$design),
                                     as.dt = TRUE)
-  tstats <- setNames(stats$t, stats$featureId)
+  tstats <- setNames(stats$t, stats$feature_id)
   gdb <- conform(gdb, names(tstats))
   gsi <- as.list(gdb, value = "x.idx")
 

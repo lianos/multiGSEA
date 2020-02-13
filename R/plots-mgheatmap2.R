@@ -98,7 +98,6 @@
 #' @return A `Heatmap` object.
 #'
 #' @examples
-#' library(ComplexHeatmap)
 #' vm <- exampleExpressionSet()
 #' gdb <- exampleGeneSetDb()
 #' col.anno <- ComplexHeatmap::HeatmapAnnotation(
@@ -106,9 +105,12 @@
 #'   col = list(
 #'     Cancer_Status = c(normal = "grey", tumor = "red"),
 #'     PAM50subtype = c(Basal = "purple", Her2 = "green", LumA = "orange")))
-#' mgh <- mgheatmap(vm, gdb, aggregate.by = "ewm", split=TRUE,
-#'                  top_annotation = col.anno, show_column_names = FALSE,
-#'                  column_title = "Gene Set Activity in BRCA subset")
+#' mgh <- mgheatmap2(vm, gdb, aggregate.by = "ewm", split = TRUE,
+#'                   top_annotation = col.anno, show_column_names = FALSE,
+#'                   column_title = "Gene Set Activity in BRCA subset")
+#' ComplexHeatmap::draw(mgh)
+#'
+#' # Center to "normal" group
 #'
 #' # Maybe you want the rownames of the matrix to use spaces instead of "_"
 #' rr <- geneSets(gdb)[, "name", drop = FALSE]
@@ -117,14 +119,17 @@
 #'                  top_annotation = col.anno, show_column_names = FALSE,
 #'                  column_title = "Gene Set Activity in BRCA subset",
 #'                  rename.rows = rr)
-mgheatmap <- function(x, gdb = NULL, col = NULL,
-                      aggregate.by = c("none", "ewm", "zscore"),
-                      split = TRUE, scores = NULL, gs.order = NULL,
-                      name = NULL, rm.collection.prefix = TRUE,
-                      rm.dups = FALSE, recenter = FALSE, rescale = FALSE,
-                      center = TRUE, scale = TRUE,
-                      rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
+mgheatmap2 <- function(x, gdb = NULL, col = NULL,
+                       aggregate.by = c("none", "ewm", "zscore"),
+                       split = TRUE, scores = NULL, gs.order = NULL,
+                       name = NULL, rm.collection.prefix = TRUE,
+                       rm.dups = FALSE, recenter = FALSE, rescale = FALSE,
+                       center = FALSE, scale = FALSE, rename.rows = NULL,
+                       zlim = NULL, transpose = FALSE, ...) {
   X <- as_matrix(x)
+  stopifnot(
+    ncol(X) > 1L,
+    !any(is.na(X)))
   if (is.null(scores)) {
     aggregate.by <- match.arg(aggregate.by)
   } else {
@@ -134,16 +139,8 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
       aggregate.by %in% scores$method)
   }
 
-  # if (is.null(gdb)) {
-  #   # make a one geneset GeneSetDb
-  #   faux.gs <- list(allgenes = unique(rownames(x)))
-  #   gdb <- GeneSetDb(faux.gs, collectionName = "faux")
-  #   split <- FALSE
-  #   gs.order <- NULL
-  # }
   if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
 
-  # split.by <- match.arg(split.by)
   drop1.split <- missing(split)
   stopifnot(is.logical(split) && length(split) == 1L)
   if (!is.null(scores)) stopifnot(is.data.frame(scores))
@@ -151,15 +148,12 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     stopifnot(
       is.numeric(zlim),
       length(zlim) == 2L,
-      zlim[1] < zlim[2])
+      zlim[1L] < zlim[2])
   }
 
-  stopifnot(
-    ncol(X) > 1L,
-    !any(is.na(X)))
-
-  if (!is.null(scores)) {
-  }
+  X <- scale_rows(X, center = center, scale = scale)
+  center. <- attr(X, "scaled:center")
+  scale. <- attr(X, "scaled:scale")
 
   if (!is.null(gdb)) {
     gdbc <- suppressWarnings(conform(gdb, X, ...))
@@ -179,33 +173,6 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     gdbc.df$key <- encode_gskey(gdbc.df)
   }
 
-  # What is recenter doing?
-  # 1. The user can set it to `TRUE` to center all values on the mean of their
-  #    row. (`FALSE` does no centering)
-  # 2. A (named) vector of values that is a superset of rownames(x). These will
-  #    be the values that are subtracted from each row.
-  # 3. A logical vector as long as ncol(x). Each value will be centered to the
-  #    mean of the values of the columns specified as TRUE.
-  # 4. An integer vector, the is the analog of 3 but specifies the columns to
-  #    use for centering.
-  if (!test_flag(recenter)) {
-    if (test_logical(recenter) && length(recenter) == ncol(X)) {
-      # indicator of which columns to calculate mean from and recenter to
-      recenter <- which(recenter)
-    }
-    if (test_integerish(recenter, lower = 1L, upper = ncol(X), unique = TRUE)) {
-      recenter <- rowMeans(X[, recenter, drop = FALSE])
-    }
-    assert_numeric(recenter, min.len = nrow(X), names = "unique")
-    assert_subset(rownames(X), names(recenter))
-    recenter <- recenter[rownames(X)]
-  }
-  if (!test_flag(center)) {
-    assert_numeric(center, min.len = nrow(X), names = "unique")
-    assert_subset(rownames(X), names(center))
-    center <- center[rownames(X)]
-  }
-
   if (aggregate.by == "none") {
     if (!is.null(gdb)) {
       ridx <- if (rm.dups) unique(gdbc.df$feature_id) else gdbc.df$feature_id
@@ -218,19 +185,11 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
     }
   } else {
     if (is.null(scores)) {
-      if (is.numeric(recenter) &&
-          isTRUE(all.equal(names(recenter), rownames(X)))) {
-        # DEBUG: You are making this hard on yourself! You think you know what
-        # you're doing now, but you'll be crying next time you have to revisit
-        # this!
-        X <- X - recenter
-        center <- FALSE
-        recenter <- FALSE
-      }
-      # browser()
-      X <- scoreSingleSamples(gdb, X, methods = aggregate.by, as.matrix=TRUE,
-                              center = center, scale = scale, ...)
-
+      browser()
+      X <- scoreSingleSamples(gdb, X, methods = aggregate.by, as.matrix = TRUE,
+                              center = FALSE, scale = FALSE,
+                              uncenter = center., unscale = scale., ...)
+      browser()
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)
@@ -242,10 +201,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   }
 
   if (!isFALSE(recenter) || !isFALSE(rescale)) {
-    if (is(X, "sparseMatrix")) {
-      X <- as.matrix(X)
-    }
-    X <- t(scale(t(X), center = recenter, scale = rescale))
+    X <- scale_rows(X, center = recenter, scale = rescale)
     isna <- which(is.na(X), arr.ind = TRUE)
     if (nrow(isna) > 0L) {
       na.rows <- unique(isna[, "row"])
@@ -258,6 +214,7 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
       split <- split[-na.rows]
     }
   }
+
   # What kind of colorscale are we going to use?
   # If this is 0-centered ish, we use a red-white-blue scheme, otherwise
   # we use viridis.

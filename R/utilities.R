@@ -58,7 +58,7 @@ extract_preranked_stats <- function(x, design, contrast, robust.fit=FALSE,
               immediate.=TRUE)
       score.by <- 'logFC'
     }
-    stats <- setNames(logFC[[score.by]], logFC$featureId)
+    stats <- setNames(logFC[[score.by]], logFC$feature_id)
   } else {
     ## This is already a column matrix of precomputed things (logFC, perhaps)
     ## to rank
@@ -127,7 +127,7 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
   if (!is.null(logFC)) {
     is.logFC.like(logFC, x, as.error=TRUE)
     score.by <- match.arg(score.by)
-    out <- setNames(logFC[[score.by]], logFC[['featureId']])
+    out <- setNames(logFC[[score.by]], logFC[['feature_id']])
   } else {
     ## If multiGSEA was called with a preranked vector, the validateInputs function
     ## would have converted it into a column matrix with rownames, but most
@@ -163,7 +163,7 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 #'   are cpms scaled using TMM normalization.
 #' @return a matrix of values to use downstream of internal gene set based
 #'   methods.
-as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE) {
+as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE, ...) {
   if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
   if (is(y, "SummarizedExperiment")) {
     if (!requireNamespace("SummarizedExperiment")) {

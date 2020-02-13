@@ -15,13 +15,13 @@ test_that("geneSetSummaryByGenes,GeneSetDb returns a legit result", {
   gdb.sub <- subsetByFeatures(gdb, features)
   db.expect <- gdb.sub@db %>%
     copy %>%
-    subset(featureId %in% features) %>%
-    setkeyv(c('collection', 'name', 'featureId'))
+    subset(feature_id %in% features) %>%
+    setkeyv(c('collection', 'name', 'feature_id'))
   db.result <- res %>%
     dplyr::select(collection, name, starts_with('featureId_')) %>%
     reshape2::melt(c('collection', 'name')) %>%
-      dplyr::rename(featureId=variable, present=value) %>%
-    dplyr::mutate(featureId=sub('featureId_', '', featureId)) %>%
+      dplyr::rename(feature_id=variable, present=value) %>%
+    dplyr::mutate(feature_id=sub('featureId_', '', feature_id)) %>%
     dplyr::filter(present) %>%
     dplyr::select(-present) %>%
     setDT() %>%
@@ -42,15 +42,15 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
 
   ## Check that logFC for each feature is accurate
   lfc <- reshape2::melt(as.matrix(res[, features, drop=FALSE])) %>%
-    dplyr::transmute(featureId=as.character(Var2), logFC=value) %>%
+    dplyr::transmute(feature_id=as.character(Var2), logFC=value) %>%
     dplyr::filter(logFC != 0) %>%
-    dplyr::distinct(featureId, .keep_all=TRUE) %>%
-    dplyr::arrange(featureId)
+    dplyr::distinct(feature_id, .keep_all=TRUE) %>%
+    dplyr::arrange(feature_id)
 
   lfc.ex <- logFC(mg) %>%
-    dplyr::select(featureId, logFC) %>%
-    dplyr::filter(featureId %in% features) %>%
-    dplyr::arrange(featureId)
+    dplyr::select(feature_id, logFC) %>%
+    dplyr::filter(feature_id %in% features) %>%
+    dplyr::arrange(feature_id)
   expect_equal(lfc, lfc.ex, check.attributes = FALSE)
 
   ## check that symbol remapping works, too
@@ -58,8 +58,8 @@ test_that("geneSetSummaryByGenes,MultiGSEAResult returns a legit result", {
                                  feature.rename='symbol', as.dt=TRUE)
 
   lfc.ex <- logFC(mg) %>%
-    dplyr::filter(featureId %in% features) %>%
-    dplyr::transmute(renamed=ifelse(!is.na(symbol), symbol, paste0('featureId_', featureId)),
+    dplyr::filter(feature_id %in% features) %>%
+    dplyr::transmute(renamed=ifelse(!is.na(symbol), symbol, paste0('featureId_', feature_id)),
                      logFC) %>%
     dplyr::arrange(renamed)
   expect_true(all(lfc.ex$renamed %in% colnames(res.s)))
