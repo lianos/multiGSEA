@@ -138,8 +138,8 @@ exampleMultiGSEAResult <- function(cached=TRUE) {
 #' Currently they are for human ensembl genes. Setting the `induce.bias`
 #' parameter to `"effective_length"` or `"AveExpr"` will munge the returned
 #' result such that larger "bias" values will be associated to lower pvalues,
-#' so we can more easily test biased enrichment approaches like [enrichtest()]
-#' and [goseq()].
+#' so we can more easily test biased overrepresentation analysis approaches like
+#' [ora()] and [goseq()].
 #'
 #' @export
 #' @rdname examples

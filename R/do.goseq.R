@@ -19,7 +19,7 @@ validate.inputs.goseq <- function(x, design, contrast, feature.bias,
   ## Ensure that caller provides a named feature.bias vector
   errs <- list()
   if (missing(feature.bias)) {
-    errs <- paste('feature.bias vector is required, use "enrichtest"',
+    errs <- paste('feature.bias vector is required, use "ora"',
                   'if you do not have one')
     return(errs)
   }
@@ -56,7 +56,7 @@ validate.inputs.goseq <- function(x, design, contrast, feature.bias,
 #'   \code{\link[goseq]{getlength}} function which facilitates getting default
 #'   values for these if you do not have the correct values used in your
 #'   analysis. If there is no way for you to get this information, then use
-#'   enrichtest with no `feature.bias` vector.
+#'   ora with no `feature.bias` vector.
 #' @param method The method to use to calculate the unbiased category
 #'   enrichment scores
 #' @param repcnt Number of random samples to be calculated when random sampling

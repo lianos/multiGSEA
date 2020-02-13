@@ -39,7 +39,7 @@ The caller MUST provide this. The goseq package provides a
 \code{\link[goseq]{getlength}} function which facilitates getting default
 values for these if you do not have the correct values used in your
 analysis. If there is no way for you to get this information, then use
-enrichtest with no \code{feature.bias} vector.}
+ora with no \code{feature.bias} vector.}
 
 \item{repcnt}{Number of random samples to be calculated when random sampling
 is used. Ignored unless \code{method="Sampling"}.}

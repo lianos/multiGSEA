@@ -1,9 +1,9 @@
 #' @include validateInputs.R
 NULL
 
-validate.x.enrichtest <- validate.X
-validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
-                                       xmeta. = NULL, ...) {
+validate.x.ora <- validate.X
+validate.inputs.ora <- function(x, design, contrast, feature.bias,
+                                xmeta. = NULL, ...) {
   if (!is.data.frame(xmeta.)) {
     default <- .validate.inputs.full.design(x, design, contrast)
     if (length(default)) {
@@ -54,12 +54,12 @@ validate.inputs.enrichtest <- function(x, design, contrast, feature.bias,
 #' @param feature.bias we will try to extract the average expression of the
 #'   gene as teh default bias, but you can send in gene length, or
 #'   what-have-you
-do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
-                          feature.bias = "AveExpr",
-                          restrict.universe = FALSE, groups = "direction",
-                          use.treat = FALSE,
-                          feature.min.logFC = if (use.treat) log2(1.25) else 1,
-                          feature.max.padj = 0.10, logFC = NULL, ...) {
+do.ora <- function(gsd, x, design, contrast = ncol(design),
+                   feature.bias = "AveExpr",
+                   restrict.universe = FALSE, groups = "direction",
+                   use.treat = FALSE,
+                   feature.min.logFC = if (use.treat) log2(1.25) else 1,
+                   feature.max.padj = 0.10, logFC = NULL, ...) {
   # 1. Specify up and down genes as a list of identifiers:
   #      list(Up = sigup, Down = sigdown)
   # 2a. Process feature.bias parameter so that it is a numeric bias vector
@@ -100,11 +100,11 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
   }
 
   if (is.character(groups) && !is.character(logFC[[groups]])) {
-    warning("`groups' column not found within do.enrichtest")
+    warning("`groups' column not found within do.ora")
     groups <- NULL
   }
 
-  res <- enrichtest(gsd, logFC, selected = "significant",
+  res <- ora(gsd, logFC, selected = "significant",
                     groups = groups,
                     feature.bias = feature.bias,
                     restrict.universe = restrict.universe,
@@ -131,7 +131,7 @@ do.enrichtest <- function(gsd, x, design, contrast = ncol(design),
   out
 }
 
-mgres.enrichtest <- function(res, gsd, ...) {
+mgres.ora <- function(res, gsd, ...) {
   if (!isTRUE(attr(res, "rawresult"))) return(res)
   stopifnot(is.data.frame(res), is(gsd, "GeneSetDb"))
   res <- copy(res)[, n := NULL]
@@ -144,21 +144,21 @@ mgres.enrichtest <- function(res, gsd, ...) {
   out[, padj := p.adjust(pval, 'BH')]
 }
 
-#' Performs enrichment based testing while (optinally) accounting for bias.
+#' Performs an overrepresentation analysis, (optinally) accounting for bias.
 #'
-#' This function wraps [limma::kegga()] to perform biased enrichment tests over
-#' gene set collection stored in a GeneSetDb (`gsd`) object. Its easiest to
-#' use this function when the biases and selection criteria are stored as
-#' columns of the input data.frame `dat`.
+#' This function wraps [limma::kegga()] to perform biased overrepresntation
+#' analysis over gene set collection stored in a GeneSetDb (`gsd`) object. Its
+#' easiest to use this function when the biases and selection criteria are
+#' stored as columns of the input data.frame `dat`.
 #'
 #' In principle, this test does what `goseq` does, however I found that
-#' sometimes callin goseq would throw errors within `goseq::nullp()` when
+#' sometimes calling goseq would throw errors within `goseq::nullp()` when
 #' calling `makesplines`. I stumbled onto this implementation when googling
 #' for these errors and landing here:
 #' https://support.bioconductor.org/p/65789/#65914
 #'
 #' The meat and potatoes of this function's code was extracted from
-#' [limma::kegga()], originally written by Gordon Smyth and Yifang Hu.
+#' [limma::kegga()], written by Gordon Smyth and Yifang Hu.
 #'
 #' Note that the BiasedUrn CRAN package needs to be installed to support biased
 #' enrichment testing
@@ -191,9 +191,9 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #' @param universe Defaults to all elements in `dat[["feature_id"]]`.
 #' @param restrict.universe See same parameter in [limma::kegga()]
 #' @param plot.bias See `plot` parameter in [limma::kegga()]. You can generate
-#'   this plot without running `enrichtest` using the [plot_enrichtest_bias()],
+#'   this plot without running `ora` using the [plot_ora_bias()],
 #'   like so:
-#'   `plot_enrichtest_bias(dat, selected = selected, groups = groups,
+#'   `plot_ora_bias(dat, selected = selected, groups = groups,
 #'                         feature.bias = feature.bias)`
 #' @return A data.frame of pathway enrichment. The last N colums are enrichment
 #'   statistics per pathway, grouped by the `groups` parameter. `P.all` are the
@@ -205,30 +205,29 @@ mgres.enrichtest <- function(res, gsd, ...) {
 #' gdb <- getMSigGeneSetDb("h", "human", "ensembl")
 #'
 #' # Run enrichmnent without accounting for any bias
-#' nobias <- enrichtest(gdb, dgestats, selected = "selected",
-#'                      groups = "direction",
-#'                      feature.bias = NULL)
+#' nobias <- ora(gdb, dgestats, selected = "selected", groups = "direction",
+#'               feature.bias = NULL)
 #'
 #' # Run enrichment and account for gene length
-#' lbias <- enrichtest(gdb, dgestats, selected = "selected",
-#'                     feature.bias = "effective_length")
+#' lbias <- ora(gdb, dgestats, selected = "selected",
+#'              feature.bias = "effective_length")
 #'
 #' # plot length bias with DGE status
-#' plot_enrichtest_bias(dgestats, "selected", "effective_length")
+#' plot_ora_bias(dgestats, "selected", "effective_length")
 #'
 #' # induce length bias and see what is the what ...............................
 #' biased <- dgestats[order(dgestats$pval),]
 #' biased$effective_length <- sort(biased$effective_length, decreasing = TRUE)
-#' plot_enrichtest_bias(biased, "selected", "effective_length")
-#' etest <- enrichtest(gdb, biased, selected = "selected",
-#'                     groups = "direction",
-#'                     feature.bias = "effective_length")
-enrichtest <- function(gsd, dat, selected = "significant",
-                       groups = NULL,
-                       feature.bias = NULL, universe = NULL,
-                       restrict.universe = FALSE,
-                       plot.bias = FALSE, ...,
-                       as.dt = FALSE, .pipelined = FALSE) {
+#' plot_ora_bias(biased, "selected", "effective_length")
+#' etest <- ora(gdb, biased, selected = "selected",
+#'              groups = "direction",
+#'              feature.bias = "effective_length")
+ora <- function(gsd, dat, selected = "significant",
+                groups = NULL,
+                feature.bias = NULL, universe = NULL,
+                restrict.universe = FALSE,
+                plot.bias = FALSE, ...,
+                as.dt = FALSE, .pipelined = FALSE) {
   dat <- validate.xmeta(dat) # enforse feature_id column
   if (is.null(universe)) universe <- dat[["feature_id"]]
 
@@ -346,7 +345,7 @@ enrichtest <- function(gsd, dat, selected = "significant",
 #' @export
 #' @importFrom stats approx
 #' @importFrom limma barcodeplot
-plot_enrichtest_bias <- function(x, selected, feature.bias,
+plot_ora_bias <- function(x, selected, feature.bias,
                                  title = "DE status vs bias", ...) {
   assert_multi_class(x, c("data.frame", "tibble"))
   if (test_string(selected)) {

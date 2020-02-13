@@ -16,6 +16,11 @@ multiGSEA(
   trim = 0.1,
   verbose = FALSE,
   ...,
+  rank_by = NULL,
+  select_by = NULL,
+  rank_order = c("ordered", "descending", "ascending"),
+  group_by = NULL,
+  biased_by = NULL,
   xmeta. = NULL,
   .parallel = FALSE,
   BPPARAM = bpparam()
@@ -114,7 +119,8 @@ You can choose the methods you want to run over your contrast using the
 \itemize{
 \item \code{"camera"}: from \code{\link[limma:camera]{limma::camera()}} (*)
 \item \code{"cameraPR"}: from \code{\link[limma:cameraPR]{limma::cameraPR()}}
-\item \code{"enrichtest"}: from \code{\link[limma:kegga]{limma::kegga()}} (optionally biased) hypergeometic test
+\item \code{"ora"}: overrepresentation analysis from, optionally accounting for bias.
+From  \code{\link[limma:kegga]{limma::kegga()}}.
 \item \code{"roast"}: from \code{\link[limma:roast]{limma::roast()}} (*)
 \item \code{"fry"}: from \code{\link[limma:fry]{limma::fry()}} (*)
 \item \code{"romer"}: from \code{\link[limma:romer]{limma::romer()}} (*)

@@ -1,12 +1,12 @@
-﻿method,test_type,inputs,package,dependancy,comment
+method,test_type,inputs,package,dependancy,comment
 camera,preranked,results,limma,required,
 cameraPR,preranked,results,limma,required,
 fgsea,preranked,results,fgsea,suggested,
-enrichtest,enrichment,results,limma,required,A generic wrapper to the limma::kegga (biased) enrichment testing
+ora,ora,results,limma,required,A generic wrapper to the limma::kegga (biased) enrichment testing
 fry,preranked,full,limma,required,
 roast,preranked,full,limma,required,
 romer,preranked,full,limma,required,
-goseq,enrichment,results,goseq,suggested,
+goseq,ora,results,goseq,suggested,
 geneSetTest,preranked,results,limma,required,
 logFC,preranked,notest,limma,required,
 svdGeneSetTest,meta,full,multiGSEA,required,
