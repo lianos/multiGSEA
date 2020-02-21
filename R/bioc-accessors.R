@@ -29,7 +29,9 @@ pdata.default <- function(x, ...) NULL
 # DGEList ======================================================================
 fdata.DGEList <- function(x, as.df = FALSE, ...) {
   out <- x$genes
-  if (!is.data.frame(out)) stop("No `genes` data.frame found in (DG)EList")
+  if (!is.data.frame(out)) {
+    warning("No `genes` data.frame found in (DG)EList", immediate. = TRUE)
+  }
   out
 }
 

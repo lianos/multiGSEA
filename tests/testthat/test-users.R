@@ -26,12 +26,21 @@ test_that("multiGSEA fails with a 1-geneset GeneSetDb", {
   }
 })
 
-if (FALSE) {
-  test_that("Russ's error is his fault", {
-    ## This error was due to a design matrix that was not full rank
-    datnames <- load(system.file('testdata', 'messForSteve.Rdata', package='multiGSEA'))
-    gsd <- conform(gsd.all, vm)
-    mg <- multiGSEA(gsd, vm, vm$design[, -12], methods='camera')
-  })
+test_that("multiGSEA pipeine can handle EList without a genes data.frame", {
+  # Thanks to @RussBainer for reporting
+  gdb <- exampleGeneSetDb()
+  vm <- exampleExpressionSet()
 
-}
+  vm.noG <- vm
+  vm.noG$genes <- NULL
+
+  mg <- multiGSEA(gdb, vm, vm$design, "tumor", "camera")
+
+  mg.noG <- expect_warning(
+    multiGSEA(gdb, vm.noG, vm.noG$design, "tumor", "camera"),
+    "no.*genes", ignore.case = TRUE)
+
+  r <- result(mg)
+  r.noG <- result(mg.noG)
+  expect_equal(r.noG, r)
+})

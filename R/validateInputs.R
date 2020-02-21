@@ -38,6 +38,11 @@ validateInputs <- function(x, design=NULL, contrast=NULL, methods=NULL,
     stop("It does not look like estimateDisp has been run on DGEList")
   }
 
+  if ((is(x, "DGEList") || is(x, "EList")) && is.null(x$genes)) {
+    x$genes <- data.frame(feature_id = rownames(x), stringsAsFactors = FALSE)
+    rownames(x$genes) <- rownames(x)
+  }
+
   if (is.vector(x)) {
     x <- matrix(x, ncol=1L, dimnames=list(names(x), NULL))
   }
