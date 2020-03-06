@@ -185,11 +185,9 @@ mgheatmap2 <- function(x, gdb = NULL, col = NULL,
     }
   } else {
     if (is.null(scores)) {
-      browser()
       X <- scoreSingleSamples(gdb, X, methods = aggregate.by, as.matrix = TRUE,
                               center = FALSE, scale = FALSE,
                               uncenter = center., unscale = scale., ...)
-      browser()
     } else {
       xs <- scores[scores[['method']] == aggregate.by,,drop=FALSE]
       xs$key <- encode_gskey(xs)

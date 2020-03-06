@@ -53,7 +53,7 @@ check.gsea.methods <- function(methods) {
   }
 
   for (method. in methods) {
-    info <- subset(mg.methods, method == method.)
+    info <- mg.methods[mg.methods[["method"]] == method.,,drop=FALSE]
     if (info[["dependancy"]] == "suggested") {
       pkg <- info[["package"]]
       if (!requireNamespace(pkg, quietly = TRUE)) {

@@ -556,9 +556,10 @@ setMethod("show", "MultiGSEAResult", function(object) {
 #' @return A matrix of the desired pvalues for all genesets
 #'
 #' @examples
-#' vm <- exampleExpressionSet(do.voom=TRUE)
-#' gdb <- exampleGeneSetDb()
-#' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+#' # vm <- exampleExpressionSet(do.voom=TRUE)
+#' # gdb <- exampleGeneSetDb()
+#' # mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('cameraPR'))
+#' mg <- exampleMultiGSEAResult()
 #' pm <- p.matrix(mg)
 p.matrix <- function(x, names=resultNames(x),
                      pcol=c('padj', 'padj.by.collection', 'pval')) {

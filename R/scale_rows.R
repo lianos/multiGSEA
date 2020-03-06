@@ -20,6 +20,7 @@
 #' 4. An integer vector, the is the analog of 3 but specifies the columns to
 #'    use for centering.
 #'
+#' @export
 #' @param x the matrix-like object
 #' @param center Either a logical, character, or numeric-like value that
 #'   specifies what to center
@@ -42,8 +43,8 @@ scale_rows <- function(x, center = TRUE, scale = TRUE, ...) {
   UseMethod("scale_rows", x)
 }
 
-#'@noRd
-#'@export
+#' @noRd
+#' @export
 scale_rows.default <- function(x, center = TRUE, scale = TRUE, ...) {
   # as_matrix will produce either a `matrix`, `Matrix`,
   scale_rows(as_matrix(x, ...), center = center, scale = scale, ...)

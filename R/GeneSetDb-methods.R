@@ -17,13 +17,13 @@
 #'
 #' @examples
 #' vm <- exampleExpressionSet()
-#' gdb <- getMSigGeneSetDb('H', 'human', "entrez")
+#' gdb <- exampleGeneSetDb()
 #' mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=NULL)
 #' lfc <- logFC(mg)
 #' annotated <- annotateGeneSetMembership(lfc, gdb, 'feature_id')
 #'
 #' ## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset
-#' angio <- subset(annotated, `H;;HALLMARK_ANGIOGENESIS`)
+#' angio <- subset(annotated, `c2;;BIOCARTA_AGPCR_PATHWAY`)
 annotateGeneSetMembership <- function(x, gdb, x.ids=NULL, ...) {
   stopifnot(is(x, 'data.frame'))
   stopifnot(is(gdb, 'GeneSetDb'))
@@ -827,6 +827,7 @@ addCollectionMetadata <- function(x, xcoll, xname, value,
 #' @param x a `GeneSetDb` object
 #' @param meta a `data.frame`-like object with `"collection"`, `"name"`, and
 #'   an arbitrary amount of columns to add as metadata for the genesets.
+#' @param ... not used yet
 #' @return the updated `GeneSetDb` object `x`.
 addGeneSetMetadata <- function(x, meta, ...) {
   if (FALSE) {
@@ -901,7 +902,7 @@ addGeneSetMetadata <- function(x, meta, ...) {
 #' @examples
 #' gdb1 <- exampleGeneSetDb()
 #' gdb2 <- GeneSetDb(exampleGeneSetDF())
-#' gdb <- append(gdb1, gdb2)
+#' gdb <- combine(gdb1, gdb2)
 setMethod("append", c(x = "GeneSetDb"), function(x, values, after = NA) {
   .Deprecated("combine")
   if (!missing(after)) {

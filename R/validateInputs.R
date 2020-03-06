@@ -379,7 +379,7 @@ validate.XwithWeights <- function(x) {
     }
   }
   if (is(x, 'eSet')) {
-    if (!'weights' %in% assayDataElementNames(x)) {
+    if (!'weights' %in% Biobase::assayDataElementNames(x)) {
       return("weights assay not in eSet x")
     }
   }
