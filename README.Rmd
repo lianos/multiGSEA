@@ -8,7 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-"
+  fig.path = "man/figures/"
 )
 ```
 
@@ -39,14 +39,11 @@ is provided that facilitates the exploration and interpretation of GSEA results.
   `MultiGSEAResult` `*.rds` file.
 
 Full details that outline the use of this software package is provided in the
-[package's vignette](vignettes/multiGSEA.Rmd), however a brief description is
-outlined below.
+[package's vignette][vignette], however a brief description is outlined below.
+
+[vignette]: https://lianos.github.io/multiGSEA/articles/multiGSEA.html
 
 # Usage
-
-A [thorough vignette](vignettes/multiGSEA.Rmd) is provided with this package
-that illustrates the multitudes of its gene-set-based analysis functionality.
-For convenience, a small taster of the package's functionality is included here.
 
 A subset of the RNA-seq data tumor/normal samples in the BRCA indication from
 the TCGA are provided in this package. We will use that data to perform a
@@ -78,17 +75,20 @@ rasterized versions are saved for use with this `README` file:
 iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "density")
 ```
 
-<img src="vignettes/images/README_iplot_density.png" />
+<img src="man/figures/README_iplot_density.png" />
 
 ```{r, eval = FALSE}
 iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "boxplot")
 ```
 
-<img src="vignettes/images/README_iplot_boxplot.png" />
+<img src="man/figures/README_iplot_boxplot.png" />
 
 When these plots are rendered in your workspace or an Rmarkdown document,
 the user can hover of the genes (dots) to see their name and differential
 expression statistics.
+
+For an immersive, interactive way to explore the GSEA results, use the
+`multiGSEA.shiny::explore(mg)` method!
 
 # Installation
 

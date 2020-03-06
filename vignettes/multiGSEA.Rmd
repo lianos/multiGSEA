@@ -95,7 +95,7 @@ stored primarily as tables / data.frames.
 
 Currently supported gene set enrichment methods include:
 
-```{r multiGSEA-methods, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
+```{r multiGSEA-methods, echo=FALSE, message=FALSE, warning=FALSE}
 dplyr::select(multiGSEA::multiGSEA_methods(),
               method, test_type, package, comment)
 ```
@@ -920,3 +920,4 @@ following internal multiGSEA methods.
 
 Look to the implementation in the `do.camera.R` file for a reference.
 
+[BiocSet]: http://bioconductor.org/packages/release/bioc/html/BiocSet.html

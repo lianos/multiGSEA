@@ -82,12 +82,11 @@
 <li>The <code>multiGSEA</code> function is a wrapper that orchestrates the execution of any number of user-specified gene set enrichment analyses (GSEA) over a particular experimental contrast of interest. This will create a <code>MultiGSEAResult</code> object which stores the results of each GSEA method internally, allowing for easy query and retrieval.</li>
 <li>A sister <a href="https://github.com/lianos/multiGSEA.shiny"><code>multiGSEA.shiny</code></a> package provides an <code>explore</code> function, which is invoked on <code>MultiGSEAREsult</code> objects returned from a call to <code>multiGSEA</code>. The shiny application facilitates interactive exploration of these GSEA results. This application can also be deployed to a shiny server and can be initialized by uploading a serialized <code>MultiGSEAResult</code> <code>*.rds</code> file.</li>
 </ul>
-<p>Full details that outline the use of this software package is provided in the <a href="vignettes/multiGSEA.Rmd">package’s vignette</a>, however a brief description is outlined below.</p>
+<p>Full details that outline the use of this software package is provided in the <a href="https://lianos.github.io/multiGSEA/articles/multiGSEA.html">package’s vignette</a>, however a brief description is outlined below.</p>
 </div>
 <div id="usage" class="section level1">
 <h1 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h1>
-<p>A <a href="vignettes/multiGSEA.Rmd">thorough vignette</a> is provided with this package that illustrates the multitudes of its gene-set-based analysis functionality. For convenience, a small taster of the package’s functionality is included here.</p>
 <p>A subset of the RNA-seq data tumor/normal samples in the BRCA indication from the TCGA are provided in this package. We will use that data to perform a “camera” and “fry” gene set enrichment analysis of tumor vs normal samples using the MSigDB hallmark and c2 gene set collections with <code>multiGSEA</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(multiGSEA)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</span>
@@ -108,10 +107,11 @@
 <span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt; 6         C2                     BENPORATH_PROLIFERATION 7.471399e-22</span></span></code></pre></div>
 <p>The shift in expression of the genes within the top gene set can be visualized with the <code>iplot</code> function below. This plot produces interactive graphics, but rasterized versions are saved for use with this <code>README</code> file:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="reference/iplot.html">iplot</a></span>(mg, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, <span class="dt">type =</span> <span class="st">"density"</span>)</span></code></pre></div>
-<p><img src="articles/images/README_iplot_density.png"></p>
+<p><img src="reference/figures/README_iplot_density.png"></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="reference/iplot.html">iplot</a></span>(mg, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, <span class="dt">type =</span> <span class="st">"boxplot"</span>)</span></code></pre></div>
-<p><img src="articles/images/README_iplot_boxplot.png"></p>
+<p><img src="reference/figures/README_iplot_boxplot.png"></p>
 <p>When these plots are rendered in your workspace or an Rmarkdown document, the user can hover of the genes (dots) to see their name and differential expression statistics.</p>
+<p>For an immersive, interactive way to explore the GSEA results, use the <code><a href="https://rdrr.io/pkg/multiGSEA.shiny/man/explore.html">multiGSEA.shiny::explore(mg)</a></code> method!</p>
 </div>
 <div id="installation" class="section level1">
 <h1 class="hasAnchor">
