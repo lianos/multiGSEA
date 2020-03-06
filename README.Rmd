@@ -8,7 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/"
+  fig.path = "man/figures/README-"
 )
 ```
 
@@ -94,9 +94,10 @@ expression statistics.
 
 The multiGSEA suite of packages will soon be submitted to bioconductor and
 installable via the recommended `BiocManager::install()` mechanism. In the
-meantime, install this package form this github repository.
+meantime, install this package *multiGSEA.shiny@develop* branch from github,
+which sould install both multiGSEA.shiny and multiGSEA packages.
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("BiocManager")
-BiocManager::install(c("lianos/multiGSEA", "lianos/multiGSEA.shiny"))
+BiocManager::install("lianos/multiGSEA.shiny@develop")
 ```

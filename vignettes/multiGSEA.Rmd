@@ -31,8 +31,8 @@ knitr::opts_chunk$set(
   echo=TRUE, warning=FALSE, message=FALSE, error=FALSE) #, dpi=150)
 
 # TODO: 
-# 1. update text to favor `enrichtest`
-# 2. describe how its data.frame input works (enrichtest)
+# 1. update text to favor overrepresentation analysis method `ora`
+# 2. describe how its data.frame input works (ora)
 # 3. provide a brief comparison to its performance vs goseq, with and without 
 #    accounting for bias). You can take the code for that from the 
 #    enrichtest/goseq PAC unit test.
@@ -54,12 +54,25 @@ by providing these top-line functionalities:
   The shiny application facilitates interactive exploration of these GSEA
   results. This application can also be deployed to a shiny server and can be
   initialized by uploading a serialized `MultiGSEAResult` `*.rds` file.
+* An "over representation analysis" method `ora()` which wraps the biased
+  enrichment functionality found within `limma::kegga` and generalizes it to
+  work against data.frame inputs with arbitrary genesets.
 * The `scoreSingleSamples` function is a wrapper that enables the user to
   generate single sample gene set scores using a variety of different
   single sample gene set scoring methods.
 * The `GeneSetDb` class: a new class to store collections of gene sets. This
   provides a bit more functionality than the base `GeneSetCollection` class
   defined in the [GSEABase](http://bioconductor.org/packages/GSEABase).
+* A convenience `getMSigGeneSetDb()` function, which enables the user to
+  fetch arbitraty subsets of the MSigDB collections mapped to different
+  organisms and identifier types.
+
+<div class="note">
+The [BiocSet][] package was introduced in Bioconductor version 3.10, which
+should supersede the `GeneSetDb` class introduced here. multiGSEA will endeavor
+to transition to using that class to store gene set collections in the near 
+future.
+</div>
 
 The initial GSEA methods that multiGSEA wrapped were the ones provided by limma
 and edgeR. As such, many analyses using multiGSEA expect you to re-use the same
@@ -83,8 +96,6 @@ stored primarily as tables / data.frames.
 Currently supported gene set enrichment methods include:
 
 ```{r multiGSEA-methods, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
-# meths <- setdiff(multiGSEA.methods(), c('logFC', 'svdGeneSetTest'))
-# cat(sprintf('* %s\n', meths))
 dplyr::select(multiGSEA::multiGSEA_methods(),
               method, test_type, package, comment)
 ```
@@ -244,7 +255,7 @@ The call to `multiGSEA` will perform these analyses and return a
 ```{r run-multi-GSEA, eval=!exists('mg'), results='hide', warning=FALSE}
 mg <- multiGSEA(
   gdb, vm, vm$design, cm[, 'BvH'],
-  methods = c('camera', 'fry', 'enrichtest'),
+  methods = c('camera', 'fry', 'ora'),
   # these parameters define which genes are differentially expressed
   feature.max.padj = 0.05, feature.min.logFC = 1,
   # for camera:
@@ -336,7 +347,7 @@ the `result` function (or several can be returned with `results`):
 
 ```{r goseq-res}
 cam.res <- result(mg, 'camera')
-cam.go.res <- results(mg, c('camera', 'enrichtest.up'))
+cam.go.res <- results(mg, c('camera', 'ora.up'))
 ```
 
 You can identify genesets with the strongest enrichment by filtering and sorting
@@ -467,7 +478,7 @@ We can see how the scores from different methods compare to each other with
 using a little `reshape2` mojo and the `multiGSEA::corplot` function.
 
 ```{r sss-pairs}
-sm <- acast(scores, name + sample ~ method, value.var="score")
+sm <- acast(scores, name + sample_id ~ method, value.var="score")
 corplot(sm, cluster=TRUE)
 ```
 
@@ -480,7 +491,7 @@ ewmu <- scoreSingleSamples(gdb.sub, vm.bh,
                            unscale=TRUE, uncenter=TRUE) %>% 
   mutate(method='ewm_unscale')
 scores.all <- bind_rows(scores, ewmu)
-sma <- acast(scores.all, name + sample ~ method, value.var="score")
+sma <- acast(scores.all, name + sample_id ~ method, value.var="score")
 corplot(sma, cluster=TRUE)
 ```
 
@@ -499,8 +510,8 @@ how these methods score each sample for a few gene sets.
 
 ```{r anno-scores}
 all.scores <- scores.all %>% 
-  inner_join(select(vm.bh$targets, sample=Sample_ID, subtype=PAM50subtype),
-             by='sample')
+  inner_join(select(vm.bh$targets, sample_id=Sample_ID, subtype=PAM50subtype),
+             by = "sample_id")
 
 some.scores <- all.scores %>% 
   filter(name %in% head(unique(all.scores$name), 5))
@@ -549,7 +560,7 @@ col.anno <- HeatmapAnnotation(
 
 mgheatmap(vm.bh, gdb.2, aggregate.by = "none", split = TRUE,
           show_row_names = FALSE, show_column_names = FALSE,
-          top_annotation=col.anno, zlim = c(-3, 3))
+          recenter = TRUE, top_annotation = col.anno, zlim = c(-3, 3))
 ```
 
 ### Gene set-based heatmap
@@ -571,7 +582,7 @@ genesets
 
 ```{r gshm-all, fig.height = 6, fig.width = 8}
 mgheatmap(vm.bh, gdb.sub, 
-          aggregate.by='ewm', split=TRUE,
+          aggregate.by = 'ewm', split=TRUE, recenter = TRUE,
           show_row_names=TRUE, show_column_names=FALSE,
           top_annotation=col.anno, zlim = c(-2.5, 2.5))
 ```
@@ -597,7 +608,7 @@ the collection of gene set information is minimally stored as a three-column
 
 * collection
 * name
-* featureId
+* feature_id
 
 More columns can be added to the internal `data.table` (a "symbol" column, for
 instance), but those are the only three you need. To see what we are talking
@@ -609,10 +620,10 @@ as.data.frame(gdb)[c(1:5, 201:205),]
 ```
 
 
-The `(collection,name)` tuple is the primary key of a gene set. The `featureId`
+The `(collection,name)` tuple is the primary key of a gene set. The `feature_id`
 column stores gene identifiers. For the time being, it will be most natural
-for these featureIds to simply be entrez ids, as many of the annotation
-databases use entrez gene identifiers themselves.
+for these IDs to simply be ensembl gene identifiers (or entrez ids) as many of
+the annotation databases use these identifiers, as well.
 
 ## Building a GeneSetDb
 
@@ -630,7 +641,7 @@ You can create a custom `GeneSetDb` via the `GeneSetDb` constructor, which
 accpets the following inputs:
 
 1. A data.frame of geneset membership. This requires `collection`, `name`, and
-   `featureId` columns. Reference the output of `as.data.frame(gdb)` shown
+   `feature_id` columns. Reference the output of `as.data.frame(gdb)` shown
    above.
 2. A named list of gene identifier vectors that represent genesets for a
    single collection
@@ -646,7 +657,7 @@ are referencing the same species, etc.
 ```{r, eval=FALSE}
 msigdb <- getMSigGeneSetDb('H', 'human')
 goslimdb <- getPantherGeneSetDb('goslim', 'human')
-gdb.uber <- append(msigdb, goslimdb)
+gdb.uber <- combine(msigdb, goslimdb)
 ```
 
 See the help and examples in `?GeneSetDb` for more information.
@@ -776,8 +787,8 @@ or we can use the `geneSet` function to return a `data.frame` of these results:
 
 ```{r}
 gdbc %>% 
-  geneSet('C2', 'ABBUD_LIF_SIGNALING_1_DN', active.only=FALSE) %>%
-  subset(featureId %in% missed)
+  geneSet('C2', 'ABBUD_LIF_SIGNALING_1_DN', active.only = FALSE) %>%
+  subset(feature_id %in% missed)
 ```
 
 ## Mapping of gene set featureIds to target expression containers

@@ -76,8 +76,7 @@ results(mg, "camera") %>%
 The shift in expression of the genes within the top gene set can be
 visualized with the `iplot` function below. This plot produces
 interactive graphics, but rasterized versions are saved for use with
-this `README`
-file:
+this `README` file:
 
 ``` r
 iplot(mg, 'c2', 'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP', type = "density")
@@ -99,9 +98,11 @@ differential expression statistics.
 
 The multiGSEA suite of packages will soon be submitted to bioconductor
 and installable via the recommended `BiocManager::install()` mechanism.
-In the meantime, install this package form this github repository.
+In the meantime, install this package *<multiGSEA.shiny@develop>* branch
+from github, which sould install both multiGSEA.shiny and multiGSEA
+packages.
 
 ``` r
 # install.packages("BiocManager")
-BiocManager::install(c("lianos/multiGSEA", "lianos/multiGSEA.shiny"))
+BiocManager::install("lianos/multiGSEA.shiny@develop")
 ```
