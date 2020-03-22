@@ -32,8 +32,8 @@
 #'
 #' - `"camera"`: from [limma::camera()] (*)
 #' - `"cameraPR"`: from [limma::cameraPR()]
-#' - `"ora"`: overrepresentation analysis from, optionally accounting for bias.
-#'    From  [limma::kegga()].
+#' - `"ora"`: overrepresentation analysis, optionally accounting for bias,
+#'    from  [limma::kegga()].
 #' - `"roast"`: from [limma::roast()] (*)
 #' - `"fry"`: from [limma::fry()] (*)
 #' - `"romer"`: from [limma::romer()] (*)
