@@ -27,13 +27,15 @@
 #' results generated from this function.
 #'
 #' @section GSEA Methods:
-#' You can choose the methods you want to run over your contrast using the
-#' \code{methods}, parameter. The currently available methods are:
+#' You can choose the methods you would like to run by providing a character
+#' vector of GSEA method names to the \code{methods} parameter. Valid methods
+#' you can select from include:
 #'
 #' - `"camera"`: from [limma::camera()] (*)
 #' - `"cameraPR"`: from [limma::cameraPR()]
-#' - `"ora"`: overrepresentation analysis, optionally accounting for bias,
-#'    from  [limma::kegga()].
+#' - `"ora"`: overrepresentation analysis optionally accounting for bias
+#'    ([ora()]). This method is a wrapper function that makes the functionality
+#'    in [limma::kegga()] available to an arbitrary GeneSetDb.
 #' - `"roast"`: from [limma::roast()] (*)
 #' - `"fry"`: from [limma::fry()] (*)
 #' - `"romer"`: from [limma::romer()] (*)
@@ -184,8 +186,17 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
   if (is.data.frame(x)) {
     rank_order <- match.arg(rank_order)
     assert_character(x[["feature_id"]])
-    assert_string(rank_by)
-    assert_numeric(x[[rank_by]])
+    if (!test_string(rank_by) || ! test_numeric(x[[rank_by]])) {
+      msg <- paste(
+        "data.frame inputs for `x` require that the `rank_by` parameter is the",
+        "names a numeric colum in `x` that can be used to rank its rows.\n",
+        "If your GSEA method does not require ranks (like 'ora'), the rankings",
+        "will not be used, but you still need rank_by to point to a numeric",
+        "column.\n This requirement will be fixed in a future version of",
+        "multiGSEA")
+      stop(msg)
+    }
+
     if (rank_order != "ordered") {
       xo <- order(x[[rank_by]], decreasing = rank_order == "descending")
       x <- x[xo,,drop = FALSE]
