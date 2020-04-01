@@ -105,10 +105,10 @@ do.ora <- function(gsd, x, design, contrast = ncol(design),
   }
 
   res <- ora(gsd, logFC, selected = "significant",
-                    groups = groups,
-                    feature.bias = feature.bias,
-                    restrict.universe = restrict.universe,
-                    as.dt = TRUE)
+             groups = groups,
+             feature.bias = feature.bias,
+             restrict.universe = restrict.universe,
+             as.dt = TRUE)
 
   base <- res[, list(Pathway, n = N)]
   groups <- attr(res, "groups")

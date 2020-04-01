@@ -203,7 +203,7 @@ multiGSEA <- function(gsd, x, design=NULL, contrast=NULL,
     }
     xmeta. <- x
     x <- setNames(x[[rank_by]], x[["feature_id"]])
-    xmeta.[[rank_by]] <- NULL
+    # xmeta.[[rank_by]] <- NULL
   }
 
   stopifnot(

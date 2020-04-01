@@ -31,7 +31,7 @@ test_that("induced length associattion to significance is accounted for", {
   set.seed(0xBEEF)
   rando <- mutate(biased, effective_length = sample(effective_length))
   rbias <- ora(gdb., rando, selected = "selected",
-                      feature.bias = "effective_length")
+               feature.bias = "effective_length")
   expect_equal(rbias$P.all, nbias$P.all, tolerance = 0.005)
 
   if (FALSE) {
