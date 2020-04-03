@@ -44,6 +44,8 @@ addCollectionMetadata(
 
 \item{name}{The name of the metadata variable to get the value for}
 
+\item{...}{not used yet}
+
 \item{i}{The collection,name compound key identifier of the gene set}
 
 \item{j}{The collection,name compound key identifier of the gene set}

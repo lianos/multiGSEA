@@ -103,5 +103,5 @@ Collate:
     'utilities.R'
     'volcano_plot.R'
     'zzz.R'
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)

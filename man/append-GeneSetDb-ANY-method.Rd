@@ -19,5 +19,5 @@ Appends two GeneSetDb objects togethter.
 \examples{
 gdb1 <- exampleGeneSetDb()
 gdb2 <- GeneSetDb(exampleGeneSetDF())
-gdb <- append(gdb1, gdb2)
+gdb <- combine(gdb1, gdb2)
 }

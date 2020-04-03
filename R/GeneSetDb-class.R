@@ -85,6 +85,7 @@
 #' @aliases GeneSetDb
 #' @export
 #' @seealso `?conversion`
+#'
 #' @param x A `GeneSetCollection`, a "two deep" list of either
 #'   `GeneSetCollection`s or lists of character vectors, which are
 #'   the gene identifers. The "two deep" list represents the different
@@ -140,15 +141,23 @@
 #' idb.mm <- idb[igs$organism == 'Mus musculus']
 #' length(idb.mm) ## 2984
 #' }
-GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
+GeneSetDb <- function(x, featureIdMap = NULL, collectionName = NULL, ...) {
+  UseMethod("GeneSetDb", x)
+}
+
+#' @noRd
+#' @export
+GeneSetDb.default <- function(x, featureIdMap = NULL, collectionName = NULL,
+                              ...) {
+  args <- list(...)
   gdb <- if (is(x, "GeneSetDb")) {
     x
   } else if (is(x, 'GeneSetCollection')) {
-    GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
+    .GeneSetDb.GeneSetCollection(x, featureIdMap, collectionName)
   } else if (is(x, 'data.frame')) {
-    GeneSetDb.data.frame(x, featureIdMap, collectionName)
+    .GeneSetDb.data.frame(x, featureIdMap, collectionName)
   } else if (is(x, 'list')) {
-    GeneSetDb.list(x, featureIdMap, collectionName)
+    .GeneSetDb.list(x, featureIdMap, collectionName)
   } else {
     stop("No GeneSetDb constructor defined for: ", class(x)[1L])
   }
@@ -166,7 +175,7 @@ GeneSetDb <- function(x, featureIdMap=NULL, collectionName=NULL) {
 }
 
 #' @noRd
-GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
+.GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   stopifnot(is.data.frame(x) && nrow(x) > 0)
   proto <- new("GeneSetDb")
   x <- setDT(as.data.frame(copy(x)))
@@ -201,6 +210,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
   lol <- sapply(unique(x[['collection']]), function(col) {
     with(x[collection == col], split(feature_id, name))
   }, simplify=FALSE)
+
   gdb <- GeneSetDb(lol, featureIdMap=featureIdMap)
 
   # If the input data.frame has extra columns, we will either add them as
@@ -259,7 +269,7 @@ GeneSetDb.data.frame <- function(x, featureIdMap=NULL, collectionName=NULL) {
 }
 
 #' @noRd
-GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
+.GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
   if (!is.list(x) || length(x) == 0L) {
     stop("A non-empty list is required for this function")
   }
@@ -267,7 +277,8 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
     if (is.null(collectionName)) {
       collectionName <- names(x)
     }
-    out <- GeneSetDb.list.of.GeneSetCollections(x, featureIdMap, collectionName)
+    out <- .GeneSetDb.list.of.GeneSetCollections(x, featureIdMap,
+                                                 collectionName)
     return(out)
   }
 
@@ -324,8 +335,8 @@ GeneSetDb.list <- function(x, featureIdMap=NULL, collectionName=NULL) {
 
 #' @noRd
 #' @importFrom GSEABase setName geneIds geneIdType
-GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
-                                                 collectionName=names(x)) {
+.GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap = NULL,
+                                                 collectionName =names(x)) {
   stopifnot(is.list(x))
   stopifnot(length(x) > 0)
   stopifnot(all(sapply(x, is, 'GeneSetCollection')))
@@ -352,16 +363,16 @@ GeneSetDb.list.of.GeneSetCollections <- function(x, featureIdMap=NULL,
     setNames(id.list, sapply(gsc, setName))
   })
   names(lol) <- collectionName
-  GeneSetDb.list(lol, featureIdMap, collectionName)
+  GeneSetDb(lol, featureIdMap, collectionName)
 }
 
 
 #' @noRd
-GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
+.GeneSetDb.GeneSetCollection <- function(x, featureIdMap=NULL,
                                         collectionName='anon_collection') {
   stopifnot(is.character(collectionName) && length(collectionName) == 1)
   gsc.list <- setNames(list(x), collectionName)
-  GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, collectionName)
+  .GeneSetDb.list.of.GeneSetCollections(gsc.list, featureIdMap, collectionName)
 }
 
 setAs("GeneSetCollection", "GeneSetDb", function(from) {

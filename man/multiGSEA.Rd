@@ -114,13 +114,15 @@ results generated from this function.
 }
 \section{GSEA Methods}{
 
-You can choose the methods you want to run over your contrast using the
-\code{methods}, parameter. The currently available methods are:
+You can choose the methods you would like to run by providing a character
+vector of GSEA method names to the \code{methods} parameter. Valid methods
+you can select from include:
 \itemize{
 \item \code{"camera"}: from \code{\link[limma:camera]{limma::camera()}} (*)
 \item \code{"cameraPR"}: from \code{\link[limma:cameraPR]{limma::cameraPR()}}
-\item \code{"ora"}: overrepresentation analysis from, optionally accounting for bias.
-From  \code{\link[limma:kegga]{limma::kegga()}}.
+\item \code{"ora"}: overrepresentation analysis optionally accounting for bias
+(\code{\link[=ora]{ora()}}). This method is a wrapper function that makes the functionality
+in \code{\link[limma:kegga]{limma::kegga()}} available to an arbitrary GeneSetDb.
 \item \code{"roast"}: from \code{\link[limma:roast]{limma::roast()}} (*)
 \item \code{"fry"}: from \code{\link[limma:fry]{limma::fry()}} (*)
 \item \code{"romer"}: from \code{\link[limma:romer]{limma::romer()}} (*)

@@ -11,6 +11,8 @@ addGeneSetMetadata(x, meta, ...)
 
 \item{meta}{a \code{data.frame}-like object with \code{"collection"}, \code{"name"}, and
 an arbitrary amount of columns to add as metadata for the genesets.}
+
+\item{...}{not used yet}
 }
 \value{
 the updated \code{GeneSetDb} object \code{x}.

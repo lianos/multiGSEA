@@ -26,8 +26,9 @@ You might want a matrix of pvalues (or FDRs) for the gene sets across all
 GSEA methods you tried. I think I did, once, so here it is.
 }
 \examples{
-vm <- exampleExpressionSet(do.voom=TRUE)
-gdb <- exampleGeneSetDb()
-mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('camera', 'fry'))
+# vm <- exampleExpressionSet(do.voom=TRUE)
+# gdb <- exampleGeneSetDb()
+# mg <- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('cameraPR'))
+mg <- exampleMultiGSEAResult()
 pm <- p.matrix(mg)
 }

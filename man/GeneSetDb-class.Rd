@@ -7,7 +7,7 @@
 \alias{GeneSetDb}
 \title{A container for geneset definitions.}
 \usage{
-GeneSetDb(x, featureIdMap = NULL, collectionName = NULL)
+GeneSetDb(x, featureIdMap = NULL, collectionName = NULL, ...)
 }
 \arguments{
 \item{x}{A \code{GeneSetCollection}, a "two deep" list of either
