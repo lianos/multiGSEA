@@ -85,7 +85,7 @@ getPantherPathways <- function(p.db, org.db) {
   idxref <- unique(as.data.table(p.all)[, c('PATHWAY_TERM', 'PATHWAY_ID'), with=FALSE])
   setkeyv(idxref, 'PATHWAY_TERM')
 
-  url.fn <- function(coll, name) {
+  url.fn <- function(coll, name, ...) {
     ## Captures the lookup table for future use from parent.frame(!)
     ## Not sure if this will cause any serious memory leak, but ...
     pid <- idxref[list(name)]$PATHWAY_ID
@@ -147,7 +147,9 @@ getPantherGOSLIM <- function(p.db, org.db) {
   }
 
   lol <- split(GO$ENTREZ, GO$TERM)
-  url.fn <- function(x, y) 'http://www.pantherdb.org/panther/ontologies.jsp'
+  url.fn <- function(x, y, ...) {
+    "http://www.pantherdb.org/panther/ontologies.jsp"
+  }
 
   gdb <- GeneSetDb(lol, collectionName='GOSLIM')
   xref <- match(gdb@table$name, GO$TERM)

@@ -71,6 +71,8 @@ contributes to a pre-specified principal component. These contributions
 act as weights over each gene, which are then used in a simple weighted
 mean calculation over all the genes in the geneset per sample. This is
 similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)
+\item \code{"ewz"}: The \code{\link[=eigenWeightedZScore]{eigenWeightedZScore()}}].  Just like the zscore method
+but the method of summarization is taken a weighted mean of the scores.
 \item \code{"gsd"}: This method was first introduced by Jason Hackney in
 \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please refer to
 the \code{\link[=gsdScore]{gsdScore()}} function for more information.

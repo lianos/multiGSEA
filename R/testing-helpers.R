@@ -94,7 +94,7 @@ exampleGeneSets <- function(x, unlist=!missing(x)) {
 exampleGeneSetDb <- function() {
   out <- GeneSetDb(exampleGeneSets())
   colls <- unique(collectionMetadata(out, as.dt = TRUE)$collection)
-  fn <- function(x, y) {
+  fn <- function(x, y, ...) {
     paste0('http://www.broadinstitute.org/gsea/msigdb/cards/', y, '.html')
   }
   for (col in colls) {

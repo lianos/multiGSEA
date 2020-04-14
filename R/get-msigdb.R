@@ -95,14 +95,14 @@ getMSigGeneSetDb <- function(collection = "H",
     idtype <- GSEABase::SymbolIdentifier()
   }
 
-  url.fn <- function(collection, name) {
+  url.fn <- function(collection, name, ...) {
     url <- "http://www.broadinstitute.org/gsea/msigdb/cards/%s.html"
     sprintf(url, name)
   }
 
   # this is for when we promote certain subcategories to their own collections,
   # ie. promote_subcategory_to_collection = TRUE
-  promoted.url.fn <- function(collection, name) {
+  promoted.url.fn <- function(collection, name, ...) {
     name.prefix <- sub("_.*$", "", collection)
     new.name <- paste(name.prefix, name, sep = "_")
     url <- "http://www.broadinstitute.org/gsea/msigdb/cards/%s.html"
@@ -121,25 +121,5 @@ getMSigGeneSetDb <- function(collection = "H",
   org(gdb) <- attr(msig.db, "species_info")[["species_name_"]]
   gdb@collectionMetadata <- gdb@collectionMetadata[name != "count"]
   gdb
-}
-
-#' @noRd
-resolve.species <- function(x) {
-  stopifnot(is.character(x) && length(character) == 1L)
-  xx <- tolower(x)
-  opts <- c(
-    fly="Drosophila_melanogaster",
-    human='Homo_sapiens',
-    homo_sapiens='Homo_sapiens',
-    hsa='Homo_sapiens',
-    ## mouse
-    mouse='Mus_musculus',
-    mus_musculus='Mus_musculus',
-    mmu='Mus_musculus')
-  out <- opts[xx]
-  if (is.na(out)) {
-    stop("Illegal species value: ", x)
-  }
-  out
 }
 

@@ -33,7 +33,7 @@ test_that("url function stored correctly", {
     select(-subcategory)
   gdb.2 <- GeneSetDb(go.2)
 
-  go.url.fn <- function(collection, name) {
+  go.url.fn <- function(collection, name, ...) {
     name. <- paste("GO", name, sep = "_")
     sprintf("http://www.broadinstitute.org/gsea/msigdb/cards/%s.html", name.)
   }

@@ -522,8 +522,8 @@ setValidity("GeneSetDb", function(object) {
       fn <- value[[is.url.fn]]
       if (!is.function(fn)) {
         url.fn.status <- 'not-a-function'
-      } else if (length(formalArgs(fn)) != 2) {
-        url.fn.status <= 'function-not-2-args'
+      } else if (length(formalArgs(fn)) < 3) {
+        url.fn.status <- 'not-enough-args'
       } else {
         url.fn.status <- 'ok'
       }
@@ -534,7 +534,7 @@ setValidity("GeneSetDb", function(object) {
     #   count <- value[[is.count]]
     # }
     # list(count=count, url.fn.stauts=url.fn.status)
-    list(url.fn.stauts=url.fn.status)
+    list(url.fn.stauts = url.fn.status)
   }, keyby='collection']
 
   ## 3. Minimally ensure we have metadata for all genesets

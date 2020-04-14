@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.13.12
+Version: 0.13.13
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("fnd"), comment = "2018+"),
@@ -88,6 +88,7 @@ Collate:
     'get-msigdb.R'
     'get-panther.R'
     'get-reactome.R'
+    'getKeggGeneSetDb.R'
     'gsea-helpers.R'
     'multiGSEA.R'
     'package.R'
@@ -95,10 +96,12 @@ Collate:
     'plots-interactive.R'
     'plots-mgheatmap.R'
     'plots-mgheatmap2.R'
+    'remap_identifiers.R'
     'rename_rows.R'
     'scale_rows.R'
     'scoreSingleSamples.R'
     'single-sample-scoring-methods.R'
+    'species.R'
     'testing-helpers.R'
     'utilities.R'
     'volcano_plot.R'

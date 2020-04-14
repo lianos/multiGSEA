@@ -21,7 +21,12 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
   if (is.null(dbi)) {
     stop("AnnotationDbi required")
   }
-  species <- resolve.species(species)
+
+  # species <- resolve.species(species)
+  si <- species_info(species)
+  # The species info in reactome needs to look like:
+  # Homo_sapiens, Mus_musculus, etc.
+  species <- sub(" ", "_", si$species) #
 
   ## Find all KEGG pathways for the given species.
   ## Pathways are prefixed with the organism name like so:
@@ -56,7 +61,7 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
     info[, PATHNAME := sub(org.prefix, '', PATHNAME)]
   }
 
-  ## Somehow only one of the 'name's of the reatome genesets is encoded in
+  ## Somehow only one of the 'name's of the reactome genesets is encoded in
   ## UTF-8:
   ##   Loss of proteins required for interphase microtubule organization
   ##   from the centrosome
@@ -67,7 +72,20 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
                       pathId=PATHID)]
   Encoding(info$name) <- 'unknown'
   gdb <- GeneSetDb(info)
-  featureIdType(gdb, 'reactome') <- EntrezIdentifier()
+
+  fn <- function(collection, name, gdb, ...) {
+    if (missing(gdb) || !is(gdb, "GeneSetDb")) {
+      return("https://reactome.org/")
+    }
+    gs <- geneSets(gdb)
+    gset <- gs[gs[["collection"]] == "reactome" & gs[["name"]] == name,]
+    pathway_id <- gset[["pathId"]]
+    sprintf("https://reactome.org/content/detail/%s", pathway_id)
+  }
+  geneSetCollectionURLfunction(gdb, "reactome") <- fn
+
+  featureIdType(gdb, "reactome") <- EntrezIdentifier()
+
   org(gdb, 'reactome') <- species
   gdb
 }

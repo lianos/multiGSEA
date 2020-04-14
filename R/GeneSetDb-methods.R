@@ -639,18 +639,18 @@ setMethod("collectionMetadata",
 
 #' TODO: This should accept a data.frame of collect,name combos
 #' @noRd
-setMethod("geneSetURL", c(x="GeneSetDb"), function(x, i, j, ...) {
+setMethod("geneSetURL", c(x = "GeneSetDb"), function(x, i, j, ...) {
   stopifnot(is.character(i), is.character(j), length(i) == length(j))
   collections <- unique(i)
   col.exists <- hasGeneSetCollection(x, collections)
-  url.fns <- Map(collections, col.exists, f=function(col, exists) {
+  url.fns <- Map(collections, col.exists, f = function(col, exists) {
     if (exists) {
       geneSetCollectionURLfunction(x, col)
     } else {
       function(x, y) NA_character_
     }
   })
-  mapply(i, j, FUN=function(col, name) url.fns[[col]](col, name))
+  mapply(i, j, FUN = function(col, name) url.fns[[col]](col, name, gdb = x))
 })
 
 setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {
@@ -678,30 +678,24 @@ setReplaceMethod("geneSetCollectionURLfunction", "GeneSetDb",
 function(x, i, value) {
   valid <- function(v) {
     if (!isTRUE(is.function(v))) return(FALSE)
-    if (length(formalArgs(v)) != 2L) {
-      ## "URL function needs to take two arguments"
+    args <- formalArgs(v)
+    # We didn't specify previously that the  names of the arguments had to be
+    # collection and name, so don't check those. Just require >= 3, and that
+    # one of them is "...
+    if (length(args) < 3 || !"..." %in% args) {
+      warning("geneSetURL functions must take at least two named arguments, ",
+              "and must also handle `...`")
       return(FALSE)
     }
     url.test <- v("a", "b")
-    if (!isSingleCharacter(url.test)) {
+    if (!test_string(url.test)) {
+      warning("geneSetURL does not return a string when called")
       return(FALSE)
     }
     TRUE
   }
   addCollectionMetadata(x, i, 'url_function', value, valid)
 })
-
-# setReplaceMethod("collectionUrlFunction", "GeneSetDb", function(x, i, value) {
-#   valid <- function(v) {
-#     if (!isTRUE(is.function(v))) return(FALSE)
-#     if (length(formalArgs(v)) != 2L) {
-#       ## "URL function needs to take two arguments"
-#       return(FALSE)
-#     }
-#     TRUE
-#   }
-#   addCollectionMetadata(x, i, 'url_function', value, valid)
-# })
 
 setReplaceMethod("featureIdType", "GeneSetDb", function(x, i, value) {
   valid <- function(v) is(v, 'GeneIdentifierType')
