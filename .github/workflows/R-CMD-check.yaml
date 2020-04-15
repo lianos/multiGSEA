@@ -13,8 +13,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@master
 
+      # I guess I didn't want to install this into the base
       - name: Install dependencies
-        run: BiocManager::install("lianos/msigdb.data")
+        run: |
+          BiocManager::install(
+            c("lianos/msigdb.data", "msigdbr", "org.Hs.eg.db", "org.Mm.eg.db",
+              "PANTHER.db", "reactome.db", "statmod", "webshot")
         shell: Rscript {0}
 
       - name: Check
