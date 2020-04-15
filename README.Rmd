@@ -2,8 +2,6 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -14,11 +12,10 @@ knitr::opts_chunk$set(
 
 # multiGSEA
 
-[![Build Status](https://travis-ci.org/lianos/multiGSEA.svg?branch=develop)](https://travis-ci.org/lianos/multiGSEA)
-
-<!--
-[![Coverage status](https://codecov.io/gh/lianos/multiGSEA/branch/master/graph/badge.svg)](https://codecov.io/github/lianos/multiGSEA?branch=master)
--->
+<!-- badges: start -->
+[![R build status](https://github.com/lianos/multiGSEA/workflows/R-CMD-check/badge.svg)](https://github.com/lianos/multiGSEA/actions)
+[![Codecov test coverage](https://codecov.io/gh/r-lib/vroom/branch/master/graph/badge.svg)](https://codecov.io/gh/r-lib/vroom?branch=master)
+<!-- badges: end -->
 
 The `multiGSEA` package was built to facilitate the use of gene sets in the
 analysis of high throughput genomics data (primarily RNA-seq). Analysts can
