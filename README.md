@@ -1,14 +1,12 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # multiGSEA
 
-[![Build
-Status](https://travis-ci.org/lianos/multiGSEA.svg?branch=develop)](https://travis-ci.org/lianos/multiGSEA)
+<!-- badges: start -->
 
-<!--
-[![Coverage status](https://codecov.io/gh/lianos/multiGSEA/branch/master/graph/badge.svg)](https://codecov.io/github/lianos/multiGSEA?branch=master)
--->
+[![R build
+status](https://github.com/lianos/multiGSEA/workflows/R-CMD-check/badge.svg)](https://github.com/lianos/multiGSEA/actions)
+[![codecov](https://codecov.io/gh/lianos/multiGSEA/branch/develop/graph/badge.svg)](https://codecov.io/gh/lianos/multiGSEA)
+<!-- badges: end -->
 
 The `multiGSEA` package was built to facilitate the use of gene sets in
 the analysis of high throughput genomics data (primarily RNA-seq).

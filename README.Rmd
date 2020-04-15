@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R build status](https://github.com/lianos/multiGSEA/workflows/R-CMD-check/badge.svg)](https://github.com/lianos/multiGSEA/actions)
-[![Codecov test coverage](https://codecov.io/gh/r-lib/vroom/branch/master/graph/badge.svg)](https://codecov.io/gh/r-lib/vroom?branch=master)
+[![codecov](https://codecov.io/gh/lianos/multiGSEA/branch/develop/graph/badge.svg)](https://codecov.io/gh/lianos/multiGSEA)
 <!-- badges: end -->
 
 The `multiGSEA` package was built to facilitate the use of gene sets in the

@@ -15,10 +15,11 @@ jobs:
 
       # I guess I didn't want to install this into the base
       - name: Install dependencies
+        # run: remotes::install_deps(dependencies = TRUE)
         run: |
           BiocManager::install(
             c("lianos/msigdb.data", "msigdbr", "org.Hs.eg.db", "org.Mm.eg.db",
-              "PANTHER.db", "reactome.db", "statmod", "webshot"))
+              "PANTHER.db", "reactome.db", "statmod", "webshot", "R.utils"))
         shell: Rscript {0}
 
       - name: Check
