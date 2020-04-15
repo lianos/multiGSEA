@@ -18,7 +18,7 @@ jobs:
         run: |
           BiocManager::install(
             c("lianos/msigdb.data", "msigdbr", "org.Hs.eg.db", "org.Mm.eg.db",
-              "PANTHER.db", "reactome.db", "statmod", "webshot")
+              "PANTHER.db", "reactome.db", "statmod", "webshot"))
         shell: Rscript {0}
 
       - name: Check
