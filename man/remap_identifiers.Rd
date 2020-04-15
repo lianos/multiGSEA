@@ -38,10 +38,7 @@ the source identifiers, and the second is the target_id you want to remap
 the identifiers to.
 }
 \examples{
-xref.fn <- system.file("extdata", "identifiers",
-                       "human-entrez-ensembl.csv.gz",
-                       package = "multiGSEA")
-xref <- data.table::fread(xref.fn, colClasses = "character")
+xref <- load_id_xref("human")
 gdb.entrez <- exampleGeneSetDb()
 gdb.ens <- remap_identifiers(gdb.entrez, xref,
                              original_id = "entrezgene_id",

@@ -306,18 +306,10 @@ GeneSetDb.default <- function(x, featureIdMap = NULL, collectionName = NULL,
   db <- init.gsd.db.from.list.of.lists(x)
   tbl <- init.gsd.table.from.db(db)
 
-  # pre-release versions of multiGSEA included a geneset count per collection
-  # but I am removing this going forward.
-  # NOTE: remove count collectionMetadata
-  # meta <- tbl[, {
-  #   list(name=c('count', "url_function"),
-  #        value=list(.N, function(x, y) NA_character_))
-  # }, by='collection']
-  # setkeyv(meta, c('collection', 'name'))
   meta <- tbl[, {
-    list(name=c("url_function"),
-         value=list(function(x, y) NA_character_))
-  }, by='collection']
+    list(name = c("url_function"),
+         value = list(function(x, y, ...) NA_character_))
+  }, by = 'collection']
   setkeyv(meta, c('collection', 'name'))
 
   if (is.null(featureIdMap)) {

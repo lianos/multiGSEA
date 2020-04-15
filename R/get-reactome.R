@@ -68,9 +68,9 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
   ## All of the rest are "unknown". This causes annoying warnings when
   ## data.table tries to join on collection,name -- so I'm just nuking the
   ## encoding here.
-  info <- info[, list(collection='reactome', name=PATHNAME, feature_id=ENTREZID,
-                      pathId=PATHID)]
-  Encoding(info$name) <- 'unknown'
+  info <- info[, list(collection = "Reactome", name = PATHNAME,
+                      feature_id = ENTREZID, pathId = PATHID)]
+  Encoding(info$name) <- "unknown"
   gdb <- GeneSetDb(info)
 
   fn <- function(collection, name, gdb, ...) {
@@ -78,14 +78,14 @@ getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
       return("https://reactome.org/")
     }
     gs <- geneSets(gdb)
-    gset <- gs[gs[["collection"]] == "reactome" & gs[["name"]] == name,]
+    gset <- gs[gs[["collection"]] == "Reactome" & gs[["name"]] == name,]
     pathway_id <- gset[["pathId"]]
     sprintf("https://reactome.org/content/detail/%s", pathway_id)
   }
-  geneSetCollectionURLfunction(gdb, "reactome") <- fn
+  geneSetCollectionURLfunction(gdb, "Reactome") <- fn
 
-  featureIdType(gdb, "reactome") <- EntrezIdentifier()
+  featureIdType(gdb, "Reactome") <- EntrezIdentifier()
 
-  org(gdb, 'reactome') <- species
+  org(gdb, "Reactome") <- species
   gdb
 }

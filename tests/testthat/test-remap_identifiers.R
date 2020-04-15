@@ -1,10 +1,7 @@
 context("remap_identifiers")
 
 test_that("entrez id's remapped to ensemble", {
-  xref.fn <- system.file("extdata", "identifiers",
-                        "human-entrez-ensembl.csv.gz",
-                        package = "multiGSEA")
-  xref <- data.table::fread(xref.fn, colClasses = "character")
+  xref <- load_id_xref("human")
   gdb.entrez <- exampleGeneSetDb()
   gdb.ens <- remap_identifiers(gdb.entrez, xref,
                               original_id = "entrezgene_id",

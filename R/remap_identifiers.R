@@ -20,10 +20,7 @@
 #' @param xref The cross referencing data.frame
 #' @return a remapped GeneSetDb object
 #' @examples
-#' xref.fn <- system.file("extdata", "identifiers",
-#'                        "human-entrez-ensembl.csv.gz",
-#'                        package = "multiGSEA")
-#' xref <- data.table::fread(xref.fn, colClasses = "character")
+#' xref <- load_id_xref("human")
 #' gdb.entrez <- exampleGeneSetDb()
 #' gdb.ens <- remap_identifiers(gdb.entrez, xref,
 #'                              original_id = "entrezgene_id",
@@ -37,7 +34,7 @@ remap_identifiers <- function(x, xref, original_id = colnames(xref)[1L],
   assert_subset(c(original_id, target_id), colnames(xref))
 
   db <- merge(x@db, xref, by.x = "feature_id", by.y = original_id,
-              suffixes = c("", ".remap"))
+              suffixes = c(".original", ""))
   setnames(db, "feature_id", "original_id")
   setnames(db, target_id, "feature_id")
 
@@ -50,5 +47,26 @@ remap_identifiers <- function(x, xref, original_id = colnames(xref)[1L],
 
   out <- GeneSetDb(gs.dt)
   out@collectionMetadata <- x@collectionMetadata
+  out
+}
+
+#' Load the mouse or human ensembl <-> entrez id maps.
+#'
+#' For convenience, entrez <-> ensembl maps come bundled with the is package.
+#' While there are other sactioned ways to achieve this within the bioconductor
+#' ecosystem, we bundle it here to make our lives easier.
+#'
+#' These tables are gnerated by the `inst/scripts/genereate-id-maps.R`
+#'
+#' @export
+#' @param species do you want the `"human"` or `"mouse"` xref table?
+#' @return a table of ensembl and entrez ids for each species
+load_id_xref <- function(species = c("human", "mouse"), ..., as.dt = FALSE) {
+  species <- match.arg(species)
+  fn <- sprintf("%s-entrez-ensembl.csv.gz", species)
+  fn <- system.file("extdata", "identifiers", fn, package = "multiGSEA")
+  out <- data.table::fread(fn)
+  out[, entrezgene_id := as.character(entrezgene_id)]
+  if (!as.dt) out <- setDF(copy(out))
   out
 }

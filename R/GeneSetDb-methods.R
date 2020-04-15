@@ -647,10 +647,12 @@ setMethod("geneSetURL", c(x = "GeneSetDb"), function(x, i, j, ...) {
     if (exists) {
       geneSetCollectionURLfunction(x, col)
     } else {
-      function(x, y) NA_character_
+      function(x, y, ...) NA_character_
     }
   })
-  mapply(i, j, FUN = function(col, name) url.fns[[col]](col, name, gdb = x))
+  mapply(i, j, FUN = function(col, name, ...) {
+    url.fns[[col]](col, name, gdb = x, ...)
+  })
 })
 
 setMethod("geneSetCollectionURLfunction", "GeneSetDb", function(x, i, ...) {
