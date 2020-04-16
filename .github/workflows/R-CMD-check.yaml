@@ -1,4 +1,17 @@
-on: [push, pull_request]
+# on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - develop # This will eventually require a different container
+  pull_request:
+  schedule:
+    # Rerun checks daily, after facilebio/facilebio_base is rebuilt.
+    # This will catch failures due to changes in functionality of packages
+    # we depend on.
+    # facilebio_base builds every day at 1AM pacific and takes about 1 hour
+    # this runs at same time as facilebio_base_extra
+    - cron: '0 11 * * *'
 
 name: R-CMD-check
 
@@ -15,11 +28,7 @@ jobs:
 
       # I guess I didn't want to install this into the base
       - name: Install dependencies
-        # run: remotes::install_deps(dependencies = TRUE)
-        run: |
-          BiocManager::install(
-            c("lianos/msigdb.data", "msigdbr", "org.Hs.eg.db", "org.Mm.eg.db",
-              "PANTHER.db", "reactome.db", "statmod", "webshot", "R.utils"))
+        run: remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
 
       - name: Check
