@@ -341,8 +341,7 @@ do.scoreSingleSamples.ewzscore <- function(gdb, y, weights = NULL,
     eigenWeightedZScore(y[idxs,,drop = FALSE], weights = weights,
                         center = center, scale = scale,
                         uncenter = uncenter, unscale = unscale,
-                        weights = weights, normalize = normalize,
-                        all.x=y)$score
+                        normalize = normalize, all.x=y)$score
   })
 
   out <- t(scores)
