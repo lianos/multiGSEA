@@ -33,7 +33,7 @@ jobs:
       - uses: r-lib/actions/setup-r@master
 
       - name: Install dependencies
-        run: remotes::install_deps(dependencies = TRUE)
+        run: remotes::install_deps(dependencies = TRUE, upgrade = FALSE)
         shell: Rscript {0}
 
       - name: Install package
