@@ -1,0 +1,50 @@
+/* This version of the css file is different from vignettes because this css
+ * file needs to link into the articles folder for the image assets, ie.
+ * url("articles/images/icons/...") needs to be changed to
+ * url("aricles/articles/images/icons/...)
+ *
+ * We also reset font-weight and color in `div.warning`, as it seems pkgdown
+ * wants to render this in bold red/purple?
+ */
+
+
+/* ------------------ callout boxes ----------------------------------------- */
+/* let's take desiree's approach and merge with the multiGSEA style           */
+div.caution, div.demo, div.download, div.note, div.tip, div.warning, div.wip {
+  margin: 10px 10px 10px 0px;
+  min-height: 55px;
+  padding: 2px 40px 2px 85px;
+  background-position: 5px 5px, 68px 0px;
+  background-repeat: no-repeat, repeat-y;
+  width: 90%;
+}
+
+div.caution {
+  background-image: url("articles/images/icons/caution.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.demo {
+  background-image: url("articles/images/icons/example.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.download {
+  background-image: url("articles/images/icons/download.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.note {
+  background-image: url("articles/images/icons/note.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.tip {
+ background-image: url("articles/images/icons/tip.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.warning {
+  font-weight: normal;
+  color: black;
+  background-image: url("articles/images/icons/warning.png"), url('articles/images/icons/callout-border.png');
+}
+
+div.wip {
+  background-image: url("articles/images/icons/wip.png"), url('articles/images/icons/callout-border.png');
+}
