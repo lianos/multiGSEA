@@ -5,6 +5,10 @@
 
 [![R build
 status](https://github.com/lianos/multiGSEA/workflows/R-CMD-check/badge.svg)](https://github.com/lianos/multiGSEA/actions)
+[![Project Status:
+Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 [![codecov](https://codecov.io/gh/lianos/multiGSEA/branch/develop/graph/badge.svg)](https://codecov.io/gh/lianos/multiGSEA)
 <!-- badges: end -->
 
