@@ -4,6 +4,12 @@ on:
     branches:
       - master
       - develop # This will eventually require a different container
+    paths:
+      - 'R/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'src/**'
+      - 'tests/**'
   pull_request:
   schedule:
     # Rerun checks daily, after facilebio/facilebio_base is rebuilt.
@@ -24,7 +30,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@master
+        with:
+          ref: 'develop'
+x      - uses: r-lib/actions/setup-r@master
 
       # I guess I didn't want to install this into the base
       - name: Install dependencies

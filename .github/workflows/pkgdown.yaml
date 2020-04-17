@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: develop # need to change this
+    paths:
+      - 'vignettes/**'
+      - 'man/**'
+      - 'README.**'
+  schedule:
+  # Rerun pkgdown after the (expected) time the facilebio_base container is
+  # rebuilt
+  - cron: '0 11 * * *'
+
+name: pkgdown
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+    container: facilebio/facilebio_base
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      NOT_CRAN: true
+      CI: true
+      # For some reason I need to put these
+      GIT_AUTHOR_NAME: Steve Lianoglou
+      GIT_AUTHOR_EMAIL: slianoglou@gmail.com
+      GIT_COMMITTER_NAME: Steve Lianoglou
+      GIT_COMMITTER_EMAIL: slianoglou@gmail.com
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'develop'
+      - uses: r-lib/actions/setup-r@master
+
+      - name: Install dependencies
+        run: remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+
+      - name: Install package
+        run: R CMD INSTALL .
+
+      - name: Deploy package
+        run: pkgdown::deploy_to_branch(new_process = FALSE)
+        shell: Rscript {0}
