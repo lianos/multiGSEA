@@ -5,6 +5,7 @@
 
 [![R build
 status](https://github.com/lianos/multiGSEA/workflows/R-CMD-check/badge.svg)](https://github.com/lianos/multiGSEA/actions)
+![pkgdown](https://github.com/lianos/multiGSEA/workflows/pkgdown/badge.svg)
 [![Project Status:
 Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Lifecycle:
