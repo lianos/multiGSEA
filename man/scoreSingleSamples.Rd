@@ -92,12 +92,12 @@ library(reshape2)
 gdb <- exampleGeneSetDb()
 vm <- exampleExpressionSet()
 scores <- scoreSingleSamples(
-  gdb, vm, methods = c('ewm', 'ssgsea', 'ewz', 'zscore'),
+  gdb, vm, methods = c("ewm", "ssgsea", "gsva", "ewz", "zscore"),
   center = TRUE, scale = TRUE, ssgsea.norm = TRUE)
 
 sw <- reshape2::dcast(scores, name + sample_id ~ method, value.var='score')
 
-corplot(sw[, c("ewm", "ssgsea", "ewz", "zscore")],
+corplot(sw[, c("ewm", "ssgsea", "gsva", "ewz", "zscore")],
         title = "Single Sample Score Comparison")
 
 # I think the eigenWeighteZscore is just ewm with un(center|scale) = FALSE
