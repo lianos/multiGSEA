@@ -252,8 +252,10 @@ the <code>ctrl.score</code> normalization found in Seurat's
 <span class='no'>scores</span> <span class='kw'>&lt;-</span> <span class='fu'>eigenWeightedMean</span>(<span class='no'>vm</span>[<span class='no'>features</span>,])$<span class='no'>score</span>
 
 <span class='co'>## Use scoreSingleSamples to facilitate scoring of all gene sets</span>
+<span class='no'>scores.all</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='scoreSingleSamples.html'>scoreSingleSamples</a></span>(<span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='st'>'ewm'</span>)
 <span class='no'>s2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/with.html'>with</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='no'>scores.all</span>, <span class='no'>name</span> <span class='kw'>==</span> <span class='st'>'HALLMARK_INTERFERON_GAMMA_RESPONSE'</span>),
-           <span class='fu'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span>(<span class='no'>score</span>, <span class='no'>sample_id</span>))</div><div class='output co'>#&gt; <span class='error'>Error in subset(scores.all, name == "HALLMARK_INTERFERON_GAMMA_RESPONSE"): object 'scores.all' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span>(<span class='no'>s2</span>, <span class='no'>scores</span>)</div><div class='output co'>#&gt; <span class='error'>Error in all.equal(s2, scores): object 's2' not found</span></div></pre>
+           <span class='fu'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span>(<span class='no'>score</span>, <span class='no'>sample_id</span>))
+<span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span>(<span class='no'>s2</span>, <span class='no'>scores</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
