@@ -498,6 +498,11 @@ corplot(sma, cluster=TRUE)
 Further exposition on the "ewm" (eigenWeightedMean) scoring method can be
 found in the `?eigenWeightedMean` function.
 
+### Similarity of ewm:ssGSEA and ewz/zscore to gsva
+
+TODO: explore this more deeply, but the examples in ?scoreSingleSamples suggests
+that to be the case in that example.
+
 ## Visualizing Single Sample Gene Set Scores
 
 The "long" data.frame nature of the results produced by `scoreSingleSamples`

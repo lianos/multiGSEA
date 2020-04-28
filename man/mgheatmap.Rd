@@ -8,7 +8,7 @@ mgheatmap(
   x,
   gdb = NULL,
   col = NULL,
-  aggregate.by = c("none", "ewm", "zscore"),
+  aggregate.by = c("none", "ewm", "ewz", "zscore"),
   split = TRUE,
   scores = NULL,
   gs.order = NULL,

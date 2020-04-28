@@ -118,7 +118,7 @@
 #'                  column_title = "Gene Set Activity in BRCA subset",
 #'                  rename.rows = rr)
 mgheatmap <- function(x, gdb = NULL, col = NULL,
-                      aggregate.by = c("none", "ewm", "zscore"),
+                      aggregate.by = c("none", "ewm", "ewz", "zscore"),
                       split = TRUE, scores = NULL, gs.order = NULL,
                       name = NULL, rm.collection.prefix = TRUE,
                       rm.dups = FALSE, recenter = FALSE, rescale = FALSE,

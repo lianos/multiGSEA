@@ -17,8 +17,9 @@
 #'    act as weights over each gene, which are then used in a simple weighted
 #'    mean calculation over all the genes in the geneset per sample. This is
 #'    similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)
-#' * `"ewz"`: The [eigenWeightedZScore()]].  Just like the zscore method
-#'    but the method of summarization is taken a weighted mean of the scores.
+#'    You can use this method to perform an "eigenweighted" zscore by setting
+#'    `unscale` and `uncenter` to `FALSE`.
+#'    `"ewz"`: with `unscale` and `uncenter` set to `FALSE`.
 #' * `"gsd"`: This method was first introduced by Jason Hackney in
 #'    [doi:10.1038/ng.3520](https://doi.org/10.1038/ng.3520). Please refer to
 #'    the [gsdScore()] function for more information.
@@ -60,12 +61,22 @@
 #' library(reshape2)
 #' gdb <- exampleGeneSetDb()
 #' vm <- exampleExpressionSet()
-#' scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
-#'                              uncenter=FALSE, unscale=FALSE,
-#'                              ssgsea.norm=TRUE)
-#' sw <- dcast(scores, name + sample_id ~ method, value.var='score')
-#' corplot(sw[, c("ewm", "ssgsea", "zscore")],
-#'         title='Single Sample Score Comparison')
+#' scores <- scoreSingleSamples(
+#'   gdb, vm, methods = c("ewm", "ssgsea", "gsva", "ewz", "zscore"),
+#'   center = TRUE, scale = TRUE, ssgsea.norm = TRUE)
+#'
+#' sw <- reshape2::dcast(scores, name + sample_id ~ method, value.var='score')
+#'
+#' corplot(sw[, c("ewm", "ssgsea", "gsva", "ewz", "zscore")],
+#'         title = "Single Sample Score Comparison")
+#'
+#' # I think the eigenWeighteZscore is just ewm with un(center|scale) = FALSE
+#'
+#' zs <- scoreSingleSamples(
+#'   gdb, vm, methods = c('ewm', 'ewz', 'zscore'), summary = "mean",
+#'   center = TRUE, scale = TRUE, uncenter = FALSE, unscale = FALSE)
+#' zw <- reshape2::dcast(zs, name + sample_id ~ method, value.var='score')
+#' corplot(zw[, c("ewm", "ewz", "zscore")], title = "EW zscores")
 scoreSingleSamples <- function(gdb, y, methods = "ewm", as.matrix = FALSE,
                                drop.sd = 1e-4, verbose = FALSE,
                                recenter = FALSE, rescale = FALSE, ...,
@@ -110,8 +121,8 @@ scoreSingleSamples <- function(gdb, y, methods = "ewm", as.matrix = FALSE,
 
   scores <- sapply(methods, function(method) {
     fn <- gs.score.map[[method]]
-    out <- fn(gdb, y, method=method, as.matrix=as.matrix, verbose=verbose,
-              gs.idxs=gs.idxs, ...)
+    out <- fn(gdb, y, method = method, as.matrix = as.matrix, verbose = verbose,
+              gs.idxs = gs.idxs, ...)
     rownames(out) <- gs.names
     if (!isFALSE(recenter) || !isFALSE(rescale)) {
       out <- scale_rows(out, center = recenter, scale = rescale)
@@ -325,29 +336,15 @@ do.scoreSingleSamples.eigenWeightedMean <- function(gdb, y, eigengene = 1L,
 do.scoreSingleSamples.ewzscore <- function(gdb, y, weights = NULL,
                                            eigengene = 1L,
                                            center = TRUE, scale = TRUE,
-                                           uncenter=center,
-                                           unscale=scale,
+                                           uncenter=FALSE,
+                                           unscale=FALSE,
                                            normalize=FALSE,
                                            as.matrix=FALSE,
                                            gs.idxs=NULL, ...) {
-  stopifnot(is.matrix(y))
-  stopifnot(is.conformed(gdb, y))
-
-  if (is.null(gs.idxs)) {
-    gs.idxs <- as.list(gdb, active.only=TRUE, value='x.idx')
-  }
-
-  scores <- sapply(gs.idxs, function(idxs) {
-    eigenWeightedZScore(y[idxs,,drop = FALSE], weights = weights,
-                        center = center, scale = scale,
-                        uncenter = uncenter, unscale = unscale,
-                        normalize = normalize, all.x=y)$score
-  })
-
-  out <- t(scores)
-  rownames(out) <- names(gs.idxs)
-  colnames(out) <- colnames(y)
-  out
+  do.scoreSingleSamples.eigenWeightedMean(
+    gdb, y, eigengene = eigengene, center = TRUE, scale = TRUE,
+    uncenter = FALSE, unscale = FALSE, weights = weights, normalize = normalize,
+    as.matrix = as.matrix, gs.idxs = gs.idxs, ...)
 }
 
 #' An internal map of abbreviated scoring method names to functions

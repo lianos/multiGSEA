@@ -63,7 +63,6 @@
 #' scores <- eigenWeightedMean(vm[features,])$score
 #'
 #' ## Use scoreSingleSamples to facilitate scoring of all gene sets
-#' scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 #' s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
 #'            setNames(score, sample_id))
 #' all.equal(s2, scores)
@@ -172,38 +171,6 @@ zScore <- function(x, summary = c('mean', 'sqrt'), trim = 0, ...) {
     center=attributes(xs)$"scaled:center",
     scale=attributes(xs)$"scaled:scale")
   out
-}
-
-#' @noRd
-#' @export
-eigenWeightedZScore <- function(x, weights = NULL, eigengene = 1L,
-                                center = TRUE, scale = TRUE,
-                                uncenter = center, unscale = scale,
-                                retx = FALSE, normalize = FALSE, all.x = NULL,
-                                ..., .drop.sd = 1e-4) {
-  x <- as_matrix(x)
-  summary <- match.arg(summary)
-  if (is.null(weights)) {
-    ewm <- eigenWeightedMean(x, eigengene = eigengene, center = center,
-                             scale = scale, uncenter = uncenter,
-                             unscale = unscale, retx = retx, weights = weights,
-                             normalize = normalize, all.x = all.x, ...,
-                             .drop.sd = .drop.sd)
-    weights <- ewm[["weights"]]
-  }
-  if (test_number(weights)) weights <- rep(weights, nrow(x))
-  assert_numeric(weights, len = nrow(x))
-  score.fn <- function(vals) weighted.mean(vals, weights, na.rm = TRUE)
-
-  xs <- t(scale(t(x)))
-  scores <- apply(xs, 2L, score.fn)
-
-  out <- list(
-    score = setNames(as.vector(scores), colnames(x)),
-    center = attributes(xs)$"scaled:center",
-    scale = attributes(xs)$"scaled:scale")
-  out
-
 }
 
 #' Single sample geneset score using SVD based eigengene value per sample.

@@ -70,9 +70,7 @@ The following \code{methods} are currenly provided.
 contributes to a pre-specified principal component. These contributions
 act as weights over each gene, which are then used in a simple weighted
 mean calculation over all the genes in the geneset per sample. This is
-similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)
-\item \code{"ewz"}: The \code{\link[=eigenWeightedZScore]{eigenWeightedZScore()}}].  Just like the zscore method
-but the method of summarization is taken a weighted mean of the scores.
+similar, in spirit, to the svd/gsdecon method (ie. \verb{method = "gsd"``) You can use this method to perform an "eigenweighted" zscore by setting }unscale\code{and}uncenter\code{to}FALSE\code{. }"ewz"\verb{: with }unscale\code{and}uncenter\verb{set to}FALSE`.
 \item \code{"gsd"}: This method was first introduced by Jason Hackney in
 \href{https://doi.org/10.1038/ng.3520}{doi:10.1038/ng.3520}. Please refer to
 the \code{\link[=gsdScore]{gsdScore()}} function for more information.
@@ -93,10 +91,20 @@ without transforming the data.
 library(reshape2)
 gdb <- exampleGeneSetDb()
 vm <- exampleExpressionSet()
-scores <- scoreSingleSamples(gdb, vm, methods=c('ewm', 'ssgsea', 'zscore'),
-                             uncenter=FALSE, unscale=FALSE,
-                             ssgsea.norm=TRUE)
-sw <- dcast(scores, name + sample_id ~ method, value.var='score')
-corplot(sw[, c("ewm", "ssgsea", "zscore")],
-        title='Single Sample Score Comparison')
+scores <- scoreSingleSamples(
+  gdb, vm, methods = c('ewm', 'ssgsea', 'ewz', 'zscore'),
+  center = TRUE, scale = TRUE, ssgsea.norm = TRUE)
+
+sw <- reshape2::dcast(scores, name + sample_id ~ method, value.var='score')
+
+corplot(sw[, c("ewm", "ssgsea", "ewz", "zscore")],
+        title = "Single Sample Score Comparison")
+
+# I think the eigenWeighteZscore is just ewm with un(center|scale) = FALSE
+
+zs <- scoreSingleSamples(
+  gdb, vm, methods = c('ewm', 'ewz', 'zscore'), summary = "mean",
+  center = TRUE, scale = TRUE, uncenter = FALSE, unscale = FALSE)
+zw <- reshape2::dcast(zs, name + sample_id ~ method, value.var='score')
+corplot(zw[, c("ewm", "ewz", "zscore")], title = "EW zscores")
 }

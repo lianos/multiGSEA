@@ -110,7 +110,6 @@ features <- featureIds(gdb, 'H', 'HALLMARK_INTERFERON_GAMMA_RESPONSE',
 scores <- eigenWeightedMean(vm[features,])$score
 
 ## Use scoreSingleSamples to facilitate scoring of all gene sets
-scores.all <- scoreSingleSamples(gdb, vm, 'ewm')
 s2 <- with(subset(scores.all, name == 'HALLMARK_INTERFERON_GAMMA_RESPONSE'),
            setNames(score, sample_id))
 all.equal(s2, scores)
