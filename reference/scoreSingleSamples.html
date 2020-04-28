@@ -210,9 +210,7 @@ multiGSEA vignette for further exposition.</p>
 contributes to a pre-specified principal component. These contributions
 act as weights over each gene, which are then used in a simple weighted
 mean calculation over all the genes in the geneset per sample. This is
-similar, in spirit, to the svd/gsdecon method (ie. `method = "gsd"``)</p></li>
-<li><p><code>"ewz"</code>: The <code>eigenWeightedZScore()</code>].  Just like the zscore method
-but the method of summarization is taken a weighted mean of the scores.</p></li>
+similar, in spirit, to the svd/gsdecon method (ie. <code>method = "gsd"``) You can use this method to perform an "eigenweighted" zscore by setting </code>unscale<code>and</code>uncenter<code>to</code>FALSE<code>. </code>"ewz"<code>: with </code>unscale<code>and</code>uncenter<code>set to</code>FALSE`.</p></li>
 <li><p><code>"gsd"</code>: This method was first introduced by Jason Hackney in
 <a href='https://doi.org/10.1038/ng.3520'>doi:10.1038/ng.3520</a>. Please refer to
 the <code><a href='gsdScore.html'>gsdScore()</a></code> function for more information.</p></li>
@@ -233,12 +231,21 @@ without transforming the data.</p></li>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>reshape2</span>)
 <span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
 <span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>()
-<span class='no'>scores</span> <span class='kw'>&lt;-</span> <span class='fu'>scoreSingleSamples</span>(<span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='kw'>methods</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ewm'</span>, <span class='st'>'ssgsea'</span>, <span class='st'>'zscore'</span>),
-                             <span class='kw'>uncenter</span><span class='kw'>=</span><span class='fl'>FALSE</span>, <span class='kw'>unscale</span><span class='kw'>=</span><span class='fl'>FALSE</span>,
-                             <span class='kw'>ssgsea.norm</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The current version of scoreSingleSamples produces *minor* differences in GSVA-based single sample gene set scores.</span>
-#&gt; <span class='warning'>https://github.com/lianos/multiGSEA/issues/10</span></div><div class='input'><span class='no'>sw</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span>(<span class='no'>scores</span>, <span class='no'>name</span> + <span class='no'>sample_id</span> ~ <span class='no'>method</span>, <span class='kw'>value.var</span><span class='kw'>=</span><span class='st'>'score'</span>)
-<span class='fu'><a href='corplot.html'>corplot</a></span>(<span class='no'>sw</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"zscore"</span>)],
-        <span class='kw'>title</span><span class='kw'>=</span><span class='st'>'Single Sample Score Comparison'</span>)</div><div class='img'><img src='scoreSingleSamples-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='no'>scores</span> <span class='kw'>&lt;-</span> <span class='fu'>scoreSingleSamples</span>(
+  <span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ewm'</span>, <span class='st'>'ssgsea'</span>, <span class='st'>'ewz'</span>, <span class='st'>'zscore'</span>),
+  <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>ssgsea.norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: The current version of scoreSingleSamples produces *minor* differences in GSVA-based single sample gene set scores.</span>
+#&gt; <span class='warning'>https://github.com/lianos/multiGSEA/issues/10</span></div><div class='input'>
+<span class='no'>sw</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>reshape2</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span>(<span class='no'>scores</span>, <span class='no'>name</span> + <span class='no'>sample_id</span> ~ <span class='no'>method</span>, <span class='kw'>value.var</span><span class='kw'>=</span><span class='st'>'score'</span>)
+
+<span class='fu'><a href='corplot.html'>corplot</a></span>(<span class='no'>sw</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>)],
+        <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Single Sample Score Comparison"</span>)</div><div class='img'><img src='scoreSingleSamples-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># I think the eigenWeighteZscore is just ewm with un(center|scale) = FALSE</span>
+
+<span class='no'>zs</span> <span class='kw'>&lt;-</span> <span class='fu'>scoreSingleSamples</span>(
+  <span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ewm'</span>, <span class='st'>'ewz'</span>, <span class='st'>'zscore'</span>), <span class='kw'>summary</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
+  <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>uncenter</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>unscale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='no'>zw</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>reshape2</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span>(<span class='no'>zs</span>, <span class='no'>name</span> + <span class='no'>sample_id</span> ~ <span class='no'>method</span>, <span class='kw'>value.var</span><span class='kw'>=</span><span class='st'>'score'</span>)
+<span class='fu'><a href='corplot.html'>corplot</a></span>(<span class='no'>zw</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>)], <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"EW zscores"</span>)</div><div class='img'><img src='scoreSingleSamples-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
