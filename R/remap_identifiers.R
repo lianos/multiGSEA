@@ -17,17 +17,18 @@
 #'
 #' @export
 #' @param x The GeneSetDb with identifiers to convert
-#' @param xref The cross referencing data.frame
+#' @param xref If a species (`"mouse"` or `"human"`) we will load the internal
+#'   ensembl <-> entrez data.frame, or you can provide your own.
 #' @return a remapped GeneSetDb object
 #' @examples
-#' xref <- load_id_xref("human")
 #' gdb.entrez <- exampleGeneSetDb()
-#' gdb.ens <- remap_identifiers(gdb.entrez, xref,
+#' gdb.ens <- remap_identifiers(gdb.entrez, "human",
 #'                              original_id = "entrezgene_id",
 #'                              target_id = "ensembl_gene_id")
 remap_identifiers <- function(x, xref, original_id = colnames(xref)[1L],
                               target_id = colnames(xref)[2L], ...) {
   assert_class(x, "GeneSetDb")
+  if (test_string(xref)) xref <- load_id_xref(xref)
   assert_multi_class(xref, c("data.frame", "data.table", "tbl"))
   assert_string(original_id)
   assert_string(target_id)
@@ -59,12 +60,18 @@ remap_identifiers <- function(x, xref, original_id = colnames(xref)[1L],
 #' These tables are gnerated by the `inst/scripts/genereate-id-maps.R`
 #'
 #' @export
-#' @param species do you want the `"human"` or `"mouse"` xref table?
+#' @param species The name of the species to load the entrez <-> ensembl xref
+#'   table for. Currently we only provide tables for human and mouse ... and we
+#'   shouldn't even provide those in here, but ...
 #' @return a table of ensembl and entrez ids for each species
-load_id_xref <- function(species = c("human", "mouse"), ..., as.dt = FALSE) {
-  species <- match.arg(species)
-  fn <- sprintf("%s-entrez-ensembl.csv.gz", species)
+load_id_xref <- function(species, ..., as.dt = FALSE) {
+  assert_string(species)
+  sinfo <- species_info(species)
+  fn <- sprintf("%s-entrez-ensembl.csv.gz", sinfo[["alias"]])
   fn <- system.file("extdata", "identifiers", fn, package = "multiGSEA")
+  if (!test_file_exists(fn)) {
+    stop("Can not find `extdata/idenifiers` xref table for: ", species)
+  }
   out <- data.table::fread(fn)
   out[, entrezgene_id := as.character(entrezgene_id)]
   if (!as.dt) out <- setDF(copy(out))
