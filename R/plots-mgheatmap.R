@@ -87,11 +87,19 @@
 #' @param rename.rows defaults to `NULL`, which induces no action. Specifying
 #'   a paramter here assumes you want to rename the rows of the heatmap.
 #'   Please refer to the "Renaming Rows" section for details.
-#' @param zlim A `length(zlim) == 2` numeric vector that defines the min and max
-#'   values from `x` for the `colorRamp2` call. If the heatmap that is being
-#'   drawn is "0-centered"-ish, then this defines the real values of the
-#'   fenceposts. If not, then these define the quantiles to trim off the top
-#'   or bottom.
+#' @param zero_center_colramp Used to specify the type of color ramp to generate
+#'   when `col` is `NULL`. By default (`NULL`) we try to guess if we should
+#'   generate a 0-centered (blue, white, red) color ramp, or an absolute
+#'   (viridis style) one. The guessing functionality isn't that great, so
+#'   it doesn't hurt to explicitly set this to `TRUE` or `FALSE`.
+#' @param zlim Used to control the color saturation of the heatmap when the
+#'   `col` parameter is not provided. If `NULL`, (default), extreme values
+#'   (outside the `c(0.025, 0.975)` quantiles) are axed and the colorRamp is
+#'   based on the remaining value range. If `FALSE`, the range of the colorRamp
+#'   is defined by the min/max values. Otherwise a length(2) numeric can be
+#'   supplied. If the values are between `[0,1]`, then we assume this is a
+#'   quantile range to be calculated. Otherwise the number are assumed to
+#'   mark the top and bottom of the color scale range you want to use.
 #' @param transpose Flip display so that rows are columns. Default is `FALSE`.
 #' @param ... parameters to send down to [scoreSingleSamples()] or
 #'   [ComplexHeatmap::Heatmap()].
@@ -123,8 +131,10 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
                       name = NULL, rm.collection.prefix = TRUE,
                       rm.dups = FALSE, recenter = FALSE, rescale = FALSE,
                       center = TRUE, scale = TRUE,
-                      rename.rows = NULL, zlim = NULL, transpose = FALSE, ...) {
-  X <- as_matrix(x)
+                      rename.rows = NULL,
+                      zero_center_colramp = NULL, zlim = NULL,
+                      transpose = FALSE, ...) {
+  X <- as_matrix(x, ...)
   if (is.null(scores)) {
     aggregate.by <- match.arg(aggregate.by)
   } else {
@@ -134,13 +144,6 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
       aggregate.by %in% scores$method)
   }
 
-  # if (is.null(gdb)) {
-  #   # make a one geneset GeneSetDb
-  #   faux.gs <- list(allgenes = unique(rownames(x)))
-  #   gdb <- GeneSetDb(faux.gs, collectionName = "faux")
-  #   split <- FALSE
-  #   gs.order <- NULL
-  # }
   if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
 
   # split.by <- match.arg(split.by)
@@ -262,39 +265,43 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   # If this is 0-centered ish, we use a red-white-blue scheme, otherwise
   # we use viridis.
   if (is.null(col)) {
-    # Is 0 close to the center of the score distribution?
-    qtile.X <- quantile(X, c(0.25, 0.75))
-    zero.center <- qtile.X[1L] < 0 && qtile.X[2L] > 0
-    if (zero.center) {
-      if (missing(zlim)) {
+    if (is.null(zero_center_colramp)) {
+      zero_center_colramp <- .looks0centered(X)
+    }
+    assert_flag(zero_center_colramp)
+    if (zero_center_colramp) {
+      if (is.null(zlim)) {
         fpost <- quantile(abs(X), 0.975)
         zlim <- c(-fpost, fpost)
-      } else if (is.null(zlim)) {
-        zlim <- c(min(X), max(X))
+      } else if (isFALSE(zlim)) {
+        fpost <- c(min(X), max(X))
+      }
+      assert_numeric(zlim, len = 2)
+      assert_true(zlim[1] < zlim[2])
+
+      if (zlim[1L] >= 0 && zlim[2L] <= 1) {
+        # quantiles
+        fpost <- quantile(X, zlim)
       } else {
-        stopifnot(zlim[1L] < 0, zlim[2L] > 0)
+        fpost <- zlim
       }
       col <- colorRamp2(
-        c(zlim[1L], 0, zlim[2L]),
-        # c('#1F294E', '#F7F7F7', '#6E0F11')
-        c("navy", "white", "firebrick")
-        )
+        c(fpost[1L], 0, fpost[2L]),
+        c('#1F294E', '#F7F7F7', '#6E0F11'))
     } else {
-      if (missing(zlim)) {
-        fpost <- quantile(X, c(0.025, 0.975))
-      } else if (is.null(zlim)) {
-        fpost <- c(min(X), max(X))
-      } else {
-        stopifnot(all(zlim >= 0), all(zlim <= 1))
+      if (is.null(zlim)) {
+        zlim <- quantile(X, c(0.025, 0.975))
+      } else if (isFALSE(zlim)) {
+        zlim <- c(min(X), max(X))
+      }
+      assert_numeric(zlim, len = 2)
+      assert_true(zlim[1] < zlim[2])
+      if (zlim[1L] >= 0 && zlim[2L] <= 1) {
         fpost <- quantile(X, zlim)
+      } else {
+        fpost <- zlim
       }
-      # Higher granularity for viridis colorRamp
-      breaks <- quantile(X, seq(0, 1, by = 0.05))
-      if (fpost[1L] > breaks[2L] || fpost[2L] < breaks[20L]) {
-        stop("Illegal values for zlim")
-      }
-      breaks[1] <- fpost[1]
-      breaks[21] <- fpost[2]
+      breaks <- seq(fpost[1], fpost[2], length.out = 21)
       col <- colorRamp2(breaks, viridis::viridis(21))
     }
   }
@@ -372,3 +379,11 @@ mgheatmap <- function(x, gdb = NULL, col = NULL,
   H <- do.call(ComplexHeatmap::Heatmap, hm.args)
   H
 }
+
+#' @noRd
+.looks0centered <- function(x, ...) {
+  x <- as.vector(x)
+  qtiles <- quantile(x, c(0.4, 0.6))
+  qtiles[1L] < 0 && qtiles[2L] > 0 && abs(qtiles[2] - qtiles[1]) < 1
+}
+

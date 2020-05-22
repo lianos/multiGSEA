@@ -20,6 +20,7 @@ mgheatmap(
   center = TRUE,
   scale = TRUE,
   rename.rows = NULL,
+  zero_center_colramp = NULL,
   zlim = NULL,
   transpose = FALSE,
   ...
@@ -72,11 +73,20 @@ values of the heatmap matrix prior to calling
 a paramter here assumes you want to rename the rows of the heatmap.
 Please refer to the "Renaming Rows" section for details.}
 
-\item{zlim}{A \code{length(zlim) == 2} numeric vector that defines the min and max
-values from \code{x} for the \code{colorRamp2} call. If the heatmap that is being
-drawn is "0-centered"-ish, then this defines the real values of the
-fenceposts. If not, then these define the quantiles to trim off the top
-or bottom.}
+\item{zero_center_colramp}{Used to specify the type of color ramp to generate
+when \code{col} is \code{NULL}. By default (\code{NULL}) we try to guess if we should
+generate a 0-centered (blue, white, red) color ramp, or an absolute
+(viridis style) one. The guessing functionality isn't that great, so
+it doesn't hurt to explicitly set this to \code{TRUE} or \code{FALSE}.}
+
+\item{zlim}{Used to control the color saturation of the heatmap when the
+\code{col} parameter is not provided. If \code{NULL}, (default), extreme values
+(outside the \code{c(0.025, 0.975)} quantiles) are axed and the colorRamp is
+based on the remaining value range. If \code{FALSE}, the range of the colorRamp
+is defined by the min/max values. Otherwise a length(2) numeric can be
+supplied. If the values are between \verb{[0,1]}, then we assume this is a
+quantile range to be calculated. Otherwise the number are assumed to
+mark the top and bottom of the color scale range you want to use.}
 
 \item{transpose}{Flip display so that rows are columns. Default is \code{FALSE}.}
 

@@ -163,7 +163,8 @@ generate.preranked.stats <- function(x, design, contrast, logFC=NULL,
 #'   are cpms scaled using TMM normalization.
 #' @return a matrix of values to use downstream of internal gene set based
 #'   methods.
-as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE, ...) {
+as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE, prior.count = 3,
+                      ...) {
   if (!is.null(gdb)) stopifnot(is(gdb, "GeneSetDb"))
   if (is(y, "SummarizedExperiment")) {
     if (!requireNamespace("SummarizedExperiment")) {
@@ -181,7 +182,7 @@ as_matrix <- function(y, gdb = NULL, calc.norm.factors = TRUE, ...) {
   } else if (is(y, 'EList')) {
     y <- y$E
   } else if (is(y, 'DGEList')) {
-    y <- cpm(y, prior.count=5, log=TRUE)
+    y <- cpm(y, prior.count = prior.count, log=TRUE)
   } else if (is(y, 'eSet')) {
     ns <- tryCatch(loadNamespace("Biobase"), error = function(e) NULL)
     if (is.null(ns)) stop("Biobase required")
