@@ -6,8 +6,9 @@
 \usage{
 getKeggGeneSetDb(
   species = "human",
-  id.type = "entrez",
+  id.type = c("entrez", "ensembl"),
   database = "pathway",
+  idxref = NULL,
   ...
 )
 }
@@ -15,7 +16,10 @@ getKeggGeneSetDb(
 \item{species}{\code{"human"}, \code{"mouse"} or any of the bioconductor or kegg-style
 abbreviations.}
 
-\item{id.type}{entrez, enembl?}
+\item{id.type}{Gene identifiers are returned by the REST service as
+entrez identifiers. Set this to \code{"ensembl"} to translate them internally
+using \code{\link[=remap_identifiers]{remap_identifiers()}}. If \code{species}is not \code{"human"} or \code{"mouse"},
+you need to provide an idxref table that works with \code{\link[=remap_identifiers]{remap_identifiers()}}.}
 }
 \value{
 A GeneSetDb of the kegg stuffs
@@ -29,4 +33,10 @@ Currently we just support the pathway database, and only entrez ids.
 
 Note that \strong{it is your responsibility} to ensure that you can use the KEGG
 database according to their licensing requirements.
+}
+\examples{
+\dontrun{
+mouse.entrez <- getKeggGeneSetDb("mouse")
+mouse.ens <- getKeggGeneSetDb("mouse", id.type = "ensembl")
+}
 }

@@ -15,7 +15,8 @@ remap_identifiers(
 \arguments{
 \item{x}{The GeneSetDb with identifiers to convert}
 
-\item{xref}{The cross referencing data.frame}
+\item{xref}{If a species (\code{"mouse"} or \code{"human"}) we will load the internal
+ensembl <-> entrez data.frame, or you can provide your own.}
 }
 \value{
 a remapped GeneSetDb object
@@ -38,9 +39,8 @@ the source identifiers, and the second is the target_id you want to remap
 the identifiers to.
 }
 \examples{
-xref <- load_id_xref("human")
 gdb.entrez <- exampleGeneSetDb()
-gdb.ens <- remap_identifiers(gdb.entrez, xref,
+gdb.ens <- remap_identifiers(gdb.entrez, "human",
                              original_id = "entrezgene_id",
                              target_id = "ensembl_gene_id")
 }

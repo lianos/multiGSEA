@@ -4,10 +4,12 @@
 \alias{load_id_xref}
 \title{Load the mouse or human ensembl <-> entrez id maps.}
 \usage{
-load_id_xref(species = c("human", "mouse"), ..., as.dt = FALSE)
+load_id_xref(species, ..., as.dt = FALSE)
 }
 \arguments{
-\item{species}{do you want the \code{"human"} or \code{"mouse"} xref table?}
+\item{species}{The name of the species to load the entrez <-> ensembl xref
+table for. Currently we only provide tables for human and mouse ... and we
+shouldn't even provide those in here, but ...}
 }
 \value{
 a table of ensembl and entrez ids for each species
