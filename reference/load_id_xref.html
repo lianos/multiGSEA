@@ -76,7 +76,7 @@ ecosystem, we bundle it here to make our lives easier." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">multiGSEA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.15</span>
       </span>
     </div>
 
@@ -124,14 +124,16 @@ While there are other sactioned ways to achieve this within the bioconductor
 ecosystem, we bundle it here to make our lives easier.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>load_id_xref</span>(<span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"human"</span>, <span class='st'>"mouse"</span>), <span class='no'>...</span>, <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>load_id_xref</span>(<span class='no'>species</span>, <span class='no'>...</span>, <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>species</th>
-      <td><p>do you want the <code>"human"</code> or <code>"mouse"</code> xref table?</p></td>
+      <td><p>The name of the species to load the entrez &lt;-&gt; ensembl xref
+table for. Currently we only provide tables for human and mouse ... and we
+shouldn't even provide those in here, but ...</p></td>
     </tr>
     </table>
 

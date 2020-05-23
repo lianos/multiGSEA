@@ -76,7 +76,7 @@ you like." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">multiGSEA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.15</span>
       </span>
     </div>
 
@@ -141,7 +141,8 @@ you like.</p>
     </tr>
     <tr>
       <th>xref</th>
-      <td><p>The cross referencing data.frame</p></td>
+      <td><p>If a species (<code>"mouse"</code> or <code>"human"</code>) we will load the internal
+ensembl &lt;-&gt; entrez data.frame, or you can provide your own.</p></td>
     </tr>
     </table>
 
@@ -160,9 +161,8 @@ the source identifiers, and the second is the target_id you want to remap
 the identifiers to.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>xref</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='load_id_xref.html'>load_id_xref</a></span>(<span class='st'>"human"</span>)
-<span class='no'>gdb.entrez</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>gdb.ens</span> <span class='kw'>&lt;-</span> <span class='fu'>remap_identifiers</span>(<span class='no'>gdb.entrez</span>, <span class='no'>xref</span>,
+    <pre class="examples"><div class='input'><span class='no'>gdb.entrez</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
+<span class='no'>gdb.ens</span> <span class='kw'>&lt;-</span> <span class='fu'>remap_identifiers</span>(<span class='no'>gdb.entrez</span>, <span class='st'>"human"</span>,
                              <span class='kw'>original_id</span> <span class='kw'>=</span> <span class='st'>"entrezgene_id"</span>,
                              <span class='kw'>target_id</span> <span class='kw'>=</span> <span class='st'>"ensembl_gene_id"</span>)</div></pre>
   </div>
