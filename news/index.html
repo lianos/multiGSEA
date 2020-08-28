@@ -114,9 +114,9 @@
       
     </div>
 
-    <div id="multigsea-1-0-0-bioconductor-release" class="section level1">
+    <div id="multigsea-100-bioconductor-release" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.0">
-<a href="#multigsea-1-0-0-bioconductor-release" class="anchor"></a>multiGSEA 1.0.0 (Bioconductor release)</h1>
+<a href="#multigsea-100-bioconductor-release" class="anchor"></a>multiGSEA 1.0.0 (Bioconductor release)</h1>
 <div id="new-features" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-features" class="anchor"></a>New Features</h2>
@@ -136,9 +136,9 @@
 </ul>
 </div>
 </div>
-    <div id="multigsea-0-10" class="section level1">
+    <div id="multigsea-010" class="section level1">
 <h1 class="page-header" data-toc-text="0.10">
-<a href="#multigsea-0-10" class="anchor"></a>multiGSEA 0.10</h1>
+<a href="#multigsea-010" class="anchor"></a>multiGSEA 0.10</h1>
 <div id="user-visible-changes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#user-visible-changes" class="anchor"></a>User Visible Changes</h2>
@@ -150,13 +150,13 @@
 </ul>
 </div>
 </div>
-    <div id="multigsea-0-6-x" class="section level1">
+    <div id="multigsea-06x" class="section level1">
 <h1 class="page-header" data-toc-text="0.6">
-<a href="#multigsea-0-6-x" class="anchor"></a>multiGSEA 0.6.x</h1>
+<a href="#multigsea-06x" class="anchor"></a>multiGSEA 0.6.x</h1>
 </div>
-    <div id="multigesa-0-4-x" class="section level1">
+    <div id="multigesa-04x" class="section level1">
 <h1 class="page-header" data-toc-text="0.4">
-<a href="#multigesa-0-4-x" class="anchor"></a>multiGESA 0.4.x</h1>
+<a href="#multigesa-04x" class="anchor"></a>multiGESA 0.4.x</h1>
 <div id="user-visible-changes-2" class="section level2">
 <h2 class="hasAnchor">
 <a href="#user-visible-changes-2" class="anchor"></a>User Visible Changes</h2>
@@ -175,9 +175,9 @@
 <li><p>goseq, fry, and romer testing methods have been added.</p></li>
 <li>
 <p>Support for DGEList expression input fully baked in. Previously, a DGEList was shot through voom to be used internally. Internal differential gene expression statistics on DGELists use edgeR’s quasi-likelihood framework. See <code><a href="https://rdrr.io/pkg/edgeR/man/glmQLFTest.html">?edgeR::glmQLFit</a></code> for more information, and particulary reference Aaron Lun’s tutorial on using this approach here:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">It<span class="st">'s DE-licious: a recipe for differential expression analyses of RNA-seq</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="st">experiments using quasi-likelihood methods in edgeR</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="st">http://www.statsci.org/smyth/pubs/QLedgeRPreprint.pdf</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>It<span class="st">'s DE-licious: a recipe for differential expression analyses of RNA-seq</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="st">experiments using quasi-likelihood methods in edgeR</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="st">http://www.statsci.org/smyth/pubs/QLedgeRPreprint.pdf</span></span></code></pre></div>
 </li>
 <li><p>Adds support for PANTHER pathway (and GOSLIM) genesets from PANTHER.db package via the <code>getPantherGeneSetDb</code> function.</p></li>
 <li><p>Added geneSetFeatureStats to return the logFC (and membership) information for a geneset after a multiGSEA run.</p></li>
@@ -188,10 +188,10 @@
 <p>MSigDB definitions were updated to v5.0, which adds a new “hallmark (h)” gene set. A call to <code>getMSigDBset</code> without a version parameter will return the v5.0 data.</p>
 <p>Note that MSigDB provides the entrez IDs for each geneset as human genes. The mouse version of these gene sets was constructing by mapping the human entrez ID’s to their mouse orthologs via <code>igis::orthologs</code>. When this mapping returns multiple mouse IDs for a single human ID, all of the mouse IDs are kept in the mouse geneset.</p>
 <p>To get the previous v4.0 genesets (provided by WEHI), you would simply specify version=‘v4.0’ in the getMSigDBSet like so:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="st">```</span><span class="dt">r</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="dt">gdb5 &lt;- getMSigDBsetc(c('c2', 'c7'), species='mouse')</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="dt">gdb4 &lt;- getMSigDBsetc(c('c2', 'c7'), species='mouse', version='v4.0')</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">````</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="st">```</span><span class="dt">r</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="dt">gdb5 &lt;- getMSigDBsetc(c('c2', 'c7'), species='mouse')</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="dt">gdb4 &lt;- getMSigDBsetc(c('c2', 'c7'), species='mouse', version='v4.0')</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="st">````</span></span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -203,9 +203,9 @@
 </ul>
 </div>
 </div>
-    <div id="multigsea-0-1-0" class="section level1">
+    <div id="multigsea-010-1" class="section level1">
 <h1 class="page-header" data-toc-text="0.1.0">
-<a href="#multigsea-0-1-0" class="anchor"></a>multiGSEA 0.1.0</h1>
+<a href="#multigsea-010-1" class="anchor"></a>multiGSEA 0.1.0</h1>
 <div id="new-features-3" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-features-3" class="anchor"></a>New Features</h2>
