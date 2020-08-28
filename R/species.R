@@ -11,6 +11,7 @@ species_info <- function(query, ...) {
   idx <- NA
   for (cname in names(info)) {
     vals <- tolower(info[[cname]])
+    vals <- gsub(" +", "_", vals)
     idx <- match(query, vals)
     if (!is.na(idx)) break
   }

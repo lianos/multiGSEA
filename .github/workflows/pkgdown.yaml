@@ -27,10 +27,16 @@ jobs:
       GIT_COMMITTER_EMAIL: slianoglou@gmail.com
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
         with:
           ref: 'develop'
-      - uses: r-lib/actions/setup-r@master
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@2fac31217e602dd30286b4c984a0ccf1afb18cbd
+        # uses: r-lib/actions/setup-r@master
+        # with:
+        #   install-r: false
 
       - name: Install dependencies
         run: remotes::install_deps(dependencies = TRUE, upgrade = FALSE)

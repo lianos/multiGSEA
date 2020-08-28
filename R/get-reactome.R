@@ -9,8 +9,9 @@
 #'   names.
 #' @param id.type `"entrez"` or `"ensembl"`
 #' @return a reactome GeneSetDb object
-getReactomeGeneSetDb <- function(species='human', rm.species.prefix=TRUE,
-                                 id.type = c("entrez", "ensembl")) {
+getReactomeGeneSetDb <- function(species = 'human',
+                                 id.type = c("entrez", "ensembl"),
+                                 rm.species.prefix = TRUE) {
   id.type <- match.arg(id.type)
   id.col <- if (id.type == "entrez") "ENTREZID" else "ENSG"
   rdb <- tryCatch(loadNamespace('reactome.db'), error=function(e) NULL)

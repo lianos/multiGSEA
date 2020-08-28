@@ -29,10 +29,15 @@ jobs:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
         with:
           ref: 'develop'
-      - uses: r-lib/actions/setup-r@master
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@2fac31217e602dd30286b4c984a0ccf1afb18cbd
+        with:
+          install-r: false
 
       # I guess I didn't want to install this into the base
       - name: Install dependencies
@@ -41,8 +46,4 @@ jobs:
 
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
-
-      - name: Test coverage
-        run: covr::codecov()
         shell: Rscript {0}

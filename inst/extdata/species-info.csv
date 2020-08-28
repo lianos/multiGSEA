@@ -1,4 +1,4 @@
-﻿alias,species,bioc_full,bioc_abbrev,kegg,mart_dataset,symbol_name
+alias,species,bioc_full,bioc_abbrev,kegg,mart_dataset,symbol_name
 ,,,Ag,aga,,
 ,,,At,ath,,
 ,,,Bt,bta,,
@@ -11,9 +11,9 @@ zebrafish,Danio rerio,,Dr,dre,drerio_gene_ensembl,zfin_id_symbol
 human,Homo sapiens,,Hs,hsa,hsapiens_gene_ensembl,hgnc_symbol
 cyno,Macaca fascicularis,,Mf,mcf,mfascicularis_gene_ensembl,external_gene_name
 mouse,Mus musculus,,Mm,mmu,mmusculus_gene_ensembl,mgi_symbol
-,,,Mmu,mcc,,
+rhesus,Macaca mulatta,,Mmu,mcc,,
 ,,,Pf,pfa,,
 ,,,Pt,ptr,,
-rat,Rattus norvegicus,,Rn,rno,,
+rat,Rattus norvegicus,,Rn,rno,,
 yeast,Saccharomyces cerevisiae,,Ss,ssc,,
 ,,,Xl,xla,,

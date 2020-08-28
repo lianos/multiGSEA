@@ -84,6 +84,7 @@ getMSigGeneSetDb <- function(collection = "H",
     # due to their licensing policy. Better to be conservative here than not.
     msig.db <- subset(msig.db, !subcategory %in% "CP:KEGG")
   }
+
   gdb <- GeneSetDb(msig.db)
 
   # Beef up collectionMetadata

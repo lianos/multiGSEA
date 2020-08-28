@@ -68,7 +68,8 @@ calculateIndividualLogFC <- function(x, design, contrast = ncol(design),
                                      robust.fit = FALSE, robust.eBayes = FALSE,
                                      trend.eBayes = FALSE, treat.lfc = NULL,
                                      weights = NULL, confint = TRUE,
-                                     with.fit = FALSE, use.qlf = TRUE, ...,
+                                     with.fit = FALSE, use.qlf = TRUE,
+                                     ...,
                                      xmeta. = NULL,
                                      as.dt = FALSE) {
   do.contrast <- !is.vector(x) &&
