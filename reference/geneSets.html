@@ -120,10 +120,10 @@
     <p>Fetch the active (or all) gene sets from a GeneSetDb or MultiGSEAResult</p>
     </div>
 
-    <pre class="usage"><span class='fu'>geneSets</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>geneSets</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S4 method for GeneSetDb</span>
-<span class='fu'>geneSets</span>(<span class='no'>x</span>, <span class='kw'>active.only</span> <span class='kw'>=</span> <span class='fu'><a href='conform.html'>is.conformed</a></span>(<span class='no'>x</span>), <span class='no'>...</span>, <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>geneSets</span>(<span class='kw'>x</span>, active.only = <span class='fu'><a href='conform.html'>is.conformed</a></span>(<span class='kw'>x</span>), <span class='kw'>...</span>, as.dt = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,8 +152,9 @@ to keep this object as a <code>data.table</code></p></td>
     <p>a data.table with geneset information.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>gs</span> <span class='kw'>&lt;-</span> <span class='fu'>geneSets</span>(<span class='no'>gdb</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>gs</span> <span class='op'>&lt;-</span> <span class='fu'>geneSets</span>(<span class='kw'>gdb</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -169,7 +170,7 @@ to keep this object as a <code>data.table</code></p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

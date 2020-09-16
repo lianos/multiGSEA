@@ -142,25 +142,25 @@ genes per geneset required as specified by the <code>min.gs.size</code> and
 downstream gene set operations.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>conform</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>conform</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
-<span class='fu'>unconform</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>unconform</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S4 method for GeneSetDb</span>
 <span class='fu'>conform</span>(
-  <span class='no'>x</span>,
-  <span class='no'>target</span>,
-  <span class='kw'>unique.by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"mean"</span>, <span class='st'>"var"</span>),
-  <span class='kw'>min.gs.size</span> <span class='kw'>=</span> <span class='fl'>2L</span>,
-  <span class='kw'>max.gs.size</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>match.tolerance</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
-  <span class='no'>...</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>target</span>,
+  unique.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"mean"</span>, <span class='st'>"var"</span>),
+  min.gs.size = <span class='fl'>2L</span>,
+  max.gs.size = <span class='fl'>Inf</span>,
+  match.tolerance = <span class='fl'>0.25</span>,
+  <span class='kw'>...</span>
 )
 
 <span class='co'># S4 method for GeneSetDb</span>
-<span class='fu'>unconform</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>unconform</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
-<span class='fu'>is.conformed</span>(<span class='no'>x</span>, <span class='no'>to</span>)</pre>
+<span class='fu'>is.conformed</span>(<span class='kw'>x</span>, <span class='kw'>to</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -218,18 +218,20 @@ been called (at all) on <code>x</code>. If <code>to</code> is provided, specific
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>es</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>()
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='no'>gdb</span>))</div><div class='output co'>#&gt;   collection                                          name active  N  n
+    <pre class="examples"><div class='input'><span class='kw'>es</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='kw'>gdb</span>))
+</div><div class='output co'>#&gt;   collection                                          name active  N  n
 #&gt; 1         c2                        BIOCARTA_AGPCR_PATHWAY  FALSE 13 NA
 #&gt; 2         c2         BOYAULT_LIVER_CANCER_SUBCLASS_G123_DN  FALSE 51 NA
 #&gt; 3         c2               BURTON_ADIPOGENESIS_PEAK_AT_2HR  FALSE 51 NA
 #&gt; 4         c2        BYSTRYKH_HEMATOPOIESIS_STEM_CELL_IL3RA  FALSE  9 NA
 #&gt; 5         c2             CAIRO_PML_TARGETS_BOUND_BY_MYC_UP  FALSE 23 NA
-#&gt; 6         c2 CHARAFE_BREAST_CANCER_BASAL_VS_MESENCHYMAL_DN  FALSE 50 NA</div><div class='input'><span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'>conform</span>(<span class='no'>gdb</span>, <span class='no'>es</span>)
+#&gt; 6         c2 CHARAFE_BREAST_CANCER_BASAL_VS_MESENCHYMAL_DN  FALSE 50 NA</div><div class='input'><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>conform</span>(<span class='kw'>gdb</span>, <span class='kw'>es</span>)
 <span class='co'>## Note the updated values `active` flag, and n (the number of features</span>
 <span class='co'>## mapped per gene set)</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='no'>gdb</span>))</div><div class='output co'>#&gt;   collection                                          name active  N  n
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='kw'>gdb</span>))
+</div><div class='output co'>#&gt;   collection                                          name active  N  n
 #&gt; 1         c2                        BIOCARTA_AGPCR_PATHWAY   TRUE 13 11
 #&gt; 2         c2         BOYAULT_LIVER_CANCER_SUBCLASS_G123_DN   TRUE 51 41
 #&gt; 3         c2               BURTON_ADIPOGENESIS_PEAK_AT_2HR   TRUE 51 50
@@ -251,7 +253,7 @@ been called (at all) on <code>x</code>. If <code>to</code> is provided, specific
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

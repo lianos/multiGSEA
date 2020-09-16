@@ -123,9 +123,9 @@ GSEA methods you tried. I think I did, once, so here it is.</p>
     </div>
 
     <pre class="usage"><span class='fu'>p.matrix</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>names</span> <span class='kw'>=</span> <span class='fu'><a href='results.html'>resultNames</a></span>(<span class='no'>x</span>),
-  <span class='kw'>pcol</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>)
+  <span class='kw'>x</span>,
+  names = <span class='fu'><a href='resultNames.html'>resultNames</a></span>(<span class='kw'>x</span>),
+  pcol = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -133,11 +133,11 @@ GSEA methods you tried. I think I did, once, so here it is.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> object.</p></td>
+      <td><p>A <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> object.</p></td>
     </tr>
     <tr>
       <th>names</th>
-      <td><p>the entries from <code><a href='results.html'>resultNames(x)</a></code> that you want to include
+      <td><p>the entries from <code><a href='resultNames.html'>resultNames(x)</a></code> that you want to include
 in the matrix. By default we take all of them.</p></td>
     </tr>
     <tr>
@@ -154,8 +154,9 @@ in the matrix. By default we take all of them.</p></td>
     <pre class="examples"><div class='input'><span class='co'># vm &lt;- exampleExpressionSet(do.voom=TRUE)</span>
 <span class='co'># gdb &lt;- exampleGeneSetDb()</span>
 <span class='co'># mg &lt;- multiGSEA(gdb, vm, vm$design, 'tumor', methods=c('cameraPR'))</span>
-<span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleMultiGSEAResult</a></span>()
-<span class='no'>pm</span> <span class='kw'>&lt;-</span> <span class='fu'>p.matrix</span>(<span class='no'>mg</span>)</div></pre>
+<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
+<span class='kw'>pm</span> <span class='op'>&lt;-</span> <span class='fu'>p.matrix</span>(<span class='kw'>mg</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -171,7 +172,7 @@ in the matrix. By default we take all of them.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

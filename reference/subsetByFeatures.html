@@ -120,7 +120,7 @@
     <p>Subset a GeneSetDb to only include geneSets with specified features.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>subsetByFeatures</span>(<span class='no'>x</span>, <span class='no'>features</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"feature_id"</span>, <span class='st'>"x.id"</span>, <span class='st'>"x.idx"</span>), <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>subsetByFeatures</span>(<span class='kw'>x</span>, <span class='kw'>features</span>, value = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"feature_id"</span>, <span class='st'>"x.id"</span>, <span class='st'>"x.idx"</span>), <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,9 +141,10 @@
 features found in <code>featureIds</code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>features</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"55839"</span>, <span class='st'>"8522"</span>, <span class='st'>"29087"</span>)
-(<span class='no'>gdb.sub</span> <span class='kw'>&lt;-</span> <span class='fu'>subsetByFeatures</span>(<span class='no'>gdb</span>, <span class='no'>features</span>))</div><div class='output co'>#&gt; ===============================================================================
+    <pre class="examples"><div class='input'><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>features</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"55839"</span>, <span class='st'>"8522"</span>, <span class='st'>"29087"</span>)
+(<span class='kw'>gdb.sub</span> <span class='op'>&lt;-</span> <span class='fu'>subsetByFeatures</span>(<span class='kw'>gdb</span>, <span class='kw'>features</span>))
+</div><div class='output co'>#&gt; ===============================================================================
 #&gt; GeneSetDb with 5 defined genesets across 3 collections (0 gene sets are active)
 #&gt;   Conformed: no
 #&gt; -------------------------------------------------------------------------------
@@ -172,7 +173,7 @@ features found in <code>featureIds</code></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

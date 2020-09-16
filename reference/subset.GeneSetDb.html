@@ -123,7 +123,7 @@ exported because it is not meant for external use.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for GeneSetDb</span>
-<span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='no'>x</span>, <span class='no'>keep</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>x</span>, <span class='kw'>keep</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,9 +150,10 @@ GeneSetDb look like, anyway? Something ...</p>
 See Issue #12 (https://github.com/lianos/multiGSEA/issues/12)</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gdb.all</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>gs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='no'>gdb.all</span>)
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='no'>gdb.all</span>[<span class='no'>gs</span>$<span class='no'>collection</span> <span class='kw'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"c2"</span>, <span class='st'>"c7"</span>)]</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>gdb.all</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>gs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='kw'>gdb.all</span>)
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='kw'>gdb.all</span>[<span class='kw'>gs</span><span class='op'>$</span><span class='kw'>collection</span> <span class='op'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"c2"</span>, <span class='st'>"c7"</span>)]
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -168,7 +169,7 @@ See Issue #12 (https://github.com/lianos/multiGSEA/issues/12)</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

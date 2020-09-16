@@ -124,7 +124,7 @@ to gene sets (rows). If <code>y</code> is provided, then the incidence is mapped
 across the entire feature-space of <code>y</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>incidenceMatrix</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>incidenceMatrix</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,10 +151,11 @@ featureIDs. If <code>y</code> is passed in, the columns of the returned value
 match the rows of <code>y</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>()
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>, <span class='st'>'human'</span>, <span class='st'>'entrez'</span>)
-<span class='no'>im</span> <span class='kw'>&lt;-</span> <span class='fu'>incidenceMatrix</span>(<span class='no'>gdb</span>)
-<span class='no'>imv</span> <span class='kw'>&lt;-</span> <span class='fu'>incidenceMatrix</span>(<span class='no'>gdb</span>, <span class='no'>vm</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>, <span class='st'>'human'</span>, <span class='st'>'entrez'</span>)
+<span class='kw'>im</span> <span class='op'>&lt;-</span> <span class='fu'>incidenceMatrix</span>(<span class='kw'>gdb</span>)
+<span class='kw'>imv</span> <span class='op'>&lt;-</span> <span class='fu'>incidenceMatrix</span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -170,7 +171,7 @@ match the rows of <code>y</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

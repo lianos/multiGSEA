@@ -127,17 +127,17 @@ stored as columns of the input data.frame <code>dat</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>ora</span>(
-  <span class='no'>gsd</span>,
-  <span class='no'>dat</span>,
-  <span class='kw'>selected</span> <span class='kw'>=</span> <span class='st'>"significant"</span>,
-  <span class='kw'>groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>feature.bias</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>universe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>restrict.universe</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plot.bias</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>.pipelined</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>gsd</span>,
+  <span class='kw'>dat</span>,
+  selected = <span class='st'>"significant"</span>,
+  groups = <span class='kw'>NULL</span>,
+  feature.bias = <span class='kw'>NULL</span>,
+  universe = <span class='kw'>NULL</span>,
+  restrict.universe = <span class='fl'>FALSE</span>,
+  plot.bias = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>,
+  as.dt = <span class='fl'>FALSE</span>,
+  .pipelined = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -216,25 +216,28 @@ Gene ontology analysis for RNA-seq: accounting for selection bias.
 <em>Genome Biology</em> 11, R14. http://genomebiology.com/2010/11/2/R14</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>dgestats</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleDgeResult</a></span>(<span class='st'>"human"</span>, <span class='st'>"ensembl"</span>)
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>"h"</span>, <span class='st'>"human"</span>, <span class='st'>"ensembl"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>dgestats</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleDgeResult</a></span>(<span class='st'>"human"</span>, <span class='st'>"ensembl"</span>)
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>"h"</span>, <span class='st'>"human"</span>, <span class='st'>"ensembl"</span>)
 
 <span class='co'># Run enrichmnent without accounting for any bias</span>
-<span class='no'>nobias</span> <span class='kw'>&lt;-</span> <span class='fu'>ora</span>(<span class='no'>gdb</span>, <span class='no'>dgestats</span>, <span class='kw'>selected</span> <span class='kw'>=</span> <span class='st'>"selected"</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='st'>"direction"</span>,
-              <span class='kw'>feature.bias</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='kw'>nobias</span> <span class='op'>&lt;-</span> <span class='fu'>ora</span>(<span class='kw'>gdb</span>, <span class='kw'>dgestats</span>, selected = <span class='st'>"selected"</span>, groups = <span class='st'>"direction"</span>,
+              feature.bias = <span class='kw'>NULL</span>)
 
 <span class='co'># Run enrichment and account for gene length</span>
-<span class='no'>lbias</span> <span class='kw'>&lt;-</span> <span class='fu'>ora</span>(<span class='no'>gdb</span>, <span class='no'>dgestats</span>, <span class='kw'>selected</span> <span class='kw'>=</span> <span class='st'>"selected"</span>,
-             <span class='kw'>feature.bias</span> <span class='kw'>=</span> <span class='st'>"effective_length"</span>)
+<span class='kw'>lbias</span> <span class='op'>&lt;-</span> <span class='fu'>ora</span>(<span class='kw'>gdb</span>, <span class='kw'>dgestats</span>, selected = <span class='st'>"selected"</span>,
+             feature.bias = <span class='st'>"effective_length"</span>)
 
 <span class='co'># plot length bias with DGE status</span>
-<span class='fu'><a href='plot_ora_bias.html'>plot_ora_bias</a></span>(<span class='no'>dgestats</span>, <span class='st'>"selected"</span>, <span class='st'>"effective_length"</span>)</div><div class='img'><img src='ora-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='plot_ora_bias.html'>plot_ora_bias</a></span>(<span class='kw'>dgestats</span>, <span class='st'>"selected"</span>, <span class='st'>"effective_length"</span>)
+</div><div class='img'><img src='ora-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># induce length bias and see what is the what ...............................</span>
-<span class='no'>biased</span> <span class='kw'>&lt;-</span> <span class='no'>dgestats</span>[<span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span>(<span class='no'>dgestats</span>$<span class='no'>pval</span>),]
-<span class='no'>biased</span>$<span class='no'>effective_length</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sort.html'>sort</a></span>(<span class='no'>biased</span>$<span class='no'>effective_length</span>, <span class='kw'>decreasing</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='fu'><a href='plot_ora_bias.html'>plot_ora_bias</a></span>(<span class='no'>biased</span>, <span class='st'>"selected"</span>, <span class='st'>"effective_length"</span>)</div><div class='img'><img src='ora-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>etest</span> <span class='kw'>&lt;-</span> <span class='fu'>ora</span>(<span class='no'>gdb</span>, <span class='no'>biased</span>, <span class='kw'>selected</span> <span class='kw'>=</span> <span class='st'>"selected"</span>,
-             <span class='kw'>groups</span> <span class='kw'>=</span> <span class='st'>"direction"</span>,
-             <span class='kw'>feature.bias</span> <span class='kw'>=</span> <span class='st'>"effective_length"</span>)</div></pre>
+<span class='kw'>biased</span> <span class='op'>&lt;-</span> <span class='kw'>dgestats</span>[<span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span>(<span class='kw'>dgestats</span><span class='op'>$</span><span class='kw'>pval</span>),]
+<span class='kw'>biased</span><span class='op'>$</span><span class='kw'>effective_length</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sort.html'>sort</a></span>(<span class='kw'>biased</span><span class='op'>$</span><span class='kw'>effective_length</span>, decreasing = <span class='fl'>TRUE</span>)
+<span class='fu'><a href='plot_ora_bias.html'>plot_ora_bias</a></span>(<span class='kw'>biased</span>, <span class='st'>"selected"</span>, <span class='st'>"effective_length"</span>)
+</div><div class='img'><img src='ora-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='kw'>etest</span> <span class='op'>&lt;-</span> <span class='fu'>ora</span>(<span class='kw'>gdb</span>, <span class='kw'>biased</span>, selected = <span class='st'>"selected"</span>,
+             groups = <span class='st'>"direction"</span>,
+             feature.bias = <span class='st'>"effective_length"</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -250,7 +253,7 @@ Gene ontology analysis for RNA-seq: accounting for selection bias.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -86,27 +86,35 @@
 <h1 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h1>
 <p>A subset of the RNA-seq data tumor/normal samples in the BRCA indication from the TCGA are provided in this package. We will use that data to perform a “camera” and “fry” gene set enrichment analysis of tumor vs normal samples using the MSigDB hallmark and c2 gene set collections with <code>multiGSEA</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">multiGSEA</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">dplyr</span>)
-<span class="no">gdb</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/getMSigGeneSetDb.html">getMSigGeneSetDb</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'H'</span>, <span class="st">'C2'</span>), <span class="kw">species</span> <span class="kw">=</span> <span class="st">'human'</span>, <span class="kw">id.type</span> <span class="kw">=</span> <span class="st">"entrez"</span>)
-<span class="no">vm</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/examples.html">exampleExpressionSet</a></span>(<span class="kw">dataset</span> <span class="kw">=</span> <span class="st">'tumor-vs-normal'</span>, <span class="kw">do.voom</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">mg</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/multiGSEA.html">multiGSEA</a></span>(<span class="no">gdb</span>, <span class="no">vm</span>, <span class="no">vm</span>$<span class="no">design</span>, <span class="st">"tumor"</span>, <span class="kw">methods</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"camera"</span>, <span class="st">"fry"</span>))</pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">multiGSEA</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org">dplyr</a></span>)
+<span class="kw">gdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/getMSigGeneSetDb.html">getMSigGeneSetDb</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'H'</span>, <span class="st">'C2'</span>), species = <span class="st">'human'</span>, id.type = <span class="st">"entrez"</span>)
+<span class="kw">vm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exampleExpressionSet.html">exampleExpressionSet</a></span>(dataset = <span class="st">'tumor-vs-normal'</span>, do.voom = <span class="fl">TRUE</span>)
+<span class="kw">mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multiGSEA.html">multiGSEA</a></span>(<span class="kw">gdb</span>, <span class="kw">vm</span>, <span class="kw">vm</span><span class="op">$</span><span class="kw">design</span>, <span class="st">"tumor"</span>, methods=<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"camera"</span>, <span class="st">"fry"</span>))
+</pre></div>
 <p>We can view the top “camera” results with the smallest pvalues like so:</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="reference/results.html">results</a></span>(<span class="no">mg</span>, <span class="st">"camera"</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="no">pval</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">collection</span>, <span class="no">name</span>, <span class="no">padj</span>) <span class="kw">%&gt;%</span>
-  <span class="no">head</span>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="fu"><a href="reference/resultNames.html">results</a></span>(<span class="kw">mg</span>, <span class="st">"camera"</span>) <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw">pval</span>) <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="kw">collection</span>, <span class="kw">name</span>, <span class="kw">padj</span>) <span class="op">%&gt;%</span> 
+  <span class="kw">head</span>
 <span class="co">#&gt;   collection                                        name         padj</span>
 <span class="co">#&gt; 1         C2      SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP 1.037263e-36</span>
 <span class="co">#&gt; 2         C2 ROSTY_CERVICAL_CANCER_PROLIFERATION_CLUSTER 1.037263e-36</span>
 <span class="co">#&gt; 3         C2         NAKAYAMA_SOFT_TISSUE_TUMORS_PCA2_DN 1.718472e-23</span>
 <span class="co">#&gt; 4         C2              KANG_DOXORUBICIN_RESISTANCE_UP 1.203816e-22</span>
 <span class="co">#&gt; 5         C2               CROONQUIST_IL6_DEPRIVATION_DN 2.486087e-22</span>
-<span class="co">#&gt; 6         C2                     BENPORATH_PROLIFERATION 7.471399e-22</span></pre></div>
+<span class="co">#&gt; 6         C2                     BENPORATH_PROLIFERATION 7.471399e-22</span>
+</pre></div>
 <p>The shift in expression of the genes within the top gene set can be visualized with the <code>iplot</code> function below. This plot produces interactive graphics, but rasterized versions are saved for use with this <code>README</code> file:</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="reference/iplot.html">iplot</a></span>(<span class="no">mg</span>, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"density"</span>)</pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="reference/iplot.html">iplot</a></span>(<span class="kw">mg</span>, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, type = <span class="st">"density"</span>)
+</pre></div>
 <p><img src="reference/figures/README_iplot_density.png"></p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="reference/iplot.html">iplot</a></span>(<span class="no">mg</span>, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"boxplot"</span>)</pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="fu"><a href="reference/iplot.html">iplot</a></span>(<span class="kw">mg</span>, <span class="st">'c2'</span>, <span class="st">'SOTIRIOU_BREAST_CANCER_GRADE_1_VS_3_UP'</span>, type = <span class="st">"boxplot"</span>)
+</pre></div>
 <p><img src="reference/figures/README_iplot_boxplot.png"></p>
 <p>When these plots are rendered in your workspace or an Rmarkdown document, the user can hover of the genes (dots) to see their name and differential expression statistics.</p>
 <p>For an immersive, interactive way to explore the GSEA results, use the <code>multiGSEA.shiny::explore(mg)</code> method!</p>
@@ -115,8 +123,10 @@
 <h1 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h1>
 <p>The multiGSEA suite of packages will soon be submitted to bioconductor and installable via the recommended <code><a href="https://rdrr.io/pkg/BiocManager/man/install.html">BiocManager::install()</a></code> mechanism. In the meantime, install this package <em><a href="mailto:multiGSEA.shiny@develop" class="email">multiGSEA.shiny@develop</a></em> branch from github, which sould install both multiGSEA.shiny and multiGSEA packages.</p>
-<div class="sourceCode" id="cb5"><pre class="r"><span class="co"># install.packages("BiocManager")</span>
-<span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"lianos/multiGSEA.shiny@develop"</span>)</pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="co"># install.packages("BiocManager")</span>
+<span class="kw">BiocManager</span>::<span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"lianos/multiGSEA.shiny@develop"</span>)
+</pre></div>
 </div>
 
   </div>
@@ -166,7 +176,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

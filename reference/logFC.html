@@ -125,14 +125,14 @@ expression object.</h1>
 expression object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>logFC</span>(<span class='no'>x</span>, <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>logFC</span>(<span class='kw'>x</span>, as.dt = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code></p></td>
+      <td><p>A <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code></p></td>
     </tr>
     <tr>
       <th>as.dt</th>
@@ -147,10 +147,11 @@ to keep this object as a <code>data.table</code></p></td>
     <p>The log fold change `data.table``</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>(<span class='kw'>do.voom</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='no'>vm</span>$<span class='no'>design</span>, <span class='st'>'tumor'</span>, <span class='kw'>methods</span><span class='kw'>=</span><span class='kw'>NULL</span>)
-<span class='no'>lfc</span> <span class='kw'>&lt;-</span> <span class='fu'>logFC</span>(<span class='no'>mg</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>(do.voom=<span class='fl'>TRUE</span>)
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>, methods=<span class='kw'>NULL</span>)
+<span class='kw'>lfc</span> <span class='op'>&lt;-</span> <span class='fu'>logFC</span>(<span class='kw'>mg</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -166,7 +167,7 @@ to keep this object as a <code>data.table</code></p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

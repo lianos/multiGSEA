@@ -123,19 +123,19 @@ gene sets in different forms.</p>
     </div>
 
     <pre class="usage"><span class='fu'>exampleExpressionSet</span>(
-  <span class='kw'>dataset</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"tumor-vs-normal"</span>, <span class='st'>"tumor-subtype"</span>),
-  <span class='kw'>do.voom</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  dataset = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"tumor-vs-normal"</span>, <span class='st'>"tumor-subtype"</span>),
+  do.voom = <span class='fl'>TRUE</span>
 )
 
-<span class='fu'>exampleGeneSets</span>(<span class='no'>x</span>, <span class='kw'>unlist</span> <span class='kw'>=</span> !<span class='fu'><a href='https://rdrr.io/r/base/missing.html'>missing</a></span>(<span class='no'>x</span>))
+<span class='fu'>exampleGeneSets</span>(<span class='kw'>x</span>, unlist = <span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/missing.html'>missing</a></span>(<span class='kw'>x</span>))
 
 <span class='fu'>exampleGeneSetDb</span>()
 
 <span class='fu'>exampleGeneSetDF</span>()
 
-<span class='fu'>exampleMultiGSEAResult</span>(<span class='kw'>cached</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>exampleMultiGSEAResult</span>(cached = <span class='fl'>TRUE</span>)
 
-<span class='fu'>exampleDgeResult</span>(<span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"human"</span>, <span class='kw'>id.type</span> <span class='kw'>=</span> <span class='st'>"ensembl"</span>, <span class='kw'>induce.bias</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+<span class='fu'>exampleDgeResult</span>(species = <span class='st'>"human"</span>, id.type = <span class='st'>"ensembl"</span>, induce.bias = <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -204,7 +204,7 @@ can be passed into the <code><a href='GeneSetDb-class.html'>GeneSetDb()</a></cod
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

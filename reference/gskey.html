@@ -122,9 +122,9 @@ particularly for sending genesets down into wrapped methods, like do.camera." />
 particularly for sending genesets down into wrapped methods, like do.camera.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>encode_gskey</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>";;"</span>)
+    <pre class="usage"><span class='fu'>encode_gskey</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, sep = <span class='st'>";;"</span>)
 
-<span class='fu'>split_gskey</span>(<span class='no'>x</span>, <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>";;"</span>)</pre>
+<span class='fu'>split_gskey</span>(<span class='kw'>x</span>, sep = <span class='st'>";;"</span>)</pre>
 
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -133,9 +133,10 @@ particularly for sending genesets down into wrapped methods, like do.camera.</p>
 <p>a data.frame with (collection,name) columns</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gdf</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDF</a></span>()
-<span class='no'>gskeys</span> <span class='kw'>&lt;-</span> <span class='fu'>encode_gskey</span>(<span class='no'>gdf</span>)
-<span class='no'>gscols</span> <span class='kw'>&lt;-</span> <span class='fu'>split_gskey</span>(<span class='no'>gskeys</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>gdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDF</a></span>()
+<span class='kw'>gskeys</span> <span class='op'>&lt;-</span> <span class='fu'>encode_gskey</span>(<span class='kw'>gdf</span>)
+<span class='kw'>gscols</span> <span class='op'>&lt;-</span> <span class='fu'>split_gskey</span>(<span class='kw'>gskeys</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -151,7 +152,7 @@ particularly for sending genesets down into wrapped methods, like do.camera.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

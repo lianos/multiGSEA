@@ -123,18 +123,18 @@ expedient for a quick turnaround.</p>
     </div>
 
     <pre class="usage"><span class='fu'>do.fgsea</span>(
-  <span class='no'>gsd</span>,
-  <span class='no'>x</span>,
-  <span class='no'>design</span>,
-  <span class='kw'>contrast</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>design</span>),
-  <span class='kw'>minSize</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-  <span class='kw'>maxSize</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-  <span class='kw'>nperm</span> <span class='kw'>=</span> <span class='fl'>10000</span>,
-  <span class='kw'>gseaParam</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>score.by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"t"</span>, <span class='st'>"logFC"</span>, <span class='st'>"pval"</span>),
-  <span class='kw'>logFC</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gs.idxs</span> <span class='kw'>=</span> <span class='fu'><a href='conversion.html'>as.list</a></span>(<span class='no'>gsd</span>, <span class='kw'>active.only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='st'>"x.idx"</span>),
-  <span class='no'>...</span>
+  <span class='kw'>gsd</span>,
+  <span class='kw'>x</span>,
+  <span class='kw'>design</span>,
+  contrast = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>design</span>),
+  minSize = <span class='fl'>15</span>,
+  maxSize = <span class='fl'>15</span>,
+  nperm = <span class='fl'>10000</span>,
+  gseaParam = <span class='fl'>1</span>,
+  score.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"t"</span>, <span class='st'>"logFC"</span>, <span class='st'>"pval"</span>),
+  logFC = <span class='kw'>NULL</span>,
+  gs.idxs = <span class='fu'><a href='conversion.html'>as.list</a></span>(<span class='kw'>gsd</span>, active.only = <span class='fl'>TRUE</span>, value = <span class='st'>"x.idx"</span>),
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -198,7 +198,7 @@ called internally within <code><a href='multiGSEA.html'>multiGSEA()</a></code>.<
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

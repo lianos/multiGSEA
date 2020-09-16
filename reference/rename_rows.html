@@ -128,7 +128,7 @@ And perhaps the most common use-case for this, again, would be able to
 easily change rownames of a heatmap to symbols.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rename_rows</span>(<span class='no'>x</span>, <span class='no'>xref</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>rename_rows</span>(<span class='kw'>x</span>, <span class='kw'>xref</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,11 +171,12 @@ This function should also guarantee that the rows of the incoming matrix
 are the same as the outgoing one.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>eset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>(<span class='kw'>do.voom</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='no'>ess</span> <span class='kw'>&lt;-</span> <span class='fu'>rename_rows</span>(<span class='no'>eset</span>, <span class='st'>"symbol"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>eset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>(do.voom = <span class='fl'>FALSE</span>)
+<span class='kw'>ess</span> <span class='op'>&lt;-</span> <span class='fu'>rename_rows</span>(<span class='kw'>eset</span>, <span class='st'>"symbol"</span>)
 
-<span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>(<span class='kw'>do.voom</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='no'>vms</span> <span class='kw'>&lt;-</span> <span class='fu'>rename_rows</span>(<span class='no'>vm</span>, <span class='st'>"symbol"</span>)</div></pre>
+<span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>(do.voom = <span class='fl'>TRUE</span>)
+<span class='kw'>vms</span> <span class='op'>&lt;-</span> <span class='fu'>rename_rows</span>(<span class='kw'>vm</span>, <span class='st'>"symbol"</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -191,7 +192,7 @@ are the same as the outgoing one.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

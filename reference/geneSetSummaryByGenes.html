@@ -125,34 +125,34 @@ any of the <code>features</code> are included.</p>
     </div>
 
     <pre class="usage"><span class='fu'>geneSetSummaryByGenes</span>(
-  <span class='no'>x</span>,
-  <span class='no'>features</span>,
-  <span class='kw'>with.features</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>feature.rename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>features</span>,
+  with.features = <span class='fl'>TRUE</span>,
+  feature.rename = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )
 
 <span class='co'># S4 method for GeneSetDb</span>
 <span class='fu'>geneSetSummaryByGenes</span>(
-  <span class='no'>x</span>,
-  <span class='no'>features</span>,
-  <span class='kw'>with.features</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>feature.rename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>features</span>,
+  with.features = <span class='fl'>TRUE</span>,
+  feature.rename = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>,
+  as.dt = <span class='fl'>FALSE</span>
 )
 
 <span class='co'># S4 method for MultiGSEAResult</span>
 <span class='fu'>geneSetSummaryByGenes</span>(
-  <span class='no'>x</span>,
-  <span class='no'>features</span>,
-  <span class='kw'>with.features</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>feature.rename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>max.p</span> <span class='kw'>=</span> <span class='fl'>0.3</span>,
-  <span class='kw'>p.col</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>),
-  <span class='no'>...</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>features</span>,
+  with.features = <span class='fl'>TRUE</span>,
+  feature.rename = <span class='kw'>NULL</span>,
+  method = <span class='kw'>NULL</span>,
+  max.p = <span class='fl'>0.3</span>,
+  p.col = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>),
+  <span class='kw'>...</span>,
+  as.dt = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -189,13 +189,14 @@ common thing to do, for instance.</p></td>
     <p>a data.frame of geneset &lt;-&gt; feature incidence/feature matrix.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>(<span class='kw'>do.voom</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='conform.html'>conform</a></span>(<span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>(), <span class='no'>vm</span>)
-<span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='no'>vm</span>$<span class='no'>design</span>, <span class='st'>'tumor'</span>, <span class='kw'>methods</span><span class='kw'>=</span><span class='kw'>NULL</span>)
-<span class='no'>features</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"55839"</span>, <span class='st'>"8522"</span>, <span class='st'>"29087"</span>)
-<span class='no'>gsm.hit</span> <span class='kw'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='no'>gdb</span>, <span class='no'>features</span>)
-<span class='no'>gsm.fid</span> <span class='kw'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='no'>mg</span>, <span class='no'>features</span>, <span class='kw'>feature.rename</span><span class='kw'>=</span><span class='kw'>NULL</span>)
-<span class='no'>gsm.sym</span> <span class='kw'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='no'>mg</span>, <span class='no'>features</span>, <span class='kw'>feature.rename</span><span class='kw'>=</span><span class='st'>'symbol'</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>(do.voom=<span class='fl'>TRUE</span>)
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='conform.html'>conform</a></span>(<span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>(), <span class='kw'>vm</span>)
+<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>, methods=<span class='kw'>NULL</span>)
+<span class='kw'>features</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"55839"</span>, <span class='st'>"8522"</span>, <span class='st'>"29087"</span>)
+<span class='kw'>gsm.hit</span> <span class='op'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='kw'>gdb</span>, <span class='kw'>features</span>)
+<span class='kw'>gsm.fid</span> <span class='op'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='kw'>mg</span>, <span class='kw'>features</span>, feature.rename=<span class='kw'>NULL</span>)
+<span class='kw'>gsm.sym</span> <span class='op'>&lt;-</span> <span class='fu'>geneSetSummaryByGenes</span>(<span class='kw'>mg</span>, <span class='kw'>features</span>, feature.rename=<span class='st'>'symbol'</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -211,7 +212,7 @@ common thing to do, for instance.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -123,7 +123,7 @@ existing one. <code>append</code> would be more appropriate, but ...</p>
     </div>
 
     <pre class="usage"><span class='co'># S4 method for MultiGSEAResult,MultiGSEAResult</span>
-<span class='fu'>combine</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>rename.x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rename.y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, rename.x = <span class='kw'>NULL</span>, rename.y = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,7 +140,7 @@ existing one. <code>append</code> would be more appropriate, but ...</p>
       <th>rename.x</th>
       <td><p>A named vector that used to match resultNames(x) and remane
 them to something different. <code><a href='https://rdrr.io/r/base/names.html'>names(rename.x)</a></code> should match whatever you
-want to change in <code><a href='results.html'>resultNames(x)</a></code>, and the values are the new names of
+want to change in <code><a href='resultNames.html'>resultNames(x)</a></code>, and the values are the new names of
 the result.</p></td>
     </tr>
     <tr>
@@ -165,9 +165,10 @@ immediately after they each finish (ie. in combination with the promises
 package).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mg1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleMultiGSEAResult</a></span>()
-<span class='no'>mg2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleMultiGSEAResult</a></span>()
-<span class='no'>mgc</span> <span class='kw'>&lt;-</span> <span class='fu'>combine</span>(<span class='no'>mg1</span>, <span class='no'>mg2</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>mg1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
+<span class='kw'>mg2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
+<span class='kw'>mgc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span>(<span class='kw'>mg1</span>, <span class='kw'>mg2</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -183,7 +184,7 @@ package).</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

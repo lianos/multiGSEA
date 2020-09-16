@@ -129,25 +129,25 @@ arguments down through the <code>...</code> of this wrapper function.</p>
     </div>
 
     <pre class="usage"><span class='fu'>multiGSEA</span>(
-  <span class='no'>gsd</span>,
-  <span class='no'>x</span>,
-  <span class='kw'>design</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>contrast</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>methods</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>use.treat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>feature.min.logFC</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='no'>use.treat</span>) <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log2</a></span>(<span class='fl'>1.25</span>) <span class='kw'>else</span> <span class='fl'>1</span>,
-  <span class='kw'>feature.max.padj</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>trim</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>rank_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>select_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rank_order</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ordered"</span>, <span class='st'>"descending"</span>, <span class='st'>"ascending"</span>),
-  <span class='kw'>group_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>biased_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>xmeta.</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>.parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='fu'>bpparam</span>()
+  <span class='kw'>gsd</span>,
+  <span class='kw'>x</span>,
+  design = <span class='kw'>NULL</span>,
+  contrast = <span class='kw'>NULL</span>,
+  methods = <span class='kw'>NULL</span>,
+  use.treat = <span class='fl'>FALSE</span>,
+  feature.min.logFC = <span class='co'>if</span> (<span class='kw'>use.treat</span>) <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log2</a></span>(<span class='fl'>1.25</span>) <span class='co'>else</span> <span class='fl'>1</span>,
+  feature.max.padj = <span class='fl'>0.1</span>,
+  trim = <span class='fl'>0.1</span>,
+  verbose = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>,
+  rank_by = <span class='kw'>NULL</span>,
+  select_by = <span class='kw'>NULL</span>,
+  rank_order = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ordered"</span>, <span class='st'>"descending"</span>, <span class='st'>"ascending"</span>),
+  group_by = <span class='kw'>NULL</span>,
+  biased_by = <span class='kw'>NULL</span>,
+  xmeta. = <span class='kw'>NULL</span>,
+  .parallel = <span class='fl'>FALSE</span>,
+  BPPARAM = <span class='fu'>bpparam</span>()
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -236,7 +236,7 @@ and replaced with a BiocParallel::SerialParam()] object.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> which holds the results of all the analyses
+    <p>A <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> which holds the results of all the analyses
 specified in the <code>methods</code> parameter.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -252,7 +252,7 @@ a differential expression analysis, which can be tweaked by identifying
 the parameters in the <code><a href='calculateIndividualLogFC.html'>calculateIndividualLogFC()</a></code> function, and
 passing them down through <code>...</code> here. The results of the differential
 expression analysis (ie. the <code><a href='https://rdrr.io/pkg/limma/man/toptable.html'>limma::topTable()</a></code>) are accessible by calling
-the <code><a href='logFC.html'>logFC()</a></code> function on the <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> object returned from this
+the <code><a href='logFC.html'>logFC()</a></code> function on the <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> object returned from this
 function call.</p>
 <p><strong>Please Note</strong>: be sure to cite the original GSEA method when using
 results generated from this function.</p>
@@ -334,15 +334,17 @@ more information. The multiGSEA <code>use.treat</code>, <code>feature.min.logFC<
 funciton.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>vm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleExpressionSet</a></span>()
-<span class='no'>gdb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'>multiGSEA</span>(<span class='no'>gdb</span>, <span class='no'>vm</span>, <span class='no'>vm</span>$<span class='no'>design</span>, <span class='st'>'tumor'</span>,
-                <span class='kw'>methods</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'camera'</span>, <span class='st'>'fry'</span>),
+    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
+<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'>multiGSEA</span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>,
+                methods=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'camera'</span>, <span class='st'>'fry'</span>),
                 <span class='co'># customzie camera parameter:</span>
-                <span class='kw'>inter.gene.cor</span> <span class='kw'>=</span> <span class='fl'>0.04</span>)
-<span class='fu'><a href='results.html'>resultNames</a></span>(<span class='no'>mg</span>)</div><div class='output co'>#&gt; [1] "camera" "fry"   </div><div class='input'><span class='no'>res.camera</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='results.html'>result</a></span>(<span class='no'>mg</span>, <span class='st'>'camera'</span>)
-<span class='no'>res.fry</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='results.html'>result</a></span>(<span class='no'>mg</span>, <span class='st'>'fry'</span>)
-<span class='no'>res.all</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='results.html'>results</a></span>(<span class='no'>mg</span>)</div></pre>
+                inter.gene.cor = <span class='fl'>0.04</span>)
+<span class='fu'><a href='resultNames.html'>resultNames</a></span>(<span class='kw'>mg</span>)
+</div><div class='output co'>#&gt; [1] "camera" "fry"   </div><div class='input'><span class='kw'>res.camera</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span>(<span class='kw'>mg</span>, <span class='st'>'camera'</span>)
+<span class='kw'>res.fry</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span>(<span class='kw'>mg</span>, <span class='st'>'fry'</span>)
+<span class='kw'>res.all</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>results</a></span>(<span class='kw'>mg</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -358,7 +360,7 @@ funciton.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

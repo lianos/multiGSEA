@@ -123,11 +123,11 @@ internally.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getKeggGeneSetDb</span>(
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"human"</span>,
-  <span class='kw'>id.type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"entrez"</span>, <span class='st'>"ensembl"</span>),
-  <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"pathway"</span>,
-  <span class='kw'>idxref</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  species = <span class='st'>"human"</span>,
+  id.type = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"entrez"</span>, <span class='st'>"ensembl"</span>),
+  database = <span class='st'>"pathway"</span>,
+  idxref = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -157,10 +157,11 @@ you need to provide an idxref table that works with <code><a href='remap_identif
 database according to their licensing requirements.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>mouse.entrez</span> <span class='kw'>&lt;-</span> <span class='fu'>getKeggGeneSetDb</span>(<span class='st'>"mouse"</span>)
-<span class='no'>mouse.ens</span> <span class='kw'>&lt;-</span> <span class='fu'>getKeggGeneSetDb</span>(<span class='st'>"mouse"</span>, <span class='kw'>id.type</span> <span class='kw'>=</span> <span class='st'>"ensembl"</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>mouse.entrez</span> <span class='op'>&lt;-</span> <span class='fu'>getKeggGeneSetDb</span>(<span class='st'>"mouse"</span>)
+<span class='kw'>mouse.ens</span> <span class='op'>&lt;-</span> <span class='fu'>getKeggGeneSetDb</span>(<span class='st'>"mouse"</span>, id.type = <span class='st'>"ensembl"</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -176,7 +177,7 @@ database according to their licensing requirements.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

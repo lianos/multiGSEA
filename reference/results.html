@@ -136,36 +136,36 @@ the <code>methods</code> run in the <code><a href='multiGSEA.html'>multiGSEA()</
 generated <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>resultNames</span>(<span class='no'>x</span>)
+    <pre class="usage"><span class='fu'>resultNames</span>(<span class='kw'>x</span>)
 
-<span class='fu'>result</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>result</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for MultiGSEAResult</span>
 <span class='fu'>result</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>stats.only</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>rank.by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"t"</span>, <span class='st'>"logFC"</span>),
-  <span class='kw'>add.suffix</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
+  <span class='kw'>x</span>,
+  name = <span class='kw'>NULL</span>,
+  stats.only = <span class='fl'>FALSE</span>,
+  rank.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"t"</span>, <span class='st'>"logFC"</span>),
+  add.suffix = <span class='fl'>FALSE</span>,
+  as.dt = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>
 )
 
 <span class='fu'>results</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>names</span> <span class='kw'>=</span> <span class='fu'>resultNames</span>(<span class='no'>x</span>),
-  <span class='kw'>stats.only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>rank.by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"logFC"</span>, <span class='st'>"t"</span>),
-  <span class='kw'>add.suffix</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>names</span>) <span class='kw'>&gt;</span> <span class='fl'>1L</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  names = <span class='fu'>resultNames</span>(<span class='kw'>x</span>),
+  stats.only = <span class='fl'>TRUE</span>,
+  rank.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"logFC"</span>, <span class='st'>"t"</span>),
+  add.suffix = <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='kw'>names</span>) <span class='op'>&gt;</span> <span class='fl'>1L</span>,
+  as.dt = <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>tabulateResults</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>names</span> <span class='kw'>=</span> <span class='fu'>resultNames</span>(<span class='no'>x</span>),
-  <span class='kw'>max.p</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-  <span class='kw'>p.col</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>),
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  names = <span class='fu'>resultNames</span>(<span class='kw'>x</span>),
+  max.p = <span class='fl'>0.2</span>,
+  p.col = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>),
+  as.dt = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -173,7 +173,7 @@ generated <code>x</code>.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> object.</p></td>
+      <td><p>A <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> object.</p></td>
     </tr>
     <tr>
       <th>name</th>
@@ -235,7 +235,7 @@ tallies the number of significant genesets per collection, per method at
 the specified FDR thresholds.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>## Refer to the examples in ?multiGSEA
+    <pre class="examples"><div class='input'><span class='co'>## Refer to the examples in ?multiGSEA</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -252,7 +252,7 @@ the specified FDR thresholds.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

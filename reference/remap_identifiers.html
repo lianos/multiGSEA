@@ -125,11 +125,11 @@ you like.</p>
     </div>
 
     <pre class="usage"><span class='fu'>remap_identifiers</span>(
-  <span class='no'>x</span>,
-  <span class='no'>xref</span>,
-  <span class='kw'>original_id</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>xref</span>)[<span class='fl'>1L</span>],
-  <span class='kw'>target_id</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>xref</span>)[<span class='fl'>2L</span>],
-  <span class='no'>...</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>xref</span>,
+  original_id = <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>xref</span>)[<span class='fl'>1L</span>],
+  target_id = <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>xref</span>)[<span class='fl'>2L</span>],
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -161,10 +161,11 @@ the source identifiers, and the second is the target_id you want to remap
 the identifiers to.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gdb.entrez</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleGeneSetDb</a></span>()
-<span class='no'>gdb.ens</span> <span class='kw'>&lt;-</span> <span class='fu'>remap_identifiers</span>(<span class='no'>gdb.entrez</span>, <span class='st'>"human"</span>,
-                             <span class='kw'>original_id</span> <span class='kw'>=</span> <span class='st'>"entrezgene_id"</span>,
-                             <span class='kw'>target_id</span> <span class='kw'>=</span> <span class='st'>"ensembl_gene_id"</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>gdb.entrez</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
+<span class='kw'>gdb.ens</span> <span class='op'>&lt;-</span> <span class='fu'>remap_identifiers</span>(<span class='kw'>gdb.entrez</span>, <span class='st'>"human"</span>,
+                             original_id = <span class='st'>"entrezgene_id"</span>,
+                             target_id = <span class='st'>"ensembl_gene_id"</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -180,7 +181,7 @@ the identifiers to.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

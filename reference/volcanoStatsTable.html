@@ -123,21 +123,21 @@ MultiGSEAResult() object using the stats parameter." />
 
     <div class="ref-description">
     <p>You can, in theory, create a volcano plot from a number of different parts
-of a <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> object. Most often you want to create a volcano
+of a <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> object. Most often you want to create a volcano
 plot from the differential expressino results, but you could imagine
 building a volcan plot where each point is a geneset. In this case, you
 would extract the pvalues from the method you like in the
-<code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code> object using the <code>stats</code> parameter.</p>
+<code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code> object using the <code>stats</code> parameter.</p>
     </div>
 
     <pre class="usage"><span class='fu'>volcanoStatsTable</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"dge"</span>,
-  <span class='kw'>xaxis</span> <span class='kw'>=</span> <span class='st'>"logFC"</span>,
-  <span class='kw'>yaxis</span> <span class='kw'>=</span> <span class='st'>"pval"</span>,
-  <span class='kw'>idx</span> <span class='kw'>=</span> <span class='st'>"idx"</span>,
-  <span class='kw'>xtfrm</span> <span class='kw'>=</span> <span class='no'>identity</span>,
-  <span class='kw'>ytfrm</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>vals</span>) -<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>vals</span>)
+  <span class='kw'>x</span>,
+  stats = <span class='st'>"dge"</span>,
+  xaxis = <span class='st'>"logFC"</span>,
+  yaxis = <span class='st'>"pval"</span>,
+  idx = <span class='st'>"idx"</span>,
+  xtfrm = <span class='kw'>identity</span>,
+  ytfrm = <span class='fu'>function</span>(<span class='kw'>vals</span>) <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='kw'>vals</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -149,7 +149,7 @@ would extract the pvalues from the method you like in the
     </tr>
     <tr>
       <th>stats</th>
-      <td><p>One of <code>"dge"</code> or <code><a href='results.html'>resultNames(x)</a></code></p></td>
+      <td><p>One of <code>"dge"</code> or <code><a href='resultNames.html'>resultNames(x)</a></code></p></td>
     </tr>
     <tr>
       <th>xaxis, yaxis</th>
@@ -186,9 +186,10 @@ xvalues, and transformed yvalues, respectively</p>
 <em>multiGSEA.shiny</em> package.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mg</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='examples.html'>exampleMultiGSEAResult</a></span>()
-<span class='no'>v.dge</span> <span class='kw'>&lt;-</span> <span class='fu'>volcanoStatsTable</span>(<span class='no'>mg</span>)
-<span class='no'>v.camera</span> <span class='kw'>&lt;-</span> <span class='fu'>volcanoStatsTable</span>(<span class='no'>mg</span>, <span class='st'>'camera'</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
+<span class='kw'>v.dge</span> <span class='op'>&lt;-</span> <span class='fu'>volcanoStatsTable</span>(<span class='kw'>mg</span>)
+<span class='kw'>v.camera</span> <span class='op'>&lt;-</span> <span class='fu'>volcanoStatsTable</span>(<span class='kw'>mg</span>, <span class='st'>'camera'</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -204,7 +205,7 @@ xvalues, and transformed yvalues, respectively</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -127,37 +127,37 @@ across the contrast that defined x." />
 compound key. There is no special class to represent an individual gene set.
 Instead, gene sets are returned as a data.frame, the rows of which enumerate
 the features that belong to them.</p>
-<p>When <code>x</code> is a <code><a href='MultiGSEAResult.html'>MultiGSEAResult()</a></code>, this function will append
+<p>When <code>x</code> is a <code><a href='MultiGSEAResult-class.html'>MultiGSEAResult()</a></code>, this function will append
 the differential expression statistics for the individual features generated
 across the contrast that defined <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>geneSet</span>(<span class='no'>x</span>, <span class='no'>i</span>, <span class='no'>j</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>geneSet</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>j</span>, <span class='kw'>...</span>)
 
 <span class='co'># S4 method for GeneSetDb</span>
 <span class='fu'>geneSet</span>(
-  <span class='no'>x</span>,
-  <span class='no'>i</span>,
-  <span class='no'>j</span>,
-  <span class='kw'>active.only</span> <span class='kw'>=</span> <span class='fu'><a href='conform.html'>is.conformed</a></span>(<span class='no'>x</span>),
-  <span class='kw'>with.feature.map</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>collection</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>i</span>,
+  <span class='kw'>j</span>,
+  active.only = <span class='fu'><a href='conform.html'>is.conformed</a></span>(<span class='kw'>x</span>),
+  with.feature.map = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>,
+  collection = <span class='kw'>NULL</span>,
+  name = <span class='kw'>NULL</span>,
+  as.dt = <span class='fl'>FALSE</span>
 )
 
 <span class='co'># S4 method for MultiGSEAResult</span>
 <span class='fu'>geneSet</span>(
-  <span class='no'>x</span>,
-  <span class='no'>i</span>,
-  <span class='no'>j</span>,
-  <span class='kw'>active.only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>with.feature.map</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>collection</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>as.dt</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>x</span>,
+  <span class='kw'>i</span>,
+  <span class='kw'>j</span>,
+  active.only = <span class='fl'>TRUE</span>,
+  with.feature.map = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>,
+  collection = <span class='kw'>NULL</span>,
+  name = <span class='kw'>NULL</span>,
+  as.dt = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -221,7 +221,7 @@ are added as columns to this result.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
