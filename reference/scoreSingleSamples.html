@@ -128,18 +128,18 @@ single-sample-gene-set-scoring algorithms over a target expression matrix
 using a <code><a href='GeneSetDb-class.html'>GeneSetDb()</a></code> object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>scoreSingleSamples</span>(
-  <span class='kw'>gdb</span>,
-  <span class='kw'>y</span>,
-  methods = <span class='st'>"ewm"</span>,
-  as.matrix = <span class='fl'>FALSE</span>,
-  drop.sd = <span class='fl'>1e-04</span>,
-  verbose = <span class='fl'>FALSE</span>,
-  recenter = <span class='fl'>FALSE</span>,
-  rescale = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>,
-  as.dt = <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>scoreSingleSamples</span><span class='op'>(</span>
+  <span class='va'>gdb</span>,
+  <span class='va'>y</span>,
+  methods <span class='op'>=</span> <span class='st'>"ewm"</span>,
+  as.matrix <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  drop.sd <span class='op'>=</span> <span class='fl'>1e-04</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  recenter <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  rescale <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -228,27 +228,27 @@ without transforming the data.</p></li>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://github.com/hadley/reshape'>reshape2</a></span>)
-</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘reshape2’ was built under R version 4.0.2</span></div><div class='input'><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
-<span class='kw'>scores</span> <span class='op'>&lt;-</span> <span class='fu'>scoreSingleSamples</span>(
-  <span class='kw'>gdb</span>, <span class='kw'>vm</span>, methods = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"gsva"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>),
-  center = <span class='fl'>TRUE</span>, scale = <span class='fl'>TRUE</span>, ssgsea.norm = <span class='fl'>TRUE</span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/hadley/reshape'>reshape2</a></span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘reshape2’ was built under R version 4.0.2</span></div><div class='input'><span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>scores</span> <span class='op'>&lt;-</span> <span class='fu'>scoreSingleSamples</span><span class='op'>(</span>
+  <span class='va'>gdb</span>, <span class='va'>vm</span>, methods <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"gsva"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span><span class='op'>)</span>,
+  center <span class='op'>=</span> <span class='cn'>TRUE</span>, scale <span class='op'>=</span> <span class='cn'>TRUE</span>, ssgsea.norm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='warning'>Warning: The current version of scoreSingleSamples produces *minor* differences in GSVA-based single sample gene set scores.</span>
 #&gt; <span class='warning'>https://github.com/lianos/multiGSEA/issues/10</span></div><div class='output co'>#&gt; <span class='warning'>Warning: The current version of scoreSingleSamples produces *minor* differences in GSVA-based single sample gene set scores.</span>
 #&gt; <span class='warning'>https://github.com/lianos/multiGSEA/issues/10</span></div><div class='input'>
-<span class='kw'>sw</span> <span class='op'>&lt;-</span> <span class='kw'>reshape2</span>::<span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span>(<span class='kw'>scores</span>, <span class='kw'>name</span> <span class='op'>+</span> <span class='kw'>sample_id</span> <span class='op'>~</span> <span class='kw'>method</span>, value.var=<span class='st'>'score'</span>)
+<span class='va'>sw</span> <span class='op'>&lt;-</span> <span class='fu'>reshape2</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span><span class='op'>(</span><span class='va'>scores</span>, <span class='va'>name</span> <span class='op'>+</span> <span class='va'>sample_id</span> <span class='op'>~</span> <span class='va'>method</span>, value.var<span class='op'>=</span><span class='st'>'score'</span><span class='op'>)</span>
 
-<span class='fu'><a href='corplot.html'>corplot</a></span>(<span class='kw'>sw</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"gsva"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>)],
-        title = <span class='st'>"Single Sample Score Comparison"</span>)
+<span class='fu'><a href='corplot.html'>corplot</a></span><span class='op'>(</span><span class='va'>sw</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ewm"</span>, <span class='st'>"ssgsea"</span>, <span class='st'>"gsva"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span><span class='op'>)</span><span class='op'>]</span>,
+        title <span class='op'>=</span> <span class='st'>"Single Sample Score Comparison"</span><span class='op'>)</span>
 </div><div class='img'><img src='scoreSingleSamples-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># I think the eigenWeighteZscore is just ewm with un(center|scale) = FALSE</span>
 
-<span class='kw'>zs</span> <span class='op'>&lt;-</span> <span class='fu'>scoreSingleSamples</span>(
-  <span class='kw'>gdb</span>, <span class='kw'>vm</span>, methods = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ewm'</span>, <span class='st'>'ewz'</span>, <span class='st'>'zscore'</span>), summary = <span class='st'>"mean"</span>,
-  center = <span class='fl'>TRUE</span>, scale = <span class='fl'>TRUE</span>, uncenter = <span class='fl'>FALSE</span>, unscale = <span class='fl'>FALSE</span>)
-<span class='kw'>zw</span> <span class='op'>&lt;-</span> <span class='kw'>reshape2</span>::<span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span>(<span class='kw'>zs</span>, <span class='kw'>name</span> <span class='op'>+</span> <span class='kw'>sample_id</span> <span class='op'>~</span> <span class='kw'>method</span>, value.var=<span class='st'>'score'</span>)
-<span class='fu'><a href='corplot.html'>corplot</a></span>(<span class='kw'>zw</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ewm"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>)], title = <span class='st'>"EW zscores"</span>)
+<span class='va'>zs</span> <span class='op'>&lt;-</span> <span class='fu'>scoreSingleSamples</span><span class='op'>(</span>
+  <span class='va'>gdb</span>, <span class='va'>vm</span>, methods <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'ewm'</span>, <span class='st'>'ewz'</span>, <span class='st'>'zscore'</span><span class='op'>)</span>, summary <span class='op'>=</span> <span class='st'>"mean"</span>,
+  center <span class='op'>=</span> <span class='cn'>TRUE</span>, scale <span class='op'>=</span> <span class='cn'>TRUE</span>, uncenter <span class='op'>=</span> <span class='cn'>FALSE</span>, unscale <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='va'>zw</span> <span class='op'>&lt;-</span> <span class='fu'>reshape2</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/cast.html'>dcast</a></span><span class='op'>(</span><span class='va'>zs</span>, <span class='va'>name</span> <span class='op'>+</span> <span class='va'>sample_id</span> <span class='op'>~</span> <span class='va'>method</span>, value.var<span class='op'>=</span><span class='st'>'score'</span><span class='op'>)</span>
+<span class='fu'><a href='corplot.html'>corplot</a></span><span class='op'>(</span><span class='va'>zw</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ewm"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span><span class='op'>)</span><span class='op'>]</span>, title <span class='op'>=</span> <span class='st'>"EW zscores"</span><span class='op'>)</span>
 </div><div class='img'><img src='scoreSingleSamples-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

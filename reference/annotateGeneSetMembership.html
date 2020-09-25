@@ -122,7 +122,7 @@ be as many new columns added to x as there are active genesets in gdb." />
 be as many new columns added to <code>x</code> as there are active genesets in <code>gdb</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>annotateGeneSetMembership</span>(<span class='kw'>x</span>, <span class='kw'>gdb</span>, x.ids = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>annotateGeneSetMembership</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>gdb</span>, x.ids <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,14 +154,14 @@ logical vector that indicates membership for genesets defined in
 <code>gdb</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>, methods=<span class='kw'>NULL</span>)
-<span class='kw'>lfc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='logFC.html'>logFC</a></span>(<span class='kw'>mg</span>)
-<span class='kw'>annotated</span> <span class='op'>&lt;-</span> <span class='fu'>annotateGeneSetMembership</span>(<span class='kw'>lfc</span>, <span class='kw'>gdb</span>, <span class='st'>'feature_id'</span>)
+    <pre class="examples"><div class='input'><span class='va'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span><span class='op'>(</span><span class='va'>gdb</span>, <span class='va'>vm</span>, <span class='va'>vm</span><span class='op'>$</span><span class='va'>design</span>, <span class='st'>'tumor'</span>, methods<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span>
+<span class='va'>lfc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='logFC.html'>logFC</a></span><span class='op'>(</span><span class='va'>mg</span><span class='op'>)</span>
+<span class='va'>annotated</span> <span class='op'>&lt;-</span> <span class='fu'>annotateGeneSetMembership</span><span class='op'>(</span><span class='va'>lfc</span>, <span class='va'>gdb</span>, <span class='st'>'feature_id'</span><span class='op'>)</span>
 
 <span class='co'>## Show only genes that are part of 'HALLMARK_ANGIOGENESIS' geneset</span>
-<span class='kw'>angio</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>annotated</span>, <span class='kw'>`c2;;BIOCARTA_AGPCR_PATHWAY`</span>)
+<span class='va'>angio</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>annotated</span>, <span class='va'>`c2;;BIOCARTA_AGPCR_PATHWAY`</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

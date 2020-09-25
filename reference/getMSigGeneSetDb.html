@@ -124,17 +124,17 @@ be retrieved by their collection name, ie c(&quot;H&quot;, &quot;C2&quot;, &quot
 be retrieved by their collection name, ie <code><a href='https://rdrr.io/r/base/c.html'>c("H", "C2", "C7")</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getMSigGeneSetDb</span>(
-  collection = <span class='st'>"H"</span>,
-  species = <span class='st'>"human"</span>,
-  id.type = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ensembl"</span>, <span class='st'>"entrez"</span>, <span class='st'>"symbol"</span>),
-  with.kegg = <span class='fl'>FALSE</span>,
-  allow_multimap = <span class='fl'>TRUE</span>,
-  min_ortho_sources = <span class='fl'>2</span>,
-  promote_subcategory_to_collection = <span class='fl'>TRUE</span>,
-  version = <span class='kw'>NULL</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>getMSigGeneSetDb</span><span class='op'>(</span>
+  collection <span class='op'>=</span> <span class='st'>"H"</span>,
+  species <span class='op'>=</span> <span class='st'>"human"</span>,
+  id.type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ensembl"</span>, <span class='st'>"entrez"</span>, <span class='st'>"symbol"</span><span class='op'>)</span>,
+  with.kegg <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  allow_multimap <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  min_ortho_sources <span class='op'>=</span> <span class='fl'>2</span>,
+  promote_subcategory_to_collection <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  version <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,12 +219,12 @@ or more of the following as appropriate:</p><ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-  <span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"h"</span>, <span class='st'>"reactome"</span>), <span class='st'>"human"</span>, <span class='st'>"entrez"</span>)
-  <span class='kw'>gdb.h.entrez</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"h"</span>, <span class='st'>"c2"</span>), <span class='st'>"human"</span>, <span class='st'>"entrez"</span>)
-  <span class='kw'>gdb.h.ens</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"h"</span>, <span class='st'>"c2"</span>), <span class='st'>"human"</span>, <span class='st'>"ensembl"</span>)
-  <span class='kw'>gdb.m.entrez</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"h"</span>, <span class='st'>"c2"</span>), <span class='st'>"mouse"</span>, <span class='st'>"entrez"</span>)
-}
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"h"</span>, <span class='st'>"reactome"</span><span class='op'>)</span>, <span class='st'>"human"</span>, <span class='st'>"entrez"</span><span class='op'>)</span>
+  <span class='va'>gdb.h.entrez</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"h"</span>, <span class='st'>"c2"</span><span class='op'>)</span>, <span class='st'>"human"</span>, <span class='st'>"entrez"</span><span class='op'>)</span>
+  <span class='va'>gdb.h.ens</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"h"</span>, <span class='st'>"c2"</span><span class='op'>)</span>, <span class='st'>"human"</span>, <span class='st'>"ensembl"</span><span class='op'>)</span>
+  <span class='va'>gdb.m.entrez</span> <span class='op'>&lt;-</span> <span class='fu'>getMSigGeneSetDb</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"h"</span>, <span class='st'>"c2"</span><span class='op'>)</span>, <span class='st'>"mouse"</span>, <span class='st'>"entrez"</span><span class='op'>)</span>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -136,37 +136,37 @@ the <code>methods</code> run in the <code><a href='multiGSEA.html'>multiGSEA()</
 generated <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>resultNames</span>(<span class='kw'>x</span>)
+    <pre class="usage"><span class='fu'>resultNames</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 
-<span class='fu'>result</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
+<span class='fu'>result</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for MultiGSEAResult</span>
-<span class='fu'>result</span>(
-  <span class='kw'>x</span>,
-  name = <span class='kw'>NULL</span>,
-  stats.only = <span class='fl'>FALSE</span>,
-  rank.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"t"</span>, <span class='st'>"logFC"</span>),
-  add.suffix = <span class='fl'>FALSE</span>,
-  as.dt = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>
-)
+<span class='fu'>result</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  stats.only <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  rank.by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pval"</span>, <span class='st'>"t"</span>, <span class='st'>"logFC"</span><span class='op'>)</span>,
+  add.suffix <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>results</span>(
-  <span class='kw'>x</span>,
-  names = <span class='fu'>resultNames</span>(<span class='kw'>x</span>),
-  stats.only = <span class='fl'>TRUE</span>,
-  rank.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pval"</span>, <span class='st'>"logFC"</span>, <span class='st'>"t"</span>),
-  add.suffix = <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='kw'>names</span>) <span class='op'>&gt;</span> <span class='fl'>1L</span>,
-  as.dt = <span class='fl'>FALSE</span>
-)
+<span class='fu'>results</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  names <span class='op'>=</span> <span class='fu'>resultNames</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>,
+  stats.only <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  rank.by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pval"</span>, <span class='st'>"logFC"</span>, <span class='st'>"t"</span><span class='op'>)</span>,
+  add.suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>names</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='fl'>1L</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
-<span class='fu'>tabulateResults</span>(
-  <span class='kw'>x</span>,
-  names = <span class='fu'>resultNames</span>(<span class='kw'>x</span>),
-  max.p = <span class='fl'>0.2</span>,
-  p.col = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span>),
-  as.dt = <span class='fl'>FALSE</span>
-)</pre>
+<span class='fu'>tabulateResults</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  names <span class='op'>=</span> <span class='fu'>resultNames</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>,
+  max.p <span class='op'>=</span> <span class='fl'>0.2</span>,
+  p.col <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"padj"</span>, <span class='st'>"padj.by.collection"</span>, <span class='st'>"pval"</span><span class='op'>)</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

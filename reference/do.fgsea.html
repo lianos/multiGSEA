@@ -122,20 +122,20 @@ expedient for a quick turnaround." />
 expedient for a quick turnaround.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>do.fgsea</span>(
-  <span class='kw'>gsd</span>,
-  <span class='kw'>x</span>,
-  <span class='kw'>design</span>,
-  contrast = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>design</span>),
-  minSize = <span class='fl'>15</span>,
-  maxSize = <span class='fl'>15</span>,
-  nperm = <span class='fl'>10000</span>,
-  gseaParam = <span class='fl'>1</span>,
-  score.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"t"</span>, <span class='st'>"logFC"</span>, <span class='st'>"pval"</span>),
-  logFC = <span class='kw'>NULL</span>,
-  gs.idxs = <span class='fu'><a href='conversion.html'>as.list</a></span>(<span class='kw'>gsd</span>, active.only = <span class='fl'>TRUE</span>, value = <span class='st'>"x.idx"</span>),
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>do.fgsea</span><span class='op'>(</span>
+  <span class='va'>gsd</span>,
+  <span class='va'>x</span>,
+  <span class='va'>design</span>,
+  contrast <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>design</span><span class='op'>)</span>,
+  minSize <span class='op'>=</span> <span class='fl'>15</span>,
+  maxSize <span class='op'>=</span> <span class='fl'>15</span>,
+  nperm <span class='op'>=</span> <span class='fl'>10000</span>,
+  gseaParam <span class='op'>=</span> <span class='fl'>1</span>,
+  score.by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"t"</span>, <span class='st'>"logFC"</span>, <span class='st'>"pval"</span><span class='op'>)</span>,
+  logFC <span class='op'>=</span> <span class='cn'>NULL</span>,
+  gs.idxs <span class='op'>=</span> <span class='fu'><a href='conversion.html'>as.list</a></span><span class='op'>(</span><span class='va'>gsd</span>, active.only <span class='op'>=</span> <span class='cn'>TRUE</span>, value <span class='op'>=</span> <span class='st'>"x.idx"</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

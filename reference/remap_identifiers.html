@@ -124,13 +124,13 @@ provide. Use this function to map the given identifiers to whichever type
 you like.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>remap_identifiers</span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>xref</span>,
-  original_id = <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>xref</span>)[<span class='fl'>1L</span>],
-  target_id = <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>xref</span>)[<span class='fl'>2L</span>],
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>remap_identifiers</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>xref</span>,
+  original_id <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>xref</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1L</span><span class='op'>]</span>,
+  target_id <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>xref</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>2L</span><span class='op'>]</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,10 +161,10 @@ the source identifiers, and the second is the target_id you want to remap
 the identifiers to.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>gdb.entrez</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>gdb.ens</span> <span class='op'>&lt;-</span> <span class='fu'>remap_identifiers</span>(<span class='kw'>gdb.entrez</span>, <span class='st'>"human"</span>,
-                             original_id = <span class='st'>"entrezgene_id"</span>,
-                             target_id = <span class='st'>"ensembl_gene_id"</span>)
+    <pre class="examples"><div class='input'><span class='va'>gdb.entrez</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>gdb.ens</span> <span class='op'>&lt;-</span> <span class='fu'>remap_identifiers</span><span class='op'>(</span><span class='va'>gdb.entrez</span>, <span class='st'>"human"</span>,
+                             original_id <span class='op'>=</span> <span class='st'>"entrezgene_id"</span>,
+                             target_id <span class='op'>=</span> <span class='st'>"ensembl_gene_id"</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

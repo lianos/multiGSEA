@@ -132,33 +132,33 @@ the differential expression statistics for the individual features generated
 across the contrast that defined <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>geneSet</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>j</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>geneSet</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span>, <span class='va'>j</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for GeneSetDb</span>
-<span class='fu'>geneSet</span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>i</span>,
-  <span class='kw'>j</span>,
-  active.only = <span class='fu'><a href='conform.html'>is.conformed</a></span>(<span class='kw'>x</span>),
-  with.feature.map = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>,
-  collection = <span class='kw'>NULL</span>,
-  name = <span class='kw'>NULL</span>,
-  as.dt = <span class='fl'>FALSE</span>
-)
+<span class='fu'>geneSet</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>i</span>,
+  <span class='va'>j</span>,
+  active.only <span class='op'>=</span> <span class='fu'><a href='conform.html'>is.conformed</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>,
+  with.feature.map <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>,
+  collection <span class='op'>=</span> <span class='cn'>NULL</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for MultiGSEAResult</span>
-<span class='fu'>geneSet</span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>i</span>,
-  <span class='kw'>j</span>,
-  active.only = <span class='fl'>TRUE</span>,
-  with.feature.map = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>,
-  collection = <span class='kw'>NULL</span>,
-  name = <span class='kw'>NULL</span>,
-  as.dt = <span class='fl'>FALSE</span>
-)</pre>
+<span class='fu'>geneSet</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>i</span>,
+  <span class='va'>j</span>,
+  active.only <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  with.feature.map <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>,
+  collection <span class='op'>=</span> <span class='cn'>NULL</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  as.dt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

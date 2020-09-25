@@ -128,27 +128,27 @@ The particular analyses that are performed are specified by the
 arguments down through the <code>...</code> of this wrapper function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>multiGSEA</span>(
-  <span class='kw'>gsd</span>,
-  <span class='kw'>x</span>,
-  design = <span class='kw'>NULL</span>,
-  contrast = <span class='kw'>NULL</span>,
-  methods = <span class='kw'>NULL</span>,
-  use.treat = <span class='fl'>FALSE</span>,
-  feature.min.logFC = <span class='co'>if</span> (<span class='kw'>use.treat</span>) <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log2</a></span>(<span class='fl'>1.25</span>) <span class='co'>else</span> <span class='fl'>1</span>,
-  feature.max.padj = <span class='fl'>0.1</span>,
-  trim = <span class='fl'>0.1</span>,
-  verbose = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>,
-  rank_by = <span class='kw'>NULL</span>,
-  select_by = <span class='kw'>NULL</span>,
-  rank_order = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ordered"</span>, <span class='st'>"descending"</span>, <span class='st'>"ascending"</span>),
-  group_by = <span class='kw'>NULL</span>,
-  biased_by = <span class='kw'>NULL</span>,
-  xmeta. = <span class='kw'>NULL</span>,
-  .parallel = <span class='fl'>FALSE</span>,
-  BPPARAM = <span class='fu'>bpparam</span>()
-)</pre>
+    <pre class="usage"><span class='fu'>multiGSEA</span><span class='op'>(</span>
+  <span class='va'>gsd</span>,
+  <span class='va'>x</span>,
+  design <span class='op'>=</span> <span class='cn'>NULL</span>,
+  contrast <span class='op'>=</span> <span class='cn'>NULL</span>,
+  methods <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use.treat <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  feature.min.logFC <span class='op'>=</span> <span class='kw'>if</span> <span class='op'>(</span><span class='va'>use.treat</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log2</a></span><span class='op'>(</span><span class='fl'>1.25</span><span class='op'>)</span> <span class='kw'>else</span> <span class='fl'>1</span>,
+  feature.max.padj <span class='op'>=</span> <span class='fl'>0.1</span>,
+  trim <span class='op'>=</span> <span class='fl'>0.1</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>,
+  rank_by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  select_by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rank_order <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ordered"</span>, <span class='st'>"descending"</span>, <span class='st'>"ascending"</span><span class='op'>)</span>,
+  group_by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  biased_by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  xmeta. <span class='op'>=</span> <span class='cn'>NULL</span>,
+  .parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>bpparam</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -334,16 +334,16 @@ more information. The multiGSEA <code>use.treat</code>, <code>feature.min.logFC<
 funciton.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'>multiGSEA</span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>,
-                methods=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'camera'</span>, <span class='st'>'fry'</span>),
+    <pre class="examples"><div class='input'><span class='va'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>mg</span> <span class='op'>&lt;-</span> <span class='fu'>multiGSEA</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='va'>vm</span>, <span class='va'>vm</span><span class='op'>$</span><span class='va'>design</span>, <span class='st'>'tumor'</span>,
+                methods<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'camera'</span>, <span class='st'>'fry'</span><span class='op'>)</span>,
                 <span class='co'># customzie camera parameter:</span>
-                inter.gene.cor = <span class='fl'>0.04</span>)
-<span class='fu'><a href='resultNames.html'>resultNames</a></span>(<span class='kw'>mg</span>)
-</div><div class='output co'>#&gt; [1] "camera" "fry"   </div><div class='input'><span class='kw'>res.camera</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span>(<span class='kw'>mg</span>, <span class='st'>'camera'</span>)
-<span class='kw'>res.fry</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span>(<span class='kw'>mg</span>, <span class='st'>'fry'</span>)
-<span class='kw'>res.all</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>results</a></span>(<span class='kw'>mg</span>)
+                inter.gene.cor <span class='op'>=</span> <span class='fl'>0.04</span><span class='op'>)</span>
+<span class='fu'><a href='resultNames.html'>resultNames</a></span><span class='op'>(</span><span class='va'>mg</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "camera" "fry"   </div><div class='input'><span class='va'>res.camera</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span><span class='op'>(</span><span class='va'>mg</span>, <span class='st'>'camera'</span><span class='op'>)</span>
+<span class='va'>res.fry</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>result</a></span><span class='op'>(</span><span class='va'>mg</span>, <span class='st'>'fry'</span><span class='op'>)</span>
+<span class='va'>res.all</span> <span class='op'>&lt;-</span> <span class='fu'><a href='resultNames.html'>results</a></span><span class='op'>(</span><span class='va'>mg</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

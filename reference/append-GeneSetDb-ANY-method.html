@@ -121,7 +121,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S4 method for GeneSetDb,ANY</span>
-<span class='fu'><a href='https://rdrr.io/r/base/append.html'>append</a></span>(<span class='kw'>x</span>, <span class='kw'>values</span>, after = <span class='fl'>NA</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/append.html'>append</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>values</span>, after <span class='op'>=</span> <span class='cn'>NA</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -142,9 +142,9 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>gdb1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>gdb2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='GeneSetDb-class.html'>GeneSetDb</a></span>(<span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDF</a></span>())
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span>(<span class='kw'>gdb1</span>, <span class='kw'>gdb2</span>)
+    <pre class="examples"><div class='input'><span class='va'>gdb1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>gdb2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='GeneSetDb-class.html'>GeneSetDb</a></span><span class='op'>(</span><span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDF</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span><span class='op'>(</span><span class='va'>gdb1</span>, <span class='va'>gdb2</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -148,30 +148,30 @@ metadata can be stored at the collection level using the
 <code>addCollectionMetadata()</code> function. More details are provided below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>collectionMetadata</span>(<span class='kw'>x</span>, <span class='kw'>collection</span>, <span class='kw'>name</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>collectionMetadata</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>collection</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>geneSetURL</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>j</span>, <span class='kw'>...</span>)
+<span class='fu'>geneSetURL</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span>, <span class='va'>j</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>geneSetCollectionURLfunction</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>...</span>)
+<span class='fu'>geneSetCollectionURLfunction</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>geneSetCollectionURLfunction</span>(<span class='kw'>x</span>, <span class='kw'>i</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
+<span class='fu'>geneSetCollectionURLfunction</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
 
-<span class='fu'>featureIdType</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>...</span>)
+<span class='fu'>featureIdType</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>featureIdType</span>(<span class='kw'>x</span>, <span class='kw'>i</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
+<span class='fu'>featureIdType</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
 
-<span class='fu'>org</span>(<span class='kw'>x</span>, <span class='kw'>i</span>, <span class='kw'>...</span>)
+<span class='fu'>org</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>org</span>(<span class='kw'>x</span>, <span class='kw'>i</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
+<span class='fu'>org</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>i</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
 
-<span class='fu'>addCollectionMetadata</span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>xcoll</span>,
-  <span class='kw'>xname</span>,
-  <span class='kw'>value</span>,
-  validate.value.fn = <span class='kw'>NULL</span>,
-  allow.add = <span class='fl'>TRUE</span>
-)</pre>
+<span class='fu'>addCollectionMetadata</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>xcoll</span>,
+  <span class='va'>xname</span>,
+  <span class='va'>value</span>,
+  validate.value.fn <span class='op'>=</span> <span class='cn'>NULL</span>,
+  allow.add <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -239,12 +239,12 @@ deeply wrong with the world</p></td>
 compound key and generates a URL for the gene set that the user can browse
 to for futher information. For instance, the
 <code>geneSetCollectionURLfunction()</code> for the MSigDB collections are defined
-like so:</p><pre><span class='kw'>url.fn</span> <span class='op'>&lt;-</span> <span class='fu'>function</span>(<span class='kw'>collection</span>, <span class='kw'>name</span>) {
-  <span class='kw'>url</span> <span class='op'>&lt;-</span> <span class='st'>'http://www.broadinstitute.org/gsea/msigdb/cards/%s.html'</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span>(<span class='kw'>url</span>, <span class='kw'>name</span>)
-}
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>)
-<span class='fu'>geneSetCollectionURLfunction</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>) <span class='op'>&lt;-</span> <span class='kw'>url.fn</span>
+like so:</p><pre><span class='va'>url.fn</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>collection</span>, <span class='va'>name</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>url</span> <span class='op'>&lt;-</span> <span class='st'>'http://www.broadinstitute.org/gsea/msigdb/cards/%s.html'</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span><span class='op'>(</span><span class='va'>url</span>, <span class='va'>name</span><span class='op'>)</span>
+<span class='op'>}</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span><span class='op'>(</span><span class='st'>'H'</span><span class='op'>)</span>
+<span class='fu'>geneSetCollectionURLfunction</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>url.fn</span>
 </pre>
 
 <p>In this way, a call to <code>geneSetURL(gdb, 'H', 'HALLMARK_ANGIOGENESIS')</code>
@@ -260,10 +260,10 @@ http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html.</p>
 be of the same type. Most often you'll probably be working with Entrez
 identifiers, simply because that's what most of the annotations work with.</p>
 <p>As such, you'd define that your collection uses geneset identifiers like
-so:</p><pre><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>)
-<span class='fu'>featureIdType</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>) <span class='op'>&lt;-</span> <span class='kw'>GSEABase</span>::<span class='fu'><a href='https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html'>ENSEMBLIdentifier</a></span>()
+so:</p><pre><span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span><span class='op'>(</span><span class='st'>'H'</span><span class='op'>)</span>
+<span class='fu'>featureIdType</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'>GSEABase</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html'>ENSEMBLIdentifier</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='co'>## or, equivalently (but you don't want to use this)</span>
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'id_type'</span>, <span class='kw'>GSEABase</span>::<span class='fu'><a href='https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html'>ENSEMBLIdentifier</a></span>())
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'id_type'</span>, <span class='fu'>GSEABase</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html'>ENSEMBLIdentifier</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
 </pre>
 
     <h2 class="hasAnchor" id="organism"><a class="anchor" href="#organism"></a>Organism</h2>
@@ -272,8 +272,8 @@ so:</p><pre><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span clas
 
 
 <p>You're going to want to keep track of the organism the experiments were run
-in that were used to define this collection of gene sets.</p><pre><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>)
-<span class='fu'>org</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>) <span class='op'>&lt;-</span> <span class='st'>'Homo_sapiens'</span>
+in that were used to define this collection of gene sets.</p><pre><span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span><span class='op'>(</span><span class='st'>'H'</span><span class='op'>)</span>
+<span class='fu'>org</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>'Homo_sapiens'</span>
 </pre>
 
     <h2 class="hasAnchor" id="adding-arbitrary-collectionmetadata"><a class="anchor" href="#adding-arbitrary-collectionmetadata"></a>Adding arbitrary collectionMetadata</h2>
@@ -286,32 +286,32 @@ in that were used to define this collection of gene sets.</p><pre><span class='k
 object to keep the one with the updated <code>collectionMetadata</code>. Although this
 function is exported, I imagine this being used mostly through predefined
 replace methods that use this as a utility function, such as the replacement
-methods for <code>org()</code>, and <code>featureIdType()</code>.</p><pre><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>)
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'foo'</span>, <span class='st'>'bar'</span>)
+methods for <code>org()</code>, and <code>featureIdType()</code>.</p><pre><span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span><span class='op'>(</span><span class='st'>'H'</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'foo'</span>, <span class='st'>'bar'</span><span class='op'>)</span>
 </pre>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span>(<span class='st'>'H'</span>)
+    <pre class="examples"><div class='input'><span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getMSigGeneSetDb.html'>getMSigGeneSetDb</a></span><span class='op'>(</span><span class='st'>'H'</span><span class='op'>)</span>
 
 <span class='co'>## Gene Set URLs</span>
-<span class='fu'>geneSetURL</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'HALLMARK_ADIPOGENESIS'</span>)
+<span class='fu'>geneSetURL</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'HALLMARK_ADIPOGENESIS'</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                                                                            H 
-#&gt; "http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ADIPOGENESIS.html" </div><div class='input'><span class='fu'>geneSetURL</span>(<span class='kw'>gdb</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'H'</span>, <span class='st'>'H'</span>),
-           <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'HALLMARK_ADIPOGENESIS'</span>, <span class='st'>'HALLMARK_ANGIOGENESIS'</span>))
+#&gt; "http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ADIPOGENESIS.html" </div><div class='input'><span class='fu'>geneSetURL</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'H'</span>, <span class='st'>'H'</span><span class='op'>)</span>,
+           <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'HALLMARK_ADIPOGENESIS'</span>, <span class='st'>'HALLMARK_ANGIOGENESIS'</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                                                                            H 
 #&gt; "http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ADIPOGENESIS.html" 
 #&gt;                                                                            H 
 #&gt; "http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_ANGIOGENESIS.html" </div><div class='input'>
 <span class='co'>## feature_id TYpe</span>
-<span class='fu'>featureIdType</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>)
+<span class='fu'>featureIdType</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; geneIdType: ENSEMBL</div><div class='input'>
 <span class='co'>## Organism</span>
-<span class='fu'>org</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>)
+<span class='fu'>org</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] "Homo_sapiens"</div><div class='input'>
 <span class='co'>## Arbitrary metadata</span>
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'foo'</span>, <span class='st'>'bar'</span>)
-<span class='kw'>cmh</span> <span class='op'>&lt;-</span> <span class='fu'>collectionMetadata</span>(<span class='kw'>gdb</span>, <span class='st'>'H'</span>) <span class='co'>## print this to see</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'>addCollectionMetadata</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span>, <span class='st'>'foo'</span>, <span class='st'>'bar'</span><span class='op'>)</span>
+<span class='va'>cmh</span> <span class='op'>&lt;-</span> <span class='fu'>collectionMetadata</span><span class='op'>(</span><span class='va'>gdb</span>, <span class='st'>'H'</span><span class='op'>)</span> <span class='co'>## print this to see</span>
 </div><div class='output co'>#&gt; <span class='warning'>Warning: The collectionMetadata has a list column ('value'). This may not play well with data.frame based operation. Consider returning as a data.table by setting `as.dt = TRUE`</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -134,27 +134,27 @@ you must reorder the rows of the annotation data.frame, ie.
 <code>ranno.df &lt;- ranno.df[rownames(out@matrix),]</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>mgheatmap</span>(
-  <span class='kw'>x</span>,
-  gdb = <span class='kw'>NULL</span>,
-  col = <span class='kw'>NULL</span>,
-  aggregate.by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"ewm"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span>),
-  split = <span class='fl'>TRUE</span>,
-  scores = <span class='kw'>NULL</span>,
-  gs.order = <span class='kw'>NULL</span>,
-  name = <span class='kw'>NULL</span>,
-  rm.collection.prefix = <span class='fl'>TRUE</span>,
-  rm.dups = <span class='fl'>FALSE</span>,
-  recenter = <span class='fl'>FALSE</span>,
-  rescale = <span class='fl'>FALSE</span>,
-  center = <span class='fl'>TRUE</span>,
-  scale = <span class='fl'>TRUE</span>,
-  rename.rows = <span class='kw'>NULL</span>,
-  zero_center_colramp = <span class='kw'>NULL</span>,
-  zlim = <span class='kw'>NULL</span>,
-  transpose = <span class='fl'>FALSE</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mgheatmap</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  gdb <span class='op'>=</span> <span class='cn'>NULL</span>,
+  col <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aggregate.by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"none"</span>, <span class='st'>"ewm"</span>, <span class='st'>"ewz"</span>, <span class='st'>"zscore"</span><span class='op'>)</span>,
+  split <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  scores <span class='op'>=</span> <span class='cn'>NULL</span>,
+  gs.order <span class='op'>=</span> <span class='cn'>NULL</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rm.collection.prefix <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  rm.dups <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  recenter <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  rescale <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  center <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  scale <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  rename.rows <span class='op'>=</span> <span class='cn'>NULL</span>,
+  zero_center_colramp <span class='op'>=</span> <span class='cn'>NULL</span>,
+  zlim <span class='op'>=</span> <span class='cn'>NULL</span>,
+  transpose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -296,7 +296,7 @@ is the name you want to rename that to. There is an example of this in
 the "Examples" section here.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://github.com/jokergoo/ComplexHeatmap'>ComplexHeatmap</a></span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/jokergoo/ComplexHeatmap'>ComplexHeatmap</a></span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'>Loading required package: grid</span></div><div class='output co'>#&gt; <span class='message'>========================================</span>
 #&gt; <span class='message'>ComplexHeatmap version 2.4.3</span>
 #&gt; <span class='message'>Bioconductor page: http://bioconductor.org/packages/ComplexHeatmap/</span>
@@ -309,24 +309,24 @@ the "Examples" section here.</p>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>This message can be suppressed by:</span>
 #&gt; <span class='message'>  suppressPackageStartupMessages(library(ComplexHeatmap))</span>
-#&gt; <span class='message'>========================================</span></div><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>()
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>col.anno</span> <span class='op'>&lt;-</span> <span class='kw'>ComplexHeatmap</span>::<span class='fu'><a href='https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html'>HeatmapAnnotation</a></span>(
-  df = <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>targets</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cancer_Status"</span>, <span class='st'>"PAM50subtype"</span>)],
-  col = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-    Cancer_Status = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(normal = <span class='st'>"grey"</span>, tumor = <span class='st'>"red"</span>),
-    PAM50subtype = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Basal = <span class='st'>"purple"</span>, Her2 = <span class='st'>"green"</span>, LumA = <span class='st'>"orange"</span>)))
-<span class='kw'>mgh</span> <span class='op'>&lt;-</span> <span class='fu'>mgheatmap</span>(<span class='kw'>vm</span>, <span class='kw'>gdb</span>, aggregate.by = <span class='st'>"ewm"</span>, split=<span class='fl'>TRUE</span>,
-                 top_annotation = <span class='kw'>col.anno</span>, show_column_names = <span class='fl'>FALSE</span>,
-                 column_title = <span class='st'>"Gene Set Activity in BRCA subset"</span>)
+#&gt; <span class='message'>========================================</span></div><div class='input'><span class='va'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>col.anno</span> <span class='op'>&lt;-</span> <span class='fu'>ComplexHeatmap</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html'>HeatmapAnnotation</a></span><span class='op'>(</span>
+  df <span class='op'>=</span> <span class='va'>vm</span><span class='op'>$</span><span class='va'>targets</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cancer_Status"</span>, <span class='st'>"PAM50subtype"</span><span class='op'>)</span><span class='op'>]</span>,
+  col <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+    Cancer_Status <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>normal <span class='op'>=</span> <span class='st'>"grey"</span>, tumor <span class='op'>=</span> <span class='st'>"red"</span><span class='op'>)</span>,
+    PAM50subtype <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Basal <span class='op'>=</span> <span class='st'>"purple"</span>, Her2 <span class='op'>=</span> <span class='st'>"green"</span>, LumA <span class='op'>=</span> <span class='st'>"orange"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>mgh</span> <span class='op'>&lt;-</span> <span class='fu'>mgheatmap</span><span class='op'>(</span><span class='va'>vm</span>, <span class='va'>gdb</span>, aggregate.by <span class='op'>=</span> <span class='st'>"ewm"</span>, split<span class='op'>=</span><span class='cn'>TRUE</span>,
+                 top_annotation <span class='op'>=</span> <span class='va'>col.anno</span>, show_column_names <span class='op'>=</span> <span class='cn'>FALSE</span>,
+                 column_title <span class='op'>=</span> <span class='st'>"Gene Set Activity in BRCA subset"</span><span class='op'>)</span>
 
 <span class='co'># Maybe you want the rownames of the matrix to use spaces instead of "_"</span>
-<span class='kw'>rr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='geneSets.html'>geneSets</a></span>(<span class='kw'>gdb</span>)[, <span class='st'>"name"</span>, drop = <span class='fl'>FALSE</span>]
-<span class='kw'>rr</span><span class='op'>$</span><span class='kw'>newname</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span>(<span class='st'>"_"</span>, <span class='st'>" "</span>, <span class='kw'>rr</span><span class='op'>$</span><span class='kw'>name</span>)
-<span class='kw'>mg2</span> <span class='op'>&lt;-</span> <span class='fu'>mgheatmap</span>(<span class='kw'>vm</span>, <span class='kw'>gdb</span>, aggregate.by=<span class='st'>'ewm'</span>, split=<span class='fl'>TRUE</span>,
-                 top_annotation = <span class='kw'>col.anno</span>, show_column_names = <span class='fl'>FALSE</span>,
-                 column_title = <span class='st'>"Gene Set Activity in BRCA subset"</span>,
-                 rename.rows = <span class='kw'>rr</span>)
+<span class='va'>rr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='geneSets.html'>geneSets</a></span><span class='op'>(</span><span class='va'>gdb</span><span class='op'>)</span><span class='op'>[</span>, <span class='st'>"name"</span>, drop <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>]</span>
+<span class='va'>rr</span><span class='op'>$</span><span class='va'>newname</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='op'>(</span><span class='st'>"_"</span>, <span class='st'>" "</span>, <span class='va'>rr</span><span class='op'>$</span><span class='va'>name</span><span class='op'>)</span>
+<span class='va'>mg2</span> <span class='op'>&lt;-</span> <span class='fu'>mgheatmap</span><span class='op'>(</span><span class='va'>vm</span>, <span class='va'>gdb</span>, aggregate.by<span class='op'>=</span><span class='st'>'ewm'</span>, split<span class='op'>=</span><span class='cn'>TRUE</span>,
+                 top_annotation <span class='op'>=</span> <span class='va'>col.anno</span>, show_column_names <span class='op'>=</span> <span class='cn'>FALSE</span>,
+                 column_title <span class='op'>=</span> <span class='st'>"Gene Set Activity in BRCA subset"</span>,
+                 rename.rows <span class='op'>=</span> <span class='va'>rr</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

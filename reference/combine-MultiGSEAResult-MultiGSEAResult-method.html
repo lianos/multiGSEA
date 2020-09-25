@@ -123,7 +123,7 @@ existing one. <code>append</code> would be more appropriate, but ...</p>
     </div>
 
     <pre class="usage"><span class='co'># S4 method for MultiGSEAResult,MultiGSEAResult</span>
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, rename.x = <span class='kw'>NULL</span>, rename.y = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, rename.x <span class='op'>=</span> <span class='cn'>NULL</span>, rename.y <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,9 +165,9 @@ immediately after they each finish (ie. in combination with the promises
 package).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>mg1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
-<span class='kw'>mg2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span>()
-<span class='kw'>mgc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span>(<span class='kw'>mg1</span>, <span class='kw'>mg2</span>)
+    <pre class="examples"><div class='input'><span class='va'>mg1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>mg2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleMultiGSEAResult</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>mgc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/combine.html'>combine</a></span><span class='op'>(</span><span class='va'>mg1</span>, <span class='va'>mg2</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

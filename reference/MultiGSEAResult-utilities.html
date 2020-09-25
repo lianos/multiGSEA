@@ -120,7 +120,7 @@
     <p>Fetches the GeneSetDb from MultiGSEAResult</p>
     </div>
 
-    <pre class="usage"><span class='fu'>geneSetDb</span>(<span class='kw'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>geneSetDb</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -136,10 +136,10 @@
     <p>The <code>GeneSetDb</code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span>(do.voom=<span class='fl'>TRUE</span>)
-<span class='kw'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span>()
-<span class='kw'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span>(<span class='kw'>gdb</span>, <span class='kw'>vm</span>, <span class='kw'>vm</span><span class='op'>$</span><span class='kw'>design</span>, <span class='st'>'tumor'</span>, methods=<span class='kw'>NULL</span>)
-<span class='fu'>geneSetDb</span>(<span class='kw'>mg</span>)
+    <pre class="examples"><div class='input'><span class='va'>vm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleExpressionSet</a></span><span class='op'>(</span>do.voom<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='va'>gdb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='exampleExpressionSet.html'>exampleGeneSetDb</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>mg</span> <span class='op'>&lt;-</span> <span class='fu'><a href='multiGSEA.html'>multiGSEA</a></span><span class='op'>(</span><span class='va'>gdb</span>, <span class='va'>vm</span>, <span class='va'>vm</span><span class='op'>$</span><span class='va'>design</span>, <span class='st'>'tumor'</span>, methods<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span>
+<span class='fu'>geneSetDb</span><span class='op'>(</span><span class='va'>mg</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; =================================================================================
 #&gt; GeneSetDb with 76 defined genesets across 3 collections (76 gene sets are active)
 #&gt;   Conformed: yes
