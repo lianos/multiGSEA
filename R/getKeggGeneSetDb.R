@@ -22,7 +22,7 @@
 #' mouse.ens <- getKeggGeneSetDb("mouse", id.type = "ensembl")
 #' }
 getKeggGeneSetDb <- function(species = "human",
-                             id.type = c("entrez", "ensembl"),
+                             id.type = c("ensembl", "entrez"),
                              database = "pathway",
                              idxref = NULL, ...) {
   sinfo <- species_info(species)
@@ -33,7 +33,7 @@ getKeggGeneSetDb <- function(species = "human",
   gdb
 }
 
-.get_kegg_pathway_db <- function(sinfo, id.type = c("entrez", "ensembl"),
+.get_kegg_pathway_db <- function(sinfo, id.type = c("ensembl", "entrez"),
                                  idxref = NULL, ...) {
   if (FALSE) {
     species.code <- "hsa" # human
