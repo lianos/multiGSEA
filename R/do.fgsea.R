@@ -6,15 +6,18 @@ validate.x.fgsea <- validate.X
 
 #' Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea
 #'
-#' Techinically this doesn't require a full design to run, but it proves
-#' expedient for a quick turnaround.
-#'
-#' Note that fgsea isn't added to import or suggests because rescomp's
-#' compiler can't handle this yet.
-#'
 #' fgsea expects the pathways to be describes as a list of character vectors
 #' where the vectors are gene ids, and the names of the pre-ranked vector
 #' correspond to those IDs
+#'
+#' Deafults fgsea functionality was changed to [fgsea::fgseaMultilevel()] in
+#' 1.13.2 and the default parameters here reflect that. If you want to use the
+#' original "fgseaSimple" you have to pass in `use.fgsea.simple = TRUE` in your
+#' `multiGSEA()` call.
+#'
+#' `minSize` and `maxSize` are already set by the `conform` logic that was
+#' specified in the call to [multiGSEA()] via the `min.gs.size` and
+#' `max.gs.size` parameters.
 #'
 #' **This function is not meant to be called directly.** It should only be
 #' called internally within [multiGSEA()].
@@ -23,11 +26,16 @@ validate.x.fgsea <- validate.X
 #' @inheritParams calculateIndividualLogFC
 #' @param ... arguments to pass down into [calculateIndividualLogFC()]
 #' @return A data.table of fgsea results.
-do.fgsea <- function(gsd, x, design, contrast=ncol(design),
-                     minSize=15, maxSize=15, nperm=10000, gseaParam=1,
-                     score.by=c('t', 'logFC', 'pval'), logFC=NULL,
-                     gs.idxs=as.list(gsd, active.only=TRUE, value='x.idx'),
+do.fgsea <- function(gsd, x, design, contrast = ncol(design),
+                     sampleSize = 101, eps = 1e-10,
+                     scoreType = c("std", "pos", "neg"),
+                     nproc = 0, gseaParam = 1, nPermSimple = 1000,
+                     absEps = NULL, use.fgsea.simple = FALSE,
+                     score.by = c('t', 'logFC', 'pval'), logFC = NULL,
+                     gs.idxs = as.list(gsd, active.only=TRUE, value='x.idx'),
                      ...) {
+
+  scoreType <- match.arg(scoreType)
   score.by <- match.arg(score.by)
   if (!requireNamespace('fgsea', quietly=TRUE)) {
     stop("The Bioconductor fgsea package is required for this functionality")
@@ -45,8 +53,21 @@ do.fgsea <- function(gsd, x, design, contrast=ncol(design),
   ## fgsea function wans a list of gene identifiers for pathway definition
   pathways <- lapply(gs.idxs, function(idxs) names(stats)[idxs])
 
-  res <- fgsea::fgsea(pathways, stats, nperm, minSize=gs.size[1L],
-                      maxSize=gs.size[2L], gseaParam=gseaParam)
+  if (isTRUE(use.fgsea.simple)) {
+    res <- fgsea::fgseaSimple(
+      pathways, stats, nperm = nPermSimple,
+      minSize = gs.size[1L], maxSize = gs.size[2L],
+      scoreType = scoreType, nproc = nproc,
+      gseaParam = gseaParam)
+  } else {
+    res <- fgsea::fgseaMultilevel(
+      pathways, stats, sampleSize = sampleSize,
+      minSize = gs.size[1L], maxSize = gs.size[2L],
+      eps = eps, scoreType = scoreType, nproc = nproc,
+      gseaParam = gseaParam,
+      # nPermSimple = nPermSimple, # TODO: uncomment for next version of bioc
+      absEps = absEps)
+  }
   setattr(res, 'rawresult', TRUE)
 }
 

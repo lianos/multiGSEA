@@ -1,7 +1,6 @@
 context("fgsea")
 
 test_that("multiGSEA calculate t and preranked t match fgsea results", {
-  nperm <- 1000
   gseaParam <- 1
 
   vm <- exampleExpressionSet()
@@ -10,8 +9,8 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
   # Since Bioc 3.5, running fgsea warns about ties in preranked stats
   set.seed(123)
   expect_warning({
-    mgt <- multiGSEA(gdb, vm, vm$design, 'tumor', 'fgsea', nperm=nperm,
-                     gseaParam=gseaParam, score.by='t')
+    mgt <- multiGSEA(gdb, vm, vm$design, 'tumor', 'fgsea', score.by = 't',
+                     nPermSimple = nperm, gseaParam = gseaParam)
   }, "ties")
   mgres <- mgt %>%
     result("fgsea") %>%
@@ -27,8 +26,9 @@ test_that("multiGSEA calculate t and preranked t match fgsea results", {
 
   set.seed(123)
   expect_warning({
-    rest <- fgsea::fgsea(gs.idxs, ranks.t, nperm, min.max[1], min.max[2],
-                         gseaParam=gseaParam)
+    rest <- fgsea::fgsea(gs.idxs, ranks.t,
+                         minSize = min.max[1], maxSize = min.max[2],
+                         gseaParam = gseaParam)
   }, "ties")
 
   expect_equal(nrow(mgres), nrow(rest))
