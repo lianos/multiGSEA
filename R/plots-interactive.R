@@ -107,14 +107,15 @@ iplot <- function(x, y, j, value = "logFC",
 #'
 #' @noRd
 iplot.gsea.plot <- function(lfc, geneset, rank_by, title, gseaParam = 1,
-                            ticksSize = 0.2, ..., .default_impl = FALSE) {
+                            ticksSize = 0.2, ..., .plot_default = FALSE,
+                            .plot_static = FALSE) {
   if (!requireNamespace("fgsea")) stop("'fgsea' package required")
 
   # Setup params so we can just copy and paste fgsea::plotEnrichment code
   pathway <- geneset[["feature_id"]]
   stats <- setNames(lfc[[rank_by]], lfc[["feature_id"]])
 
-  if (.default_impl) {
+  if (.plot_default) {
     return(fgsea::plotEnrichment(pathway, stats, gseaParam, ticksSize))
   }
 
@@ -212,6 +213,13 @@ iplot.gsea.plot <- function(lfc, geneset, rank_by, title, gseaParam = 1,
       x = xlabel,
       y = "enrichment score",
       title = title)
+
+  if (!.plot_static) {
+    g <- plotly::ggplotly(g, tooltip = "label") %>%
+      layout(dragmode="select") %>%
+      config(displaylogo=FALSE)
+  }
+
   g
 }
 
