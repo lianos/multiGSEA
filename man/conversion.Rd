@@ -49,7 +49,7 @@ but not many other tools accept gene set definitions in this format.
 \item \code{as.list(gdb)}: A named list of feature identifiers. This is the format
 that many of the limma gene set testing methods use
 \item \code{as(gdb, "GeneSetCollection")}: Convert to a
-\code{\link[GSEABase:GeneSetCollection]{GSEABase::GeneSetCollection()}} object.
+\code{\link[GSEABase:GeneSetCollection-methods]{GSEABase::GeneSetCollection()}} object.
 }
 }
 \details{

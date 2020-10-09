@@ -78,7 +78,7 @@ level.
 
 Types of metadata being referred to could be things like the organism
 that a batch of gene sets were defined in, the type of feature identifiers
-that a collection of gene sets are using (ie. \code{\link[GSEABase:EntrezIdentifier]{GSEABase::EntrezIdentifier()}})
+that a collection of gene sets are using (ie. \code{\link[GSEABase:GeneIdentifierType-constructors]{GSEABase::EntrezIdentifier()}})
 or a URL pattern that combines the collection,name compound key that one
 can browse to in order to find out more information about the gene set.
 

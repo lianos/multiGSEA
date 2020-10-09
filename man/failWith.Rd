@@ -21,7 +21,7 @@ failWith(
 \item{frame}{the frame to evaluate the expression in}
 
 \item{message}{the error message to display if \code{expr} fails. Deafults
-to \code{\link[base:geterrmessage]{base::geterrmessage()}}}
+to \code{\link[base:stop]{base::geterrmessage()}}}
 
 \item{silent}{if \code{TRUE}, sends the error message to \code{\link[=msg]{msg()}}}
 

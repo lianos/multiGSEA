@@ -9,10 +9,14 @@ do.fgsea(
   x,
   design,
   contrast = ncol(design),
-  minSize = 15,
-  maxSize = 15,
-  nperm = 10000,
+  sampleSize = 101,
+  eps = 1e-10,
+  scoreType = c("std", "pos", "neg"),
+  nproc = 0,
   gseaParam = 1,
+  nPermSimple = 1000,
+  absEps = NULL,
+  use.fgsea.simple = FALSE,
   score.by = c("t", "logFC", "pval"),
   logFC = NULL,
   gs.idxs = as.list(gsd, active.only = TRUE, value = "x.idx"),
@@ -42,16 +46,19 @@ Issue #11 (https://github.com/lianos/multiGSEA/issues/11).}
 A data.table of fgsea results.
 }
 \description{
-Techinically this doesn't require a full design to run, but it proves
-expedient for a quick turnaround.
-}
-\details{
-Note that fgsea isn't added to import or suggests because rescomp's
-compiler can't handle this yet.
-
 fgsea expects the pathways to be describes as a list of character vectors
 where the vectors are gene ids, and the names of the pre-ranked vector
 correspond to those IDs
+}
+\details{
+Deafults fgsea functionality was changed to \code{\link[fgsea:fgseaMultilevel]{fgsea::fgseaMultilevel()}} in
+1.13.2 and the default parameters here reflect that. If you want to use the
+original "fgseaSimple" you have to pass in \code{use.fgsea.simple = TRUE} in your
+\code{multiGSEA()} call.
+
+\code{minSize} and \code{maxSize} are already set by the \code{conform} logic that was
+specified in the call to \code{\link[=multiGSEA]{multiGSEA()}} via the \code{min.gs.size} and
+\code{max.gs.size} parameters.
 
 \strong{This function is not meant to be called directly.} It should only be
 called internally within \code{\link[=multiGSEA]{multiGSEA()}}.

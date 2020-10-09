@@ -6,18 +6,18 @@
 \usage{
 getReactomeGeneSetDb(
   species = "human",
-  rm.species.prefix = TRUE,
-  id.type = c("entrez", "ensembl")
+  id.type = c("entrez", "ensembl"),
+  rm.species.prefix = TRUE
 )
 }
 \arguments{
 \item{species}{the species to get pathay information for}
 
+\item{id.type}{\code{"entrez"} or \code{"ensembl"}}
+
 \item{rm.species.prefix}{pathways are provided with species prefixes from
 \code{reactome.db}, when \code{TRUE} (default), these are stripped from the gene set
 names.}
-
-\item{id.type}{\code{"entrez"} or \code{"ensembl"}}
 }
 \value{
 a reactome GeneSetDb object

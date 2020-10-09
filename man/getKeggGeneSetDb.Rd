@@ -6,7 +6,7 @@
 \usage{
 getKeggGeneSetDb(
   species = "human",
-  id.type = c("entrez", "ensembl"),
+  id.type = c("ensembl", "entrez"),
   database = "pathway",
   idxref = NULL,
   ...
@@ -25,7 +25,7 @@ you need to provide an idxref table that works with \code{\link[=remap_identifie
 A GeneSetDb of the kegg stuffs
 }
 \description{
-Uses \code{\link[limma:getGeneKEGGLinks]{limma::getGeneKEGGLinks()}} and \code{\link[limma:getKEGGPathwayNames]{limma::getKEGGPathwayNames()}}
+Uses \code{\link[limma:goana]{limma::getGeneKEGGLinks()}} and \code{\link[limma:goana]{limma::getKEGGPathwayNames()}}
 internally.
 }
 \details{

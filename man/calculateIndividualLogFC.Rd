@@ -43,7 +43,7 @@ Issue #11 (https://github.com/lianos/multiGSEA/issues/11).}
 the limma::eBayes()] function.}
 
 \item{trend.eBayes}{The value of the \code{trend} parameter to pass down to the
-\code{\link[limma:eBayes]{limma::eBayes()}} function.}
+\code{\link[limma:ebayes]{limma::eBayes()}} function.}
 
 \item{treat.lfc}{If this is numeric, this activates limma's "treat"
 functionality and tests for differential expression against this

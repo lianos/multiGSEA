@@ -37,7 +37,7 @@ Please refer to the multiGSEA vignette (\code{vignette("multiGSEA")}),
 description of the sematnics of this central data object.
 
 The GeneSetDb class serves the same purpose as the
-\code{\link[GSEABase:GeneSetCollection]{GSEABase::GeneSetCollection()}} class does: it acts as a centralized
+\code{\link[GSEABase:GeneSetCollection-methods]{GSEABase::GeneSetCollection()}} class does: it acts as a centralized
 object to hold collections of Gene Sets. The reason for its existence is
 because there are things that I wanted to know about my gene set
 collections that weren't easily inferred from what is essentially a
@@ -59,7 +59,7 @@ are genes/features in that set.
 The \code{GeneSetDb} tracks metadata about genesets at \strong{the collection}
 level. This means that we assume that all of the \code{feature_id}'s used
 within a collection use the same type of feature identifier (such as
-a \code{\link[GSEABase:EntrezIdentifier]{GSEABase::EntrezIdentifier()}}, were defined in the same organism,
+a \code{\link[GSEABase:GeneIdentifierType-constructors]{GSEABase::EntrezIdentifier()}}, were defined in the same organism,
 etc.
 
 \strong{Please refer to the "GeneSetDb" section of the vignette} for more
@@ -93,7 +93,7 @@ The \code{GeneSetDb()} constructor is sufficiently flexible enough to create
 a \code{GeneSetDb} object from a variety of formats that are commonly used
 in the bioconductor echosystem, such as:
 \itemize{
-\item \code{\link[GSEABase:GeneSetCollection]{GSEABase::GeneSetCollection()}}: If you already have a \code{GeneSetCollection}
+\item \code{\link[GSEABase:GeneSetCollection-methods]{GSEABase::GeneSetCollection()}}: If you already have a \code{GeneSetCollection}
 on your hands, you can simply pass it to the \code{GeneSetDb()} constructor.
 \item list of ids: This format is commonly used to define gene sets in the
 edgeR/limma universe for testing with camera, roast, romer, etc. The names

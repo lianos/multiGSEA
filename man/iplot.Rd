@@ -9,7 +9,7 @@ iplot(
   y,
   j,
   value = "logFC",
-  type = c("density", "boxplot"),
+  type = c("density", "gsea", "boxplot"),
   tools = c("wheel_zoom", "box_select", "reset", "save"),
   main = NULL,
   with.legend = TRUE,
@@ -63,5 +63,8 @@ You can visualize this behavior via a \code{type = "density"} plot, or a
 }
 \examples{
 mgr <- exampleMultiGSEAResult()
-iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"))
+iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"),
+      type = "density")
+iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"),
+      type = "gsea")
 }

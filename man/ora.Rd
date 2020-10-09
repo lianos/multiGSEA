@@ -43,9 +43,9 @@ CRAN package is required when this is not NULL.}
 
 \item{universe}{Defaults to all elements in \code{dat[["feature_id"]]}.}
 
-\item{restrict.universe}{See same parameter in \code{\link[limma:kegga]{limma::kegga()}}}
+\item{restrict.universe}{See same parameter in \code{\link[limma:goana]{limma::kegga()}}}
 
-\item{plot.bias}{See \code{plot} parameter in \code{\link[limma:kegga]{limma::kegga()}}. You can generate
+\item{plot.bias}{See \code{plot} parameter in \code{\link[limma:goana]{limma::kegga()}}. You can generate
 this plot without running \code{ora} using the \code{\link[=plot_ora_bias]{plot_ora_bias()}},
 like so:
 \code{plot_ora_bias(dat, selected = selected, groups = groups, feature.bias = feature.bias)}}
@@ -57,7 +57,7 @@ stats for all selected features, and the remaingin \verb{P.*} columns are for
 the features specifed by \code{groups}.
 }
 \description{
-This function wraps \code{\link[limma:kegga]{limma::kegga()}} to perform biased overrepresntation
+This function wraps \code{\link[limma:goana]{limma::kegga()}} to perform biased overrepresntation
 analysis over gene set collection stored in a GeneSetDb (\code{gsd}) object. Its
 easiest to use this function when the biases and selection criteria are
 stored as columns of the input data.frame \code{dat}.
@@ -70,7 +70,7 @@ for these errors and landing here:
 https://support.bioconductor.org/p/65789/#65914
 
 The meat and potatoes of this function's code was extracted from
-\code{\link[limma:kegga]{limma::kegga()}}, written by Gordon Smyth and Yifang Hu.
+\code{\link[limma:goana]{limma::kegga()}}, written by Gordon Smyth and Yifang Hu.
 
 Note that the BiasedUrn CRAN package needs to be installed to support biased
 enrichment testing
