@@ -183,16 +183,12 @@ geneSetsStats <- function(x, feature.min.logFC=1, feature.max.padj=0.10,
   stopifnot(is(x, 'MultiGSEAResult'))
   lfc <- logFC(x, as.dt=TRUE)
 
-  # reannotate.significance was added to better accomodate annotations that
+  # reannotate.significance was added to better accommodate annotations that
   # were passed in the xmeta. data.frame through the multiGSEA call. You
   # should revisit this when you revisit how data.frame input support superseds
   # the xmeta. hacks we have in place now.
-  annotate.lfc <- !missing(feature.min.logFC) ||
-    !missing(feature.max.padj)
-  annotate.lfc <- annotate.lfc && reannotate.significance
-  annotate.lfc <- annotate.lfc ||
-    !all(c('significant', 'direction') %in% names(lfc))
-
+  annotate.lfc <- !all(c('significant', 'direction') %in% names(lfc))
+  annotate.lfc <- annotate.lfc || reannotate.significance
 
   is.ttest <- "logFC" %in% names(lfc)
   if (annotate.lfc) {
