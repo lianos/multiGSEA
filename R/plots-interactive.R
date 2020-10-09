@@ -36,9 +36,12 @@
 #' @return the ploty plot ojbect
 #' @examples
 #' mgr <- exampleMultiGSEAResult()
-#' iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"))
+#' iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"),
+#'       type = "density")
+#' iplot(mgr, "c2", "BURTON_ADIPOGENESIS_PEAK_AT_2HR", c("t-statistic" = "t"),
+#'       type = "gsea")
 iplot <- function(x, y, j, value = "logFC",
-                  type=c('density', 'boxplot'),
+                  type=c("density", "gsea", "boxplot"),
                   tools=c('wheel_zoom', 'box_select', 'reset', 'save'),
                   main=NULL, with.legend=TRUE,
                   shiny_source='mggenes', width=NULL, height=NULL,
@@ -56,6 +59,11 @@ iplot <- function(x, y, j, value = "logFC",
 
   if (missing(main)) {
     main <- sprintf("%s (%s)", j, y)
+  }
+
+  if (type == "gsea") {
+    gset <- geneSet(x, collection = y, name = j)
+    return(iplot.gsea.plot(lfc, gset, rank_by = value, title = main, ...))
   }
 
   # silence R CMD check NOTEs
@@ -91,6 +99,121 @@ iplot <- function(x, y, j, value = "logFC",
 }
 
 ## plotly ======================================================================
+
+#' Reimplementation of fgsea::plotEnrichment so we can add more interactive
+#' bits, and also to highlight genes on the leading edge, and what not.
+#'
+#' Lots of code here is copied from fgsea
+#'
+#' @noRd
+iplot.gsea.plot <- function(lfc, geneset, rank_by, title, gseaParam = 1,
+                            ticksSize = 0.2, ..., .default_impl = FALSE) {
+  if (!requireNamespace("fgsea")) stop("'fgsea' package required")
+
+  # Setup params so we can just copy and paste fgsea::plotEnrichment code
+  pathway <- geneset[["feature_id"]]
+  stats <- setNames(lfc[[rank_by]], lfc[["feature_id"]])
+
+  if (.default_impl) {
+    return(fgsea::plotEnrichment(pathway, stats, gseaParam, ticksSize))
+  }
+
+  # fgsea::plotEnrichment ......................................................
+  rnk <- rank(-stats)
+  ord <- order(rnk)
+
+  statsAdj <- stats[ord]
+  statsAdj <- sign(statsAdj) * (abs(statsAdj) ^ gseaParam)
+  statsAdj <- statsAdj / max(abs(statsAdj))
+
+  pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
+  pathway <- sort(pathway)
+
+  gseaRes <- fgsea::calcGseaStat(statsAdj, selectedStats = pathway,
+                                  returnAllExtremes = TRUE)
+
+  bottoms <- gseaRes$bottoms
+  tops <- gseaRes$tops
+
+  n <- length(statsAdj)
+  xs <- as.vector(rbind(pathway - 1, pathway))
+  ys <- as.vector(rbind(bottoms, tops))
+  toPlot <- data.frame(x=c(0, xs, n + 1), y=c(0, ys, 0))
+
+  diff <- (max(tops) - min(bottoms)) / 8
+
+  # Getting rid of NOTEs
+  x <- y <- NULL
+
+  # Creates a data.frame to use for the line segments drawn for each  # :custom
+  # feature. This allows us to add useful hover information.          # :custom
+  features <- data.frame(                                             # :custom
+    x = pathway,                                                      # :custom
+    y = -diff / 2,                                                    # :custom
+    xend = pathway,                                                   # :custom
+    yend = diff / 2,                                                  # :custom
+    feature_id = names(statsAdj)[pathway])                            # :custom
+
+  add.labels <- c("feature_id", "statistic", "statistic_adj")         # :custom
+  xref <- match(features[["feature_id"]], geneset[["feature_id"]])    # :custom
+
+  features[["statistic"]] <- geneset[[rank_by]][xref]                 # :custom
+  features[["statistic_adj"]] <- unname(statsAdj)[pathway]            # :custom
+
+  label <- intersect(c("symbol", "name"), colnames(geneset))          # :custom
+  if (length(label)) {                                                # :custom
+    features[["name"]] <- geneset[[label[1L]]][xref]                  # :custom
+    add.labels <- c("name", add.labels)                               # :custom
+  }
+
+  stat.cols <- c("x", "y", "xend", "yend")                            # :custom
+  for (cname in setdiff(colnames(features), stat.cols))   {           # :custom
+    if (is.numeric(features[[cname]])) {                              # :custom
+      features[[cname]] <- sprintf("%0.3f", features[[cname]])        # :custom
+    } else {
+      features[[cname]] <- as.character(features[[cname]])            # :custom
+    }
+  }
+
+  features[["label"]] <- sapply(1:nrow(features), function(i) {       # :custom
+    f <- features[i, add.labels]                                      # :custom
+    paste(names(f), ":", unname(f[1,]), collapse = "<br>")            # :custom
+  })
+
+  if (is.null(names(rank_by))) {                                      # :custom
+    xlabel <- sprintf("rank\n(by: %s)", rank_by)                      # :custom
+  } else {
+    xlabel <- sprintf("rank\n(by: %s)", names(rank_by))               # :custom
+  }
+
+  g <- ggplot2::ggplot(toPlot, ggplot2::aes(x=x, y=y)) +
+    ggplot2::geom_point(color = "green", size = 0.1) +
+    ggplot2::geom_hline(yintercept = max(tops), colour = "red",
+                        linetype = "dashed") +
+    ggplot2::geom_hline(yintercept = min(bottoms), colour = "red",
+                        linetype = "dashed") +
+    ggplot2::geom_hline(yintercept = 0, colour = "black") +
+    ggplot2::geom_line(color = "green") + theme_bw() +
+    # ggplot2::geom_segment(
+    #   data = data.frame(x = pathway, label = ),
+    #   mapping = ggplot2::aes(x = x, y = -diff / 2, xend = x, yend = diff / 2),
+    #   size = ticksSize) +
+    suppressWarnings({
+      ggplot2::geom_segment(                                          # :custom
+        data = features,                                              # :custom
+        mapping = ggplot2::aes(                                       # :custom
+          x = x, y = y, xend = xend, yend = yend, text = label),      # :custom
+        size = ticksSize)                                             # :custom
+    }) +
+    ggplot2::theme(
+      panel.border = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank()) +
+    ggplot2::labs(
+      x = xlabel,
+      y = "enrichment score",
+      title = title)
+  g
+}
 
 #' @noRd
 #' @importFrom plotly add_markers add_lines config layout plot_ly
