@@ -42,8 +42,9 @@
   
 
 <meta property="og:title" content="Runs GSEA on a pre-ranked list of differential expression statistcis with fgsea — do.fgsea" />
-<meta property="og:description" content="Techinically this doesn't require a full design to run, but it proves
-expedient for a quick turnaround." />
+<meta property="og:description" content="fgsea expects the pathways to be describes as a list of character vectors
+where the vectors are gene ids, and the names of the pre-ranked vector
+correspond to those IDs" />
 
 
 
@@ -75,7 +76,7 @@ expedient for a quick turnaround." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">multiGSEA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.17</span>
       </span>
     </div>
 
@@ -118,8 +119,9 @@ expedient for a quick turnaround." />
     </div>
 
     <div class="ref-description">
-    <p>Techinically this doesn't require a full design to run, but it proves
-expedient for a quick turnaround.</p>
+    <p>fgsea expects the pathways to be describes as a list of character vectors
+where the vectors are gene ids, and the names of the pre-ranked vector
+correspond to those IDs</p>
     </div>
 
     <pre class="usage"><span class='fu'>do.fgsea</span><span class='op'>(</span>
@@ -127,10 +129,14 @@ expedient for a quick turnaround.</p>
   <span class='va'>x</span>,
   <span class='va'>design</span>,
   contrast <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>design</span><span class='op'>)</span>,
-  minSize <span class='op'>=</span> <span class='fl'>15</span>,
-  maxSize <span class='op'>=</span> <span class='fl'>15</span>,
-  nperm <span class='op'>=</span> <span class='fl'>10000</span>,
+  sampleSize <span class='op'>=</span> <span class='fl'>101</span>,
+  eps <span class='op'>=</span> <span class='fl'>1e-10</span>,
+  scoreType <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"std"</span>, <span class='st'>"pos"</span>, <span class='st'>"neg"</span><span class='op'>)</span>,
+  nproc <span class='op'>=</span> <span class='fl'>0</span>,
   gseaParam <span class='op'>=</span> <span class='fl'>1</span>,
+  nPermSimple <span class='op'>=</span> <span class='fl'>1000</span>,
+  absEps <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use.fgsea.simple <span class='op'>=</span> <span class='cn'>FALSE</span>,
   score.by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"t"</span>, <span class='st'>"logFC"</span>, <span class='st'>"pval"</span><span class='op'>)</span>,
   logFC <span class='op'>=</span> <span class='cn'>NULL</span>,
   gs.idxs <span class='op'>=</span> <span class='fu'><a href='conversion.html'>as.list</a></span><span class='op'>(</span><span class='va'>gsd</span>, active.only <span class='op'>=</span> <span class='cn'>TRUE</span>, value <span class='op'>=</span> <span class='st'>"x.idx"</span><span class='op'>)</span>,
@@ -175,11 +181,13 @@ Issue #11 (https://github.com/lianos/multiGSEA/issues/11).</p></td>
     <p>A data.table of fgsea results.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Note that fgsea isn't added to import or suggests because rescomp's
-compiler can't handle this yet.</p>
-<p>fgsea expects the pathways to be describes as a list of character vectors
-where the vectors are gene ids, and the names of the pre-ranked vector
-correspond to those IDs</p>
+    <p>Deafults fgsea functionality was changed to <code><a href='https://rdrr.io/pkg/fgsea/man/fgseaMultilevel.html'>fgsea::fgseaMultilevel()</a></code> in
+1.13.2 and the default parameters here reflect that. If you want to use the
+original "fgseaSimple" you have to pass in <code>use.fgsea.simple = TRUE</code> in your
+<code><a href='multiGSEA.html'>multiGSEA()</a></code> call.</p>
+<p><code>minSize</code> and <code>maxSize</code> are already set by the <code>conform</code> logic that was
+specified in the call to <code><a href='multiGSEA.html'>multiGSEA()</a></code> via the <code>min.gs.size</code> and
+<code>max.gs.size</code> parameters.</p>
 <p><strong>This function is not meant to be called directly.</strong> It should only be
 called internally within <code><a href='multiGSEA.html'>multiGSEA()</a></code>.</p>
 
