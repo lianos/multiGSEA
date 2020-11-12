@@ -166,6 +166,11 @@ iplot.gsea.plot <- function(lfc, geneset, rank_by, title, gseaParam = 1,
     features[["name"]] <- geneset[[label[1L]]][xref]                  # :custom
     add.labels <- c("name", add.labels)                               # :custom
   }
+  add.xtra <- c("logFC", "t", "pval", "padj")
+  for (add.me in intersect(add.xtra, colnames(geneset))) {
+    features[[add.me]] <- geneset[[add.me]]
+    add.labels <- c(add.labels, add.me)
+  }
 
   stat.cols <- c("x", "y", "xend", "yend")                            # :custom
   for (cname in setdiff(colnames(features), stat.cols))   {           # :custom

@@ -1,7 +1,7 @@
 Package: multiGSEA
 Type: Package
 Title: A unified interface to a plethora of gene set enrichment analysis methods
-Version: 0.13.17
+Version: 1.1.99
 Authors@R: c(
     person("Steve", "Lianoglou", , "slianoglou@gmail.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("fnd"), comment = "2018+"),
@@ -18,7 +18,7 @@ Imports:
     ComplexHeatmap (>= 2.0),
     DelayedMatrixStats,
     msigdb.data,
-    limma, 
+    limma,
     edgeR (>= 3.18.1),
     ggplot2 (>= 2.2.0),
     GSEABase,
@@ -62,7 +62,7 @@ VignetteBuilder: knitr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Collate: 
+Collate:
     'AllClasses.R'
     'AllGenerics.R'
     'GeneSetDb-class.R'
